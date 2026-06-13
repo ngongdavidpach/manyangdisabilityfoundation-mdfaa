@@ -495,6 +495,105 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ onLogout, onNaviga
           </div>
         )}
 
+        {activeTab === 'settings' && (
+          <div className="space-y-8 max-w-2xl">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="font-bold text-base text-slate-900 flex items-center gap-2">
+                  <SettingsIcon className="w-4 h-4" /> Dashboard Settings
+                </h3>
+                <p className="text-xs text-slate-500 mt-1">Customize what shows on your dashboard. Saved to this device.</p>
+              </div>
+              <button
+                onClick={resetSettings}
+                className="text-xs font-bold text-slate-600 hover:text-slate-900 flex items-center gap-1.5 bg-slate-100 hover:bg-slate-200 px-3 py-2 rounded-lg"
+              >
+                <RotateCcw className="w-3.5 h-3.5" /> Reset
+              </button>
+            </div>
+
+            <section className="space-y-3">
+              <h4 className="text-xs font-bold text-slate-900 uppercase tracking-wide">Sections</h4>
+              {[
+                { key: 'showHeader', label: 'Profile header', desc: 'Show the gradient banner with your name and role.' },
+                { key: 'showKpis', label: 'KPI tiles', desc: 'Applications, completed, total giving, impact score.' },
+                { key: 'showRecentActivity', label: 'Recent activity', desc: 'Latest applications and donations on Overview.' },
+                { key: 'showNextSteps', label: 'Recommended next steps', desc: 'Suggested actions on Overview.' },
+              ].map(item => {
+                const checked = settings[item.key as keyof DashSettings] as boolean;
+                return (
+                  <label key={item.key} className="flex items-center justify-between gap-4 p-3 rounded-lg bg-slate-50 border border-slate-100 cursor-pointer">
+                    <div className="min-w-0">
+                      <span className="text-xs font-bold text-slate-900 block">{item.label}</span>
+                      <span className="text-[11px] text-slate-500">{item.desc}</span>
+                    </div>
+                    <input
+                      type="checkbox"
+                      className={`w-4 h-4 ${accent.text} rounded border-slate-300 focus:ring-2 focus:${accent.ring}`}
+                      checked={checked}
+                      onChange={(e) => updateSettings({ [item.key]: e.target.checked } as Partial<DashSettings>)}
+                    />
+                  </label>
+                );
+              })}
+            </section>
+
+            <section className="space-y-3">
+              <h4 className="text-xs font-bold text-slate-900 uppercase tracking-wide">Density</h4>
+              <div className="grid grid-cols-2 gap-2">
+                {(['comfortable', 'compact'] as const).map(d => (
+                  <button
+                    key={d}
+                    onClick={() => updateSettings({ density: d })}
+                    className={`p-3 rounded-lg border text-xs font-bold capitalize ${
+                      settings.density === d
+                        ? `${accent.bg} text-white border-transparent`
+                        : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50'
+                    }`}
+                  >
+                    {d}
+                  </button>
+                ))}
+              </div>
+            </section>
+
+            <section className="space-y-3">
+              <h4 className="text-xs font-bold text-slate-900 uppercase tracking-wide">Accent color</h4>
+              <div className="flex flex-wrap gap-2">
+                {(Object.keys(accentMap) as Array<DashSettings['accent']>).map(c => (
+                  <button
+                    key={c}
+                    onClick={() => updateSettings({ accent: c })}
+                    aria-label={c}
+                    className={`w-8 h-8 rounded-full ${accentMap[c].bg} ring-offset-2 transition ${
+                      settings.accent === c ? `ring-2 ${accentMap[c].ring}` : 'ring-0 opacity-80 hover:opacity-100'
+                    }`}
+                  />
+                ))}
+              </div>
+            </section>
+
+            <section className="space-y-3">
+              <div className="flex items-center justify-between">
+                <h4 className="text-xs font-bold text-slate-900 uppercase tracking-wide">Recent activity rows</h4>
+                <span className="text-xs font-bold text-slate-900">{settings.recentActivityLimit}</span>
+              </div>
+              <input
+                type="range"
+                min={3}
+                max={15}
+                step={1}
+                value={settings.recentActivityLimit}
+                onChange={(e) => updateSettings({ recentActivityLimit: Number(e.target.value) })}
+                className="w-full accent-blue-600"
+              />
+              <div className="flex justify-between text-[10px] text-slate-400 font-bold">
+                <span>3</span><span>15</span>
+              </div>
+            </section>
+          </div>
+        )}
+
       </div>
 
     </div>
