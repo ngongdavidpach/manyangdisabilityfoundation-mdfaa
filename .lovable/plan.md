@@ -1,48 +1,43 @@
-# Hide Sign In, Make Manually Accessible via Shortcut
-
 ## Goal
-Remove all visible "Sign In" / "Create Account" entry points from the public site. Login remains fully functional but only reachable by a hidden keyboard shortcut (and by protected-route redirects, e.g. clicking "Request Aid").
 
-## Changes
+Give admins a dedicated upload screen to manage the **Foundation Insight** block on the home page — title, brief intro text, cover image, brochure PDF, and an embedded intro video.
 
-### 1. `src/ported/components/Navbar.tsx`
-When the user is **not** authenticated:
-- Remove the desktop "Sign In" button (right-side CTA area, lines ~199–207).
-- Remove the mobile drawer "Sign In" and "Create Free Account" buttons (lines ~308–329).
-- Keep the user dropdown (avatar + Dashboard/Admin/Sign Out) intact for when a user *is* signed in.
-- Keep "Donate Now" button as-is.
+## Where it lives
 
-When authenticated, the navbar is unchanged.
+- **Admin:** new "Foundation Insight" tab in the Admin Dashboard, alongside News / Events / Staff / Gallery.
+- **Public:** existing home insight section (already rendered by `HomeView`) — extended to show the brochure download and the embedded video when set.
 
-### 2. `src/ported/App.tsx`
-Add a global keyboard listener inside `AppContent`:
+## Storage
 
-```ts
-useEffect(() => {
-  const handler = (e: KeyboardEvent) => {
-    // Ctrl+Shift+L (or Cmd+Shift+L on macOS) opens the login page
-    if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key.toLowerCase() === 'l') {
-      e.preventDefault();
-      setCurrentPage('login');
-    }
-  };
-  window.addEventListener('keydown', handler);
-  return () => window.removeEventListener('keydown', handler);
-}, []);
-```
+Reuse existing infrastructure — no schema changes.
+- Text + URLs → `page_settings` row with `page_key = 'home'`, under `insight.*`.
+- Cover image → existing `site-images` storage bucket via `ImageUploader`.
+- Brochure PDF → same `site-images` bucket under `pages/home/brochures/`, stored as a public URL in `insight.brochureUrl`.
 
-### 3. `src/ported/components/views/LoginView.tsx`
-- Remove the bottom "New to MDF? Create a free account" link block (lines ~199–210) so registration is also not publicly advertised. Registration remains reachable by typing the shortcut, then no link — or, optionally, keep that link. Default: remove it to fully hide signup too. **Confirming default**: keep it removed; registration is for admin-invited users only since the first signup becomes admin.
+## Admin UI — `src/ported/components/admin/FoundationInsightManager.tsx` (new)
 
-### What stays the same
-- `LoginView`, `RegisterView`, `AuthContext`, all auth flows work unchanged.
-- Protected routes (Request Aid, Dashboard) still redirect to login when clicked.
-- Authenticated user avatar/menu, Sign Out, Admin Console all unchanged.
-- The top-bar "Need a Wheelchair?" / "My Applications" link stays (it goes to `/request` which triggers the login redirect for non-auth'd users).
+Fields, all saved to `page_settings.content.insight`:
+- `title` — text input
+- `body` — textarea (brief intro)
+- `cover` — image upload (reuses `ImageUploader`)
+- `brochureUrl` — file upload button for PDF (new lightweight uploader, same bucket, accepts `application/pdf`) + clear button
+- `videoUrl` — text input (YouTube / Vimeo URL); we normalize to an embed URL on render
 
-## Shortcut
-**Ctrl+Shift+L** (Windows/Linux) and **Cmd+Shift+L** (macOS) opens the login screen.
+Single "Save changes" button → upsert into `page_settings` (`page_key='home'`), merging with existing content so other home fields are preserved.
 
-## Out of scope
-- No URL routing changes (the app uses internal `currentPage` state, not real routes).
-- No changes to backend/auth logic.
+## Wiring
+
+- `src/ported/components/views/AdminDashboardView.tsx` — add new tab "Foundation Insight" that renders `FoundationInsightManager`.
+- `src/ported/components/views/HomeView.tsx` — in the insight section, render:
+  - cover image (existing)
+  - title + body (existing)
+  - "Download brochure" button when `brochureUrl` is set
+  - responsive 16:9 `<iframe>` for `videoUrl` (YouTube/Vimeo embed) when set
+- `PageSettingsEditor.tsx` — leave existing home insight fields in place (admins can still edit there); the new tab is the primary, friendlier entry point.
+
+## Technical notes
+
+- PDF upload: `supabase.storage.from('site-images').upload(...)` then `getPublicUrl`; validate `file.type === 'application/pdf'` and size ≤ 10 MB.
+- Video URL: helper `toEmbedUrl(url)` converts `youtube.com/watch?v=…`, `youtu.be/…`, and `vimeo.com/…` to their `/embed/` form; if unrecognized, render as a plain link instead of an iframe.
+- Inputs validated with `zod` (title ≤ 120, body ≤ 1000, URLs `.url()`).
+- No new tables, no new RLS — `page_settings` already restricts writes to admins.
