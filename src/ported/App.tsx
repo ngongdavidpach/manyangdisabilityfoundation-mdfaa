@@ -29,6 +29,18 @@ const AppContent: React.FC = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, [currentPage]);
 
+  // Hidden keyboard shortcut: Ctrl+Shift+L (or Cmd+Shift+L) opens the login page
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key.toLowerCase() === 'l') {
+        e.preventDefault();
+        setCurrentPage('login');
+      }
+    };
+    window.addEventListener('keydown', handler);
+    return () => window.removeEventListener('keydown', handler);
+  }, []);
+
   // Handle protected-route auth redirects
   const handleAuthRequired = (returnTo: string) => {
     pendingReturnToRef.current = returnTo || '/';

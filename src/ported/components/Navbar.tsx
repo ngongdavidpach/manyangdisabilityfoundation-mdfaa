@@ -195,16 +195,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPage, setCurrentPage }) =
                   </>
                 )}
               </div>
-            ) : (
-              <>
-                <button
-                  onClick={() => handleNavClick('login')}
-                  className="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold px-4 py-2.5 rounded-lg text-sm transition-colors"
-                >
-                  Sign In
-                </button>
-              </>
-            )}
+            ) : null}
           </div>
 
           {/* Mobile menu button */}
@@ -305,29 +296,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPage, setCurrentPage }) =
                     <span>Sign Out</span>
                   </button>
                 </>
-              ) : (
-                <>
-                  <button
-                    onClick={() => {
-                      setCurrentPage('login');
-                      setMobileMenuOpen(false);
-                    }}
-                    className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg flex items-center justify-center gap-2"
-                  >
-                    <User className="w-4 h-4" />
-                    <span>Sign In</span>
-                  </button>
-                  <button
-                    onClick={() => {
-                      setCurrentPage('register');
-                      setMobileMenuOpen(false);
-                    }}
-                    className="w-full bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold py-3 rounded-lg"
-                  >
-                    Create Free Account
-                  </button>
-                </>
-              )}
+              ) : null}
             </div>
           </div>
         </div>
