@@ -29,11 +29,54 @@ interface DashboardViewProps {
 
 export const DashboardView: React.FC<DashboardViewProps> = ({ onLogout, onNavigate }) => {
   const { user, updateUser } = useAuth();
-  const [activeTab, setActiveTab] = useState<'overview' | 'applications' | 'donations' | 'profile'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'applications' | 'donations' | 'profile' | 'settings'>('overview');
   const [applications, setApplications] = useState<any[]>([]);
   const [donations, setDonations] = useState<any[]>([]);
   const [isEditing, setIsEditing] = useState(false);
   const [profileForm, setProfileForm] = useState({ fullName: '', phone: '', country: '' });
+
+  const defaultSettings = {
+    showHeader: true,
+    showKpis: true,
+    showRecentActivity: true,
+    showNextSteps: true,
+    density: 'comfortable' as 'comfortable' | 'compact',
+    accent: 'blue' as 'blue' | 'emerald' | 'amber' | 'purple',
+    recentActivityLimit: 5,
+  };
+  type DashSettings = typeof defaultSettings;
+  const [settings, setSettings] = useState<DashSettings>(defaultSettings);
+
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem('mdfaa.dashboard.settings');
+      if (raw) setSettings({ ...defaultSettings, ...JSON.parse(raw) });
+    } catch {}
+  }, []);
+
+  const updateSettings = (patch: Partial<DashSettings>) => {
+    setSettings(prev => {
+      const next = { ...prev, ...patch };
+      try { localStorage.setItem('mdfaa.dashboard.settings', JSON.stringify(next)); } catch {}
+      return next;
+    });
+  };
+
+  const resetSettings = () => {
+    setSettings(defaultSettings);
+    try { localStorage.removeItem('mdfaa.dashboard.settings'); } catch {}
+  };
+
+  const accentMap: Record<DashSettings['accent'], { bg: string; hover: string; text: string; ring: string }> = {
+    blue: { bg: 'bg-blue-600', hover: 'hover:bg-blue-700', text: 'text-blue-600', ring: 'ring-blue-500' },
+    emerald: { bg: 'bg-emerald-600', hover: 'hover:bg-emerald-700', text: 'text-emerald-600', ring: 'ring-emerald-500' },
+    amber: { bg: 'bg-amber-500', hover: 'hover:bg-amber-600', text: 'text-amber-600', ring: 'ring-amber-500' },
+    purple: { bg: 'bg-purple-600', hover: 'hover:bg-purple-700', text: 'text-purple-600', ring: 'ring-purple-500' },
+  };
+  const accent = accentMap[settings.accent];
+  const pad = settings.density === 'compact' ? 'p-3 sm:p-4' : 'p-6 sm:p-8';
+  const gap = settings.density === 'compact' ? 'gap-2 mb-4' : 'gap-4 mb-6';
+
 
   useEffect(() => {
     if (user) {
