@@ -1,29 +1,42 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
+import App from "../ported/App";
 
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Your App" },
-      { name: "description", content: "Replace this with a one-sentence description of your app." },
-      { property: "og:title", content: "Your App" },
-      { property: "og:description", content: "Replace this with a one-sentence description of your app." },
+      { title: "Manyang Disability Foundation • Providing the care your loved ones deserve." },
+      {
+        name: "description",
+        content:
+          "Dedicated to uplifting vulnerable individuals and persons with disabilities through tailored mobility aids, advanced healthcare access, inclusive education, and sustainable livelihoods.",
+      },
+      { property: "og:title", content: "Manyang Disability Foundation" },
+      {
+        property: "og:description",
+        content:
+          "Mobility aids, healthcare access, inclusive education, and sustainable livelihoods for persons with disabilities.",
+      },
+    ],
+    links: [
+      { rel: "icon", type: "image/png", href: "/images/logo.png" },
+      { rel: "apple-touch-icon", href: "/images/logo.png" },
     ],
   }),
   component: Index,
 });
 
-// IMPORTANT: Replace this placeholder. See ./README.md for routing conventions.
 function Index() {
-  return (
-    <div
-      className="flex min-h-screen items-center justify-center"
-      style={{ backgroundColor: "#fcfbf8" }}
-    >
-      <img
-        data-lovable-blank-page-placeholder="REMOVE_THIS"
-        src="https://cdn.gpteng.co/blank-app-v1.svg"
-        alt="Your app will live here!"
-      />
-    </div>
-  );
+  // The ported SPA relies on browser-only APIs (localStorage) during render.
+  // Mount client-only to avoid SSR mismatches.
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+  if (!mounted) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-slate-50">
+        <div className="w-12 h-12 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
+  return <App />;
 }
