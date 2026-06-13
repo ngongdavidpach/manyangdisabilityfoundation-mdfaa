@@ -11,7 +11,9 @@ import {
   HeartHandshake, 
   Sparkles,
   CheckCircle,
-  HelpCircle
+  HelpCircle,
+  Download,
+  PlayCircle
 } from 'lucide-react';
 import { 
   FOUNDATION_INFO, 
@@ -20,12 +22,30 @@ import {
   SUCCESS_STORIES, 
   NEWS_ARTICLES 
 } from '../../data/foundationData';
+import { usePageSettings } from '../../hooks/usePageSettings';
+import { toEmbedUrl } from '../../lib/videoEmbed';
+
+interface HomeInsight {
+  insight?: {
+    title?: string;
+    body?: string;
+    cover?: string;
+    brochureUrl?: string;
+    brochureName?: string;
+    videoUrl?: string;
+  };
+  showInsight?: boolean;
+}
 
 interface HomeViewProps {
   setCurrentPage: (page: string) => void;
 }
 
 export const HomeView: React.FC<HomeViewProps> = ({ setCurrentPage }) => {
+  const { content: homeContent } = usePageSettings<HomeInsight>('home', {});
+  const insight = homeContent?.insight;
+  const showInsight = homeContent?.showInsight !== false && !!(insight?.title || insight?.body || insight?.cover || insight?.brochureUrl || insight?.videoUrl);
+  const embedUrl = toEmbedUrl(insight?.videoUrl);
 
   const getProgramIcon = (iconName: string) => {
     switch (iconName) {
