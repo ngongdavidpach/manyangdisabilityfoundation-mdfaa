@@ -78,23 +78,20 @@ export const RegisterView: React.FC<RegisterViewProps> = ({ onSwitchToLogin, onR
     }
 
     setIsProcessing(true);
-    setTimeout(() => {
-      const result = register({
+    (async () => {
+      const result = await register({
         fullName: form.fullName,
         email: form.email,
         password: form.password,
         role: form.role,
-        phone: form.phone,
-        country: form.country
       });
-
       if (result.success) {
         onRegisterSuccess();
       } else {
         setError(result.error || 'Registration failed.');
       }
       setIsProcessing(false);
-    }, 800);
+    })();
   };
 
   const strengthColors: Record<string, string> = {

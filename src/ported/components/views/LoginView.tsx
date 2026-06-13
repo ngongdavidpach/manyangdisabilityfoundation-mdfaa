@@ -42,15 +42,15 @@ export const LoginView: React.FC<LoginViewProps> = ({ onSwitchToRegister, onLogi
     }
 
     setIsProcessing(true);
-    setTimeout(() => {
-      const result = login(form.email, form.password, form.rememberMe);
+    (async () => {
+      const result = await login(form.email, form.password);
       if (result.success) {
         onLoginSuccess();
       } else {
         setError(result.error || 'Authentication failed.');
       }
       setIsProcessing(false);
-    }, 600);
+    })();
   };
 
   return (
