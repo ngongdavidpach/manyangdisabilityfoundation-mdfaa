@@ -1,33 +1,82 @@
-## Goal
+# Plan: Full Admin CMS on Lovable Cloud
 
-Port the contents of `ngongdavidpach/Manyang-Disability-Foundation-Association-of-Australia` into this Lovable project.
+A large rebuild. The ported app currently runs entirely off `localStorage` — no real uploads, content, or auth. We will enable Lovable Cloud (database + storage + auth) and rewire the admin + public pages around it.
 
-## Important constraint
+## 1. Enable Lovable Cloud & Auth
 
-The source repo is a plain **Vite + TypeScript** app (root `index.html`, root `package.json`, root `vite.config.ts`, plain `src/`). This Lovable project is a **TanStack Start** app (file-based routing in `src/routes/`, root layout in `src/routes/__root.tsx`, its own `vite.config.ts`, `package.json`, etc.).
+- Enable Cloud (Postgres, Storage, Auth).
+- Switch admin auth from localStorage to Cloud email/password auth.
+- `profiles` table (id, full_name, avatar_url) auto-created on signup via trigger.
+- `user_roles` table + `app_role` enum (`admin`, `editor`, `member`) + `has_role()` security-definer function. Admin gate uses `has_role`, not client flags.
+- Migrate `LoginView`, `RegisterView`, `AdminSignupView`, `AuthContext` to use Cloud. Old localStorage users won't carry over — first admin must re-register.
+- Reset-password route added.
 
-A literal "overwrite everything" clone would break the Lovable build (duplicate `vite.config.ts`, conflicting `package.json`, no `src/routes/`, no router bootstrap). So a "direct clone" here means: pull every source file and asset from the repo, but adapt them to fit this project's structure so the site actually runs.
+## 2. 15-minute admin auto-logout
 
-## Steps
+- `useIdleLogout(15 * 60_000)` hook in admin layout: tracks mouse/keyboard/touch, shows "1 min left" toast, calls `supabase.auth.signOut()` + redirect on expiry. Tab-visibility aware.
 
-1. **Fetch the repo** by downloading the GitHub tarball (`https://codeload.github.com/.../tar.gz/refs/heads/main`) into `/tmp` and extracting it, so I can see every file (the GitHub web page didn't reveal individual files inside `src/`).
-2. **Inventory** what's in the repo: components, pages, styles, assets in `public/images/`, dependencies in `package.json`.
-3. **Copy assets** from `public/images/` into this project's `public/images/` (or `src/assets/` as appropriate).
-4. **Port the page(s)**:
-   - The original `index.html` + Vite entry becomes the home route at `src/routes/index.tsx` (replacing the current placeholder).
-   - If the repo has multiple pages/sections as separate components, create a route file per top-level section under `src/routes/` (e.g. `about.tsx`, `contact.tsx`).
-   - Copy reusable components into `src/components/`.
-   - Migrate global styles into `src/styles.css` (keeping the existing design-token block intact; only appending repo-specific base styles).
-5. **Dependencies**: install any npm packages the repo uses that aren't already in this project (`bun add <pkg>`).
-6. **Wire metadata**: set `head()` title/description/OG tags per route from the repo's `<head>` content.
-7. **Verify** the build succeeds and the home route renders the ported content in the preview.
+## 3. Storage + Image optimization
 
-## What I will NOT do
+- Public bucket `site-images` for hero/section/gallery/news/events/staff photos.
+- Upload pipeline (client-side before upload): resize to max 1920px, convert to WebP via Canvas, target <300 KB. Store original + `?width=` query for hero preloads via Supabase image transform.
+- Hero `<img>`: explicit width/height, `fetchpriority="high"`, `loading="eager"`, `decoding="async"`, route-level `<link rel="preload" as="image">`.
+- All other images: `loading="lazy"`, `decoding="async"`, responsive `srcSet`.
+- Reusable `<UploadImage>` and `<ImageField>` admin components (drag-drop, progress, preview, alt-text required).
 
-- Overwrite root-level config files (`vite.config.ts`, `tsconfig.json`, `package.json`, `.gitignore`) — these belong to the Lovable TanStack Start shell.
-- Copy `.github/workflows/` (Jekyll CI is irrelevant here).
-- Delete `src/routes/__root.tsx`, `src/router.tsx`, `src/start.ts`, `src/server.ts` — required for the app to boot.
+## 4. Gallery management
 
-## Open question
+- Tables: `media_assets` (id, storage_path, url, alt, width, height, size, tags[], uploaded_by, created_at), `media_folders` (optional grouping).
+- Admin route `/admin/gallery`: grid view, upload, tag, rename alt, delete, copy-URL, "Insert into…" picker.
+- Every image field in the admin (hero, section, news, events, staff) opens the gallery picker OR uploads new — same picker reused everywhere.
+- Public `/gallery` reads from `media_assets` with `is_public` flag.
 
-If you actually wanted a *byte-for-byte* mirror of the repo (no adaptation), the right move is to use Lovable's GitHub integration to connect a fresh project to that repo instead — let me know and I'll point you at that flow instead of porting.
+## 5. Per-page Settings (site-wide CMS)
+
+- `page_settings` table: `page_key` (home, about, programs, gallery, news, events, get-involved, donate, request, contact, footer), `content jsonb`, `updated_at`, `updated_by`. RLS: public read, admin write.
+- Each page has a typed Zod schema for its `content` blob (hero title/subtitle/image, section blocks, CTAs, visibility toggles).
+- Admin route `/admin/pages/$pageKey`: form generated from the schema with image fields wired to the gallery picker. Live preview.
+- Public pages (`HomeView`, `AboutView`, etc.) refactored to read `page_settings` via TanStack Query loader.
+
+## 6. Home page admin editor with images
+
+- Built on the per-page editor above. Fields: hero image, hero headline/subhead, intro text, mission block image, programs strip (3 cards with image+title+blurb), stats, CTAs.
+- "School insight" content block: rich-text intro + uploadable cover image + optional PDF brochure upload → shown on Home and About as a "Get to know us" card.
+
+## 7. News & Events CMS
+
+- Tables `news_articles` (id, slug, title, excerpt, body_md, cover_image, author_id, published_at, status) and `events` (id, title, slug, description, cover_image, starts_at, ends_at, location, status). RLS: public reads published rows; admin writes.
+- Admin: `/admin/news` and `/admin/events` — list, create, edit, publish/unpublish, delete. Image upload via gallery picker. Markdown body editor.
+- Public `/news`, `/news/$slug`, `/events`, `/events/$slug` — TanStack Query loaders pulling published rows. SEO `head()` per route, og:image from cover.
+
+## 8. Staff profiles
+
+- Table `staff_members` (id, full_name, role_title, bio, photo_url, email, sort_order, is_active).
+- Admin `/admin/staff`: CRUD with photo upload.
+- Public on About page: staff grid with photo, name, title, bio.
+
+## 9. Social media + Footer
+
+- Stored in `page_settings` under `page_key='footer'`: facebook, twitter, instagram, linkedin, youtube, tiktok (each URL optional + validated).
+- Admin `/admin/pages/footer` settings form.
+- `Footer.tsx` rewired to render icons (lucide `Facebook`, `Twitter`, `Instagram`, `Linkedin`, `Youtube`, plus inline TikTok SVG) only for URLs that are set. Removes the current placeholder letter chips.
+
+## 10. Wiring & cleanup
+
+- Replace ported localStorage `AuthContext` with Cloud `useAuth`.
+- Replace foundationData static text with `page_settings` reads (fallback to defaults).
+- Add `/admin` dashboard hub linking gallery, pages, news, events, staff, settings, users.
+- Keep existing visual design.
+
+## Technical section
+
+**Tech**: TanStack Start + Cloud (Supabase). All admin server work via `createServerFn` with `requireSupabaseAuth` + `has_role` checks. Image uploads go directly browser→Storage with publishable key (RLS on `storage.objects` restricts writes to authenticated admins).
+
+**Routes added** (file-based): `src/routes/_authenticated/admin.tsx` (layout, idle-logout, role gate), `admin.index.tsx`, `admin.gallery.tsx`, `admin.pages.$pageKey.tsx`, `admin.news.tsx`, `admin.news.$id.tsx`, `admin.events.tsx`, `admin.events.$id.tsx`, `admin.staff.tsx`, `admin.users.tsx`. Public: `news.tsx`, `news.$slug.tsx`, `events.tsx`, `events.$slug.tsx`, `reset-password.tsx`. The integration-managed `_authenticated/route.tsx` handles the session gate.
+
+**Migrations** (one batch): `app_role` enum, `profiles`, `user_roles` + `has_role()`, `page_settings`, `media_assets`, `news_articles`, `events`, `staff_members`. Each public-schema table gets explicit GRANTs and RLS policies. Storage bucket `site-images` created via storage tool with admin-only write policy and public read.
+
+**Image optimization**: client resize/encode helper in `src/lib/image-optimize.ts` using `createImageBitmap` + `OffscreenCanvas.convertToBlob({ type: 'image/webp', quality: 0.82 })`, fallback to regular Canvas.
+
+**Out of scope** (call out): rich WYSIWYG (using markdown), multi-language, draft autosave, audit log, CDN custom domain.
+
+After approval I will execute in this order: Cloud enable → migrations → storage → auth refactor → admin layout + idle logout → gallery → page settings + home editor → footer/social → news → events → staff → public wiring → verification.
