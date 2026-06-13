@@ -1,5 +1,21 @@
 import React, { useEffect, useState } from 'react';
-import { Mail, Phone, MapPin, Heart, ArrowRight, CheckCircle2, Facebook, Twitter, Instagram, Linkedin, Youtube } from 'lucide-react';
+import { Mail, Phone, MapPin, Heart, ArrowRight, CheckCircle2 } from 'lucide-react';
+
+const Facebook = ({ className = '' }: { className?: string }) => (
+  <svg viewBox="0 0 24 24" fill="currentColor" className={className} aria-hidden><path d="M13.5 21v-7.5h2.5l.5-3h-3V8.5c0-.9.3-1.5 1.6-1.5H17V4.2C16.7 4.1 15.7 4 14.6 4 12.3 4 10.7 5.4 10.7 7.9V10.5H8v3h2.7V21h2.8Z"/></svg>
+);
+const Twitter = ({ className = '' }: { className?: string }) => (
+  <svg viewBox="0 0 24 24" fill="currentColor" className={className} aria-hidden><path d="M18.244 2H21l-6.52 7.45L22 22h-6.84l-5.36-6.99L3.6 22H1l6.97-7.97L1.5 2h7l4.84 6.4L18.244 2Zm-2.4 18h1.86L7.27 4H5.3l10.54 16Z"/></svg>
+);
+const Instagram = ({ className = '' }: { className?: string }) => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className} aria-hidden><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor"/></svg>
+);
+const Linkedin = ({ className = '' }: { className?: string }) => (
+  <svg viewBox="0 0 24 24" fill="currentColor" className={className} aria-hidden><path d="M4.98 3.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5ZM3 9h4v12H3V9Zm7 0h3.8v1.7h.05c.53-1 1.83-2.05 3.77-2.05 4.03 0 4.78 2.65 4.78 6.1V21h-4v-5.5c0-1.3-.03-3-1.83-3-1.83 0-2.12 1.43-2.12 2.9V21h-4V9Z"/></svg>
+);
+const Youtube = ({ className = '' }: { className?: string }) => (
+  <svg viewBox="0 0 24 24" fill="currentColor" className={className} aria-hidden><path d="M23 7.2s-.2-1.6-.9-2.3c-.8-.9-1.7-.9-2.2-1C16.5 3.6 12 3.6 12 3.6s-4.5 0-7.9.3c-.5.1-1.4.1-2.2 1C1.2 5.6 1 7.2 1 7.2S.8 9 .8 10.9v1.7C.8 14.5 1 16.4 1 16.4s.2 1.6.9 2.3c.8.9 1.9.9 2.4 1 1.7.2 7.7.3 7.7.3s4.5 0 7.9-.3c.5-.1 1.4-.1 2.2-1 .7-.7.9-2.3.9-2.3s.2-1.9.2-3.8v-1.7c0-1.9-.2-3.7-.2-3.7ZM9.7 14.6V8.4l5.8 3.1-5.8 3.1Z"/></svg>
+);
 import { supabase } from '@/integrations/supabase/client';
 
 interface FooterProps { setCurrentPage: (page: string) => void; }
