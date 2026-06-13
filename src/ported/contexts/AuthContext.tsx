@@ -1,139 +1,112 @@
 import { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react';
+import { supabase } from '@/integrations/supabase/client';
 import type { User, UserRole } from '../types/auth';
-import {
-  saveSession,
-  loadSession,
-  clearSession,
-  authenticateUser,
-  registerUser,
-  getUsersDB,
-  saveUsersDB
-} from '../utils/auth';
 
 interface AuthContextType {
   user: User | null;
   isAuthenticated: boolean;
   isLoading: boolean;
-  login: (email: string, password: string, rememberMe?: boolean) => { success: boolean; error?: string };
-  register: (data: {
-    fullName: string;
-    email: string;
-    password: string;
-    role: UserRole;
-    phone?: string;
-    country?: string;
-  }) => { success: boolean; error?: string };
-  logout: () => void;
-  updateUser: (updates: Partial<User>) => void;
+  isAdmin: boolean;
+  login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
+  register: (data: { fullName: string; email: string; password: string; role?: UserRole }) => Promise<{ success: boolean; error?: string }>;
+  logout: () => Promise<void>;
+  updateUser: (updates: Partial<User>) => Promise<void>;
   hasRole: (roles: UserRole[]) => boolean;
   hasAdminAccess: () => boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+async function buildUser(authUser: any): Promise<User | null> {
+  if (!authUser) return null;
+  const { data: profile } = await supabase.from('profiles').select('full_name').eq('id', authUser.id).maybeSingle();
+  const { data: roles } = await supabase.from('user_roles').select('role').eq('user_id', authUser.id);
+  const isAdmin = roles?.some((r) => r.role === 'admin');
+  return {
+    id: authUser.id,
+    email: authUser.email || '',
+    fullName: profile?.full_name || authUser.user_metadata?.full_name || authUser.email || '',
+    role: (isAdmin ? 'admin' : roles?.[0]?.role || 'member') as UserRole,
+    createdAt: authUser.created_at || new Date().toISOString(),
+    isEmailVerified: !!authUser.email_confirmed_at,
+    lastLoginAt: authUser.last_sign_in_at,
+  };
+}
+
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isLoading, setIsLoading] = useState(true);
 
-  // Initialize: restore session on mount
   useEffect(() => {
-    try {
-      const session = loadSession();
-      if (session) {
-        setUser(session.user);
-      }
-    } catch (e) {
-      console.error('Auth init failed', e);
-    } finally {
-      setIsLoading(false);
-    }
+    const { data: sub } = supabase.auth.onAuthStateChange((_e, session) => {
+      // Defer DB calls to avoid deadlocks
+      setTimeout(() => {
+        buildUser(session?.user).then((u) => {
+          setUser(u);
+          setIsLoading(false);
+        });
+      }, 0);
+    });
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      buildUser(session?.user).then((u) => {
+        setUser(u);
+        setIsLoading(false);
+      });
+    });
+    return () => sub.subscription.unsubscribe();
   }, []);
 
-  const login = useCallback((email: string, password: string, rememberMe = false) => {
-    const result = authenticateUser(email, password);
-    if (!result) {
-      return { success: false, error: 'Invalid email or password. Please check your credentials and try again.' };
-    }
-    saveSession({ token: result.token, user: result.user, rememberMe });
-    setUser(result.user);
+  const login = useCallback(async (email: string, password: string) => {
+    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    if (error) return { success: false, error: error.message };
     return { success: true };
   }, []);
 
-  const register = useCallback((data: {
-    fullName: string;
-    email: string;
-    password: string;
-    role: UserRole;
-    phone?: string;
-    country?: string;
-  }) => {
-    const result = registerUser(data);
-    if ('error' in result) {
-      return { success: false, error: result.error };
-    }
-    saveSession({ token: result.token, user: result.user, rememberMe: false });
-    setUser(result.user);
+  const register = useCallback(async (data: { fullName: string; email: string; password: string; role?: UserRole }) => {
+    const redirectUrl = `${window.location.origin}/`;
+    const { error } = await supabase.auth.signUp({
+      email: data.email,
+      password: data.password,
+      options: { emailRedirectTo: redirectUrl, data: { full_name: data.fullName } },
+    });
+    if (error) return { success: false, error: error.message };
     return { success: true };
   }, []);
 
-  const logout = useCallback(() => {
-    clearSession();
+  const logout = useCallback(async () => {
+    await supabase.auth.signOut();
     setUser(null);
   }, []);
 
-  const updateUser = useCallback((updates: Partial<User>) => {
-    setUser(prev => {
-      if (!prev) return null;
-      const updated = { ...prev, ...updates };
-      
-      // Also persist to users DB
-      try {
-        const db = getUsersDB();
-        const entry = db[prev.email.toLowerCase()];
-        if (entry) {
-          db[prev.email.toLowerCase()] = { ...entry, user: updated };
-          saveUsersDB(db);
-        }
-        // Update current session too
-        const token = `MDF-${prev.id.slice(0, 8)}-${Date.now().toString(36)}`;
-        saveSession({ token, user: updated, rememberMe: true });
-      } catch {}
-      
-      return updated;
-    });
-  }, []);
-
-  const hasRole = useCallback((roles: UserRole[]) => {
-    return user !== null && roles.includes(user.role);
+  const updateUser = useCallback(async (updates: Partial<User>) => {
+    if (!user) return;
+    await supabase.from('profiles').update({ full_name: updates.fullName }).eq('id', user.id);
+    setUser({ ...user, ...updates });
   }, [user]);
 
-  const hasAdminAccess = useCallback(() => {
-    return user?.role === 'admin';
-  }, [user]);
-
-  const contextValue: AuthContextType = {
-    user,
-    isAuthenticated: user !== null,
-    isLoading,
-    login,
-    register,
-    logout,
-    updateUser,
-    hasRole,
-    hasAdminAccess
-  };
+  const hasRole = useCallback((roles: UserRole[]) => !!user && roles.includes(user.role), [user]);
+  const hasAdminAccess = useCallback(() => user?.role === 'admin', [user]);
 
   return (
-    <AuthContext.Provider value={contextValue}>
+    <AuthContext.Provider value={{
+      user,
+      isAuthenticated: !!user,
+      isLoading,
+      isAdmin: user?.role === 'admin',
+      login,
+      register,
+      logout,
+      updateUser,
+      hasRole,
+      hasAdminAccess,
+    }}>
       {children}
     </AuthContext.Provider>
   );
 };
 
 export const useAuth = (): AuthContextType => {
-  const context = useContext(AuthContext);
-  if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
-  return context;
+  const ctx = useContext(AuthContext);
+  if (!ctx) throw new Error('useAuth must be used within AuthProvider');
+  return ctx;
 };
