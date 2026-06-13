@@ -220,14 +220,16 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ onLogout, onNaviga
           <span className="text-[10px] text-purple-600 font-semibold">Points earned</span>
         </div>
       </div>
+      )}
 
       {/* Tabs */}
-      <div className="bg-slate-100 p-1.5 rounded-xl flex gap-1 max-w-2xl mb-6">
+      <div className="bg-slate-100 p-1.5 rounded-xl flex flex-wrap gap-1 max-w-2xl mb-6">
         {[
           { id: 'overview', label: 'Overview', icon: User },
           { id: 'applications', label: 'Applications', icon: FileText },
           { id: 'donations', label: 'Donations', icon: Heart },
-          { id: 'profile', label: 'Profile', icon: Edit3 }
+          { id: 'profile', label: 'Profile', icon: Edit3 },
+          { id: 'settings', label: 'Settings', icon: SettingsIcon }
         ].map(tab => {
           const Icon = tab.icon;
           return (
