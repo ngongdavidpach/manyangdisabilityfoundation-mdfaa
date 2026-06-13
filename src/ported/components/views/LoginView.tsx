@@ -196,18 +196,6 @@ export const LoginView: React.FC<LoginViewProps> = ({ onSwitchToRegister, onLogi
               )}
             </button>
 
-            <div className="text-center pt-3 border-t border-slate-100">
-              <p className="text-xs text-slate-500">
-                New to MDF?{' '}
-                <button
-                  type="button"
-                  onClick={onSwitchToRegister}
-                  className="text-blue-600 hover:underline font-semibold"
-                >
-                  Create a free account
-                </button>
-              </p>
-            </div>
           </form>
 
         </div>
