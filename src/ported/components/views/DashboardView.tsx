@@ -250,10 +250,11 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ onLogout, onNaviga
       </div>
 
       {/* Tab content */}
-      <div className="bg-white rounded-2xl border border-slate-200 p-6 sm:p-8 min-h-[300px]">
+      <div className={`bg-white rounded-2xl border border-slate-200 ${pad} min-h-[300px]`}>
         
         {activeTab === 'overview' && (
           <div className="space-y-6">
+            {settings.showRecentActivity && (
             <div>
               <h3 className="font-bold text-base text-slate-900 mb-3">Recent Activity</h3>
               {applications.length === 0 && donations.length === 0 ? (
@@ -264,7 +265,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ onLogout, onNaviga
                   <p className="text-sm text-slate-500">No activity yet. Get started by submitting your first request!</p>
                   <button
                     onClick={() => onNavigate('request')}
-                    className="bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs px-5 py-2 rounded-lg"
+                    className={`${accent.bg} ${accent.hover} text-white font-bold text-xs px-5 py-2 rounded-lg`}
                   >
                     Submit Aid Request
                   </button>
@@ -273,7 +274,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ onLogout, onNaviga
                 <div className="space-y-2">
                   {[...applications.map(a => ({...a, kind: 'application'})), ...donations.map(d => ({...d, kind: 'donation'}))]
                     .sort((a, b) => new Date(b.submittedAt || b.date).getTime() - new Date(a.submittedAt || a.date).getTime())
-                    .slice(0, 5)
+                    .slice(0, settings.recentActivityLimit)
                     .map((item, i) => (
                       <div key={i} className="flex items-center gap-3 p-3 rounded-lg bg-slate-50 border border-slate-100">
                         {item.kind === 'application' ? (
@@ -295,7 +296,9 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ onLogout, onNaviga
                 </div>
               )}
             </div>
+            )}
 
+            {settings.showNextSteps && (
             <div className="pt-4 border-t border-slate-100">
               <h4 className="text-xs font-bold text-slate-900 mb-2">Recommended Next Steps</h4>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
@@ -313,6 +316,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ onLogout, onNaviga
                 </button>
               </div>
             </div>
+            )}
           </div>
         )}
 
