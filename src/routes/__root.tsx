@@ -77,14 +77,18 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Lovable App" },
-      { name: "description", content: "Lovable Generated Project" },
+      { title: "manyang Disability Foundation" },
+      { name: "description", content: "Manyang Gateway is a web application for the Manyang Disability Foundation Association of Australia." },
       { name: "author", content: "Lovable" },
-      { property: "og:title", content: "Lovable App" },
-      { property: "og:description", content: "Lovable Generated Project" },
+      { property: "og:title", content: "manyang Disability Foundation" },
+      { property: "og:description", content: "Manyang Gateway is a web application for the Manyang Disability Foundation Association of Australia." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       { name: "twitter:site", content: "@Lovable" },
+      { name: "twitter:title", content: "manyang Disability Foundation" },
+      { name: "twitter:description", content: "Manyang Gateway is a web application for the Manyang Disability Foundation Association of Australia." },
+      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/771b405f-c2c4-4419-b5a0-4c5636a05ca2/id-preview-573a8c69--b11f2ede-4baf-42ba-8d4c-06cc21dd4aa8.lovable.app-1781381268114.png" },
+      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/771b405f-c2c4-4419-b5a0-4c5636a05ca2/id-preview-573a8c69--b11f2ede-4baf-42ba-8d4c-06cc21dd4aa8.lovable.app-1781381268114.png" },
     ],
     links: [
       {
