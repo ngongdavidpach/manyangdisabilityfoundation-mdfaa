@@ -135,7 +135,8 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ onLogout, onNaviga
     <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 animate-fade-in">
       
       {/* Profile header */}
-      <div className="bg-gradient-to-r from-blue-900 to-slate-900 text-white rounded-2xl p-6 sm:p-8 mb-6 shadow-sm">
+      {settings.showHeader && (
+      <div className={`bg-gradient-to-r from-blue-900 to-slate-900 text-white rounded-2xl ${settings.density === 'compact' ? 'p-4' : 'p-6 sm:p-8'} mb-6 shadow-sm`}>
         <div className="flex flex-col sm:flex-row items-start sm:items-center gap-5">
           <div className="w-16 h-16 rounded-full bg-white/15 backdrop-blur-xs border border-white/20 flex items-center justify-center text-2xl font-bold shrink-0">
             {user.fullName.charAt(0).toUpperCase()}
