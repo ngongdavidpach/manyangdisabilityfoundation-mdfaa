@@ -178,9 +178,11 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ onLogout, onNaviga
           </button>
         </div>
       </div>
+      )}
 
       {/* KPI tiles */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
+      {settings.showKpis && (
+      <div className={`grid grid-cols-2 sm:grid-cols-4 ${gap}`}>
         <div className="bg-white p-4 rounded-xl border border-slate-200">
           <div className="flex items-center justify-between mb-2">
             <FileText className="w-5 h-5 text-blue-600" />
