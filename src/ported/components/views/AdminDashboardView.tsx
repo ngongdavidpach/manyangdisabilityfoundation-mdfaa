@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { LogOut, LayoutDashboard, Image as ImageIcon, FileText, Calendar, Users, Settings as SettingsIcon, Newspaper } from 'lucide-react';
+import { LogOut, LayoutDashboard, Image as ImageIcon, FileText, Calendar, Users, Settings as SettingsIcon, Newspaper, Sparkles } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useIdleLogout } from '../../hooks/useIdleLogout';
 import { supabase } from '@/integrations/supabase/client';
@@ -8,9 +8,10 @@ import { PageSettingsEditor } from '../admin/PageSettingsEditor';
 import { NewsManager } from '../admin/NewsManager';
 import { EventsManager } from '../admin/EventsManager';
 import { StaffManager } from '../admin/StaffManager';
+import { FoundationInsightManager } from '../admin/FoundationInsightManager';
 
 interface Props { onLogout: () => void; onNavigate: (page: string) => void; }
-type Tab = 'overview' | 'pages' | 'gallery' | 'news' | 'events' | 'staff' | 'settings';
+type Tab = 'overview' | 'pages' | 'insight' | 'gallery' | 'news' | 'events' | 'staff' | 'settings';
 
 export const AdminDashboard: React.FC<Props> = ({ onLogout, onNavigate }) => {
   const { user } = useAuth();
@@ -44,6 +45,7 @@ export const AdminDashboard: React.FC<Props> = ({ onLogout, onNavigate }) => {
 
   const tabs: { id: Tab; label: string; icon: any }[] = [
     { id: 'overview', label: 'Overview', icon: LayoutDashboard },
+    { id: 'insight', label: 'Foundation Insight', icon: Sparkles },
     { id: 'pages', label: 'Page Content', icon: FileText },
     { id: 'gallery', label: 'Media Library', icon: ImageIcon },
     { id: 'news', label: 'News', icon: Newspaper },
@@ -108,6 +110,7 @@ export const AdminDashboard: React.FC<Props> = ({ onLogout, onNavigate }) => {
             </div>
           )}
           {tab === 'pages' && <PageSettingsEditor />}
+          {tab === 'insight' && <FoundationInsightManager />}
           {tab === 'gallery' && <GalleryManager />}
           {tab === 'news' && <NewsManager />}
           {tab === 'events' && <EventsManager />}

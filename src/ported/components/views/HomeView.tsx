@@ -11,7 +11,9 @@ import {
   HeartHandshake, 
   Sparkles,
   CheckCircle,
-  HelpCircle
+  HelpCircle,
+  Download,
+  PlayCircle
 } from 'lucide-react';
 import { 
   FOUNDATION_INFO, 
@@ -20,12 +22,30 @@ import {
   SUCCESS_STORIES, 
   NEWS_ARTICLES 
 } from '../../data/foundationData';
+import { usePageSettings } from '../../hooks/usePageSettings';
+import { toEmbedUrl } from '../../lib/videoEmbed';
+
+interface HomeInsight {
+  insight?: {
+    title?: string;
+    body?: string;
+    cover?: string;
+    brochureUrl?: string;
+    brochureName?: string;
+    videoUrl?: string;
+  };
+  showInsight?: boolean;
+}
 
 interface HomeViewProps {
   setCurrentPage: (page: string) => void;
 }
 
 export const HomeView: React.FC<HomeViewProps> = ({ setCurrentPage }) => {
+  const { content: homeContent } = usePageSettings<HomeInsight>('home', {});
+  const insight = homeContent?.insight;
+  const showInsight = homeContent?.showInsight !== false && !!(insight?.title || insight?.body || insight?.cover || insight?.brochureUrl || insight?.videoUrl);
+  const embedUrl = toEmbedUrl(insight?.videoUrl);
 
   const getProgramIcon = (iconName: string) => {
     switch (iconName) {
@@ -150,6 +170,77 @@ export const HomeView: React.FC<HomeViewProps> = ({ setCurrentPage }) => {
           </div>
         </div>
       </section>
+
+      {/* Foundation Insight (admin-managed) */}
+      {showInsight && insight && (
+        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-xs">
+            <div className="grid grid-cols-1 lg:grid-cols-2">
+              <div className="relative bg-slate-100 min-h-[260px] lg:min-h-[420px]">
+                {embedUrl ? (
+                  <div className="absolute inset-0">
+                    <iframe
+                      src={embedUrl}
+                      title={insight.title || 'Foundation intro video'}
+                      className="w-full h-full"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allowFullScreen
+                    />
+                  </div>
+                ) : insight.cover ? (
+                  <img src={insight.cover} alt={insight.title || 'Foundation'} className="absolute inset-0 w-full h-full object-cover" />
+                ) : (
+                  <div className="absolute inset-0 flex items-center justify-center text-slate-400">
+                    <Sparkles className="w-16 h-16" />
+                  </div>
+                )}
+              </div>
+              <div className="p-8 lg:p-12 space-y-5">
+                <span className="inline-block text-xs font-bold uppercase tracking-widest text-blue-600">
+                  About Our Foundation
+                </span>
+                {insight.title && (
+                  <h2 className="text-3xl font-bold tracking-tight text-slate-900">{insight.title}</h2>
+                )}
+                {insight.body && (
+                  <p className="text-sm text-slate-600 leading-relaxed whitespace-pre-line">{insight.body}</p>
+                )}
+                <div className="flex flex-wrap gap-3 pt-2">
+                  {insight.brochureUrl && (
+                    <a
+                      href={insight.brochureUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-5 py-2.5 rounded-lg text-sm inline-flex items-center gap-2 transition-colors"
+                    >
+                      <Download className="w-4 h-4" />
+                      Download brochure
+                    </a>
+                  )}
+                  {insight.videoUrl && !embedUrl && (
+                    <a
+                      href={insight.videoUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="bg-slate-100 hover:bg-slate-200 text-slate-900 font-semibold px-5 py-2.5 rounded-lg text-sm inline-flex items-center gap-2 transition-colors"
+                    >
+                      <PlayCircle className="w-4 h-4" />
+                      Watch intro video
+                    </a>
+                  )}
+                  <button
+                    onClick={() => setCurrentPage('about')}
+                    className="text-blue-600 hover:text-blue-800 font-semibold text-sm inline-flex items-center gap-1 px-2 py-2.5 group"
+                  >
+                    Learn more about us
+                    <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* Real Event / Action callout: Yii Wheelchair repair bulletin */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
