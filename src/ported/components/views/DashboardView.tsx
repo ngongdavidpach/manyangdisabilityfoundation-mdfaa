@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { 
+import {
   User,
-  Mail, 
-  Phone, 
-  MapPin, 
-  Calendar, 
-  ShieldCheck, 
-  FileText, 
-  Heart, 
+  Mail,
+  Phone,
+  MapPin,
+  Calendar,
+  ShieldCheck,
+  FileText,
+  Heart,
   LogOut,
   Edit3,
   CheckCircle2,
@@ -15,7 +15,9 @@ import {
   XCircle,
   TrendingUp,
   Download,
-  Award
+  Award,
+  Settings as SettingsIcon,
+  RotateCcw
 } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { getApplications, getDonations, getRoleLabel, getRoleColor } from '../../utils/auth';
