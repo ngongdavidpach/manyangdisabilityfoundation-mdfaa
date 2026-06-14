@@ -17,6 +17,7 @@ const Youtube = ({ className = '' }: { className?: string }) => (
   <svg viewBox="0 0 24 24" fill="currentColor" className={className} aria-hidden><path d="M23 7.2s-.2-1.6-.9-2.3c-.8-.9-1.7-.9-2.2-1C16.5 3.6 12 3.6 12 3.6s-4.5 0-7.9.3c-.5.1-1.4.1-2.2 1C1.2 5.6 1 7.2 1 7.2S.8 9 .8 10.9v1.7C.8 14.5 1 16.4 1 16.4s.2 1.6.9 2.3c.8.9 1.9.9 2.4 1 1.7.2 7.7.3 7.7.3s4.5 0 7.9-.3c.5-.1 1.4-.1 2.2-1 .7-.7.9-2.3.9-2.3s.2-1.9.2-3.8v-1.7c0-1.9-.2-3.7-.2-3.7ZM9.7 14.6V8.4l5.8 3.1-5.8 3.1Z"/></svg>
 );
 import { supabase } from '@/integrations/supabase/client';
+import { NAV_ITEM_DEFS, resolveNavOrder } from './admin/NavigationPagesEditor';
 
 interface FooterProps { setCurrentPage: (page: string) => void; }
 
@@ -47,11 +48,24 @@ export const Footer: React.FC<FooterProps> = ({ setCurrentPage }) => {
   const [email, setEmailVal] = useState('');
   const [subscribed, setSubscribed] = useState(false);
   const [s, setS] = useState<FooterSettings>(DEFAULTS);
+  const [navLinks, setNavLinks] = useState(NAV_ITEM_DEFS.map((d) => ({ id: d.id, label: d.label })));
 
   useEffect(() => {
     supabase.from('page_settings').select('content').eq('page_key', 'footer').maybeSingle()
       .then(({ data }) => { if (data?.content) setS({ ...DEFAULTS, ...(data.content as any) }); });
+    supabase.from('page_settings').select('content').eq('page_key', 'navigation').maybeSingle()
+      .then(({ data }) => {
+        const c = (data?.content as any) || {};
+        const order = resolveNavOrder(c.order);
+        setNavLinks(
+          order
+            .map((id) => NAV_ITEM_DEFS.find((d) => d.id === id))
+            .filter((d): d is typeof NAV_ITEM_DEFS[number] => !!d && c[d.flag] !== false)
+            .map((d) => ({ id: d.id, label: d.label }))
+        );
+      });
   }, []);
+
 
   const handleSubscribe = (e: React.FormEvent) => {
     e.preventDefault();
@@ -117,11 +131,7 @@ export const Footer: React.FC<FooterProps> = ({ setCurrentPage }) => {
           <div className="space-y-4">
             <h4 className="text-sm font-semibold uppercase tracking-wider text-white">Quick Links</h4>
             <ul className="space-y-2.5 text-sm">
-              {[
-                { label: 'Home', id: 'home' }, { label: 'About', id: 'about' }, { label: 'Programs', id: 'programs' },
-                { label: 'Gallery', id: 'gallery' }, { label: 'News', id: 'news' }, { label: 'Events', id: 'events' },
-                { label: 'Get Involved', id: 'get-involved' },
-              ].map((link) => (
+              {navLinks.map((link) => (
                 <li key={link.id}>
                   <button onClick={() => handleLink(link.id)} className="text-slate-400 hover:text-white transition-colors inline-flex items-center gap-1.5 group text-left">
                     <span className="group-hover:translate-x-1 transition-transform text-blue-500">›</span>{link.label}
