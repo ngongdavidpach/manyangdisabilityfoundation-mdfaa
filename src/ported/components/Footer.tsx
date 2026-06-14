@@ -50,7 +50,9 @@ const TikTokIcon = ({ className = '' }: { className?: string }) => (
   </svg>
 );
 
-export const Footer: React.FC<FooterProps> = ({ setCurrentPage }) => {
+export const Footer: React.FC = () => {
+  const navigate = useNavigate();
+
   const [email, setEmailVal] = useState('');
   const [subscribed, setSubscribed] = useState(false);
   const [s, setS] = useState<FooterSettings>(DEFAULTS);
