@@ -104,7 +104,7 @@ export const DonationsManager: React.FC = () => {
                   ) : '—'}
                 </td>
                 <td className="p-3 text-right">
-                  <button onClick={async () => { if (confirm('Delete donation?')) { await supabase.from('donations').delete().eq('id', d.id); load(); } }}
+                  <button onClick={async () => { if (confirm('Delete donation?')) { try { await delFn({ data: { id: d.id } }); load(); } catch (e) { alert((e as Error).message); } } }}
                     className="text-rose-600"><Trash2 className="w-4 h-4" /></button>
                 </td>
               </tr>
