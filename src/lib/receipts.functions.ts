@@ -88,6 +88,7 @@ export const getReceiptUrl = createServerFn({ method: "POST" })
   .inputValidator((d: { donationId: string }) => d)
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
+    await enforceRateLimit({ bucket: "receipt-url", max: 60, windowSeconds: 3600, key: userId });
     const { data: receipt } = await supabase
       .from("receipts")
       .select("storage_path, donation_id, donations!inner(user_id)")
