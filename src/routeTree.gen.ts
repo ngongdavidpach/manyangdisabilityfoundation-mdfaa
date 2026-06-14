@@ -26,6 +26,7 @@ import { Route as GuidesFreeMedicalEquipmentRouteImport } from './routes/guides.
 import { Route as GuidesDonateSuppliesRouteImport } from './routes/guides.donate-supplies'
 import { Route as AuthRegisterRouteImport } from './routes/auth.register'
 import { Route as AuthLoginRouteImport } from './routes/auth.login'
+import { Route as LovableEmailQueueProcessRouteImport } from './routes/lovable/email/queue/process'
 
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   id: '/sitemap.xml',
@@ -113,6 +114,12 @@ const AuthLoginRoute = AuthLoginRouteImport.update({
   path: '/auth/login',
   getParentRoute: () => rootRouteImport,
 } as any)
+const LovableEmailQueueProcessRoute =
+  LovableEmailQueueProcessRouteImport.update({
+    id: '/lovable/email/queue/process',
+    path: '/lovable/email/queue/process',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -132,6 +139,7 @@ export interface FileRoutesByFullPath {
   '/guides/donate-supplies': typeof GuidesDonateSuppliesRoute
   '/guides/free-medical-equipment': typeof GuidesFreeMedicalEquipmentRoute
   '/news/$slug': typeof NewsSlugRoute
+  '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -151,6 +159,7 @@ export interface FileRoutesByTo {
   '/guides/donate-supplies': typeof GuidesDonateSuppliesRoute
   '/guides/free-medical-equipment': typeof GuidesFreeMedicalEquipmentRoute
   '/news/$slug': typeof NewsSlugRoute
+  '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -171,6 +180,7 @@ export interface FileRoutesById {
   '/guides/donate-supplies': typeof GuidesDonateSuppliesRoute
   '/guides/free-medical-equipment': typeof GuidesFreeMedicalEquipmentRoute
   '/news/$slug': typeof NewsSlugRoute
+  '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -192,6 +202,7 @@ export interface FileRouteTypes {
     | '/guides/donate-supplies'
     | '/guides/free-medical-equipment'
     | '/news/$slug'
+    | '/lovable/email/queue/process'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -211,6 +222,7 @@ export interface FileRouteTypes {
     | '/guides/donate-supplies'
     | '/guides/free-medical-equipment'
     | '/news/$slug'
+    | '/lovable/email/queue/process'
   id:
     | '__root__'
     | '/'
@@ -230,6 +242,7 @@ export interface FileRouteTypes {
     | '/guides/donate-supplies'
     | '/guides/free-medical-equipment'
     | '/news/$slug'
+    | '/lovable/email/queue/process'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -249,6 +262,7 @@ export interface RootRouteChildren {
   AuthRegisterRoute: typeof AuthRegisterRoute
   GuidesDonateSuppliesRoute: typeof GuidesDonateSuppliesRoute
   GuidesFreeMedicalEquipmentRoute: typeof GuidesFreeMedicalEquipmentRoute
+  LovableEmailQueueProcessRoute: typeof LovableEmailQueueProcessRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -372,6 +386,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthLoginRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/lovable/email/queue/process': {
+      id: '/lovable/email/queue/process'
+      path: '/lovable/email/queue/process'
+      fullPath: '/lovable/email/queue/process'
+      preLoaderRoute: typeof LovableEmailQueueProcessRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -402,17 +423,8 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRegisterRoute: AuthRegisterRoute,
   GuidesDonateSuppliesRoute: GuidesDonateSuppliesRoute,
   GuidesFreeMedicalEquipmentRoute: GuidesFreeMedicalEquipmentRoute,
+  LovableEmailQueueProcessRoute: LovableEmailQueueProcessRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
