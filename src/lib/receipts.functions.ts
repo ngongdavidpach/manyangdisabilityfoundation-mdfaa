@@ -17,6 +17,10 @@ export const generateReceipt = createServerFn({ method: "POST" })
     });
     if (!isAdmin) throw new Error("Forbidden");
 
+    await enforceRateLimit({ bucket: "receipt-gen", max: 30, windowSeconds: 3600, key: userId });
+
+
+
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
     const { data: donation, error: dErr } = await supabaseAdmin
