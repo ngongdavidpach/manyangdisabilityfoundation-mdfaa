@@ -1,8 +1,13 @@
-Remove bun lockfile and configuration, switch to npm, and refresh package-lock.json with latest compatible dependency versions.
+## Plan: Update Favicon with Uploaded Logo
 
-### What will happen
-1. Delete `bun.lock` and `bunfig.toml` from the project root.
-2. Run `npm install` to generate a fresh `package-lock.json` using the latest versions allowed by the existing `package.json` semver ranges.
-3. Verify the dev server still starts correctly after the switch.
+The uploaded image is a square circular logo (589×591px). The existing `public/images/logo.png` is a wide banner (1408×768px). All favicon, apple-touch-icon, and PWA manifest references already point to `/images/logo.png`.
 
-No changes to `package.json` scripts or application code.
+### Changes
+
+1. **Replace `public/images/logo.png`** with the uploaded `image.png`.
+2. **No code changes needed** — `src/routes/__root.tsx` and `vite.config.ts` already reference `/images/logo.png` for favicon, apple-touch-icon, and PWA manifest icons.
+
+The new circular logo will automatically become the favicon, apple-touch-icon, and PWA icon across the site.
+
+### Optional add-on
+I can also generate smaller sizes (e.g., 32×32, 180×180) and add explicit `<link rel="icon">` sizes for optimal browser/PWA support. Let me know if you'd like that.
