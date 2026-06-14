@@ -9,13 +9,11 @@ import {
 } from 'lucide-react';
 import { GALLERY_IMAGES, GalleryImage } from '../../data/foundationData';
 
-interface GalleryViewProps {
-  setCurrentPage: (page: string) => void;
-}
-
-export const GalleryView: React.FC<GalleryViewProps> = ({ setCurrentPage }) => {
+export const GalleryView: React.FC = () => {
+  const navigate = useNavigate();
   const [activeCategory, setActiveCategory] = useState<string>('all');
   const [selectedImage, setSelectedImage] = useState<GalleryImage | null>(null);
+
 
   const filteredImages = activeCategory === 'all' 
     ? GALLERY_IMAGES 
