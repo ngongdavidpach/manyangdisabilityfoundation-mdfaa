@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { NAV_ITEM_DEFS, resolveNavOrder } from './admin/NavigationPagesEditor';
+import { NAV_ITEM_DEFS, resolveNavOrder } from '../lib/navItems';
 import { 
   HeartHandshake, 
   Menu, 
@@ -211,7 +211,14 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPage, setCurrentPage }) =
                   </>
                 )}
               </div>
-            ) : null}
+            ) : (
+              <button
+                onClick={() => setCurrentPage('login')}
+                className="flex items-center gap-1.5 text-sm font-semibold text-slate-700 hover:text-blue-700 px-3 py-2 rounded-lg border border-slate-200 hover:border-blue-300 hover:bg-blue-50 transition-colors"
+              >
+                <User className="w-4 h-4" /> Sign in
+              </button>
+            )}
           </div>
 
           {/* Mobile menu button */}
@@ -312,7 +319,15 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPage, setCurrentPage }) =
                     <span>Sign Out</span>
                   </button>
                 </>
-              ) : null}
+              ) : (
+                <button
+                  onClick={() => { setCurrentPage('login'); setMobileMenuOpen(false); }}
+                  className="w-full flex items-center gap-3 px-4 py-3 rounded-lg bg-blue-600 text-white font-semibold"
+                >
+                  <User className="w-5 h-5" />
+                  <span>Sign in</span>
+                </button>
+              )}
             </div>
           </div>
         </div>

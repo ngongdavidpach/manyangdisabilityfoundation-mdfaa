@@ -5,7 +5,7 @@ import App from "../ported/App";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Manyang Disability Foundation • Providing the care your loved ones deserve." },
+      { title: "Manyang Disability Foundation — Mobility, Health & Education" },
       {
         name: "description",
         content:
