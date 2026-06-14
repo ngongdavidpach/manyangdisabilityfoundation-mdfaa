@@ -44,7 +44,9 @@ export const LoginView: React.FC = () => {
     (async () => {
       const result = await login(form.email, form.password);
       if (result.success) {
-        onLoginSuccess();
+        const dest = search.redirect || (hasAdminAccess() ? '/admin' : '/dashboard');
+        navigate({ to: dest });
+
       } else {
         setError(result.error || 'Authentication failed.');
       }
