@@ -12,6 +12,7 @@ import { useEffect, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
+import { registerServiceWorker } from "../lib/registerSW";
 import { AuthProvider } from "../ported/contexts/AuthContext";
 import { Navbar } from "../ported/components/Navbar";
 import { Footer } from "../ported/components/Footer";
@@ -104,6 +105,7 @@ function ClientShell() {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+  useEffect(() => { registerServiceWorker(); }, []);
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
