@@ -8,9 +8,9 @@ export const Route = createFileRoute("/")({
       { name: "description", content: "Uplifting persons with disabilities through tailored mobility aids, healthcare access, inclusive education, and sustainable livelihoods." },
       { property: "og:title", content: "Manyang Disability Foundation" },
       { property: "og:description", content: "Mobility, healthcare, education, and livelihoods for persons with disabilities." },
-      { property: "og:url", content: "https://manyangfoundation.lovable.app/" },
+      { property: "og:url", content: "https://manyangdisabilityfoundation.org/" },
     ],
-    links: [{ rel: "canonical", href: "https://manyangfoundation.lovable.app/" }],
+    links: [{ rel: "canonical", href: "https://manyangdisabilityfoundation.org/" }],
     scripts: [
       {
         type: "application/ld+json",
@@ -18,8 +18,8 @@ export const Route = createFileRoute("/")({
           "@context": "https://schema.org",
           "@type": "Organization",
           name: "Manyang Disability Foundation",
-          url: "https://manyangfoundation.lovable.app/",
-          logo: "https://manyangfoundation.lovable.app/images/logo.png",
+          url: "https://manyangdisabilityfoundation.org/",
+          logo: "https://manyangdisabilityfoundation.org/images/logo.png",
         }),
       },
       {
@@ -28,7 +28,7 @@ export const Route = createFileRoute("/")({
           "@context": "https://schema.org",
           "@type": "WebSite",
           name: "Manyang Disability Foundation",
-          url: "https://manyangfoundation.lovable.app/",
+          url: "https://manyangdisabilityfoundation.org/",
         }),
       },
     ],

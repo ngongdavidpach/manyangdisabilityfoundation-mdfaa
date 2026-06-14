@@ -8,10 +8,10 @@ export const Route = createFileRoute("/guides/donate-supplies")({
       { name: "description", content: "Guide to donating used wheelchairs, crutches, and medical supplies to the Manyang Disability Foundation and partner programs." },
       { property: "og:title", content: "Where to Donate Used Medical Equipment" },
       { property: "og:description", content: "How to donate used wheelchairs, crutches, and medical supplies near you." },
-      { property: "og:url", content: "https://manyangfoundation.lovable.app/guides/donate-supplies" },
+      { property: "og:url", content: "https://manyangdisabilityfoundation.org/guides/donate-supplies" },
       { property: "og:type", content: "article" },
     ],
-    links: [{ rel: "canonical", href: "https://manyangfoundation.lovable.app/guides/donate-supplies" }],
+    links: [{ rel: "canonical", href: "https://manyangdisabilityfoundation.org/guides/donate-supplies" }],
   }),
   component: DonateSuppliesGuide,
 });

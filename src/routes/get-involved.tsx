@@ -7,9 +7,9 @@ export const Route = createFileRoute("/get-involved")({
       { title: "Get Involved — Manyang Disability Foundation" },
       { name: "description", content: "Volunteer, partner, fundraise, or join an outreach mission with the foundation." },
       { property: "og:title", content: "Get Involved — Manyang Disability Foundation" },
-      { property: "og:url", content: "https://manyangfoundation.lovable.app/get-involved" },
+      { property: "og:url", content: "https://manyangdisabilityfoundation.org/get-involved" },
     ],
-    links: [{ rel: "canonical", href: "https://manyangfoundation.lovable.app/get-involved" }],
+    links: [{ rel: "canonical", href: "https://manyangdisabilityfoundation.org/get-involved" }],
   }),
   component: GetInvolvedView,
 });
