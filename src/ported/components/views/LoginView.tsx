@@ -1,23 +1,22 @@
 import React, { useState } from 'react';
-import { 
-  Mail, 
-  Lock, 
-  Eye, 
-  EyeOff, 
-  LogIn, 
+import { Link, useNavigate, useSearch } from '@tanstack/react-router';
+import {
+  Mail,
+  Lock,
+  Eye,
+  EyeOff,
+  LogIn,
   ArrowRight,
   ShieldCheck,
   AlertTriangle
 } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 
-interface LoginViewProps {
-  onSwitchToRegister: () => void;
-  onLoginSuccess: (returnTo?: string) => void;
-}
+export const LoginView: React.FC = () => {
+  const navigate = useNavigate();
+  const search = useSearch({ strict: false }) as { redirect?: string };
+  const { login, hasAdminAccess } = useAuth();
 
-export const LoginView: React.FC<LoginViewProps> = ({ onSwitchToRegister, onLoginSuccess }) => {
-  const { login } = useAuth();
   const [form, setForm] = useState({
     email: '',
     password: '',
