@@ -13,13 +13,11 @@ import {
 } from 'lucide-react';
 import { PROGRAMS, SUCCESS_STORIES } from '../../data/foundationData';
 
-interface ProgramsViewProps {
-  setCurrentPage: (page: string) => void;
-}
-
-export const ProgramsView: React.FC<ProgramsViewProps> = ({ setCurrentPage }) => {
+export const ProgramsView: React.FC = () => {
+  const navigate = useNavigate();
   const [activeCategory, setActiveCategory] = useState<string>('all');
   const [selectedStory, setSelectedStory] = useState(SUCCESS_STORIES[0]);
+
 
   const getProgramIcon = (iconName: string) => {
     switch (iconName) {
