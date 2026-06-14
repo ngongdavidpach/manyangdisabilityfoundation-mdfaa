@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
-import { 
-  ArrowLeft, 
-  Calendar, 
-  Clock, 
-  User, 
-  Share2, 
-  Check, 
+import { useNavigate } from '@tanstack/react-router';
+import {
+  ArrowLeft,
+  Calendar,
+  Clock,
+  User,
+  Share2,
+  Check,
   ArrowRight,
   MapPin,
   Users,
@@ -16,15 +17,15 @@ import {
 import { NEWS_ARTICLES, FOUNDATION_EVENTS, FoundationEvent } from '../../data/foundationData';
 
 interface NewsViewProps {
-  currentPage: string;
-  setCurrentPage: (page: string) => void;
+  articleId?: string;
 }
 
-export const NewsView: React.FC<NewsViewProps> = ({ currentPage, setCurrentPage }) => {
+export const NewsView: React.FC<NewsViewProps> = ({ articleId }) => {
+  const navigate = useNavigate();
   const [copied, setCopied] = useState(false);
   const [activeTab, setActiveTab] = useState<'news' | 'events'>('news');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
-  
+
   // Event RSVP Simulator State
   const [rsvpEvent, setRsvpEvent] = useState<FoundationEvent | null>(null);
   const [rsvpName, setRsvpName] = useState('');
@@ -32,9 +33,9 @@ export const NewsView: React.FC<NewsViewProps> = ({ currentPage, setCurrentPage 
   const [rsvpPhone, setRsvpPhone] = useState('');
   const [rsvpSubmitted, setRsvpSubmitted] = useState(false);
 
-  const isArticleView = currentPage.startsWith('news-');
-  const articleId = isArticleView ? currentPage.replace('news-', '') : null;
-  const currentArticle = NEWS_ARTICLES.find(a => a.id === articleId);
+  const isArticleView = !!articleId;
+  const currentArticle = articleId ? NEWS_ARTICLES.find(a => a.id === articleId) : null;
+
 
   const handleShare = () => {
     setCopied(true);
