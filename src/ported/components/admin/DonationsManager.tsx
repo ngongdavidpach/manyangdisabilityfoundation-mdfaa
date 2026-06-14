@@ -4,6 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import type { Database } from '@/integrations/supabase/types';
 import { Plus, FileDown, Trash2 } from 'lucide-react';
 import { generateReceipt, getReceiptUrl } from '@/lib/receipts.functions';
+import { insertDonation, deleteDonation } from '@/lib/donations.functions';
 
 type Donation = Database['public']['Tables']['donations']['Row'];
 type Contact = Database['public']['Tables']['contacts']['Row'];
