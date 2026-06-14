@@ -19,6 +19,7 @@ export const DonationsManager: React.FC = () => {
   const [busyId, setBusyId] = useState<string | null>(null);
   const gen = useServerFn(generateReceipt);
   const getUrl = useServerFn(getReceiptUrl);
+  const delFn = useServerFn(deleteDonation);
 
   const load = () => {
     supabase.from('donations').select('*').order('received_at', { ascending: false })
