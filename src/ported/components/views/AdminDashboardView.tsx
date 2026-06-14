@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import { LogOut, LayoutDashboard, Image as ImageIcon, FileText, Calendar, Users, Settings as SettingsIcon, Newspaper, Sparkles, HeartHandshake, Wallet, BarChart3, Workflow } from 'lucide-react';
 import { useNavigate, Link } from '@tanstack/react-router';
 import { useAuth } from '../../contexts/AuthContext';
-import { useIdleLogout } from '../../hooks/useIdleLogout';
 import { supabase } from '@/integrations/supabase/client';
 import { GalleryManager } from '../admin/GalleryManager';
 import { PageSettingsEditor } from '../admin/PageSettingsEditor';
@@ -26,20 +25,6 @@ export const AdminDashboard: React.FC = () => {
 
   const [tab, setTab] = useState<Tab>('overview');
   const [counts, setCounts] = useState({ media: 0, news: 0, events: 0, staff: 0 });
-  const [idleMins, setIdleMins] = useState(15);
-
-  useEffect(() => {
-    supabase.from('page_settings').select('content').eq('page_key', 'site').maybeSingle()
-      .then(({ data }) => {
-        const m = Number((data?.content as any)?.idleLogoutMinutes);
-        if (m && m > 0) setIdleMins(m);
-      });
-  }, []);
-
-  useIdleLogout(idleMins * 60_000, () => {
-    alert(`You have been signed out after ${idleMins} minutes of inactivity.`);
-    onLogout();
-  });
 
   useEffect(() => {
     Promise.all([
@@ -76,7 +61,6 @@ export const AdminDashboard: React.FC = () => {
             <img src="/images/logo.png" alt="" className="w-8 h-8" />
             <span className="font-bold text-slate-900">MDF Admin</span>
           </button>
-          <span className="hidden sm:block text-xs text-slate-500">Auto-logout in {idleMins} min of inactivity</span>
           <div className="ml-auto flex items-center gap-3">
             <span className="text-sm text-slate-600 hidden sm:block">{user?.fullName || user?.email}</span>
             <button onClick={onLogout} className="text-sm text-slate-600 hover:text-rose-600 flex items-center gap-1">
@@ -139,7 +123,7 @@ export const AdminDashboard: React.FC = () => {
               <NavigationPagesEditor />
               <div className="bg-white rounded-lg border p-5 space-y-3">
                 <h3 className="text-lg font-bold">Other settings</h3>
-                <p className="text-sm text-slate-600">Site-wide settings are managed under <button onClick={() => setTab('pages')} className="text-blue-600 underline">Page Content → Site / Security</button>, including admin auto-logout (currently {idleMins} minutes), site name, and tagline.</p>
+                <p className="text-sm text-slate-600">Site-wide settings are managed under <button onClick={() => setTab('pages')} className="text-blue-600 underline">Page Content → Site / Security</button>, including site name and tagline.</p>
                 <p className="text-sm text-slate-600">Social media URLs and contact info live under <button onClick={() => setTab('pages')} className="text-blue-600 underline">Page Content → Footer &amp; Contact</button>.</p>
               </div>
             </div>

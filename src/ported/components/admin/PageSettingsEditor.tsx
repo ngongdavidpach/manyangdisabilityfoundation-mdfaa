@@ -68,7 +68,6 @@ const PAGES = [
   { key: 'site', label: 'Site / Security', fields: [
     { path: 'name', label: 'Site name', type: 'text' },
     { path: 'tagline', label: 'Tagline', type: 'text' },
-    { path: 'idleLogoutMinutes', label: 'Admin auto-logout (minutes)', type: 'number' },
   ]},
 ];
 
