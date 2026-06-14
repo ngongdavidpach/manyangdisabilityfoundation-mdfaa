@@ -157,7 +157,7 @@ export const GetInvolvedView: React.FC = () => {
           {activeTab === 'volunteer' && (
             <form onSubmit={handleVSubmit} className="p-6 sm:p-10 space-y-6 animate-fade-in">
               <div className="border-b border-slate-100 pb-3">
-                <h3 className="text-sm font-bold text-slate-900">Volunteer Application</h3>
+                <h2 className="text-sm font-bold text-slate-900">Volunteer Application</h2>
                 <p className="text-xs text-slate-500">Provide your contact info and select the areas where your expertise can assist.</p>
               </div>
 
@@ -250,8 +250,10 @@ export const GetInvolvedView: React.FC = () => {
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">Availability</label>
+                  <label htmlFor="volunteer-availability" className="block text-xs font-bold text-slate-700 mb-1">Availability</label>
                   <select
+                    id="volunteer-availability"
+                    aria-label="Availability"
                     value={vForm.availability}
                     onChange={(e) => setVForm({...vForm, availability: e.target.value})}
                     className="w-full bg-slate-50 border border-slate-300 rounded-lg p-2.5 text-xs text-slate-900 focus:outline-hidden focus:border-blue-500"
@@ -291,7 +293,7 @@ export const GetInvolvedView: React.FC = () => {
           {activeTab === 'partner' && (
             <form onSubmit={handlePSubmit} className="p-6 sm:p-10 space-y-6 animate-fade-in">
               <div className="border-b border-slate-100 pb-3">
-                <h3 className="text-sm font-bold text-slate-900">Institutional & Corporate Partnership</h3>
+                <h2 className="text-sm font-bold text-slate-900">Institutional & Corporate Partnership</h2>
                 <p className="text-xs text-slate-500">Initiate a formal alliance to deliver mobility and healthcare resources at scale.</p>
               </div>
 
@@ -346,8 +348,10 @@ export const GetInvolvedView: React.FC = () => {
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">Entity Type</label>
+                  <label htmlFor="partner-org-type" className="block text-xs font-bold text-slate-700 mb-1">Entity Type</label>
                   <select
+                    id="partner-org-type"
+                    aria-label="Entity Type"
                     value={pForm.orgType}
                     onChange={(e) => setPForm({...pForm, orgType: e.target.value})}
                     className="w-full bg-slate-50 border border-slate-300 rounded-lg p-2.5 text-xs text-slate-900 focus:outline-hidden focus:border-blue-500"
@@ -361,8 +365,10 @@ export const GetInvolvedView: React.FC = () => {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">Proposed Partnership Scope</label>
+                  <label htmlFor="partner-partnership-type" className="block text-xs font-bold text-slate-700 mb-1">Proposed Partnership Scope</label>
                   <select
+                    id="partner-partnership-type"
+                    aria-label="Proposed Partnership Scope"
                     value={pForm.partnershipType}
                     onChange={(e) => setPForm({...pForm, partnershipType: e.target.value})}
                     className="w-full bg-slate-50 border border-slate-300 rounded-lg p-2.5 text-xs text-slate-900 focus:outline-hidden focus:border-blue-500"

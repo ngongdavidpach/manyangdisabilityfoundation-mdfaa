@@ -5,4 +5,4 @@ Disallow: /admin-signup
 Disallow: /dashboard
 Disallow: /auth/
 
-Sitemap: https://manyangfoundation.lovable.app/sitemap.xml
+Sitemap: https://manyangdisabilityfoundation.org/sitemap.xml
