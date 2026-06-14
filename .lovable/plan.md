@@ -1,43 +1,54 @@
 ## Goal
 
-Give admins a dedicated upload screen to manage the **Foundation Insight** block on the home page — title, brief intro text, cover image, brochure PDF, and an embedded intro video.
+Let admins show/hide and reorder pages in the navbar from the Admin Dashboard's **Settings** tab.
 
 ## Where it lives
 
-- **Admin:** new "Foundation Insight" tab in the Admin Dashboard, alongside News / Events / Staff / Gallery.
-- **Public:** existing home insight section (already rendered by `HomeView`) — extended to show the brochure download and the embedded video when set.
+`AdminDashboardView.tsx` → existing **Settings** tab gets a new "Navigation pages" panel above the current links to Page Content. No new top-level tab.
 
 ## Storage
 
-Reuse existing infrastructure — no schema changes.
-- Text + URLs → `page_settings` row with `page_key = 'home'`, under `insight.*`.
-- Cover image → existing `site-images` storage bucket via `ImageUploader`.
-- Brochure PDF → same `site-images` bucket under `pages/home/brochures/`, stored as a public URL in `insight.brochureUrl`.
+Reuse `page_settings` row with `page_key = 'navigation'`. Extend its content shape:
 
-## Admin UI — `src/ported/components/admin/FoundationInsightManager.tsx` (new)
+```
+{
+  showHome: bool, showAbout: bool, showPrograms: bool, showGallery: bool,
+  showNews: bool, showEvents: bool, showGetInvolved: bool, showDonate: bool,
+  showRequest: bool,
+  order: string[]  // NEW — e.g. ['home','about','programs','gallery','request','news','get-involved']
+}
+```
 
-Fields, all saved to `page_settings.content.insight`:
-- `title` — text input
-- `body` — textarea (brief intro)
-- `cover` — image upload (reuses `ImageUploader`)
-- `brochureUrl` — file upload button for PDF (new lightweight uploader, same bucket, accepts `application/pdf`) + clear button
-- `videoUrl` — text input (YouTube / Vimeo URL); we normalize to an embed URL on render
+No schema migration — `content` is JSON. Defaults filled in code when `order` is missing.
 
-Single "Save changes" button → upsert into `page_settings` (`page_key='home'`), merging with existing content so other home fields are preserved.
+## Admin UI — new `NavigationPagesEditor.tsx` (in `components/admin/`)
 
-## Wiring
+Single list of nav items (Home, About Us, Our Impact, Gallery, Request Aid, News & Events, Get Involved). For each row:
+- drag handle (reorder) — use existing pattern; native HTML5 drag-and-drop, no new dep
+- label (read-only, sourced from navbar definition)
+- visibility toggle (checkbox)
+- up/down buttons as a keyboard-friendly fallback to drag
 
-- `src/ported/components/views/AdminDashboardView.tsx` — add new tab "Foundation Insight" that renders `FoundationInsightManager`.
-- `src/ported/components/views/HomeView.tsx` — in the insight section, render:
-  - cover image (existing)
-  - title + body (existing)
-  - "Download brochure" button when `brochureUrl` is set
-  - responsive 16:9 `<iframe>` for `videoUrl` (YouTube/Vimeo embed) when set
-- `PageSettingsEditor.tsx` — leave existing home insight fields in place (admins can still edit there); the new tab is the primary, friendlier entry point.
+Single "Save changes" button → upserts `page_settings` row (`page_key='navigation'`) merging `order` + visibility flags. Loads current values on mount.
+
+Mounted inside the Settings tab in `AdminDashboardView.tsx`, above the existing helper links.
+
+## Public wiring — `Navbar.tsx`
+
+- Move the current hard-coded `navLinks` array into a module-level `NAV_ITEMS` constant (id, label, icon, protected) so it can be filtered/reordered.
+- Read `page_settings` for `page_key='navigation'` via the existing `usePageSettings` hook.
+- Filter `NAV_ITEMS` by the matching `show*` flag (default true when missing), then sort by `content.order` (items not in `order` keep their original position at the end).
+- Apply the same filtering to the mobile menu and footer if the footer also lists pages (verify in `Footer.tsx` and apply if needed).
 
 ## Technical notes
 
-- PDF upload: `supabase.storage.from('site-images').upload(...)` then `getPublicUrl`; validate `file.type === 'application/pdf'` and size ≤ 10 MB.
-- Video URL: helper `toEmbedUrl(url)` converts `youtube.com/watch?v=…`, `youtu.be/…`, and `vimeo.com/…` to their `/embed/` form; if unrecognized, render as a plain link instead of an iframe.
-- Inputs validated with `zod` (title ≤ 120, body ≤ 1000, URLs `.url()`).
+- The existing "Navigation toggles" section in `PageSettingsEditor` stays as-is — it already writes the same row, so both editors interoperate. The new editor is the friendlier surface.
+- Order persistence: store full id list; on render, dedupe + append any new ids introduced by future code so adding a nav item later doesn't disappear behind missing order entries.
 - No new tables, no new RLS — `page_settings` already restricts writes to admins.
+
+## Files
+
+- New: `src/ported/components/admin/NavigationPagesEditor.tsx`
+- Edit: `src/ported/components/views/AdminDashboardView.tsx` (mount in Settings tab)
+- Edit: `src/ported/components/Navbar.tsx` (read + apply order/visibility)
+- Edit: `src/ported/components/Footer.tsx` (apply same filter if it lists pages)
