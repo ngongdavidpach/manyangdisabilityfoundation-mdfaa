@@ -1,84 +1,89 @@
-# Code & Pages Review — Recommendations
 
-Below is a focused review of the current app (a ported SPA mounted at `/` inside a TanStack Start shell) with concrete, prioritized recommendations. Nothing has been changed yet — pick which items to implement.
+# Plan: PWA, Donor CRM, and Financial Management
 
-## 1. Routing architecture (highest impact)
-
-**Today:** Every page is rendered by `src/ported/App.tsx` via a `currentPage` state string and a `switch`. The whole app lives at `/`. TanStack Router is essentially unused.
-
-**Problems this creates:**
-- No real URLs — users can't bookmark `/about`, `/programs`, `/news/<slug>`, share links, or use back/forward reliably.
-- Zero SEO for sub-pages: only `/` has metadata; About / Programs / News / Gallery all share the home page's title and description.
-- No per-route OG image, no social previews for individual news articles.
-- News detail pages (`news-<id>`) are encoded into one string instead of a real route with params.
-- Browser refresh on a "subpage" always returns to home.
-
-**Recommendation:** Split the SPA into real TanStack routes:
-- `src/routes/index.tsx` → Home
-- `src/routes/about.tsx`, `programs.tsx`, `gallery.tsx`, `get-involved.tsx`, `donate.tsx`
-- `src/routes/news.tsx` (list) + `src/routes/news.$slug.tsx` (detail)
-- `src/routes/_authenticated.tsx` layout gating `dashboard`, `request`
-- `src/routes/admin.tsx` layout gating `admin-dashboard`
-- `src/routes/auth/login.tsx`, `auth/register.tsx`
-- Each route file owns its own `head()` (title, description, og:title/description, og:image where relevant). News detail derives og:image from loader data.
-- Replace `currentPage`/`setCurrentPage` with `<Link>` and `useNavigate`.
-
-This is the single biggest quality improvement available and unblocks SEO, sharing, analytics, and proper auth gating.
-
-## 2. SEO
-
-Independent of the routing refactor:
-- Home `<title>` is 79 chars — trim to <60 (e.g. "Manyang Disability Foundation — Mobility, Health, Education").
-- Add a single H1 per page (verify in HomeView/AboutView/etc.).
-- Add JSON-LD `NGO` / `Organization` schema on Home and `NewsArticle` on news detail.
-- Add `<link rel="canonical">` per route once real routes exist.
-- Add alt text audits across `GalleryView` and Foundation Insight covers.
-
-## 3. Auth & authorization hardening
-
-- Hidden Ctrl+Shift+L shortcut to open login is fine, but the admin dashboard relying only on `hasAdminAccess()` from client context is risky if `user_roles` isn't enforced via RLS. Verify every admin-writable table (`page_settings`, `media_assets`, `news_articles`, `events`, `staff_members`, foundation insight table) has RLS policies that gate writes via `public.has_role(auth.uid(), 'admin')`. Run the security scanner to confirm.
-- Idle auto-logout reads from `page_settings.site.idleLogoutMinutes` — good. Consider a minimum (e.g. 1 min) and surface it in the Settings tab UI rather than only Page Content.
-
-## 4. Admin dashboard UX
-
-- `Settings` tab currently points users to "Page Content → Site / Security" and "Page Content → Footer & Contact". Pull those panels directly into Settings so admins don't have to hop tabs.
-- `NavigationPagesEditor` and `PageSettingsEditor` both write `page_settings` rows that contain overlapping `show*` flags. Pick one source of truth — recommend: navigation visibility/order lives only in `page_settings.navigation`; remove the duplicate toggles from `PageSettingsEditor`.
-- Overview stat cards are good; add a "Recently updated" feed (last 5 changes across news/events/insight) for quick context.
-- Add empty-state hints in each manager (News, Events, Staff, Gallery, Insight) when count = 0.
-
-## 5. Public pages
-
-- **Navbar**: `request` is gated as protected, but `dashboard` and `admin-dashboard` links only appear inside the user menu. Add a clear "Sign in" CTA in the navbar when unauthenticated (currently the only entry is Ctrl+Shift+L or clicking Request).
-- **Footer**: confirm Quick Links honors the same `navigation` `page_settings` (you already added this). Add a "Last updated" or copyright year that's not hardcoded.
-- **HomeView**: ensure the Foundation Insight section degrades gracefully when no insight rows exist (empty state, not an empty card).
-- **Mobile**: verify the top blue micro-bar (emergency line + email) wraps cleanly on <360 px.
-
-## 6. Data loading patterns
-
-The ported app uses ad-hoc `useEffect + supabase.from(...).then(...)` everywhere (Navbar, Footer, AdminDashboard, NavigationPagesEditor, HomeView, etc.). Each mount re-fetches.
-
-**Recommendation:** Standardize on the existing `usePageSettings` hook for all `page_settings` reads, and introduce a similar `useTable` helper or adopt TanStack Query (already in the template) for `news`, `events`, `staff`, `media_assets`. This gives caching, deduping, and SWR for free, and removes the "navbar flickers on every page change" feel.
-
-## 7. Code organization
-
-- The whole app is namespaced under `src/ported/`. After the routing refactor, flatten: views → `src/routes/*`, shared components → `src/components/`, hooks → `src/hooks/`, lib → `src/lib/`. Drop the `ported/` prefix.
-- `NAV_ITEM_DEFS` and `resolveNavOrder` are exported from a UI component (`NavigationPagesEditor.tsx`) and imported by `Navbar` and `Footer`. Move them to `src/ported/lib/navItems.ts` so admin UI isn't a dependency of public chrome.
-- `videoEmbed.ts`, `imageOptimize.ts`, `storage.ts` are good — keep this pattern.
-
-## 8. Performance
-
-- HomeView likely renders many images; add `loading="lazy"` and `decoding="async"` on non-hero images; use `<picture>` or AVIF/WebP via `imageOptimize`.
-- The logo is referenced as `/images/logo.png` from `public/` — fine, but the Foundation Insight cover image should go through Supabase Storage transforms (resize on the fly) instead of full-resolution downloads.
-
-## 9. Suggested execution order
-
-1. **Security scan + RLS audit** (fast, blocking).
-2. **Real routes** (biggest UX/SEO win).
-3. **Per-route SEO metadata + JSON-LD**.
-4. **Consolidate Settings tab + remove duplicate nav toggles in PageSettingsEditor**.
-5. **Adopt TanStack Query for tables**, drop ad-hoc `useEffect` fetches.
-6. **Flatten `src/ported/` namespace**.
+Four workstreams, delivered in order so each builds on the last.
 
 ---
 
-Tell me which items to take on (e.g. "do 1, 2, 4" or "start with routing only") and I'll come back with a concrete implementation plan and the file-level changes.
+## 1. PWA — Installable + Offline
+
+- Add `vite-plugin-pwa` with `generateSW`, `registerType: "autoUpdate"`.
+- Manifest: name "Manyang Disability Foundation", short name "Manyang", theme/background colors from the design tokens, `display: "standalone"`, icons (192/512/maskable) generated from the existing `/images/logo.png`.
+- Head tags in `__root.tsx`: `manifest`, `theme-color`, `apple-touch-icon`.
+- Single guarded registration wrapper that refuses to register in dev, iframe previews, Lovable preview hostnames, and when `?sw=off` — unregisters stale workers in those contexts.
+- Workbox runtime caching: `NetworkFirst` for HTML navigations, `CacheFirst` for hashed assets, exclude `/~oauth`, `/api/*`, and Supabase auth.
+- Offline fallback page for navigation failures.
+- Note: offline only works on the published app, not in the Lovable editor preview.
+
+---
+
+## 2. Data Model (one migration)
+
+New tables, all with RLS + GRANTs. Admin-only writes via `has_role(auth.uid(),'admin')`; donors can read their own records via `auth.uid() = user_id`.
+
+- `contacts` — unified CRM record: type (`donor` | `lead` | `partner` | `volunteer`), full_name, email, phone, organization, country, tags (text[]), notes, optional `user_id` link to auth.users, lifecycle_stage, source.
+- `contact_interactions` — contact_id, type (`email` | `call` | `meeting` | `note` | `task`), subject, body, occurred_at, follow_up_at, created_by.
+- `donations` — contact_id (nullable), user_id (nullable), amount_cents, currency, method (`stripe` | `cash` | `bank_transfer` | `cheque` | `mobile_money`), status (`pending` | `completed` | `refunded` | `failed`), stripe_payment_intent_id, designation (program pillar), received_at, receipt_number (auto-seq), notes.
+- `receipts` — donation_id, pdf_url, issued_at, issued_by, receipt_number.
+- `expense_categories` — name, parent_id, budget_cents (annual).
+- `expenses` — category_id, amount_cents, currency, vendor, description, incurred_at, paid_at, status, receipt_url, program_pillar, created_by.
+- `budgets` — fiscal_year, category_id, planned_cents.
+
+Indexes on `contact_id`, `received_at`, `incurred_at`, `status` for report queries. `set_updated_at` triggers on all.
+
+---
+
+## 3. Financial Management
+
+### a. Online donations (Stripe)
+- Run `recommend_payment_provider` then `enable_stripe_payments`. The user already chose Lovable built-in Stripe.
+- After enable, create Stripe products via the post-enable batch tool: one recurring "Monthly Donation" and several one-time preset amounts ($25/$50/$100/$250/custom), tax handling per the post-enable knowledge.
+- Wire the existing `DonateView` "Give now" flow to a `createCheckoutSession` server fn; success page records the donation and triggers receipt PDF.
+- Stripe webhook server route at `src/routes/api/public/stripe-webhook.ts` — verifies signature, inserts/updates `donations`, generates receipt.
+
+### b. Manual donations + receipts
+- Admin form: `src/ported/components/admin/DonationsManager.tsx` — log offline donation, link to contact, issue receipt.
+- Receipt PDF generated server-side with `pdf-lib` (Worker-safe), uploaded to a new private `receipts` storage bucket, signed URL returned. Receipt numbering via Postgres sequence.
+
+### c. Expenses & budgets
+- Admin views: `ExpensesManager.tsx`, `BudgetsManager.tsx`, `ExpenseCategoriesManager.tsx`.
+
+### d. Reports & dashboards
+- `FinanceReportsView.tsx` under admin: income vs expense by month (recharts), donor retention (new vs repeat), top donors, program-pillar spend breakdown, budget-vs-actual table. Date range filter.
+
+---
+
+## 4. Donor / CRM
+
+- Admin section `CRM` with sub-tabs:
+  - **Contacts** — list, filter by type/tag/stage, detail drawer with profile, donation history, interaction timeline.
+  - **Pipeline** — kanban by `lifecycle_stage` (lead → qualified → engaged → donor → lapsed), drag to move.
+  - **Interactions** — log call/email/meeting/note with follow-up date; "My follow-ups" filtered by `created_by` and due date.
+- Donor self-service: extend existing `DashboardView` with a "My giving" panel reading from `donations` where `user_id = auth.uid()`, plus receipt download links.
+- New nav entry in admin sidebar; no public nav changes.
+
+---
+
+## Tech notes
+
+- All admin pages live under existing `/admin` route (already gated by `ProtectedRoute requiredRoles=['admin']`).
+- Donor self-serve under `_authenticated/` so the integration gate handles SSR.
+- Stripe server fns under `src/lib/payments.functions.ts`; webhook under `src/routes/api/public/`. `supabaseAdmin` imported inside handlers only.
+- PDF generation is Worker-compatible (`pdf-lib`, no native deps).
+- New storage bucket `receipts` (private) created via `storage_create_bucket`; RLS on `storage.objects` so donors read only their own.
+- One Supabase migration for all new tables + GRANTs + RLS + triggers + receipt-number sequence.
+
+---
+
+## Delivery order
+
+1. PWA scaffold (smallest, isolated).
+2. Migration (tables, RLS, sequence, storage bucket).
+3. Stripe enablement → checkout + webhook → online donations end-to-end.
+4. Manual donation entry + receipt PDF.
+5. Expenses, categories, budgets.
+6. CRM contacts + interactions + pipeline.
+7. Donor self-serve "My giving".
+8. Reports dashboard.
+
+Out of scope for v1 (can follow): email campaigns, recurring-donation management UI beyond Stripe customer portal, multi-currency conversion, automated bank import.

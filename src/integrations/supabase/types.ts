@@ -14,6 +14,222 @@ export type Database = {
   }
   public: {
     Tables: {
+      budgets: {
+        Row: {
+          category_id: string | null
+          created_at: string
+          fiscal_year: number
+          id: string
+          planned_cents: number
+          updated_at: string
+        }
+        Insert: {
+          category_id?: string | null
+          created_at?: string
+          fiscal_year: number
+          id?: string
+          planned_cents?: number
+          updated_at?: string
+        }
+        Update: {
+          category_id?: string | null
+          created_at?: string
+          fiscal_year?: number
+          id?: string
+          planned_cents?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "budgets_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "expense_categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      contact_interactions: {
+        Row: {
+          body: string | null
+          completed: boolean
+          contact_id: string
+          created_at: string
+          created_by: string | null
+          follow_up_at: string | null
+          id: string
+          occurred_at: string
+          subject: string | null
+          type: Database["public"]["Enums"]["interaction_type"]
+          updated_at: string
+        }
+        Insert: {
+          body?: string | null
+          completed?: boolean
+          contact_id: string
+          created_at?: string
+          created_by?: string | null
+          follow_up_at?: string | null
+          id?: string
+          occurred_at?: string
+          subject?: string | null
+          type?: Database["public"]["Enums"]["interaction_type"]
+          updated_at?: string
+        }
+        Update: {
+          body?: string | null
+          completed?: boolean
+          contact_id?: string
+          created_at?: string
+          created_by?: string | null
+          follow_up_at?: string | null
+          id?: string
+          occurred_at?: string
+          subject?: string | null
+          type?: Database["public"]["Enums"]["interaction_type"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contact_interactions_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "contacts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      contacts: {
+        Row: {
+          country: string | null
+          created_at: string
+          created_by: string | null
+          email: string | null
+          full_name: string
+          id: string
+          lifecycle_stage: Database["public"]["Enums"]["lifecycle_stage"]
+          notes: string | null
+          organization: string | null
+          phone: string | null
+          source: string | null
+          tags: string[]
+          type: Database["public"]["Enums"]["contact_type"]
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          country?: string | null
+          created_at?: string
+          created_by?: string | null
+          email?: string | null
+          full_name: string
+          id?: string
+          lifecycle_stage?: Database["public"]["Enums"]["lifecycle_stage"]
+          notes?: string | null
+          organization?: string | null
+          phone?: string | null
+          source?: string | null
+          tags?: string[]
+          type?: Database["public"]["Enums"]["contact_type"]
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          country?: string | null
+          created_at?: string
+          created_by?: string | null
+          email?: string | null
+          full_name?: string
+          id?: string
+          lifecycle_stage?: Database["public"]["Enums"]["lifecycle_stage"]
+          notes?: string | null
+          organization?: string | null
+          phone?: string | null
+          source?: string | null
+          tags?: string[]
+          type?: Database["public"]["Enums"]["contact_type"]
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      donations: {
+        Row: {
+          amount_cents: number
+          contact_id: string | null
+          created_at: string
+          created_by: string | null
+          currency: string
+          designation: string | null
+          donor_email: string | null
+          donor_name: string | null
+          id: string
+          is_anonymous: boolean
+          message: string | null
+          method: Database["public"]["Enums"]["donation_method"]
+          notes: string | null
+          receipt_number: number | null
+          received_at: string
+          status: Database["public"]["Enums"]["donation_status"]
+          stripe_payment_intent_id: string | null
+          stripe_session_id: string | null
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          amount_cents: number
+          contact_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          currency?: string
+          designation?: string | null
+          donor_email?: string | null
+          donor_name?: string | null
+          id?: string
+          is_anonymous?: boolean
+          message?: string | null
+          method?: Database["public"]["Enums"]["donation_method"]
+          notes?: string | null
+          receipt_number?: number | null
+          received_at?: string
+          status?: Database["public"]["Enums"]["donation_status"]
+          stripe_payment_intent_id?: string | null
+          stripe_session_id?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          amount_cents?: number
+          contact_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          currency?: string
+          designation?: string | null
+          donor_email?: string | null
+          donor_name?: string | null
+          id?: string
+          is_anonymous?: boolean
+          message?: string | null
+          method?: Database["public"]["Enums"]["donation_method"]
+          notes?: string | null
+          receipt_number?: number | null
+          received_at?: string
+          status?: Database["public"]["Enums"]["donation_status"]
+          stripe_payment_intent_id?: string | null
+          stripe_session_id?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "donations_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "contacts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       events: {
         Row: {
           cover_image: string | null
@@ -55,6 +271,100 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      expense_categories: {
+        Row: {
+          annual_budget_cents: number
+          created_at: string
+          id: string
+          name: string
+          parent_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          annual_budget_cents?: number
+          created_at?: string
+          id?: string
+          name: string
+          parent_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          annual_budget_cents?: number
+          created_at?: string
+          id?: string
+          name?: string
+          parent_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "expense_categories_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "expense_categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      expenses: {
+        Row: {
+          amount_cents: number
+          category_id: string | null
+          created_at: string
+          created_by: string | null
+          currency: string
+          description: string
+          id: string
+          incurred_at: string
+          paid_at: string | null
+          program_pillar: string | null
+          receipt_url: string | null
+          status: Database["public"]["Enums"]["expense_status"]
+          updated_at: string
+          vendor: string | null
+        }
+        Insert: {
+          amount_cents: number
+          category_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          currency?: string
+          description: string
+          id?: string
+          incurred_at?: string
+          paid_at?: string | null
+          program_pillar?: string | null
+          receipt_url?: string | null
+          status?: Database["public"]["Enums"]["expense_status"]
+          updated_at?: string
+          vendor?: string | null
+        }
+        Update: {
+          amount_cents?: number
+          category_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          currency?: string
+          description?: string
+          id?: string
+          incurred_at?: string
+          paid_at?: string | null
+          program_pillar?: string | null
+          receipt_url?: string | null
+          status?: Database["public"]["Enums"]["expense_status"]
+          updated_at?: string
+          vendor?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "expenses_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "expense_categories"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       media_assets: {
         Row: {
@@ -185,6 +495,44 @@ export type Database = {
         }
         Relationships: []
       }
+      receipts: {
+        Row: {
+          created_at: string
+          donation_id: string
+          id: string
+          issued_at: string
+          issued_by: string | null
+          receipt_number: number
+          storage_path: string
+        }
+        Insert: {
+          created_at?: string
+          donation_id: string
+          id?: string
+          issued_at?: string
+          issued_by?: string | null
+          receipt_number: number
+          storage_path: string
+        }
+        Update: {
+          created_at?: string
+          donation_id?: string
+          id?: string
+          issued_at?: string
+          issued_by?: string | null
+          receipt_number?: number
+          storage_path?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "receipts_donation_id_fkey"
+            columns: ["donation_id"]
+            isOneToOne: false
+            referencedRelation: "donations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       staff_members: {
         Row: {
           bio: string | null
@@ -295,6 +643,18 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "editor" | "member"
+      contact_type: "donor" | "lead" | "partner" | "volunteer" | "beneficiary"
+      donation_method:
+        | "stripe"
+        | "cash"
+        | "bank_transfer"
+        | "cheque"
+        | "mobile_money"
+        | "other"
+      donation_status: "pending" | "completed" | "refunded" | "failed"
+      expense_status: "planned" | "approved" | "paid" | "cancelled"
+      interaction_type: "email" | "call" | "meeting" | "note" | "task"
+      lifecycle_stage: "lead" | "qualified" | "engaged" | "donor" | "lapsed"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -423,6 +783,19 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "editor", "member"],
+      contact_type: ["donor", "lead", "partner", "volunteer", "beneficiary"],
+      donation_method: [
+        "stripe",
+        "cash",
+        "bank_transfer",
+        "cheque",
+        "mobile_money",
+        "other",
+      ],
+      donation_status: ["pending", "completed", "refunded", "failed"],
+      expense_status: ["planned", "approved", "paid", "cancelled"],
+      interaction_type: ["email", "call", "meeting", "note", "task"],
+      lifecycle_stage: ["lead", "qualified", "engaged", "donor", "lapsed"],
     },
   },
 } as const

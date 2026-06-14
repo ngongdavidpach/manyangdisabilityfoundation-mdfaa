@@ -85,7 +85,22 @@ export const DashboardView: React.FC = () => {
         country: user.country || ''
       });
       setApplications(getApplications(user.id));
-      setDonations(getDonations(user.id));
+      // Load real donations from backend for this user
+      import('@/integrations/supabase/client').then(({ supabase }) => {
+        supabase.from('donations').select('*').eq('user_id', user.id).order('received_at', { ascending: false })
+          .then(({ data }) => {
+            setDonations((data || []).map((d: any) => ({
+              id: d.id,
+              amount: Number(d.amount_cents) / 100,
+              currency: d.currency,
+              pillar: d.designation || 'General',
+              status: d.status,
+              date: d.received_at,
+              referenceCode: d.receipt_number ? `R-${d.receipt_number}` : d.id.slice(0, 8),
+              frequency: d.method === 'stripe' ? 'monthly' : 'one-time',
+            })));
+          });
+      });
     }
   }, [user]);
 

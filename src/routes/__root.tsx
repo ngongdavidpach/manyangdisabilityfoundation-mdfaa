@@ -12,6 +12,7 @@ import { useEffect, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
+import { registerServiceWorker } from "../lib/registerSW";
 import { AuthProvider } from "../ported/contexts/AuthContext";
 import { Navbar } from "../ported/components/Navbar";
 import { Footer } from "../ported/components/Footer";
@@ -67,11 +68,15 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { property: "og:type", content: "website" },
       { property: "og:site_name", content: "Manyang Disability Foundation" },
       { name: "twitter:card", content: "summary_large_image" },
+      { name: "theme-color", content: "#1e40af" },
+      { name: "apple-mobile-web-app-capable", content: "yes" },
+      { name: "apple-mobile-web-app-status-bar-style", content: "black-translucent" },
     ],
     links: [
       { rel: "stylesheet", href: appCss },
       { rel: "icon", type: "image/png", href: "/images/logo.png" },
       { rel: "apple-touch-icon", href: "/images/logo.png" },
+      { rel: "manifest", href: "/manifest.webmanifest" },
     ],
   }),
   shellComponent: RootShell,
@@ -104,6 +109,7 @@ function ClientShell() {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+  useEffect(() => { registerServiceWorker(); }, []);
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
