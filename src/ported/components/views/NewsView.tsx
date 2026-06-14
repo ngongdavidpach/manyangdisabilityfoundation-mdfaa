@@ -64,7 +64,7 @@ export const NewsView: React.FC<NewsViewProps> = ({ articleId }) => {
         {/* Back Link */}
         <div>
           <button
-            onClick={() => setCurrentPage('news')}
+            onClick={() => navigate({ to: '/news' })}
             className="inline-flex items-center gap-1.5 text-xs font-bold text-blue-600 hover:text-blue-800 transition-colors group"
           >
             <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
@@ -139,7 +139,7 @@ export const NewsView: React.FC<NewsViewProps> = ({ articleId }) => {
             </p>
           </div>
           <button
-            onClick={() => setCurrentPage('donate')}
+            onClick={() => navigate({ to: '/donate' })}
             className="bg-blue-600 hover:bg-blue-700 text-white font-bold px-6 py-3 rounded-xl text-xs transition-colors shrink-0"
           >
             Support This Program
@@ -157,7 +157,7 @@ export const NewsView: React.FC<NewsViewProps> = ({ articleId }) => {
               <div 
                 key={article.id}
                 onClick={() => {
-                  setCurrentPage(`news-${article.id}`);
+                  navigate({ to: '/news/$slug', params: { slug: String(article.id) } });
                   window.scrollTo({ top: 0, behavior: 'smooth' });
                 }}
                 className="bg-white p-4 rounded-xl border border-slate-200 hover:border-blue-400 cursor-pointer transition-all flex gap-4 items-center group"
@@ -258,7 +258,7 @@ export const NewsView: React.FC<NewsViewProps> = ({ articleId }) => {
             {filteredArticles.map((article) => (
               <div 
                 key={article.id}
-                onClick={() => setCurrentPage(`news-${article.id}`)}
+                onClick={() => navigate({ to: '/news/$slug', params: { slug: String(article.id) } })}
                 className="bg-white rounded-2xl overflow-hidden border border-slate-200 hover:shadow-md cursor-pointer transition-all flex flex-col justify-between group"
               >
                 <div>
