@@ -84,7 +84,7 @@ export const RegisterView: React.FC = () => {
         role: form.role,
       });
       if (result.success) {
-        onRegisterSuccess();
+        navigate({ to: '/dashboard' });
       } else {
         setError(result.error || 'Registration failed.');
       }
@@ -335,7 +335,7 @@ export const RegisterView: React.FC = () => {
                 Already have an account?{' '}
                 <button
                   type="button"
-                  onClick={onSwitchToLogin}
+                  onClick={() => navigate({ to: '/auth/login' })}
                   className="text-blue-600 hover:underline font-semibold"
                 >
                   Sign in here
