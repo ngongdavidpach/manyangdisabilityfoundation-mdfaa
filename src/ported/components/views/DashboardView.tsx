@@ -23,13 +23,11 @@ import {
 import { useAuth } from '../../contexts/AuthContext';
 import { getApplications, getDonations, getRoleLabel, getRoleColor } from '../../utils/auth';
 
-interface DashboardViewProps {
-  onLogout: () => void;
-  onNavigate: (page: string) => void;
-}
+export const DashboardView: React.FC = () => {
+  const navigate = useNavigate();
+  const { user, updateUser, logout } = useAuth();
+  const onLogout = logout;
 
-export const DashboardView: React.FC<DashboardViewProps> = ({ onLogout, onNavigate }) => {
-  const { user, updateUser } = useAuth();
   const [activeTab, setActiveTab] = useState<'overview' | 'applications' | 'donations' | 'profile' | 'settings'>('overview');
   const [applications, setApplications] = useState<any[]>([]);
   const [donations, setDonations] = useState<any[]>([]);
