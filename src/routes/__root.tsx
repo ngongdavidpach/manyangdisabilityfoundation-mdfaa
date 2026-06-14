@@ -65,6 +65,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "viewport", content: "width=device-width, initial-scale=1" },
       { title: "Manyang Disability Foundation" },
       { name: "description", content: "Manyang Disability Foundation: mobility aids, healthcare, education and livelihoods for persons with disabilities." },
+      { name: "google-site-verification", content: "-DIrDvS3tDZ6w814f7AHO6jAwsSG-kA3Cr8BnSFtZis" },
       { property: "og:type", content: "website" },
       { property: "og:site_name", content: "Manyang Disability Foundation" },
       { name: "twitter:card", content: "summary_large_image" },
