@@ -156,6 +156,7 @@ export const Navbar: React.FC = () => {
           <div className="hidden sm:flex items-center gap-2">
             <Link
               to="/donate"
+              onClick={() => { setUserMenuOpen(false); setMobileMenuOpen(false); }}
               className="relative group overflow-hidden rounded-lg bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold px-5 py-2.5 text-sm shadow-sm transition-all hover:shadow-md flex items-center gap-2"
             >
               <Heart className="w-4 h-4 fill-slate-950 text-slate-950 animate-pulse" />
@@ -227,6 +228,7 @@ export const Navbar: React.FC = () => {
           <div className="flex items-center gap-2 sm:hidden">
             <Link
               to="/donate"
+              onClick={() => { setUserMenuOpen(false); setMobileMenuOpen(false); }}
               className="bg-amber-500 text-slate-950 font-bold px-3 py-1.5 rounded-md text-xs flex items-center gap-1"
             >
               <Heart className="w-3 h-3 fill-slate-950" />
