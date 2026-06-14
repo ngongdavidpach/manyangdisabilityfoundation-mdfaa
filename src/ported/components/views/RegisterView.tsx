@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { 
-  UserPlus, 
+import { Link, useNavigate } from '@tanstack/react-router';
+import {
+  UserPlus,
   ArrowRight,
   Check,
   X,
@@ -15,13 +16,10 @@ import { useAuth } from '../../contexts/AuthContext';
 import type { UserRole } from '../../types/auth';
 import { getPasswordStrength } from '../../utils/auth';
 
-interface RegisterViewProps {
-  onSwitchToLogin: () => void;
-  onRegisterSuccess: () => void;
-}
-
-export const RegisterView: React.FC<RegisterViewProps> = ({ onSwitchToLogin, onRegisterSuccess }) => {
+export const RegisterView: React.FC = () => {
+  const navigate = useNavigate();
   const { register } = useAuth();
+
   const [form, setForm] = useState({
     fullName: '',
     email: '',
