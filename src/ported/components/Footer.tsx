@@ -23,7 +23,7 @@ import { NAV_ITEM_DEFS, resolveNavOrder } from '../lib/navItems';
 const PATH_FOR: Record<string, string> = {
   home: '/', about: '/about', programs: '/programs', gallery: '/gallery',
   request: '/request', news: '/news', 'get-involved': '/get-involved',
-  donate: '/donate', 'admin-signup': '/admin-signup',
+  donate: '/donate', 'admin-login': '/auth/login',
 };
 
 
