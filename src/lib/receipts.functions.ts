@@ -1,5 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { enforceRateLimit } from "@/lib/rateLimit.server";
 
 // Generate a donation receipt PDF, store it in the `receipts` bucket,
 // insert a row in `public.receipts`, and return the storage path.
