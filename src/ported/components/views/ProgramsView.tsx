@@ -78,6 +78,7 @@ export const ProgramsView: React.FC = () => {
         </div>
 
         {/* Detailed Program Grid */}
+        <h2 className="sr-only">Core Programs</h2>
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-10 mt-12">
           {filteredPrograms.map((program) => (
             <div 
@@ -236,9 +237,9 @@ export const ProgramsView: React.FC = () => {
               Emergency Mobility Response
             </span>
 
-            <h3 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">
+            <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">
               The Critical Need for Mobile Wheelchair Repair Workshops
-            </h3>
+            </h2>
 
             <p className="text-sm text-slate-700 leading-relaxed">
               Procuring a brand new wheelchair is life-changing, but keeping it functional in rough environments requires constant maintenance. Many humanitarian agencies donate unadapted hospital chairs that break down within months. 

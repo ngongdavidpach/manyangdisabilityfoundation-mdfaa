@@ -351,7 +351,7 @@ export const HomeView: React.FC = () => {
                   onClick={() => navigate({ to: '/programs' })}
                   className="font-bold text-blue-600 hover:underline"
                 >
-                  Learn More
+                  Learn about {program.title}
                 </button>
               </div>
             </div>

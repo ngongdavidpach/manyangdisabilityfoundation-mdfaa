@@ -22,6 +22,7 @@ import { Route as AdminRouteImport } from './routes/admin'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as NewsSlugRouteImport } from './routes/news.$slug'
+import { Route as GuidesFreeMedicalEquipmentRouteImport } from './routes/guides.free-medical-equipment'
 import { Route as GuidesDonateSuppliesRouteImport } from './routes/guides.donate-supplies'
 import { Route as AuthRegisterRouteImport } from './routes/auth.register'
 import { Route as AuthLoginRouteImport } from './routes/auth.login'
@@ -91,6 +92,12 @@ const NewsSlugRoute = NewsSlugRouteImport.update({
   path: '/$slug',
   getParentRoute: () => NewsRoute,
 } as any)
+const GuidesFreeMedicalEquipmentRoute =
+  GuidesFreeMedicalEquipmentRouteImport.update({
+    id: '/guides/free-medical-equipment',
+    path: '/guides/free-medical-equipment',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const GuidesDonateSuppliesRoute = GuidesDonateSuppliesRouteImport.update({
   id: '/guides/donate-supplies',
   path: '/guides/donate-supplies',
@@ -123,6 +130,7 @@ export interface FileRoutesByFullPath {
   '/auth/login': typeof AuthLoginRoute
   '/auth/register': typeof AuthRegisterRoute
   '/guides/donate-supplies': typeof GuidesDonateSuppliesRoute
+  '/guides/free-medical-equipment': typeof GuidesFreeMedicalEquipmentRoute
   '/news/$slug': typeof NewsSlugRoute
 }
 export interface FileRoutesByTo {
@@ -141,6 +149,7 @@ export interface FileRoutesByTo {
   '/auth/login': typeof AuthLoginRoute
   '/auth/register': typeof AuthRegisterRoute
   '/guides/donate-supplies': typeof GuidesDonateSuppliesRoute
+  '/guides/free-medical-equipment': typeof GuidesFreeMedicalEquipmentRoute
   '/news/$slug': typeof NewsSlugRoute
 }
 export interface FileRoutesById {
@@ -160,6 +169,7 @@ export interface FileRoutesById {
   '/auth/login': typeof AuthLoginRoute
   '/auth/register': typeof AuthRegisterRoute
   '/guides/donate-supplies': typeof GuidesDonateSuppliesRoute
+  '/guides/free-medical-equipment': typeof GuidesFreeMedicalEquipmentRoute
   '/news/$slug': typeof NewsSlugRoute
 }
 export interface FileRouteTypes {
@@ -180,6 +190,7 @@ export interface FileRouteTypes {
     | '/auth/login'
     | '/auth/register'
     | '/guides/donate-supplies'
+    | '/guides/free-medical-equipment'
     | '/news/$slug'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -198,6 +209,7 @@ export interface FileRouteTypes {
     | '/auth/login'
     | '/auth/register'
     | '/guides/donate-supplies'
+    | '/guides/free-medical-equipment'
     | '/news/$slug'
   id:
     | '__root__'
@@ -216,6 +228,7 @@ export interface FileRouteTypes {
     | '/auth/login'
     | '/auth/register'
     | '/guides/donate-supplies'
+    | '/guides/free-medical-equipment'
     | '/news/$slug'
   fileRoutesById: FileRoutesById
 }
@@ -235,6 +248,7 @@ export interface RootRouteChildren {
   AuthLoginRoute: typeof AuthLoginRoute
   AuthRegisterRoute: typeof AuthRegisterRoute
   GuidesDonateSuppliesRoute: typeof GuidesDonateSuppliesRoute
+  GuidesFreeMedicalEquipmentRoute: typeof GuidesFreeMedicalEquipmentRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -330,6 +344,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof NewsSlugRouteImport
       parentRoute: typeof NewsRoute
     }
+    '/guides/free-medical-equipment': {
+      id: '/guides/free-medical-equipment'
+      path: '/guides/free-medical-equipment'
+      fullPath: '/guides/free-medical-equipment'
+      preLoaderRoute: typeof GuidesFreeMedicalEquipmentRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/guides/donate-supplies': {
       id: '/guides/donate-supplies'
       path: '/guides/donate-supplies'
@@ -380,6 +401,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthLoginRoute: AuthLoginRoute,
   AuthRegisterRoute: AuthRegisterRoute,
   GuidesDonateSuppliesRoute: GuidesDonateSuppliesRoute,
+  GuidesFreeMedicalEquipmentRoute: GuidesFreeMedicalEquipmentRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

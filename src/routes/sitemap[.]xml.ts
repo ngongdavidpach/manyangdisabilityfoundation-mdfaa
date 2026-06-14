@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import type {} from "@tanstack/react-start";
 
-const BASE_URL = "https://manyangfoundation.lovable.app";
+const BASE_URL = "https://manyangdisabilityfoundation.org";
 
 interface SitemapEntry {
   path: string;
@@ -21,6 +21,8 @@ export const Route = createFileRoute("/sitemap.xml")({
           { path: "/news", changefreq: "weekly", priority: "0.7" },
           { path: "/get-involved", changefreq: "monthly", priority: "0.7" },
           { path: "/donate", changefreq: "monthly", priority: "0.9" },
+          { path: "/request", changefreq: "monthly", priority: "0.7" },
+          { path: "/guides/free-medical-equipment", changefreq: "monthly", priority: "0.7" },
           { path: "/guides/donate-supplies", changefreq: "monthly", priority: "0.7" },
         ];
 

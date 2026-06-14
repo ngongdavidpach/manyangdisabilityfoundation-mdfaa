@@ -69,7 +69,9 @@ export const GalleryView: React.FC = () => {
       </div>
 
       {/* Images Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+      <section aria-labelledby="gallery-photos-heading">
+        <h2 id="gallery-photos-heading" className="sr-only">Field Photos</h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
         {filteredImages.map((img) => (
           <div 
             key={img.id}
@@ -77,9 +79,11 @@ export const GalleryView: React.FC = () => {
           >
             <div>
               {/* Image Container */}
-              <div 
+              <button
+                type="button"
                 onClick={() => setSelectedImage(img)}
-                className="h-64 w-full relative overflow-hidden cursor-pointer bg-slate-100"
+                aria-label={`Enlarge photo: ${img.title}`}
+                className="h-64 w-full relative overflow-hidden cursor-pointer bg-slate-100 block text-left"
               >
                 <img 
                   src={img.url} 
@@ -95,7 +99,7 @@ export const GalleryView: React.FC = () => {
                 <div className="absolute top-3 left-3 bg-white/95 backdrop-blur-xs text-blue-900 text-[10px] font-bold px-2 py-0.5 rounded uppercase">
                   {getCategoryLabel(img.category)}
                 </div>
-              </div>
+              </button>
 
               {/* Text Info */}
               <div className="p-5 space-y-2">
@@ -138,7 +142,8 @@ export const GalleryView: React.FC = () => {
             </div>
           </div>
         ))}
-      </div>
+        </div>
+      </section>
 
       {/* Lightbox / Modal View */}
       {selectedImage && (
@@ -177,9 +182,9 @@ export const GalleryView: React.FC = () => {
                   </button>
                 </div>
 
-                <h3 className="text-xl font-bold text-slate-900 leading-tight">
+                <h2 className="text-xl font-bold text-slate-900 leading-tight">
                   {selectedImage.title}
-                </h3>
+                </h2>
 
                 <div className="space-y-1.5 text-xs text-slate-500 border-y border-slate-100 py-3">
                   <div className="flex items-center gap-2">
