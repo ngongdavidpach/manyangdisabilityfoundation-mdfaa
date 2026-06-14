@@ -7,9 +7,9 @@ export const Route = createFileRoute("/gallery")({
       { title: "Gallery — Manyang Disability Foundation" },
       { name: "description", content: "Photos from outreach missions, wheelchair distributions, and community events." },
       { property: "og:title", content: "Gallery — Manyang Disability Foundation" },
-      { property: "og:url", content: "https://manyangfoundation.lovable.app/gallery" },
+      { property: "og:url", content: "https://manyangdisabilityfoundation.org/gallery" },
     ],
-    links: [{ rel: "canonical", href: "https://manyangfoundation.lovable.app/gallery" }],
+    links: [{ rel: "canonical", href: "https://manyangdisabilityfoundation.org/gallery" }],
   }),
   component: GalleryView,
 });

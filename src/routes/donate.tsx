@@ -7,9 +7,9 @@ export const Route = createFileRoute("/donate")({
       { title: "Donate — Manyang Disability Foundation" },
       { name: "description", content: "Fund custom wheelchairs, rehabilitation surgeries, and inclusive classroom tools." },
       { property: "og:title", content: "Donate — Manyang Disability Foundation" },
-      { property: "og:url", content: "https://manyangfoundation.lovable.app/donate" },
+      { property: "og:url", content: "https://manyangdisabilityfoundation.org/donate" },
     ],
-    links: [{ rel: "canonical", href: "https://manyangfoundation.lovable.app/donate" }],
+    links: [{ rel: "canonical", href: "https://manyangdisabilityfoundation.org/donate" }],
   }),
   component: DonateView,
 });

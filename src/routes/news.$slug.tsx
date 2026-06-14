@@ -7,7 +7,7 @@ export const Route = createFileRoute("/news/$slug")({
     const article = NEWS_ARTICLES.find(a => a.id === params.slug);
     const title = article ? `${article.title} — MDF News` : "Dispatch — MDF News";
     const desc = article?.summary || "Field dispatch from the Manyang Disability Foundation.";
-    const url = `https://manyangfoundation.lovable.app/news/${params.slug}`;
+    const url = `https://manyangdisabilityfoundation.org/news/${params.slug}`;
     return {
       meta: [
         { title },
