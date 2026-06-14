@@ -16,10 +16,16 @@ const Linkedin = ({ className = '' }: { className?: string }) => (
 const Youtube = ({ className = '' }: { className?: string }) => (
   <svg viewBox="0 0 24 24" fill="currentColor" className={className} aria-hidden><path d="M23 7.2s-.2-1.6-.9-2.3c-.8-.9-1.7-.9-2.2-1C16.5 3.6 12 3.6 12 3.6s-4.5 0-7.9.3c-.5.1-1.4.1-2.2 1C1.2 5.6 1 7.2 1 7.2S.8 9 .8 10.9v1.7C.8 14.5 1 16.4 1 16.4s.2 1.6.9 2.3c.8.9 1.9.9 2.4 1 1.7.2 7.7.3 7.7.3s4.5 0 7.9-.3c.5-.1 1.4-.1 2.2-1 .7-.7.9-2.3.9-2.3s.2-1.9.2-3.8v-1.7c0-1.9-.2-3.7-.2-3.7ZM9.7 14.6V8.4l5.8 3.1-5.8 3.1Z"/></svg>
 );
+import { Link, useNavigate } from '@tanstack/react-router';
 import { supabase } from '@/integrations/supabase/client';
 import { NAV_ITEM_DEFS, resolveNavOrder } from '../lib/navItems';
 
-interface FooterProps { setCurrentPage: (page: string) => void; }
+const PATH_FOR: Record<string, string> = {
+  home: '/', about: '/about', programs: '/programs', gallery: '/gallery',
+  request: '/request', news: '/news', 'get-involved': '/get-involved',
+  donate: '/donate', 'admin-signup': '/admin-signup',
+};
+
 
 interface FooterSettings {
   address: string;
