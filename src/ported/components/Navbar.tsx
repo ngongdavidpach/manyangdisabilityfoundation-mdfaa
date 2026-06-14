@@ -319,7 +319,15 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPage, setCurrentPage }) =
                     <span>Sign Out</span>
                   </button>
                 </>
-              ) : null}
+              ) : (
+                <button
+                  onClick={() => { setCurrentPage('login'); setMobileMenuOpen(false); }}
+                  className="w-full flex items-center gap-3 px-4 py-3 rounded-lg bg-blue-600 text-white font-semibold"
+                >
+                  <User className="w-5 h-5" />
+                  <span>Sign in</span>
+                </button>
+              )}
             </div>
           </div>
         </div>
