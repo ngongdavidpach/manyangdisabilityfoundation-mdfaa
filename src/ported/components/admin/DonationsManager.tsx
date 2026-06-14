@@ -4,6 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import type { Database } from '@/integrations/supabase/types';
 import { Plus, FileDown, Trash2 } from 'lucide-react';
 import { generateReceipt, getReceiptUrl } from '@/lib/receipts.functions';
+import { insertDonation, deleteDonation } from '@/lib/donations.functions';
 
 type Donation = Database['public']['Tables']['donations']['Row'];
 type Contact = Database['public']['Tables']['contacts']['Row'];
@@ -18,6 +19,7 @@ export const DonationsManager: React.FC = () => {
   const [busyId, setBusyId] = useState<string | null>(null);
   const gen = useServerFn(generateReceipt);
   const getUrl = useServerFn(getReceiptUrl);
+  const delFn = useServerFn(deleteDonation);
 
   const load = () => {
     supabase.from('donations').select('*').order('received_at', { ascending: false })
@@ -102,7 +104,7 @@ export const DonationsManager: React.FC = () => {
                   ) : '—'}
                 </td>
                 <td className="p-3 text-right">
-                  <button onClick={async () => { if (confirm('Delete donation?')) { await supabase.from('donations').delete().eq('id', d.id); load(); } }}
+                  <button onClick={async () => { if (confirm('Delete donation?')) { try { await delFn({ data: { id: d.id } }); load(); } catch (e) { alert((e as Error).message); } } }}
                     className="text-rose-600"><Trash2 className="w-4 h-4" /></button>
                 </td>
               </tr>
@@ -117,6 +119,7 @@ export const DonationsManager: React.FC = () => {
 };
 
 const DonationForm: React.FC<{ contacts: Contact[]; onClose: () => void; onSaved: () => void }> = ({ contacts, onClose, onSaved }) => {
+  const insert = useServerFn(insertDonation);
   const [form, setForm] = useState({
     contact_id: '',
     donor_name: '',
@@ -130,25 +133,33 @@ const DonationForm: React.FC<{ contacts: Contact[]; onClose: () => void; onSaved
     notes: '',
     is_anonymous: false,
   });
+  const [saving, setSaving] = useState(false);
 
   const save = async () => {
     const amount_cents = Math.round(parseFloat(form.amount || '0') * 100);
     if (!amount_cents) { alert('Enter an amount'); return; }
     const contact = contacts.find(c => c.id === form.contact_id);
-    await supabase.from('donations').insert({
-      contact_id: form.contact_id || null,
-      amount_cents,
-      currency: form.currency,
-      method: form.method,
-      status: form.status,
-      designation: form.designation || null,
-      donor_name: form.donor_name || contact?.full_name || null,
-      donor_email: form.donor_email || contact?.email || null,
-      is_anonymous: form.is_anonymous,
-      notes: form.notes || null,
-      received_at: new Date(form.received_at).toISOString(),
-    });
-    onSaved();
+    setSaving(true);
+    try {
+      await insert({ data: {
+        contact_id: form.contact_id || null,
+        amount_cents,
+        currency: form.currency,
+        method: form.method,
+        status: form.status,
+        designation: form.designation || null,
+        donor_name: form.donor_name || contact?.full_name || null,
+        donor_email: form.donor_email || contact?.email || null,
+        is_anonymous: form.is_anonymous,
+        notes: form.notes || null,
+        received_at: new Date(form.received_at).toISOString(),
+      }});
+      onSaved();
+    } catch (e) {
+      alert((e as Error).message);
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (
@@ -226,7 +237,7 @@ const DonationForm: React.FC<{ contacts: Contact[]; onClose: () => void; onSaved
             <textarea value={form.notes} onChange={e => setForm({ ...form, notes: e.target.value })} rows={3}
               className="w-full mt-1 px-3 py-2 border rounded-md text-sm" />
           </label>
-          <button onClick={save} className="bg-blue-600 text-white px-4 py-2 rounded-md text-sm w-full">Save donation</button>
+          <button onClick={save} disabled={saving} className="bg-blue-600 text-white px-4 py-2 rounded-md text-sm w-full disabled:opacity-50">{saving ? 'Saving…' : 'Save donation'}</button>
         </div>
       </div>
     </div>

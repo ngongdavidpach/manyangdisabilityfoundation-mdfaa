@@ -1,89 +1,87 @@
 
-# Plan: PWA, Donor CRM, and Financial Management
+# Rate limiting + RLS hardening
 
-Four workstreams, delivered in order so each builds on the last.
+Current state (verified): all 14 public tables have RLS on. Policies are mostly aligned with the answers you gave. This plan tightens the edges, adds storage policies, and adds an ad-hoc rate limiter.
 
----
-
-## 1. PWA — Installable + Offline
-
-- Add `vite-plugin-pwa` with `generateSW`, `registerType: "autoUpdate"`.
-- Manifest: name "Manyang Disability Foundation", short name "Manyang", theme/background colors from the design tokens, `display: "standalone"`, icons (192/512/maskable) generated from the existing `/images/logo.png`.
-- Head tags in `__root.tsx`: `manifest`, `theme-color`, `apple-touch-icon`.
-- Single guarded registration wrapper that refuses to register in dev, iframe previews, Lovable preview hostnames, and when `?sw=off` — unregisters stale workers in those contexts.
-- Workbox runtime caching: `NetworkFirst` for HTML navigations, `CacheFirst` for hashed assets, exclude `/~oauth`, `/api/*`, and Supabase auth.
-- Offline fallback page for navigation failures.
-- Note: offline only works on the published app, not in the Lovable editor preview.
+> Caveat on rate limiting: the backend has no built-in limiter. The Postgres approach below works but is best-effort — it cannot stop a flood before it hits the DB, and an attacker bypassing the app and hitting Supabase directly is not in scope. For real edge protection, you'd need a WAF/CDN, which isn't available here.
 
 ---
 
-## 2. Data Model (one migration)
+## 1. One migration: RLS hardening + rate limiter
 
-New tables, all with RLS + GRANTs. Admin-only writes via `has_role(auth.uid(),'admin')`; donors can read their own records via `auth.uid() = user_id`.
+### 1a. Rate limiter primitives
 
-- `contacts` — unified CRM record: type (`donor` | `lead` | `partner` | `volunteer`), full_name, email, phone, organization, country, tags (text[]), notes, optional `user_id` link to auth.users, lifecycle_stage, source.
-- `contact_interactions` — contact_id, type (`email` | `call` | `meeting` | `note` | `task`), subject, body, occurred_at, follow_up_at, created_by.
-- `donations` — contact_id (nullable), user_id (nullable), amount_cents, currency, method (`stripe` | `cash` | `bank_transfer` | `cheque` | `mobile_money`), status (`pending` | `completed` | `refunded` | `failed`), stripe_payment_intent_id, designation (program pillar), received_at, receipt_number (auto-seq), notes.
-- `receipts` — donation_id, pdf_url, issued_at, issued_by, receipt_number.
-- `expense_categories` — name, parent_id, budget_cents (annual).
-- `expenses` — category_id, amount_cents, currency, vendor, description, incurred_at, paid_at, status, receipt_url, program_pillar, created_by.
-- `budgets` — fiscal_year, category_id, planned_cents.
+- New table `public.rate_limits(id, key text, bucket text, window_start timestamptz, count int)` with unique index on `(key, bucket, window_start)`.
+- Function `public.check_rate_limit(_key text, _bucket text, _max int, _window_seconds int) returns boolean` — SECURITY DEFINER, atomic upsert that increments the current window's counter and returns false when over `_max`. Old windows are ignored; a lightweight cleanup happens opportunistically.
+- GRANT EXECUTE to `authenticated` and `service_role` only. No table grants — callers go through the function.
 
-Indexes on `contact_id`, `received_at`, `incurred_at`, `status` for report queries. `set_updated_at` triggers on all.
+### 1b. RLS tightening
 
----
+- **`user_roles`**: drop the redundant `user_roles_admin_only_write` policy that includes `anon`. Keep `user_roles_admin_all` (authenticated) + `user_roles_self_read`.
+- **`page_settings`**: keep public read (the site reads it unauthenticated) but explicitly REVOKE INSERT/UPDATE/DELETE from `anon` to make intent explicit.
+- **`donations`**: add explicit `donations_self_read` already exists; add a defensive policy that blocks anon entirely (no `TO anon` grants today, but add `REVOKE ALL ... FROM anon` for belt-and-braces).
+- **`contacts` / `contact_interactions` / `expenses` / `expense_categories` / `budgets` / `receipts`**: confirm admin-only — drop the `contacts_self_read` policy (you chose admins-only for CRM).
+- **`profiles`**: add `profiles_admin_read` so admins can view all profiles for the CRM (today admins can't see other profiles).
+- Re-affirm GRANTs on every table: `authenticated` only where a policy targets them; `service_role` ALL on every table; `anon` SELECT only on `page_settings`, `media_assets`, `news_articles`, `events`.
 
-## 3. Financial Management
+### 1c. Storage policies
 
-### a. Online donations (Stripe)
-- Run `recommend_payment_provider` then `enable_stripe_payments`. The user already chose Lovable built-in Stripe.
-- After enable, create Stripe products via the post-enable batch tool: one recurring "Monthly Donation" and several one-time preset amounts ($25/$50/$100/$250/custom), tax handling per the post-enable knowledge.
-- Wire the existing `DonateView` "Give now" flow to a `createCheckoutSession` server fn; success page records the donation and triggers receipt PDF.
-- Stripe webhook server route at `src/routes/api/public/stripe-webhook.ts` — verifies signature, inserts/updates `donations`, generates receipt.
+The `receipts` bucket has no `storage.objects` policies yet. Add:
+- Admin read/write on objects in `receipts`.
+- Donor read on objects whose path matches `donations/{donation_id}/...` where the donation's `user_id = auth.uid()`.
+- No public access. `site-images` keeps existing public-read.
 
-### b. Manual donations + receipts
-- Admin form: `src/ported/components/admin/DonationsManager.tsx` — log offline donation, link to contact, issue receipt.
-- Receipt PDF generated server-side with `pdf-lib` (Worker-safe), uploaded to a new private `receipts` storage bucket, signed URL returned. Receipt numbering via Postgres sequence.
+### 1d. Triggers
 
-### c. Expenses & budgets
-- Admin views: `ExpensesManager.tsx`, `BudgetsManager.tsx`, `ExpenseCategoriesManager.tsx`.
-
-### d. Reports & dashboards
-- `FinanceReportsView.tsx` under admin: income vs expense by month (recharts), donor retention (new vs repeat), top donors, program-pillar spend breakdown, budget-vs-actual table. Date range filter.
+- `set_updated_at` on `rate_limits` not needed (window-based).
+- Confirm `assign_receipt_number` trigger is attached to `donations` (sequence exists; verify trigger).
 
 ---
 
-## 4. Donor / CRM
+## 2. Rate limit wiring (server-side only)
 
-- Admin section `CRM` with sub-tabs:
-  - **Contacts** — list, filter by type/tag/stage, detail drawer with profile, donation history, interaction timeline.
-  - **Pipeline** — kanban by `lifecycle_stage` (lead → qualified → engaged → donor → lapsed), drag to move.
-  - **Interactions** — log call/email/meeting/note with follow-up date; "My follow-ups" filtered by `created_by` and due date.
-- Donor self-service: extend existing `DashboardView` with a "My giving" panel reading from `donations` where `user_id = auth.uid()`, plus receipt download links.
-- New nav entry in admin sidebar; no public nav changes.
+A small helper `src/lib/rateLimit.server.ts` calls `check_rate_limit` via `supabaseAdmin.rpc`. Key = `auth.uid()` when signed in, else the request IP (`getRequestIP({ xForwardedFor: true })`). Bucket + limits per endpoint:
 
----
+| Endpoint | Bucket | Limit |
+|---|---|---|
+| `createCheckoutSession` (Stripe) | `checkout` | 10 / 10 min per key |
+| `generateReceipt` | `receipt-gen` | 30 / hour per admin |
+| `getReceiptUrl` | `receipt-url` | 60 / hour per key |
+| Manual donation insert (admin) | `donation-insert` | 120 / hour per admin |
+| `/api/public/stripe-webhook` | `stripe-webhook` | 600 / min per IP (after signature verify, defence-in-depth only) |
+| Auth-sensitive admin fns (role grants, etc.) | `admin-sensitive` | 30 / hour per admin |
 
-## Tech notes
-
-- All admin pages live under existing `/admin` route (already gated by `ProtectedRoute requiredRoles=['admin']`).
-- Donor self-serve under `_authenticated/` so the integration gate handles SSR.
-- Stripe server fns under `src/lib/payments.functions.ts`; webhook under `src/routes/api/public/`. `supabaseAdmin` imported inside handlers only.
-- PDF generation is Worker-compatible (`pdf-lib`, no native deps).
-- New storage bucket `receipts` (private) created via `storage_create_bucket`; RLS on `storage.objects` so donors read only their own.
-- One Supabase migration for all new tables + GRANTs + RLS + triggers + receipt-number sequence.
+On limit exceeded: throw `new Error("Too many requests")` from server fns; return `429` from server routes. No silent retries.
 
 ---
 
-## Delivery order
+## 3. Files
 
-1. PWA scaffold (smallest, isolated).
-2. Migration (tables, RLS, sequence, storage bucket).
-3. Stripe enablement → checkout + webhook → online donations end-to-end.
-4. Manual donation entry + receipt PDF.
-5. Expenses, categories, budgets.
-6. CRM contacts + interactions + pipeline.
-7. Donor self-serve "My giving".
-8. Reports dashboard.
+**Migration**
+- `supabase/migrations/<ts>_rls_and_rate_limit.sql` — single file: rate_limits table + function + grants, RLS adjustments listed in 1b, storage policies in 1c.
 
-Out of scope for v1 (can follow): email campaigns, recurring-donation management UI beyond Stripe customer portal, multi-currency conversion, automated bank import.
+**Code**
+- `src/lib/rateLimit.server.ts` — `enforceRateLimit({ bucket, max, windowSeconds, key })` helper, server-only.
+- `src/lib/receipts.functions.ts` — call `enforceRateLimit` at the top of `generateReceipt` and `getReceiptUrl` handlers.
+- `src/lib/payments.functions.ts` (existing checkout fn) — same, on `checkout` bucket. (If this file doesn't exist yet because checkout isn't wired, skip; rate limit gets added when checkout lands.)
+- `src/routes/api/public/stripe-webhook.ts` — after signature verification, apply the `stripe-webhook` IP limit.
+- `src/ported/components/admin/DonationsManager.tsx` insert path — if it writes directly via the browser client, move the insert into a new `src/lib/donations.functions.ts` server fn that enforces the `donation-insert` limit; otherwise add the limit to the existing server fn.
+
+**No client UI changes.** A toast on 429 is added in the existing error handlers of the affected admin forms.
+
+---
+
+## 4. Verification
+
+- After migration: run the Supabase linter, fix anything new it flags.
+- `psql` spot-checks: select `pg_policies` to confirm dropped/added policies, and `has_table_privilege('anon', 'public.donations', 'SELECT')` returns `false`.
+- Manual test: call `generateReceipt` 31 times in an hour as admin → 31st throws "Too many requests".
+- Stripe webhook still succeeds when signature is valid and under the IP limit.
+
+---
+
+## Out of scope
+
+- Edge/CDN rate limiting (not available on this stack).
+- Per-route global limits beyond the endpoints listed — easy to extend later by adding a bucket.
+- Audit logging of limit hits (could be added if you want a `rate_limit_events` table).

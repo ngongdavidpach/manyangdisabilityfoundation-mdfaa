@@ -1,5 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { enforceRateLimit } from "@/lib/rateLimit.server";
 
 // Generate a donation receipt PDF, store it in the `receipts` bucket,
 // insert a row in `public.receipts`, and return the storage path.
@@ -15,6 +16,10 @@ export const generateReceipt = createServerFn({ method: "POST" })
       _role: "admin",
     });
     if (!isAdmin) throw new Error("Forbidden");
+
+    await enforceRateLimit({ bucket: "receipt-gen", max: 30, windowSeconds: 3600, key: userId });
+
+
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
@@ -83,6 +88,7 @@ export const getReceiptUrl = createServerFn({ method: "POST" })
   .inputValidator((d: { donationId: string }) => d)
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
+    await enforceRateLimit({ bucket: "receipt-url", max: 60, windowSeconds: 3600, key: userId });
     const { data: receipt } = await supabase
       .from("receipts")
       .select("storage_path, donation_id, donations!inner(user_id)")
