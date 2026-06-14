@@ -119,6 +119,7 @@ export const DonationsManager: React.FC = () => {
 };
 
 const DonationForm: React.FC<{ contacts: Contact[]; onClose: () => void; onSaved: () => void }> = ({ contacts, onClose, onSaved }) => {
+  const insert = useServerFn(insertDonation);
   const [form, setForm] = useState({
     contact_id: '',
     donor_name: '',
@@ -132,25 +133,33 @@ const DonationForm: React.FC<{ contacts: Contact[]; onClose: () => void; onSaved
     notes: '',
     is_anonymous: false,
   });
+  const [saving, setSaving] = useState(false);
 
   const save = async () => {
     const amount_cents = Math.round(parseFloat(form.amount || '0') * 100);
     if (!amount_cents) { alert('Enter an amount'); return; }
     const contact = contacts.find(c => c.id === form.contact_id);
-    await supabase.from('donations').insert({
-      contact_id: form.contact_id || null,
-      amount_cents,
-      currency: form.currency,
-      method: form.method,
-      status: form.status,
-      designation: form.designation || null,
-      donor_name: form.donor_name || contact?.full_name || null,
-      donor_email: form.donor_email || contact?.email || null,
-      is_anonymous: form.is_anonymous,
-      notes: form.notes || null,
-      received_at: new Date(form.received_at).toISOString(),
-    });
-    onSaved();
+    setSaving(true);
+    try {
+      await insert({ data: {
+        contact_id: form.contact_id || null,
+        amount_cents,
+        currency: form.currency,
+        method: form.method,
+        status: form.status,
+        designation: form.designation || null,
+        donor_name: form.donor_name || contact?.full_name || null,
+        donor_email: form.donor_email || contact?.email || null,
+        is_anonymous: form.is_anonymous,
+        notes: form.notes || null,
+        received_at: new Date(form.received_at).toISOString(),
+      }});
+      onSaved();
+    } catch (e) {
+      alert((e as Error).message);
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (
