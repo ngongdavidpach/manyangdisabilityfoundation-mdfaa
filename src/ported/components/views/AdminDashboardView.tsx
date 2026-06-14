@@ -12,11 +12,13 @@ import { StaffManager } from '../admin/StaffManager';
 import { FoundationInsightManager } from '../admin/FoundationInsightManager';
 import { NavigationPagesEditor } from '../admin/NavigationPagesEditor';
 
-interface Props { onLogout: () => void; onNavigate: (page: string) => void; }
 type Tab = 'overview' | 'pages' | 'insight' | 'gallery' | 'news' | 'events' | 'staff' | 'settings';
 
-export const AdminDashboard: React.FC<Props> = ({ onLogout, onNavigate }) => {
-  const { user } = useAuth();
+export const AdminDashboard: React.FC = () => {
+  const navigate = useNavigate();
+  const { user, logout } = useAuth();
+  const onLogout = logout;
+
   const [tab, setTab] = useState<Tab>('overview');
   const [counts, setCounts] = useState({ media: 0, news: 0, events: 0, staff: 0 });
   const [idleMins, setIdleMins] = useState(15);
