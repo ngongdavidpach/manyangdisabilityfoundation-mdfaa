@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as RequestRouteImport } from './routes/request'
 import { Route as ProgramsRouteImport } from './routes/programs'
 import { Route as NewsRouteImport } from './routes/news'
@@ -21,9 +22,15 @@ import { Route as AdminRouteImport } from './routes/admin'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as NewsSlugRouteImport } from './routes/news.$slug'
+import { Route as GuidesDonateSuppliesRouteImport } from './routes/guides.donate-supplies'
 import { Route as AuthRegisterRouteImport } from './routes/auth.register'
 import { Route as AuthLoginRouteImport } from './routes/auth.login'
 
+const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
+  id: '/sitemap.xml',
+  path: '/sitemap.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const RequestRoute = RequestRouteImport.update({
   id: '/request',
   path: '/request',
@@ -84,6 +91,11 @@ const NewsSlugRoute = NewsSlugRouteImport.update({
   path: '/$slug',
   getParentRoute: () => NewsRoute,
 } as any)
+const GuidesDonateSuppliesRoute = GuidesDonateSuppliesRouteImport.update({
+  id: '/guides/donate-supplies',
+  path: '/guides/donate-supplies',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthRegisterRoute = AuthRegisterRouteImport.update({
   id: '/auth/register',
   path: '/auth/register',
@@ -107,8 +119,10 @@ export interface FileRoutesByFullPath {
   '/news': typeof NewsRouteWithChildren
   '/programs': typeof ProgramsRoute
   '/request': typeof RequestRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/auth/login': typeof AuthLoginRoute
   '/auth/register': typeof AuthRegisterRoute
+  '/guides/donate-supplies': typeof GuidesDonateSuppliesRoute
   '/news/$slug': typeof NewsSlugRoute
 }
 export interface FileRoutesByTo {
@@ -123,8 +137,10 @@ export interface FileRoutesByTo {
   '/news': typeof NewsRouteWithChildren
   '/programs': typeof ProgramsRoute
   '/request': typeof RequestRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/auth/login': typeof AuthLoginRoute
   '/auth/register': typeof AuthRegisterRoute
+  '/guides/donate-supplies': typeof GuidesDonateSuppliesRoute
   '/news/$slug': typeof NewsSlugRoute
 }
 export interface FileRoutesById {
@@ -140,8 +156,10 @@ export interface FileRoutesById {
   '/news': typeof NewsRouteWithChildren
   '/programs': typeof ProgramsRoute
   '/request': typeof RequestRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/auth/login': typeof AuthLoginRoute
   '/auth/register': typeof AuthRegisterRoute
+  '/guides/donate-supplies': typeof GuidesDonateSuppliesRoute
   '/news/$slug': typeof NewsSlugRoute
 }
 export interface FileRouteTypes {
@@ -158,8 +176,10 @@ export interface FileRouteTypes {
     | '/news'
     | '/programs'
     | '/request'
+    | '/sitemap.xml'
     | '/auth/login'
     | '/auth/register'
+    | '/guides/donate-supplies'
     | '/news/$slug'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -174,8 +194,10 @@ export interface FileRouteTypes {
     | '/news'
     | '/programs'
     | '/request'
+    | '/sitemap.xml'
     | '/auth/login'
     | '/auth/register'
+    | '/guides/donate-supplies'
     | '/news/$slug'
   id:
     | '__root__'
@@ -190,8 +212,10 @@ export interface FileRouteTypes {
     | '/news'
     | '/programs'
     | '/request'
+    | '/sitemap.xml'
     | '/auth/login'
     | '/auth/register'
+    | '/guides/donate-supplies'
     | '/news/$slug'
   fileRoutesById: FileRoutesById
 }
@@ -207,12 +231,21 @@ export interface RootRouteChildren {
   NewsRoute: typeof NewsRouteWithChildren
   ProgramsRoute: typeof ProgramsRoute
   RequestRoute: typeof RequestRoute
+  SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   AuthLoginRoute: typeof AuthLoginRoute
   AuthRegisterRoute: typeof AuthRegisterRoute
+  GuidesDonateSuppliesRoute: typeof GuidesDonateSuppliesRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/sitemap.xml': {
+      id: '/sitemap.xml'
+      path: '/sitemap.xml'
+      fullPath: '/sitemap.xml'
+      preLoaderRoute: typeof SitemapDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/request': {
       id: '/request'
       path: '/request'
@@ -297,6 +330,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof NewsSlugRouteImport
       parentRoute: typeof NewsRoute
     }
+    '/guides/donate-supplies': {
+      id: '/guides/donate-supplies'
+      path: '/guides/donate-supplies'
+      fullPath: '/guides/donate-supplies'
+      preLoaderRoute: typeof GuidesDonateSuppliesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/auth/register': {
       id: '/auth/register'
       path: '/auth/register'
@@ -336,19 +376,11 @@ const rootRouteChildren: RootRouteChildren = {
   NewsRoute: NewsRouteWithChildren,
   ProgramsRoute: ProgramsRoute,
   RequestRoute: RequestRoute,
+  SitemapDotxmlRoute: SitemapDotxmlRoute,
   AuthLoginRoute: AuthLoginRoute,
   AuthRegisterRoute: AuthRegisterRoute,
+  GuidesDonateSuppliesRoute: GuidesDonateSuppliesRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
