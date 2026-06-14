@@ -237,7 +237,7 @@ const DonationForm: React.FC<{ contacts: Contact[]; onClose: () => void; onSaved
             <textarea value={form.notes} onChange={e => setForm({ ...form, notes: e.target.value })} rows={3}
               className="w-full mt-1 px-3 py-2 border rounded-md text-sm" />
           </label>
-          <button onClick={save} className="bg-blue-600 text-white px-4 py-2 rounded-md text-sm w-full">Save donation</button>
+          <button onClick={save} disabled={saving} className="bg-blue-600 text-white px-4 py-2 rounded-md text-sm w-full disabled:opacity-50">{saving ? 'Saving…' : 'Save donation'}</button>
         </div>
       </div>
     </div>
