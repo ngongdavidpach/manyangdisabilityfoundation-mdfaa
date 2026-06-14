@@ -154,6 +154,7 @@ export const GalleryView: React.FC = () => {
               />
               <button
                 onClick={() => setSelectedImage(null)}
+                aria-label="Close image preview"
                 className="absolute top-4 left-4 md:hidden bg-slate-900/80 text-white p-2 rounded-full"
               >
                 <X className="w-5 h-5" />
@@ -169,6 +170,7 @@ export const GalleryView: React.FC = () => {
                   </span>
                   <button
                     onClick={() => setSelectedImage(null)}
+                    aria-label="Close image preview"
                     className="hidden md:block text-slate-400 hover:text-slate-900 transition-colors"
                   >
                     <X className="w-5 h-5" />

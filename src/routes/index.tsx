@@ -11,6 +11,27 @@ export const Route = createFileRoute("/")({
       { property: "og:url", content: "https://manyangfoundation.lovable.app/" },
     ],
     links: [{ rel: "canonical", href: "https://manyangfoundation.lovable.app/" }],
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "Organization",
+          name: "Manyang Disability Foundation",
+          url: "https://manyangfoundation.lovable.app/",
+          logo: "https://manyangfoundation.lovable.app/images/logo.png",
+        }),
+      },
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "WebSite",
+          name: "Manyang Disability Foundation",
+          url: "https://manyangfoundation.lovable.app/",
+        }),
+      },
+    ],
   }),
   component: HomeView,
 });
