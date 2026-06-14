@@ -64,17 +64,7 @@ const PAGES = [
     { path: 'socials.youtube', label: 'YouTube URL', type: 'text' },
     { path: 'socials.tiktok', label: 'TikTok URL', type: 'text' },
   ]},
-  { key: 'navigation', label: 'Navigation toggles', fields: [
-    { path: 'showHome', label: 'Show Home', type: 'bool' },
-    { path: 'showAbout', label: 'Show About', type: 'bool' },
-    { path: 'showPrograms', label: 'Show Programs', type: 'bool' },
-    { path: 'showGallery', label: 'Show Gallery', type: 'bool' },
-    { path: 'showNews', label: 'Show News', type: 'bool' },
-    { path: 'showEvents', label: 'Show Events', type: 'bool' },
-    { path: 'showGetInvolved', label: 'Show Get Involved', type: 'bool' },
-    { path: 'showDonate', label: 'Show Donate', type: 'bool' },
-    { path: 'showRequest', label: 'Show Request', type: 'bool' },
-  ]},
+  // Navigation visibility & order live in Settings tab → Navigation pages.
   { key: 'site', label: 'Site / Security', fields: [
     { path: 'name', label: 'Site name', type: 'text' },
     { path: 'tagline', label: 'Tagline', type: 'text' },

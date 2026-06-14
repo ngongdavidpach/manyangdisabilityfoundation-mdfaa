@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { NAV_ITEM_DEFS, resolveNavOrder } from './admin/NavigationPagesEditor';
+import { NAV_ITEM_DEFS, resolveNavOrder } from '../lib/navItems';
 import { 
   HeartHandshake, 
   Menu, 
