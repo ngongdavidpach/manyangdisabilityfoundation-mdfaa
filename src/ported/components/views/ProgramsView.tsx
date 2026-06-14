@@ -1,3 +1,4 @@
+import { useNavigate, Link } from '@tanstack/react-router';
 import React, { useState } from 'react';
 import { 
   Accessibility, 
@@ -12,13 +13,11 @@ import {
 } from 'lucide-react';
 import { PROGRAMS, SUCCESS_STORIES } from '../../data/foundationData';
 
-interface ProgramsViewProps {
-  setCurrentPage: (page: string) => void;
-}
-
-export const ProgramsView: React.FC<ProgramsViewProps> = ({ setCurrentPage }) => {
+export const ProgramsView: React.FC = () => {
+  const navigate = useNavigate();
   const [activeCategory, setActiveCategory] = useState<string>('all');
   const [selectedStory, setSelectedStory] = useState(SUCCESS_STORIES[0]);
+
 
   const getProgramIcon = (iconName: string) => {
     switch (iconName) {
@@ -123,13 +122,13 @@ export const ProgramsView: React.FC<ProgramsViewProps> = ({ setCurrentPage }) =>
               {/* Action footing */}
               <div className="p-6 bg-slate-50 border-t border-slate-100 flex flex-col sm:flex-row gap-3">
                 <button
-                  onClick={() => setCurrentPage('request')}
+                  onClick={() => navigate({ to: '/request' })}
                   className="flex-1 bg-white hover:bg-blue-50 text-blue-900 border border-slate-200 font-bold py-2.5 rounded-lg text-xs transition-colors flex items-center justify-center gap-1"
                 >
                   <span>Request Support</span>
                 </button>
                 <button
-                  onClick={() => setCurrentPage('donate')}
+                  onClick={() => navigate({ to: '/donate' })}
                   className="flex-1 bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold py-2.5 rounded-lg text-xs transition-colors flex items-center justify-center gap-1.5"
                 >
                   <Heart className="w-3.5 h-3.5 fill-slate-950 text-slate-950" />
@@ -270,7 +269,7 @@ export const ProgramsView: React.FC<ProgramsViewProps> = ({ setCurrentPage }) =>
 
             <div className="pt-4">
               <button
-                onClick={() => setCurrentPage('donate')}
+                onClick={() => navigate({ to: '/donate' })}
                 className="bg-blue-600 hover:bg-blue-700 text-white font-bold px-6 py-3 rounded-lg text-xs transition-colors inline-flex items-center gap-2"
               >
                 <span>Support Our Next Mobile Repair Camp</span>

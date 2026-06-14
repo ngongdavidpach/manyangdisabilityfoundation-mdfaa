@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { LogOut, LayoutDashboard, Image as ImageIcon, FileText, Calendar, Users, Settings as SettingsIcon, Newspaper, Sparkles } from 'lucide-react';
+import { useNavigate, Link } from '@tanstack/react-router';
 import { useAuth } from '../../contexts/AuthContext';
 import { useIdleLogout } from '../../hooks/useIdleLogout';
 import { supabase } from '@/integrations/supabase/client';
@@ -11,11 +12,13 @@ import { StaffManager } from '../admin/StaffManager';
 import { FoundationInsightManager } from '../admin/FoundationInsightManager';
 import { NavigationPagesEditor } from '../admin/NavigationPagesEditor';
 
-interface Props { onLogout: () => void; onNavigate: (page: string) => void; }
 type Tab = 'overview' | 'pages' | 'insight' | 'gallery' | 'news' | 'events' | 'staff' | 'settings';
 
-export const AdminDashboard: React.FC<Props> = ({ onLogout, onNavigate }) => {
-  const { user } = useAuth();
+export const AdminDashboard: React.FC = () => {
+  const navigate = useNavigate();
+  const { user, logout } = useAuth();
+  const onLogout = logout;
+
   const [tab, setTab] = useState<Tab>('overview');
   const [counts, setCounts] = useState({ media: 0, news: 0, events: 0, staff: 0 });
   const [idleMins, setIdleMins] = useState(15);
@@ -59,7 +62,7 @@ export const AdminDashboard: React.FC<Props> = ({ onLogout, onNavigate }) => {
     <div className="min-h-screen bg-slate-50">
       <header className="bg-white border-b border-slate-200 sticky top-0 z-10">
         <div className="max-w-7xl mx-auto px-4 py-3 flex items-center gap-4">
-          <button onClick={() => onNavigate('home')} className="flex items-center gap-2">
+          <button onClick={() => navigate({ to: '/' })} className="flex items-center gap-2">
             <img src="/images/logo.png" alt="" className="w-8 h-8" />
             <span className="font-bold text-slate-900">MDF Admin</span>
           </button>

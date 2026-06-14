@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useEffect } from 'react';
+import { useNavigate, useRouterState } from '@tanstack/react-router';
 import { useAuth } from '../contexts/AuthContext';
 import type { UserRole } from '../types/auth';
 import { Lock, AlertTriangle, LogIn } from 'lucide-react';
@@ -6,23 +7,20 @@ import { Lock, AlertTriangle, LogIn } from 'lucide-react';
 interface ProtectedRouteProps {
   children: React.ReactNode;
   requiredRoles?: UserRole[];
-  onAuthRequired: (returnToPage: string) => void;
 }
 
-/**
- * Route guard component. Enforces:
- * - Authentication: calls onAuthRequired with the current page for redirect-to-login
- * - Authorization: shows an access-restricted screen when the user role isn't in requiredRoles
- * - Loading state: shows a minimal spinner while the session is being restored
- */
-export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
-  children,
-  requiredRoles,
-  onAuthRequired
-}) => {
+export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requiredRoles }) => {
   const { isAuthenticated, isLoading, hasRole, user } = useAuth();
+  const navigate = useNavigate();
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
 
-  if (isLoading) {
+  useEffect(() => {
+    if (!isLoading && !isAuthenticated) {
+      navigate({ to: '/auth/login', search: { redirect: pathname } });
+    }
+  }, [isLoading, isAuthenticated, navigate, pathname]);
+
+  if (isLoading || !isAuthenticated) {
     return (
       <div className="min-h-[70vh] flex items-center justify-center bg-slate-50">
         <div className="text-center space-y-3">
@@ -31,11 +29,6 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
         </div>
       </div>
     );
-  }
-
-  if (!isAuthenticated) {
-    onAuthRequired(window.location.hash || window.location.pathname);
-    return null;
   }
 
   if (requiredRoles && requiredRoles.length > 0 && !hasRole(requiredRoles)) {
@@ -62,10 +55,6 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   return <>{children}</>;
 };
 
-/**
- * Inline lock card - shown inside pages where authentication is optional but unlocks extra features.
- * Used in request forms, donor features etc.
- */
 export const AuthenticationGate: React.FC<{
   title?: string;
   description?: string;
@@ -82,21 +71,13 @@ export const AuthenticationGate: React.FC<{
       <Lock className="w-6 h-6" />
     </div>
     <h3 className="text-lg font-bold text-slate-900">{title}</h3>
-    <p className="text-xs text-slate-600 leading-relaxed max-w-md mx-auto">
-      {description}
-    </p>
+    <p className="text-xs text-slate-600 leading-relaxed max-w-md mx-auto">{description}</p>
     <div className="flex flex-col sm:flex-row gap-2 justify-center pt-2 max-w-xs mx-auto">
-      <button
-        onClick={onLoginClick}
-        className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 rounded-lg text-xs transition-colors flex items-center justify-center gap-1.5"
-      >
+      <button onClick={onLoginClick} className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 rounded-lg text-xs transition-colors flex items-center justify-center gap-1.5">
         <LogIn className="w-4 h-4" />
         <span>Sign In</span>
       </button>
-      <button
-        onClick={onRegisterClick}
-        className="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold py-2.5 rounded-lg text-xs transition-colors"
-      >
+      <button onClick={onRegisterClick} className="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold py-2.5 rounded-lg text-xs transition-colors">
         Create Account
       </button>
     </div>

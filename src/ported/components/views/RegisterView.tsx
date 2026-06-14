@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { 
-  UserPlus, 
+import { Link, useNavigate } from '@tanstack/react-router';
+import {
+  UserPlus,
   ArrowRight,
   Check,
   X,
@@ -15,13 +16,10 @@ import { useAuth } from '../../contexts/AuthContext';
 import type { UserRole } from '../../types/auth';
 import { getPasswordStrength } from '../../utils/auth';
 
-interface RegisterViewProps {
-  onSwitchToLogin: () => void;
-  onRegisterSuccess: () => void;
-}
-
-export const RegisterView: React.FC<RegisterViewProps> = ({ onSwitchToLogin, onRegisterSuccess }) => {
+export const RegisterView: React.FC = () => {
+  const navigate = useNavigate();
   const { register } = useAuth();
+
   const [form, setForm] = useState({
     fullName: '',
     email: '',
@@ -86,7 +84,7 @@ export const RegisterView: React.FC<RegisterViewProps> = ({ onSwitchToLogin, onR
         role: form.role,
       });
       if (result.success) {
-        onRegisterSuccess();
+        navigate({ to: '/dashboard' });
       } else {
         setError(result.error || 'Registration failed.');
       }
@@ -337,7 +335,7 @@ export const RegisterView: React.FC<RegisterViewProps> = ({ onSwitchToLogin, onR
                 Already have an account?{' '}
                 <button
                   type="button"
-                  onClick={onSwitchToLogin}
+                  onClick={() => navigate({ to: '/auth/login' })}
                   className="text-blue-600 hover:underline font-semibold"
                 >
                   Sign in here

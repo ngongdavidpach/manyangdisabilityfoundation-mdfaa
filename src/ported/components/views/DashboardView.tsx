@@ -1,3 +1,4 @@
+import { useNavigate, Link } from '@tanstack/react-router';
 import React, { useState, useEffect } from 'react';
 import {
   User,
@@ -22,13 +23,11 @@ import {
 import { useAuth } from '../../contexts/AuthContext';
 import { getApplications, getDonations, getRoleLabel, getRoleColor } from '../../utils/auth';
 
-interface DashboardViewProps {
-  onLogout: () => void;
-  onNavigate: (page: string) => void;
-}
+export const DashboardView: React.FC = () => {
+  const navigate = useNavigate();
+  const { user, updateUser, logout } = useAuth();
+  const onLogout = logout;
 
-export const DashboardView: React.FC<DashboardViewProps> = ({ onLogout, onNavigate }) => {
-  const { user, updateUser } = useAuth();
   const [activeTab, setActiveTab] = useState<'overview' | 'applications' | 'donations' | 'profile' | 'settings'>('overview');
   const [applications, setApplications] = useState<any[]>([]);
   const [donations, setDonations] = useState<any[]>([]);
@@ -128,7 +127,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ onLogout, onNaviga
 
   const handleLogout = () => {
     onLogout();
-    onNavigate('home');
+    navigate({ to: '/' });
   };
 
   return (
@@ -264,7 +263,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ onLogout, onNaviga
                   </div>
                   <p className="text-sm text-slate-500">No activity yet. Get started by submitting your first request!</p>
                   <button
-                    onClick={() => onNavigate('request')}
+                    onClick={() => navigate({ to: '/request' })}
                     className={`${accent.bg} ${accent.hover} text-white font-bold text-xs px-5 py-2 rounded-lg`}
                   >
                     Submit Aid Request
@@ -302,15 +301,15 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ onLogout, onNaviga
             <div className="pt-4 border-t border-slate-100">
               <h4 className="text-xs font-bold text-slate-900 mb-2">Recommended Next Steps</h4>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                <button onClick={() => onNavigate('request')} className="p-3 rounded-lg bg-blue-50 hover:bg-blue-100 border border-blue-100 text-left">
+                <button onClick={() => navigate({ to: '/request' })} className="p-3 rounded-lg bg-blue-50 hover:bg-blue-100 border border-blue-100 text-left">
                   <span className="text-xs font-bold text-blue-900 block">Request Aid</span>
                   <span className="text-[10px] text-blue-700">Submit a new assistance request</span>
                 </button>
-                <button onClick={() => onNavigate('donate')} className="p-3 rounded-lg bg-amber-50 hover:bg-amber-100 border border-amber-100 text-left">
+                <button onClick={() => navigate({ to: '/donate' })} className="p-3 rounded-lg bg-amber-50 hover:bg-amber-100 border border-amber-100 text-left">
                   <span className="text-xs font-bold text-amber-900 block">Make a Donation</span>
                   <span className="text-[10px] text-amber-700">Support a humanitarian pillar</span>
                 </button>
-                <button onClick={() => onNavigate('news')} className="p-3 rounded-lg bg-emerald-50 hover:bg-emerald-100 border border-emerald-100 text-left">
+                <button onClick={() => navigate({ to: '/news' })} className="p-3 rounded-lg bg-emerald-50 hover:bg-emerald-100 border border-emerald-100 text-left">
                   <span className="text-xs font-bold text-emerald-900 block">Latest Events</span>
                   <span className="text-[10px] text-emerald-700">Reserve a volunteer spot</span>
                 </button>
@@ -324,7 +323,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ onLogout, onNaviga
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <h3 className="font-bold text-base text-slate-900">My Applications</h3>
-              <button onClick={() => onNavigate('request')} className="bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold px-4 py-2 rounded-lg">
+              <button onClick={() => navigate({ to: '/request' })} className="bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold px-4 py-2 rounded-lg">
                 New Request
               </button>
             </div>
@@ -379,7 +378,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ onLogout, onNaviga
                   <Heart className="w-6 h-6" />
                 </div>
                 <p className="text-sm text-slate-500">No donations yet. Make your first impact today!</p>
-                <button onClick={() => onNavigate('donate')} className="bg-amber-500 hover:bg-amber-600 text-slate-950 text-xs font-bold px-5 py-2 rounded-lg">
+                <button onClick={() => navigate({ to: '/donate' })} className="bg-amber-500 hover:bg-amber-600 text-slate-950 text-xs font-bold px-5 py-2 rounded-lg">
                   Donate Now
                 </button>
               </div>
