@@ -38,11 +38,9 @@ interface HomeInsight {
   showInsight?: boolean;
 }
 
-interface HomeViewProps {
-  setCurrentPage: (page: string) => void;
-}
+export const HomeView: React.FC = () => {
+  const navigate = useNavigate();
 
-export const HomeView: React.FC<HomeViewProps> = ({ setCurrentPage }) => {
   const { content: homeContent } = usePageSettings<HomeInsight>('home', {});
   const insight = homeContent?.insight;
   const showInsight = homeContent?.showInsight !== false && !!(insight?.title || insight?.body || insight?.cover || insight?.brochureUrl || insight?.videoUrl);
