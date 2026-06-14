@@ -9,6 +9,7 @@ import { NewsManager } from '../admin/NewsManager';
 import { EventsManager } from '../admin/EventsManager';
 import { StaffManager } from '../admin/StaffManager';
 import { FoundationInsightManager } from '../admin/FoundationInsightManager';
+import { NavigationPagesEditor } from '../admin/NavigationPagesEditor';
 
 interface Props { onLogout: () => void; onNavigate: (page: string) => void; }
 type Tab = 'overview' | 'pages' | 'insight' | 'gallery' | 'news' | 'events' | 'staff' | 'settings';
@@ -116,11 +117,13 @@ export const AdminDashboard: React.FC<Props> = ({ onLogout, onNavigate }) => {
           {tab === 'events' && <EventsManager />}
           {tab === 'staff' && <StaffManager />}
           {tab === 'settings' && (
-            <div className="bg-white rounded-lg border p-5 space-y-3">
-              <h3 className="text-lg font-bold">Settings</h3>
-              <p className="text-sm text-slate-600">Site-wide settings are managed under <button onClick={() => setTab('pages')} className="text-blue-600 underline">Page Content → Site / Security</button>, including admin auto-logout (currently {idleMins} minutes), site name, and tagline.</p>
-              <p className="text-sm text-slate-600">Social media URLs and contact info live under <button onClick={() => setTab('pages')} className="text-blue-600 underline">Page Content → Footer &amp; Contact</button>.</p>
-              <p className="text-sm text-slate-600">Page visibility toggles live under <button onClick={() => setTab('pages')} className="text-blue-600 underline">Page Content → Navigation toggles</button>.</p>
+            <div className="space-y-4">
+              <NavigationPagesEditor />
+              <div className="bg-white rounded-lg border p-5 space-y-3">
+                <h3 className="text-lg font-bold">Other settings</h3>
+                <p className="text-sm text-slate-600">Site-wide settings are managed under <button onClick={() => setTab('pages')} className="text-blue-600 underline">Page Content → Site / Security</button>, including admin auto-logout (currently {idleMins} minutes), site name, and tagline.</p>
+                <p className="text-sm text-slate-600">Social media URLs and contact info live under <button onClick={() => setTab('pages')} className="text-blue-600 underline">Page Content → Footer &amp; Contact</button>.</p>
+              </div>
             </div>
           )}
         </main>

@@ -1,4 +1,6 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { supabase } from '@/integrations/supabase/client';
+import { NAV_ITEM_DEFS, resolveNavOrder } from './admin/NavigationPagesEditor';
 import { 
   HeartHandshake, 
   Menu, 
@@ -29,15 +31,29 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPage, setCurrentPage }) =
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
 
-  const navLinks = [
-    { id: 'home', label: 'Home', icon: Home },
-    { id: 'about', label: 'About Us', icon: Users },
-    { id: 'programs', label: 'Our Impact', icon: Layers },
-    { id: 'gallery', label: 'Gallery', icon: GalleryIcon },
-    { id: 'request', label: 'Request Aid', icon: HelpCircle, protected: true },
-    { id: 'news', label: 'News & Events', icon: Newspaper },
-    { id: 'get-involved', label: 'Get Involved', icon: HeartHandshake },
-  ];
+  const [navConfig, setNavConfig] = useState<{ order: string[]; flags: Record<string, boolean> }>({
+    order: NAV_ITEM_DEFS.map((i) => i.id),
+    flags: {},
+  });
+
+  useEffect(() => {
+    supabase.from('page_settings').select('content').eq('page_key', 'navigation').maybeSingle()
+      .then(({ data }) => {
+        const c = (data?.content as any) || {};
+        setNavConfig({ order: resolveNavOrder(c.order), flags: c });
+      });
+  }, []);
+
+  const iconMap: Record<string, any> = {
+    home: Home, about: Users, programs: Layers, gallery: GalleryIcon,
+    request: HelpCircle, news: Newspaper, 'get-involved': HeartHandshake,
+  };
+  const protectedSet = new Set(['request']);
+  const navLinks = navConfig.order
+    .map((id) => NAV_ITEM_DEFS.find((d) => d.id === id))
+    .filter((d): d is typeof NAV_ITEM_DEFS[number] => !!d && navConfig.flags[d.flag] !== false)
+    .map((d) => ({ id: d.id, label: d.label, icon: iconMap[d.id] || Home, protected: protectedSet.has(d.id) }));
+
 
   const handleNavClick = (id: string) => {
     // If the link requires auth but user is not authenticated, redirect to login
