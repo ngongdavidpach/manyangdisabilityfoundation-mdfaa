@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { LogOut, LayoutDashboard, Image as ImageIcon, FileText, Calendar, Users, Settings as SettingsIcon, Newspaper, Sparkles } from 'lucide-react';
+import { useNavigate, Link } from '@tanstack/react-router';
 import { useAuth } from '../../contexts/AuthContext';
 import { useIdleLogout } from '../../hooks/useIdleLogout';
 import { supabase } from '@/integrations/supabase/client';
@@ -59,7 +60,7 @@ export const AdminDashboard: React.FC<Props> = ({ onLogout, onNavigate }) => {
     <div className="min-h-screen bg-slate-50">
       <header className="bg-white border-b border-slate-200 sticky top-0 z-10">
         <div className="max-w-7xl mx-auto px-4 py-3 flex items-center gap-4">
-          <button onClick={() => onNavigate('home')} className="flex items-center gap-2">
+          <button onClick={() => navigate({ to: '/' })} className="flex items-center gap-2">
             <img src="/images/logo.png" alt="" className="w-8 h-8" />
             <span className="font-bold text-slate-900">MDF Admin</span>
           </button>

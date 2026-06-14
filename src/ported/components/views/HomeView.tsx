@@ -1,3 +1,4 @@
+import { useNavigate, Link } from '@tanstack/react-router';
 import React from 'react';
 import { 
   Heart, 
@@ -104,7 +105,7 @@ export const HomeView: React.FC<HomeViewProps> = ({ setCurrentPage }) => {
 
             <div className="pt-4 flex flex-col sm:flex-row gap-4">
               <button 
-                onClick={() => setCurrentPage('donate')}
+                onClick={() => navigate({ to: '/donate' })}
                 className="bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold px-8 py-4 rounded-xl shadow-lg transition-all text-base flex items-center justify-center gap-2 group"
               >
                 <Heart className="w-5 h-5 fill-slate-950 text-slate-950" />
@@ -113,7 +114,7 @@ export const HomeView: React.FC<HomeViewProps> = ({ setCurrentPage }) => {
               </button>
 
               <button 
-                onClick={() => setCurrentPage('request')}
+                onClick={() => navigate({ to: '/request' })}
                 className="bg-white/10 hover:bg-white/20 text-white font-medium px-6 py-4 rounded-xl backdrop-blur-xs border border-white/10 transition-all text-base flex items-center justify-center gap-2"
               >
                 <HelpCircle className="w-5 h-5 text-blue-300" />
@@ -229,7 +230,7 @@ export const HomeView: React.FC<HomeViewProps> = ({ setCurrentPage }) => {
                     </a>
                   )}
                   <button
-                    onClick={() => setCurrentPage('about')}
+                    onClick={() => navigate({ to: '/about' })}
                     className="text-blue-600 hover:text-blue-800 font-semibold text-sm inline-flex items-center gap-1 px-2 py-2.5 group"
                   >
                     Learn more about us
@@ -261,13 +262,13 @@ export const HomeView: React.FC<HomeViewProps> = ({ setCurrentPage }) => {
 
               <div className="flex flex-wrap gap-4 pt-2">
                 <button
-                  onClick={() => setCurrentPage('news')}
+                  onClick={() => navigate({ to: '/news' })}
                   className="bg-white text-blue-900 hover:bg-blue-50 font-bold px-5 py-2.5 rounded-lg text-sm transition-colors"
                 >
                   Read Full Story
                 </button>
                 <button
-                  onClick={() => setCurrentPage('donate')}
+                  onClick={() => navigate({ to: '/donate' })}
                   className="bg-transparent hover:bg-white/10 text-amber-300 font-semibold px-4 py-2.5 rounded-lg text-sm transition-colors border border-amber-300/40"
                 >
                   Fund a $25 Repair Kit
@@ -302,7 +303,7 @@ export const HomeView: React.FC<HomeViewProps> = ({ setCurrentPage }) => {
             </p>
           </div>
           <button
-            onClick={() => setCurrentPage('programs')}
+            onClick={() => navigate({ to: '/programs' })}
             className="text-blue-600 hover:text-blue-800 font-semibold text-sm flex items-center gap-1 group shrink-0"
           >
             <span>Explore All Core Programs</span>
@@ -349,7 +350,7 @@ export const HomeView: React.FC<HomeViewProps> = ({ setCurrentPage }) => {
                   {program.impactStats}
                 </span>
                 <button
-                  onClick={() => setCurrentPage('programs')}
+                  onClick={() => navigate({ to: '/programs' })}
                   className="font-bold text-blue-600 hover:underline"
                 >
                   Learn More
@@ -364,7 +365,7 @@ export const HomeView: React.FC<HomeViewProps> = ({ setCurrentPage }) => {
           {PROGRAMS.slice(3).map((program) => (
             <div 
               key={program.id}
-              onClick={() => setCurrentPage('programs')}
+              onClick={() => navigate({ to: '/programs' })}
               className="bg-white p-5 rounded-xl border border-slate-200 hover:border-blue-400 cursor-pointer transition-all flex items-center gap-4 group"
             >
               <div className="w-12 h-12 rounded-lg bg-blue-50 flex items-center justify-center shrink-0 group-hover:bg-blue-600 transition-colors">
@@ -421,7 +422,7 @@ export const HomeView: React.FC<HomeViewProps> = ({ setCurrentPage }) => {
 
                 <div className="px-6 py-3 bg-slate-50 border-t border-slate-100 text-right">
                   <button 
-                    onClick={() => setCurrentPage('programs')} 
+                    onClick={() => navigate({ to: '/programs' })} 
                     className="text-xs font-bold text-blue-600 hover:underline"
                   >
                     Read Full Story
@@ -465,7 +466,7 @@ export const HomeView: React.FC<HomeViewProps> = ({ setCurrentPage }) => {
 
               <div>
                 <button
-                  onClick={() => setCurrentPage('request')}
+                  onClick={() => navigate({ to: '/request' })}
                   className="bg-blue-600 hover:bg-blue-700 text-white font-bold px-6 py-3 rounded-lg shadow-xs transition-colors text-sm inline-flex items-center gap-2"
                 >
                   <span>Submit an Aid Request Now</span>
@@ -500,7 +501,7 @@ export const HomeView: React.FC<HomeViewProps> = ({ setCurrentPage }) => {
               <div className="pt-2 border-t border-slate-200 text-center">
                 <span className="text-xs text-slate-500 block">Questions about applying?</span>
                 <button 
-                  onClick={() => setCurrentPage('about')}
+                  onClick={() => navigate({ to: '/about' })}
                   className="text-xs font-bold text-blue-600 hover:underline mt-0.5"
                 >
                   View our comprehensive Eligibility Policy
@@ -523,7 +524,7 @@ export const HomeView: React.FC<HomeViewProps> = ({ setCurrentPage }) => {
             </p>
           </div>
           <button
-            onClick={() => setCurrentPage('news')}
+            onClick={() => navigate({ to: '/news' })}
             className="text-blue-600 hover:text-blue-800 font-semibold text-xs flex items-center gap-1 group"
           >
             <span>All Articles</span>
@@ -535,7 +536,7 @@ export const HomeView: React.FC<HomeViewProps> = ({ setCurrentPage }) => {
           {NEWS_ARTICLES.slice(0, 3).map((article) => (
             <div 
               key={article.id}
-              onClick={() => setCurrentPage(`news-${article.id}`)}
+              onClick={() => navigate({ to: '/news/$slug', params: { slug: String(article.id) } })}
               className="bg-white rounded-xl overflow-hidden border border-slate-200 hover:shadow-sm cursor-pointer transition-all flex flex-col justify-between group"
             >
               <div>
@@ -584,13 +585,13 @@ export const HomeView: React.FC<HomeViewProps> = ({ setCurrentPage }) => {
           </p>
           <div className="flex flex-wrap gap-4 justify-center pt-2">
             <button 
-              onClick={() => setCurrentPage('donate')}
+              onClick={() => navigate({ to: '/donate' })}
               className="bg-amber-400 hover:bg-amber-500 text-slate-950 font-bold px-8 py-3.5 rounded-xl shadow-md transition-all text-sm"
             >
               Donate Now
             </button>
             <button 
-              onClick={() => setCurrentPage('get-involved')}
+              onClick={() => navigate({ to: '/get-involved' })}
               className="bg-blue-700 hover:bg-blue-800 text-white font-semibold px-6 py-3.5 rounded-xl border border-blue-500 transition-all text-sm"
             >
               Become a Volunteer
