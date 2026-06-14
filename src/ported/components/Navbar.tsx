@@ -211,7 +211,14 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPage, setCurrentPage }) =
                   </>
                 )}
               </div>
-            ) : null}
+            ) : (
+              <button
+                onClick={() => setCurrentPage('login')}
+                className="flex items-center gap-1.5 text-sm font-semibold text-slate-700 hover:text-blue-700 px-3 py-2 rounded-lg border border-slate-200 hover:border-blue-300 hover:bg-blue-50 transition-colors"
+              >
+                <User className="w-4 h-4" /> Sign in
+              </button>
+            )}
           </div>
 
           {/* Mobile menu button */}
