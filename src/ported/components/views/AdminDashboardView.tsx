@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { LogOut, LayoutDashboard, Image as ImageIcon, FileText, Calendar, Users, Settings as SettingsIcon, Newspaper, Sparkles } from 'lucide-react';
+import { LogOut, LayoutDashboard, Image as ImageIcon, FileText, Calendar, Users, Settings as SettingsIcon, Newspaper, Sparkles, HeartHandshake, Wallet, BarChart3, Workflow } from 'lucide-react';
 import { useNavigate, Link } from '@tanstack/react-router';
 import { useAuth } from '../../contexts/AuthContext';
 import { useIdleLogout } from '../../hooks/useIdleLogout';
@@ -11,8 +11,13 @@ import { EventsManager } from '../admin/EventsManager';
 import { StaffManager } from '../admin/StaffManager';
 import { FoundationInsightManager } from '../admin/FoundationInsightManager';
 import { NavigationPagesEditor } from '../admin/NavigationPagesEditor';
+import { ContactsManager } from '../admin/ContactsManager';
+import { PipelineView } from '../admin/PipelineView';
+import { DonationsManager } from '../admin/DonationsManager';
+import { ExpensesManager } from '../admin/ExpensesManager';
+import { FinanceReports } from '../admin/FinanceReports';
 
-type Tab = 'overview' | 'pages' | 'insight' | 'gallery' | 'news' | 'events' | 'staff' | 'settings';
+type Tab = 'overview' | 'pages' | 'insight' | 'gallery' | 'news' | 'events' | 'staff' | 'settings' | 'contacts' | 'pipeline' | 'donations' | 'expenses' | 'reports';
 
 export const AdminDashboard: React.FC = () => {
   const navigate = useNavigate();
@@ -49,6 +54,11 @@ export const AdminDashboard: React.FC = () => {
 
   const tabs: { id: Tab; label: string; icon: any }[] = [
     { id: 'overview', label: 'Overview', icon: LayoutDashboard },
+    { id: 'contacts', label: 'Contacts', icon: Users },
+    { id: 'pipeline', label: 'Pipeline', icon: Workflow },
+    { id: 'donations', label: 'Donations', icon: HeartHandshake },
+    { id: 'expenses', label: 'Expenses', icon: Wallet },
+    { id: 'reports', label: 'Reports', icon: BarChart3 },
     { id: 'insight', label: 'Foundation Insight', icon: Sparkles },
     { id: 'pages', label: 'Page Content', icon: FileText },
     { id: 'gallery', label: 'Media Library', icon: ImageIcon },
@@ -113,6 +123,11 @@ export const AdminDashboard: React.FC = () => {
               </div>
             </div>
           )}
+          {tab === 'contacts' && <ContactsManager />}
+          {tab === 'pipeline' && <PipelineView />}
+          {tab === 'donations' && <DonationsManager />}
+          {tab === 'expenses' && <ExpensesManager />}
+          {tab === 'reports' && <FinanceReports />}
           {tab === 'pages' && <PageSettingsEditor />}
           {tab === 'insight' && <FoundationInsightManager />}
           {tab === 'gallery' && <GalleryManager />}
