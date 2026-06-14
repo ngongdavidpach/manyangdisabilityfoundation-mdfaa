@@ -80,7 +80,7 @@ export const Footer: React.FC = () => {
     if (email.trim()) { setSubscribed(true); setEmailVal(''); setTimeout(() => setSubscribed(false), 5000); }
   };
 
-  const handleLink = (page: string) => { setCurrentPage(page); window.scrollTo({ top: 0, behavior: 'smooth' }); };
+  const handleLink = (page: string) => { navigate({ to: (PATH_FOR[page] || '/') }); window.scrollTo({ top: 0, behavior: 'smooth' }); };
 
   const socialLinks: { key: string; url: string; Icon: any; label: string }[] = [
     { key: 'facebook', url: s.socials.facebook, Icon: Facebook, label: 'Facebook' },
