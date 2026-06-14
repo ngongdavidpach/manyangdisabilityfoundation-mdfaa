@@ -1,15 +1,16 @@
 import React, { useEffect, useState } from 'react';
+import { Link, useNavigate, useRouterState } from '@tanstack/react-router';
 import { supabase } from '@/integrations/supabase/client';
 import { NAV_ITEM_DEFS, resolveNavOrder } from '../lib/navItems';
-import { 
-  HeartHandshake, 
-  Menu, 
-  X, 
-  Heart, 
-  HelpCircle, 
-  Users, 
-  Layers, 
-  Newspaper, 
+import {
+  HeartHandshake,
+  Menu,
+  X,
+  Heart,
+  HelpCircle,
+  Users,
+  Layers,
+  Newspaper,
   Home,
   Image as GalleryIcon,
   User,
@@ -21,12 +22,19 @@ import { FOUNDATION_INFO } from '../data/foundationData';
 import { useAuth } from '../contexts/AuthContext';
 import { getRoleLabel, getRoleColor } from '../utils/auth';
 
-interface NavbarProps {
-  currentPage: string;
-  setCurrentPage: (page: string) => void;
-}
+const PATH_FOR: Record<string, string> = {
+  home: '/',
+  about: '/about',
+  programs: '/programs',
+  gallery: '/gallery',
+  request: '/request',
+  news: '/news',
+  'get-involved': '/get-involved',
+};
 
-export const Navbar: React.FC<NavbarProps> = ({ currentPage, setCurrentPage }) => {
+export const Navbar: React.FC = () => {
+  const navigate = useNavigate();
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
   const { user, isAuthenticated, hasAdminAccess, logout } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
@@ -52,32 +60,41 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPage, setCurrentPage }) =
   const navLinks = navConfig.order
     .map((id) => NAV_ITEM_DEFS.find((d) => d.id === id))
     .filter((d): d is typeof NAV_ITEM_DEFS[number] => !!d && navConfig.flags[d.flag] !== false)
-    .map((d) => ({ id: d.id, label: d.label, icon: iconMap[d.id] || Home, protected: protectedSet.has(d.id) }));
+    .map((d) => ({
+      id: d.id,
+      label: d.label,
+      icon: iconMap[d.id] || Home,
+      protected: protectedSet.has(d.id),
+      to: PATH_FOR[d.id] || '/',
+    }));
 
-
-  const handleNavClick = (id: string) => {
-    // If the link requires auth but user is not authenticated, redirect to login
-    if ((id === 'request') && !isAuthenticated) {
-      setCurrentPage('login');
-      setMobileMenuOpen(false);
-      return;
+  const handleNavClick = (link: { id: string; to: string }) => {
+    if (link.id === 'request' && !isAuthenticated) {
+      navigate({ to: '/auth/login', search: { redirect: link.to } });
+    } else {
+      navigate({ to: link.to });
     }
-    setCurrentPage(id);
     setMobileMenuOpen(false);
     setUserMenuOpen(false);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const handleSignOut = () => {
-    logout();
-    setCurrentPage('home');
+  const handleSignOut = async () => {
+    await logout();
+    navigate({ to: '/' });
     setUserMenuOpen(false);
     setMobileMenuOpen(false);
   };
 
+  const isLinkActive = (link: { id: string; to: string }) => {
+    if (link.id === 'news') return pathname === '/news' || pathname.startsWith('/news/');
+    if (link.to === '/') return pathname === '/';
+    return pathname === link.to || pathname.startsWith(link.to + '/');
+  };
+
   return (
     <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-slate-200 shadow-xs">
-      {/* Top micro-bar for urgent announcements & contacts */}
+      {/* Top micro-bar */}
       <div className="bg-blue-900 text-white text-xs py-2 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-2">
           <div className="flex items-center gap-4">
@@ -89,8 +106,8 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPage, setCurrentPage }) =
             <span className="bg-blue-800 text-blue-200 px-2 py-0.5 rounded font-medium hidden sm:inline">
               Non-Profit 501(c)(3) Equivalent
             </span>
-            <button 
-              onClick={() => handleNavClick('request')}
+            <button
+              onClick={() => handleNavClick({ id: 'request', to: '/request' })}
               className="text-amber-300 hover:text-amber-100 transition font-semibold underline text-[11px]"
             >
               {isAuthenticated ? 'My Applications' : 'Need a Wheelchair?'}
@@ -99,36 +116,30 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPage, setCurrentPage }) =
         </div>
       </div>
 
-      {/* Main navigation area */}
+      {/* Main navigation */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-20">
-          
-          {/* Logo */}
-          <button 
-            onClick={() => handleNavClick('home')}
-            className="flex items-center gap-3 group text-left focus:outline-hidden"
-            aria-label="Manyang Disability Foundation Home"
-          >
+
+          <Link to="/" className="flex items-center gap-3 group text-left focus:outline-hidden" aria-label="Manyang Disability Foundation Home">
             <img
               src="/images/logo.png"
               alt="Manyang Disability Foundation Official Logo"
               className="w-14 h-14 object-contain group-hover:scale-105 transition-transform drop-shadow-sm"
             />
-          </button>
+          </Link>
 
-          {/* Desktop Navigation Links */}
           <nav className="hidden lg:flex items-center gap-1 xl:gap-2">
             {navLinks.map((link) => {
               const Icon = link.icon;
-              const isActive = currentPage === link.id || (currentPage.startsWith('news-') && link.id === 'news');
-              const isProtected = (link as any).protected && !isAuthenticated;
+              const isActive = isLinkActive(link);
+              const isProtected = link.protected && !isAuthenticated;
               return (
                 <button
                   key={link.id}
-                  onClick={() => handleNavClick(link.id)}
+                  onClick={() => handleNavClick(link)}
                   className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-all ${
-                    isActive 
-                      ? 'bg-blue-50 text-blue-700 font-semibold' 
+                    isActive
+                      ? 'bg-blue-50 text-blue-700 font-semibold'
                       : isProtected
                       ? 'text-slate-400 hover:text-slate-600 hover:bg-slate-50'
                       : 'text-slate-600 hover:text-blue-600 hover:bg-slate-50'
@@ -142,15 +153,14 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPage, setCurrentPage }) =
             })}
           </nav>
 
-          {/* Right side CTA - auth aware */}
           <div className="hidden sm:flex items-center gap-2">
-            <button
-              onClick={() => handleNavClick('donate')}
+            <Link
+              to="/donate"
               className="relative group overflow-hidden rounded-lg bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold px-5 py-2.5 text-sm shadow-sm transition-all hover:shadow-md flex items-center gap-2"
             >
               <Heart className="w-4 h-4 fill-slate-950 text-slate-950 animate-pulse" />
               <span>Donate Now</span>
-            </button>
+            </Link>
 
             {isAuthenticated && user ? (
               <div className="relative">
@@ -179,21 +189,14 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPage, setCurrentPage }) =
                       </div>
                       <div className="p-1">
                         <button
-                          onClick={() => {
-                            handleNavClick('dashboard');
-                            setUserMenuOpen(false);
-                          }}
+                          onClick={() => { navigate({ to: '/dashboard' }); setUserMenuOpen(false); }}
                           className="w-full flex items-center gap-2.5 px-3 py-2 text-xs text-slate-700 hover:bg-blue-50 hover:text-blue-700 rounded-lg transition-colors"
                         >
                           <LayoutDashboard className="w-4 h-4" /> My Dashboard
                         </button>
                         {hasAdminAccess() && (
                           <button
-                            onClick={() => {
-                              setCurrentPage('admin-dashboard');
-                              setUserMenuOpen(false);
-                              setMobileMenuOpen(false);
-                            }}
+                            onClick={() => { navigate({ to: '/admin' }); setUserMenuOpen(false); setMobileMenuOpen(false); }}
                             className="w-full flex items-center gap-2.5 px-3 py-2 text-xs text-slate-700 hover:bg-red-50 hover:text-red-700 rounded-lg transition-colors"
                           >
                             <ShieldCheck className="w-4 h-4" /> Admin Console
@@ -212,24 +215,23 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPage, setCurrentPage }) =
                 )}
               </div>
             ) : (
-              <button
-                onClick={() => setCurrentPage('login')}
+              <Link
+                to="/auth/login"
                 className="flex items-center gap-1.5 text-sm font-semibold text-slate-700 hover:text-blue-700 px-3 py-2 rounded-lg border border-slate-200 hover:border-blue-300 hover:bg-blue-50 transition-colors"
               >
                 <User className="w-4 h-4" /> Sign in
-              </button>
+              </Link>
             )}
           </div>
 
-          {/* Mobile menu button */}
           <div className="flex items-center gap-2 sm:hidden">
-            <button
-              onClick={() => handleNavClick('donate')}
+            <Link
+              to="/donate"
               className="bg-amber-500 text-slate-950 font-bold px-3 py-1.5 rounded-md text-xs flex items-center gap-1"
             >
               <Heart className="w-3 h-3 fill-slate-950" />
               Donate
-            </button>
+            </Link>
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               className="p-2 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-100 focus:outline-hidden"
@@ -242,11 +244,9 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPage, setCurrentPage }) =
         </div>
       </div>
 
-      {/* Mobile Navigation Drawer */}
       {mobileMenuOpen && (
         <div className="lg:hidden border-t border-slate-200 bg-white animate-fade-in">
           <div className="px-4 pt-2 pb-6 space-y-1">
-            {/* Mobile auth status */}
             {isAuthenticated && user && (
               <div className="flex items-center gap-3 p-3 bg-slate-50 rounded-xl mb-2">
                 <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-blue-600 to-blue-400 text-white flex items-center justify-center font-bold">
@@ -264,15 +264,15 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPage, setCurrentPage }) =
 
             {navLinks.map((link) => {
               const Icon = link.icon;
-              const isActive = currentPage === link.id || (currentPage.startsWith('news-') && link.id === 'news');
-              const isProtected = (link as any).protected && !isAuthenticated;
+              const isActive = isLinkActive(link);
+              const isProtected = link.protected && !isAuthenticated;
               return (
                 <button
                   key={link.id}
-                  onClick={() => handleNavClick(link.id)}
+                  onClick={() => handleNavClick(link)}
                   className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-base font-medium transition-colors ${
-                    isActive 
-                      ? 'bg-blue-50 text-blue-700 font-semibold' 
+                    isActive
+                      ? 'bg-blue-50 text-blue-700 font-semibold'
                       : isProtected
                       ? 'text-slate-400 bg-slate-50'
                       : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
@@ -285,15 +285,11 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPage, setCurrentPage }) =
               );
             })}
 
-            {/* Auth action buttons */}
             <div className="pt-3 border-t border-slate-100 space-y-1.5 mt-3">
               {isAuthenticated ? (
                 <>
                   <button
-                    onClick={() => {
-                      setCurrentPage('dashboard');
-                      setMobileMenuOpen(false);
-                    }}
+                    onClick={() => { navigate({ to: '/dashboard' }); setMobileMenuOpen(false); }}
                     className="w-full flex items-center gap-3 px-4 py-3 rounded-lg bg-blue-50 text-blue-700 font-semibold"
                   >
                     <LayoutDashboard className="w-5 h-5" />
@@ -301,10 +297,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPage, setCurrentPage }) =
                   </button>
                   {hasAdminAccess() && (
                     <button
-                      onClick={() => {
-                        setCurrentPage('admin-dashboard');
-                        setMobileMenuOpen(false);
-                      }}
+                      onClick={() => { navigate({ to: '/admin' }); setMobileMenuOpen(false); }}
                       className="w-full flex items-center gap-3 px-4 py-3 rounded-lg bg-red-50 text-red-700 font-semibold"
                     >
                       <ShieldCheck className="w-5 h-5" />
@@ -321,7 +314,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPage, setCurrentPage }) =
                 </>
               ) : (
                 <button
-                  onClick={() => { setCurrentPage('login'); setMobileMenuOpen(false); }}
+                  onClick={() => { navigate({ to: '/auth/login' }); setMobileMenuOpen(false); }}
                   className="w-full flex items-center gap-3 px-4 py-3 rounded-lg bg-blue-600 text-white font-semibold"
                 >
                   <User className="w-5 h-5" />
