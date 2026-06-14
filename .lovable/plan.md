@@ -1,54 +1,84 @@
-## Goal
+# Code & Pages Review — Recommendations
 
-Let admins show/hide and reorder pages in the navbar from the Admin Dashboard's **Settings** tab.
+Below is a focused review of the current app (a ported SPA mounted at `/` inside a TanStack Start shell) with concrete, prioritized recommendations. Nothing has been changed yet — pick which items to implement.
 
-## Where it lives
+## 1. Routing architecture (highest impact)
 
-`AdminDashboardView.tsx` → existing **Settings** tab gets a new "Navigation pages" panel above the current links to Page Content. No new top-level tab.
+**Today:** Every page is rendered by `src/ported/App.tsx` via a `currentPage` state string and a `switch`. The whole app lives at `/`. TanStack Router is essentially unused.
 
-## Storage
+**Problems this creates:**
+- No real URLs — users can't bookmark `/about`, `/programs`, `/news/<slug>`, share links, or use back/forward reliably.
+- Zero SEO for sub-pages: only `/` has metadata; About / Programs / News / Gallery all share the home page's title and description.
+- No per-route OG image, no social previews for individual news articles.
+- News detail pages (`news-<id>`) are encoded into one string instead of a real route with params.
+- Browser refresh on a "subpage" always returns to home.
 
-Reuse `page_settings` row with `page_key = 'navigation'`. Extend its content shape:
+**Recommendation:** Split the SPA into real TanStack routes:
+- `src/routes/index.tsx` → Home
+- `src/routes/about.tsx`, `programs.tsx`, `gallery.tsx`, `get-involved.tsx`, `donate.tsx`
+- `src/routes/news.tsx` (list) + `src/routes/news.$slug.tsx` (detail)
+- `src/routes/_authenticated.tsx` layout gating `dashboard`, `request`
+- `src/routes/admin.tsx` layout gating `admin-dashboard`
+- `src/routes/auth/login.tsx`, `auth/register.tsx`
+- Each route file owns its own `head()` (title, description, og:title/description, og:image where relevant). News detail derives og:image from loader data.
+- Replace `currentPage`/`setCurrentPage` with `<Link>` and `useNavigate`.
 
-```
-{
-  showHome: bool, showAbout: bool, showPrograms: bool, showGallery: bool,
-  showNews: bool, showEvents: bool, showGetInvolved: bool, showDonate: bool,
-  showRequest: bool,
-  order: string[]  // NEW — e.g. ['home','about','programs','gallery','request','news','get-involved']
-}
-```
+This is the single biggest quality improvement available and unblocks SEO, sharing, analytics, and proper auth gating.
 
-No schema migration — `content` is JSON. Defaults filled in code when `order` is missing.
+## 2. SEO
 
-## Admin UI — new `NavigationPagesEditor.tsx` (in `components/admin/`)
+Independent of the routing refactor:
+- Home `<title>` is 79 chars — trim to <60 (e.g. "Manyang Disability Foundation — Mobility, Health, Education").
+- Add a single H1 per page (verify in HomeView/AboutView/etc.).
+- Add JSON-LD `NGO` / `Organization` schema on Home and `NewsArticle` on news detail.
+- Add `<link rel="canonical">` per route once real routes exist.
+- Add alt text audits across `GalleryView` and Foundation Insight covers.
 
-Single list of nav items (Home, About Us, Our Impact, Gallery, Request Aid, News & Events, Get Involved). For each row:
-- drag handle (reorder) — use existing pattern; native HTML5 drag-and-drop, no new dep
-- label (read-only, sourced from navbar definition)
-- visibility toggle (checkbox)
-- up/down buttons as a keyboard-friendly fallback to drag
+## 3. Auth & authorization hardening
 
-Single "Save changes" button → upserts `page_settings` row (`page_key='navigation'`) merging `order` + visibility flags. Loads current values on mount.
+- Hidden Ctrl+Shift+L shortcut to open login is fine, but the admin dashboard relying only on `hasAdminAccess()` from client context is risky if `user_roles` isn't enforced via RLS. Verify every admin-writable table (`page_settings`, `media_assets`, `news_articles`, `events`, `staff_members`, foundation insight table) has RLS policies that gate writes via `public.has_role(auth.uid(), 'admin')`. Run the security scanner to confirm.
+- Idle auto-logout reads from `page_settings.site.idleLogoutMinutes` — good. Consider a minimum (e.g. 1 min) and surface it in the Settings tab UI rather than only Page Content.
 
-Mounted inside the Settings tab in `AdminDashboardView.tsx`, above the existing helper links.
+## 4. Admin dashboard UX
 
-## Public wiring — `Navbar.tsx`
+- `Settings` tab currently points users to "Page Content → Site / Security" and "Page Content → Footer & Contact". Pull those panels directly into Settings so admins don't have to hop tabs.
+- `NavigationPagesEditor` and `PageSettingsEditor` both write `page_settings` rows that contain overlapping `show*` flags. Pick one source of truth — recommend: navigation visibility/order lives only in `page_settings.navigation`; remove the duplicate toggles from `PageSettingsEditor`.
+- Overview stat cards are good; add a "Recently updated" feed (last 5 changes across news/events/insight) for quick context.
+- Add empty-state hints in each manager (News, Events, Staff, Gallery, Insight) when count = 0.
 
-- Move the current hard-coded `navLinks` array into a module-level `NAV_ITEMS` constant (id, label, icon, protected) so it can be filtered/reordered.
-- Read `page_settings` for `page_key='navigation'` via the existing `usePageSettings` hook.
-- Filter `NAV_ITEMS` by the matching `show*` flag (default true when missing), then sort by `content.order` (items not in `order` keep their original position at the end).
-- Apply the same filtering to the mobile menu and footer if the footer also lists pages (verify in `Footer.tsx` and apply if needed).
+## 5. Public pages
 
-## Technical notes
+- **Navbar**: `request` is gated as protected, but `dashboard` and `admin-dashboard` links only appear inside the user menu. Add a clear "Sign in" CTA in the navbar when unauthenticated (currently the only entry is Ctrl+Shift+L or clicking Request).
+- **Footer**: confirm Quick Links honors the same `navigation` `page_settings` (you already added this). Add a "Last updated" or copyright year that's not hardcoded.
+- **HomeView**: ensure the Foundation Insight section degrades gracefully when no insight rows exist (empty state, not an empty card).
+- **Mobile**: verify the top blue micro-bar (emergency line + email) wraps cleanly on <360 px.
 
-- The existing "Navigation toggles" section in `PageSettingsEditor` stays as-is — it already writes the same row, so both editors interoperate. The new editor is the friendlier surface.
-- Order persistence: store full id list; on render, dedupe + append any new ids introduced by future code so adding a nav item later doesn't disappear behind missing order entries.
-- No new tables, no new RLS — `page_settings` already restricts writes to admins.
+## 6. Data loading patterns
 
-## Files
+The ported app uses ad-hoc `useEffect + supabase.from(...).then(...)` everywhere (Navbar, Footer, AdminDashboard, NavigationPagesEditor, HomeView, etc.). Each mount re-fetches.
 
-- New: `src/ported/components/admin/NavigationPagesEditor.tsx`
-- Edit: `src/ported/components/views/AdminDashboardView.tsx` (mount in Settings tab)
-- Edit: `src/ported/components/Navbar.tsx` (read + apply order/visibility)
-- Edit: `src/ported/components/Footer.tsx` (apply same filter if it lists pages)
+**Recommendation:** Standardize on the existing `usePageSettings` hook for all `page_settings` reads, and introduce a similar `useTable` helper or adopt TanStack Query (already in the template) for `news`, `events`, `staff`, `media_assets`. This gives caching, deduping, and SWR for free, and removes the "navbar flickers on every page change" feel.
+
+## 7. Code organization
+
+- The whole app is namespaced under `src/ported/`. After the routing refactor, flatten: views → `src/routes/*`, shared components → `src/components/`, hooks → `src/hooks/`, lib → `src/lib/`. Drop the `ported/` prefix.
+- `NAV_ITEM_DEFS` and `resolveNavOrder` are exported from a UI component (`NavigationPagesEditor.tsx`) and imported by `Navbar` and `Footer`. Move them to `src/ported/lib/navItems.ts` so admin UI isn't a dependency of public chrome.
+- `videoEmbed.ts`, `imageOptimize.ts`, `storage.ts` are good — keep this pattern.
+
+## 8. Performance
+
+- HomeView likely renders many images; add `loading="lazy"` and `decoding="async"` on non-hero images; use `<picture>` or AVIF/WebP via `imageOptimize`.
+- The logo is referenced as `/images/logo.png` from `public/` — fine, but the Foundation Insight cover image should go through Supabase Storage transforms (resize on the fly) instead of full-resolution downloads.
+
+## 9. Suggested execution order
+
+1. **Security scan + RLS audit** (fast, blocking).
+2. **Real routes** (biggest UX/SEO win).
+3. **Per-route SEO metadata + JSON-LD**.
+4. **Consolidate Settings tab + remove duplicate nav toggles in PageSettingsEditor**.
+5. **Adopt TanStack Query for tables**, drop ad-hoc `useEffect` fetches.
+6. **Flatten `src/ported/` namespace**.
+
+---
+
+Tell me which items to take on (e.g. "do 1, 2, 4" or "start with routing only") and I'll come back with a concrete implementation plan and the file-level changes.
