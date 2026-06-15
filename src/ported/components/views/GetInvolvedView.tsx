@@ -19,6 +19,11 @@ import { submitVolunteerApplication, submitPartnerInquiry } from '@/lib/intake.f
 export const GetInvolvedView: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'volunteer' | 'partner'>('volunteer');
   const [submitted, setSubmitted] = useState<boolean>(false);
+  const [submitting, setSubmitting] = useState<boolean>(false);
+  const [serverError, setServerError] = useState<string>('');
+  const submitVolunteerFn = useServerFn(submitVolunteerApplication);
+  const submitPartnerFn = useServerFn(submitPartnerInquiry);
+
 
   // Volunteer State
   const [vForm, setVForm] = useState({
