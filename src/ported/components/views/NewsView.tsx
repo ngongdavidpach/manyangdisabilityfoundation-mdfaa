@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from '@tanstack/react-router';
+import { useServerFn } from '@tanstack/react-start';
 import {
   ArrowLeft,
   Calendar,
@@ -15,6 +16,8 @@ import {
   FileText
 } from 'lucide-react';
 import { NEWS_ARTICLES, FOUNDATION_EVENTS, FoundationEvent } from '../../data/foundationData';
+import { submitEventRsvp } from '@/lib/intake.functions';
+
 
 interface NewsViewProps {
   articleId?: string;
