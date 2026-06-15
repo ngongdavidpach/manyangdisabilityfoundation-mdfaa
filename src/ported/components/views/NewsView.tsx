@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from '@tanstack/react-router';
+import { useServerFn } from '@tanstack/react-start';
 import {
   ArrowLeft,
   Calendar,
@@ -15,6 +16,8 @@ import {
   FileText
 } from 'lucide-react';
 import { NEWS_ARTICLES, FOUNDATION_EVENTS, FoundationEvent } from '../../data/foundationData';
+import { submitEventRsvp } from '@/lib/intake.functions';
+
 
 interface NewsViewProps {
   articleId?: string;
@@ -32,6 +35,9 @@ export const NewsView: React.FC<NewsViewProps> = ({ articleId }) => {
   const [rsvpEmail, setRsvpEmail] = useState('');
   const [rsvpPhone, setRsvpPhone] = useState('');
   const [rsvpSubmitted, setRsvpSubmitted] = useState(false);
+  const [rsvpSubmitting, setRsvpSubmitting] = useState(false);
+  const [rsvpError, setRsvpError] = useState('');
+  const submitEventRsvpFn = useServerFn(submitEventRsvp);
 
   const isArticleView = !!articleId;
   const currentArticle = articleId ? NEWS_ARTICLES.find(a => a.id === articleId) : null;
@@ -42,9 +48,21 @@ export const NewsView: React.FC<NewsViewProps> = ({ articleId }) => {
     setTimeout(() => setCopied(false), 3000);
   };
 
-  const handleRsvpSubmit = (e: React.FormEvent) => {
+  const handleRsvpSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (rsvpName && rsvpEmail) {
+    if (!rsvpName || !rsvpEmail || !rsvpEvent) return;
+    setRsvpError('');
+    setRsvpSubmitting(true);
+    try {
+      await submitEventRsvpFn({
+        data: {
+          eventExternalId: String(rsvpEvent.id ?? ''),
+          eventTitle: rsvpEvent.title,
+          fullName: rsvpName,
+          email: rsvpEmail,
+          phone: rsvpPhone,
+        },
+      });
       setRsvpSubmitted(true);
       setTimeout(() => {
         setRsvpSubmitted(false);
@@ -53,8 +71,13 @@ export const NewsView: React.FC<NewsViewProps> = ({ articleId }) => {
         setRsvpEmail('');
         setRsvpPhone('');
       }, 4000);
+    } catch (err) {
+      setRsvpError(err instanceof Error ? err.message : 'Something went wrong. Please try again.');
+    } finally {
+      setRsvpSubmitting(false);
     }
   };
+
 
   if (isArticleView && currentArticle) {
     // Render individual Article view
@@ -429,10 +452,11 @@ export const NewsView: React.FC<NewsViewProps> = ({ articleId }) => {
                   <div className="w-12 h-12 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto">
                     <CheckCircle2 className="w-6 h-6" />
                   </div>
-                  <h4 className="font-bold text-slate-900">Registration Confirmed!</h4>
+                  <h4 className="font-bold text-slate-900">Registration Received!</h4>
                   <p className="text-xs text-slate-600 max-w-xs mx-auto">
-                    We've reserved your spot. Details have been simulated and sent to <strong>{rsvpEmail}</strong>.
+                    Your RSVP has been recorded under <strong>{rsvpEmail}</strong>. Our logistics desk will follow up with check-in details.
                   </p>
+
                 </div>
               ) : (
                 <form onSubmit={handleRsvpSubmit} className="space-y-4">
@@ -475,6 +499,9 @@ export const NewsView: React.FC<NewsViewProps> = ({ articleId }) => {
                     Spots are verified internally by our logistics desk. Please arrive 15 minutes prior to start time for check-in.
                   </div>
 
+                  {rsvpError && (
+                    <p className="text-xs text-red-600 font-medium">{rsvpError}</p>
+                  )}
                   <div className="pt-2 flex gap-2">
                     <button
                       type="button"
@@ -485,12 +512,14 @@ export const NewsView: React.FC<NewsViewProps> = ({ articleId }) => {
                     </button>
                     <button
                       type="submit"
-                      className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 rounded-lg text-xs transition-colors"
+                      disabled={rsvpSubmitting}
+                      className="flex-1 bg-blue-600 hover:bg-blue-700 disabled:opacity-60 text-white font-bold py-2.5 rounded-lg text-xs transition-colors"
                     >
-                      Confirm Reservation
+                      {rsvpSubmitting ? 'Submitting…' : 'Confirm Reservation'}
                     </button>
                   </div>
                 </form>
+
               )}
             </div>
 

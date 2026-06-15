@@ -11,11 +11,19 @@ import {
   GraduationCap,
   Globe
 } from 'lucide-react';
+import { useServerFn } from '@tanstack/react-start';
 import { FOUNDATION_INFO } from '../../data/foundationData';
+import { submitVolunteerApplication, submitPartnerInquiry } from '@/lib/intake.functions';
+
 
 export const GetInvolvedView: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'volunteer' | 'partner'>('volunteer');
   const [submitted, setSubmitted] = useState<boolean>(false);
+  const [submitting, setSubmitting] = useState<boolean>(false);
+  const [serverError, setServerError] = useState<string>('');
+  const submitVolunteerFn = useServerFn(submitVolunteerApplication);
+  const submitPartnerFn = useServerFn(submitPartnerInquiry);
+
 
   // Volunteer State
   const [vForm, setVForm] = useState({
@@ -59,21 +67,59 @@ export const GetInvolvedView: React.FC = () => {
     });
   };
 
-  const handleVSubmit = (e: React.FormEvent) => {
+  const handleVSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (vForm.fullName && vForm.email) {
+    if (!vForm.fullName || !vForm.email) return;
+    setServerError('');
+    setSubmitting(true);
+    try {
+      await submitVolunteerFn({
+        data: {
+          fullName: vForm.fullName,
+          email: vForm.email,
+          phone: vForm.phone,
+          country: vForm.country,
+          city: vForm.city,
+          skills: vForm.skills,
+          availability: vForm.availability,
+          message: vForm.message,
+        },
+      });
       setSubmitted(true);
       window.scrollTo({ top: 0, behavior: 'smooth' });
+    } catch (err) {
+      setServerError(err instanceof Error ? err.message : 'Something went wrong. Please try again.');
+    } finally {
+      setSubmitting(false);
     }
   };
 
-  const handlePSubmit = (e: React.FormEvent) => {
+  const handlePSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (pForm.orgName && pForm.email) {
+    if (!pForm.orgName || !pForm.email || !pForm.contactPerson) return;
+    setServerError('');
+    setSubmitting(true);
+    try {
+      await submitPartnerFn({
+        data: {
+          orgName: pForm.orgName,
+          contactPerson: pForm.contactPerson,
+          email: pForm.email,
+          phone: pForm.phone,
+          orgType: pForm.orgType,
+          partnershipType: pForm.partnershipType,
+          message: pForm.message,
+        },
+      });
       setSubmitted(true);
       window.scrollTo({ top: 0, behavior: 'smooth' });
+    } catch (err) {
+      setServerError(err instanceof Error ? err.message : 'Something went wrong. Please try again.');
+    } finally {
+      setSubmitting(false);
     }
   };
+
 
   const resetForms = () => {
     setSubmitted(false);
@@ -109,12 +155,13 @@ export const GetInvolvedView: React.FC = () => {
           <div className="space-y-2">
             <h2 className="text-2xl font-bold text-slate-900">Thank You for Your Generous Offer!</h2>
             <p className="text-sm text-slate-600 max-w-md mx-auto">
-              Your registration parameters have been directly forwarded to the MDF engagement team.
+              Your submission has been received and is now in our intake queue. The MDF engagement team will review your details and follow up by email.
             </p>
           </div>
           <p className="text-xs text-slate-500 max-w-sm mx-auto">
-            Our volunteer network managers typically assess profiles and schedule onboarding sessions within 3-5 business days.
+            Our volunteer network managers typically respond within 3-5 business days.
           </p>
+
           <div className="pt-4">
             <button
               onClick={resetForms}
@@ -277,15 +324,20 @@ export const GetInvolvedView: React.FC = () => {
                 </div>
               </div>
 
-              <div className="pt-4 border-t border-slate-100 text-right">
+              <div className="pt-4 border-t border-slate-100 flex flex-col items-end gap-2">
+                {serverError && (
+                  <p className="text-xs text-red-600 font-medium">{serverError}</p>
+                )}
                 <button
                   type="submit"
-                  className="bg-blue-600 hover:bg-blue-700 text-white font-bold px-8 py-3 rounded-lg text-xs transition-colors inline-flex items-center gap-1.5 shadow-xs"
+                  disabled={submitting}
+                  className="bg-blue-600 hover:bg-blue-700 disabled:opacity-60 text-white font-bold px-8 py-3 rounded-lg text-xs transition-colors inline-flex items-center gap-1.5 shadow-xs"
                 >
-                  <span>Submit Volunteer Offer</span>
+                  <span>{submitting ? 'Submitting…' : 'Submit Volunteer Offer'}</span>
                   <ArrowRight className="w-4 h-4" />
                 </button>
               </div>
+
             </form>
           )}
 
@@ -392,15 +444,20 @@ export const GetInvolvedView: React.FC = () => {
                 />
               </div>
 
-              <div className="pt-4 border-t border-slate-100 text-right">
+              <div className="pt-4 border-t border-slate-100 flex flex-col items-end gap-2">
+                {serverError && (
+                  <p className="text-xs text-red-600 font-medium">{serverError}</p>
+                )}
                 <button
                   type="submit"
-                  className="bg-blue-600 hover:bg-blue-700 text-white font-bold px-8 py-3 rounded-lg text-xs transition-colors inline-flex items-center gap-1.5 shadow-xs"
+                  disabled={submitting}
+                  className="bg-blue-600 hover:bg-blue-700 disabled:opacity-60 text-white font-bold px-8 py-3 rounded-lg text-xs transition-colors inline-flex items-center gap-1.5 shadow-xs"
                 >
-                  <span>Submit Partnership Proposal</span>
+                  <span>{submitting ? 'Submitting…' : 'Submit Partnership Proposal'}</span>
                   <ArrowRight className="w-4 h-4" />
                 </button>
               </div>
+
             </form>
           )}
 
