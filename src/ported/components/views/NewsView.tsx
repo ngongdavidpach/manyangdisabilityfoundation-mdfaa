@@ -452,10 +452,11 @@ export const NewsView: React.FC<NewsViewProps> = ({ articleId }) => {
                   <div className="w-12 h-12 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto">
                     <CheckCircle2 className="w-6 h-6" />
                   </div>
-                  <h4 className="font-bold text-slate-900">Registration Confirmed!</h4>
+                  <h4 className="font-bold text-slate-900">Registration Received!</h4>
                   <p className="text-xs text-slate-600 max-w-xs mx-auto">
-                    We've reserved your spot. Details have been simulated and sent to <strong>{rsvpEmail}</strong>.
+                    Your RSVP has been recorded under <strong>{rsvpEmail}</strong>. Our logistics desk will follow up with check-in details.
                   </p>
+
                 </div>
               ) : (
                 <form onSubmit={handleRsvpSubmit} className="space-y-4">
