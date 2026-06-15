@@ -14,6 +14,75 @@ export type Database = {
   }
   public: {
     Tables: {
+      aid_requests: {
+        Row: {
+          age: number | null
+          caregiver_name: string | null
+          city: string | null
+          country: string | null
+          created_at: string
+          device_condition: string | null
+          disability_category: string | null
+          email: string | null
+          full_name: string
+          gender: string | null
+          has_existing_device: string | null
+          id: string
+          is_caregiver: string | null
+          phone: string | null
+          requested_aid: string | null
+          status: string
+          story: string | null
+          tracking_code: string
+          updated_at: string
+          urgency_level: string | null
+        }
+        Insert: {
+          age?: number | null
+          caregiver_name?: string | null
+          city?: string | null
+          country?: string | null
+          created_at?: string
+          device_condition?: string | null
+          disability_category?: string | null
+          email?: string | null
+          full_name: string
+          gender?: string | null
+          has_existing_device?: string | null
+          id?: string
+          is_caregiver?: string | null
+          phone?: string | null
+          requested_aid?: string | null
+          status?: string
+          story?: string | null
+          tracking_code: string
+          updated_at?: string
+          urgency_level?: string | null
+        }
+        Update: {
+          age?: number | null
+          caregiver_name?: string | null
+          city?: string | null
+          country?: string | null
+          created_at?: string
+          device_condition?: string | null
+          disability_category?: string | null
+          email?: string | null
+          full_name?: string
+          gender?: string | null
+          has_existing_device?: string | null
+          id?: string
+          is_caregiver?: string | null
+          phone?: string | null
+          requested_aid?: string | null
+          status?: string
+          story?: string | null
+          tracking_code?: string
+          updated_at?: string
+          urgency_level?: string | null
+        }
+        Relationships: []
+      }
       budgets: {
         Row: {
           category_id: string | null
@@ -153,6 +222,60 @@ export type Database = {
         }
         Relationships: []
       }
+      donation_intents: {
+        Row: {
+          amount_cents: number
+          channel: string
+          created_at: string
+          currency: string
+          donor_country: string | null
+          donor_email: string | null
+          donor_name: string | null
+          donor_phone: string | null
+          frequency: string
+          id: string
+          is_anonymous: boolean
+          message: string | null
+          reference: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          amount_cents: number
+          channel: string
+          created_at?: string
+          currency?: string
+          donor_country?: string | null
+          donor_email?: string | null
+          donor_name?: string | null
+          donor_phone?: string | null
+          frequency?: string
+          id?: string
+          is_anonymous?: boolean
+          message?: string | null
+          reference: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          amount_cents?: number
+          channel?: string
+          created_at?: string
+          currency?: string
+          donor_country?: string | null
+          donor_email?: string | null
+          donor_name?: string | null
+          donor_phone?: string | null
+          frequency?: string
+          id?: string
+          is_anonymous?: boolean
+          message?: string | null
+          reference?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       donations: {
         Row: {
           amount_cents: number
@@ -229,6 +352,129 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      email_send_log: {
+        Row: {
+          created_at: string
+          error_message: string | null
+          id: string
+          message_id: string | null
+          metadata: Json | null
+          recipient_email: string
+          status: string
+          template_name: string
+        }
+        Insert: {
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          message_id?: string | null
+          metadata?: Json | null
+          recipient_email: string
+          status: string
+          template_name: string
+        }
+        Update: {
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          message_id?: string | null
+          metadata?: Json | null
+          recipient_email?: string
+          status?: string
+          template_name?: string
+        }
+        Relationships: []
+      }
+      email_send_state: {
+        Row: {
+          auth_email_ttl_minutes: number
+          batch_size: number
+          id: number
+          retry_after_until: string | null
+          send_delay_ms: number
+          transactional_email_ttl_minutes: number
+          updated_at: string
+        }
+        Insert: {
+          auth_email_ttl_minutes?: number
+          batch_size?: number
+          id?: number
+          retry_after_until?: string | null
+          send_delay_ms?: number
+          transactional_email_ttl_minutes?: number
+          updated_at?: string
+        }
+        Update: {
+          auth_email_ttl_minutes?: number
+          batch_size?: number
+          id?: number
+          retry_after_until?: string | null
+          send_delay_ms?: number
+          transactional_email_ttl_minutes?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      email_unsubscribe_tokens: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          token: string
+          used_at: string | null
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          token: string
+          used_at?: string | null
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          token?: string
+          used_at?: string | null
+        }
+        Relationships: []
+      }
+      event_rsvps: {
+        Row: {
+          created_at: string
+          email: string
+          event_external_id: string | null
+          event_title: string
+          full_name: string
+          id: string
+          phone: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          event_external_id?: string | null
+          event_title: string
+          full_name: string
+          id?: string
+          phone?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          event_external_id?: string | null
+          event_title?: string
+          full_name?: string
+          id?: string
+          phone?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
       }
       events: {
         Row: {
@@ -471,6 +717,48 @@ export type Database = {
         }
         Relationships: []
       }
+      partner_inquiries: {
+        Row: {
+          contact_person: string
+          created_at: string
+          email: string
+          id: string
+          message: string | null
+          org_name: string
+          org_type: string | null
+          partnership_type: string | null
+          phone: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          contact_person: string
+          created_at?: string
+          email: string
+          id?: string
+          message?: string | null
+          org_name: string
+          org_type?: string | null
+          partnership_type?: string | null
+          phone?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          contact_person?: string
+          created_at?: string
+          email?: string
+          id?: string
+          message?: string | null
+          org_name?: string
+          org_type?: string | null
+          partnership_type?: string | null
+          phone?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -599,6 +887,30 @@ export type Database = {
         }
         Relationships: []
       }
+      suppressed_emails: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          metadata: Json | null
+          reason: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          metadata?: Json | null
+          reason: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          metadata?: Json | null
+          reason?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string
@@ -617,6 +929,51 @@ export type Database = {
           id?: string
           role?: Database["public"]["Enums"]["app_role"]
           user_id?: string
+        }
+        Relationships: []
+      }
+      volunteer_applications: {
+        Row: {
+          availability: string | null
+          city: string | null
+          country: string | null
+          created_at: string
+          email: string
+          full_name: string
+          id: string
+          message: string | null
+          phone: string | null
+          skills: string[]
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          availability?: string | null
+          city?: string | null
+          country?: string | null
+          created_at?: string
+          email: string
+          full_name: string
+          id?: string
+          message?: string | null
+          phone?: string | null
+          skills?: string[]
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          availability?: string | null
+          city?: string | null
+          country?: string | null
+          created_at?: string
+          email?: string
+          full_name?: string
+          id?: string
+          message?: string | null
+          phone?: string | null
+          skills?: string[]
+          status?: string
+          updated_at?: string
         }
         Relationships: []
       }
@@ -669,12 +1026,37 @@ export type Database = {
         }
         Returns: boolean
       }
+      delete_email: {
+        Args: { message_id: number; queue_name: string }
+        Returns: boolean
+      }
+      enqueue_email: {
+        Args: { payload: Json; queue_name: string }
+        Returns: number
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
           _user_id: string
         }
         Returns: boolean
+      }
+      move_to_dlq: {
+        Args: {
+          dlq_name: string
+          message_id: number
+          payload: Json
+          source_queue: string
+        }
+        Returns: number
+      }
+      read_email_batch: {
+        Args: { batch_size: number; queue_name: string; vt: number }
+        Returns: {
+          message: Json
+          msg_id: number
+          read_ct: number
+        }[]
       }
     }
     Enums: {
