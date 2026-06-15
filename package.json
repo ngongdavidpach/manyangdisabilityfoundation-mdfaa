@@ -6,6 +6,15 @@
   "scripts": {
     "dev": "vite dev",
     "build": "vite build",
+    "scripts": {
+  "dev": "vite dev",
+  "build": "vite build",
+  "postbuild": "node -e \"import('fs').then(fs => fs.default.rmSync('dist/client/_redirects', {force: true}))\"",
+  "build:dev": "vite build --mode development",
+  "preview": "vite preview",
+  "lint": "eslint .",
+  "format": "prettier --write ."
+},
     "build:dev": "vite build --mode development",
     "preview": "vite preview",
     "lint": "eslint .",
