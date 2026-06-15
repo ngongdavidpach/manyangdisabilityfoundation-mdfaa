@@ -1,13 +1,13 @@
-## Plan: Update Favicon with Uploaded Logo
+## Plan: Switch to npm-only and refresh lockfile
 
-The uploaded image is a square circular logo (589×591px). The existing `public/images/logo.png` is a wide banner (1408×768px). All favicon, apple-touch-icon, and PWA manifest references already point to `/images/logo.png`.
+### Steps
+1. Delete `bun.lock` from the project root.
+2. Remove the `bun.lock` entry from `.prettierignore` (no longer needed).
+3. Regenerate `package-lock.json` against current `package.json` and update transitive dependencies to their latest allowed versions:
+   - Remove existing `node_modules` and `package-lock.json`
+   - Run `npm install` to produce a fresh npm lockfile resolving the newest versions compatible with each `package.json` semver range
+4. Verify install succeeds and the dev/build pipeline is unaffected (the harness runs the build automatically).
 
-### Changes
-
-1. **Replace `public/images/logo.png`** with the uploaded `image.png`.
-2. **No code changes needed** — `src/routes/__root.tsx` and `vite.config.ts` already reference `/images/logo.png` for favicon, apple-touch-icon, and PWA manifest icons.
-
-The new circular logo will automatically become the favicon, apple-touch-icon, and PWA icon across the site.
-
-### Optional add-on
-I can also generate smaller sizes (e.g., 32×32, 180×180) and add explicit `<link rel="icon">` sizes for optimal browser/PWA support. Let me know if you'd like that.
+### Notes
+- This does **not** bump semver ranges in `package.json` (no major upgrades). It only refreshes the locked versions within existing ranges. If you also want major version bumps (e.g. via `npm-check-updates`), say so and I'll add that step.
+- No application code changes.
