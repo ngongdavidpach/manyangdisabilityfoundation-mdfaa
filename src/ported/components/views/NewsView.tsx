@@ -35,6 +35,9 @@ export const NewsView: React.FC<NewsViewProps> = ({ articleId }) => {
   const [rsvpEmail, setRsvpEmail] = useState('');
   const [rsvpPhone, setRsvpPhone] = useState('');
   const [rsvpSubmitted, setRsvpSubmitted] = useState(false);
+  const [rsvpSubmitting, setRsvpSubmitting] = useState(false);
+  const [rsvpError, setRsvpError] = useState('');
+  const submitEventRsvpFn = useServerFn(submitEventRsvp);
 
   const isArticleView = !!articleId;
   const currentArticle = articleId ? NEWS_ARTICLES.find(a => a.id === articleId) : null;
@@ -45,9 +48,21 @@ export const NewsView: React.FC<NewsViewProps> = ({ articleId }) => {
     setTimeout(() => setCopied(false), 3000);
   };
 
-  const handleRsvpSubmit = (e: React.FormEvent) => {
+  const handleRsvpSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (rsvpName && rsvpEmail) {
+    if (!rsvpName || !rsvpEmail || !rsvpEvent) return;
+    setRsvpError('');
+    setRsvpSubmitting(true);
+    try {
+      await submitEventRsvpFn({
+        data: {
+          eventExternalId: String(rsvpEvent.id ?? ''),
+          eventTitle: rsvpEvent.title,
+          fullName: rsvpName,
+          email: rsvpEmail,
+          phone: rsvpPhone,
+        },
+      });
       setRsvpSubmitted(true);
       setTimeout(() => {
         setRsvpSubmitted(false);
@@ -56,8 +71,13 @@ export const NewsView: React.FC<NewsViewProps> = ({ articleId }) => {
         setRsvpEmail('');
         setRsvpPhone('');
       }, 4000);
+    } catch (err) {
+      setRsvpError(err instanceof Error ? err.message : 'Something went wrong. Please try again.');
+    } finally {
+      setRsvpSubmitting(false);
     }
   };
+
 
   if (isArticleView && currentArticle) {
     // Render individual Article view
