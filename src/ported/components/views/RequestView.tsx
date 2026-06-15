@@ -17,6 +17,10 @@ export const RequestView: React.FC = () => {
   const [step, setStep] = useState<number>(1);
   const [submitted, setSubmitted] = useState<boolean>(false);
   const [trackingCode, setTrackingCode] = useState<string>('');
+  const [submitting, setSubmitting] = useState<boolean>(false);
+  const [serverError, setServerError] = useState<string>('');
+  const submitAidRequestFn = useServerFn(submitAidRequest);
+
 
   // Form State
   const [formData, setFormData] = useState({
