@@ -11,7 +11,10 @@ import {
   GraduationCap,
   Globe
 } from 'lucide-react';
+import { useServerFn } from '@tanstack/react-start';
 import { FOUNDATION_INFO } from '../../data/foundationData';
+import { submitVolunteerApplication, submitPartnerInquiry } from '@/lib/intake.functions';
+
 
 export const GetInvolvedView: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'volunteer' | 'partner'>('volunteer');
