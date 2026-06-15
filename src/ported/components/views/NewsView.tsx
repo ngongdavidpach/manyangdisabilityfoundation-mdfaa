@@ -499,6 +499,9 @@ export const NewsView: React.FC<NewsViewProps> = ({ articleId }) => {
                     Spots are verified internally by our logistics desk. Please arrive 15 minutes prior to start time for check-in.
                   </div>
 
+                  {rsvpError && (
+                    <p className="text-xs text-red-600 font-medium">{rsvpError}</p>
+                  )}
                   <div className="pt-2 flex gap-2">
                     <button
                       type="button"
@@ -509,12 +512,14 @@ export const NewsView: React.FC<NewsViewProps> = ({ articleId }) => {
                     </button>
                     <button
                       type="submit"
-                      className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 rounded-lg text-xs transition-colors"
+                      disabled={rsvpSubmitting}
+                      className="flex-1 bg-blue-600 hover:bg-blue-700 disabled:opacity-60 text-white font-bold py-2.5 rounded-lg text-xs transition-colors"
                     >
-                      Confirm Reservation
+                      {rsvpSubmitting ? 'Submitting…' : 'Confirm Reservation'}
                     </button>
                   </div>
                 </form>
+
               )}
             </div>
 
