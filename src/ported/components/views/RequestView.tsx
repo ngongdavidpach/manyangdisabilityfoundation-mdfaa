@@ -103,17 +103,41 @@ export const RequestView: React.FC = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (validateStep(3)) {
-      // Generate a wonderful high-fidelity tracking ID
-      const randomNum = Math.floor(100000 + Math.random() * 900000);
-      const code = `MDF-AID-${new Date().getFullYear()}-${randomNum}`;
-      setTrackingCode(code);
+    if (!validateStep(3)) return;
+    setServerError('');
+    setSubmitting(true);
+    try {
+      const result = await submitAidRequestFn({
+        data: {
+          fullName: formData.fullName,
+          age: formData.age,
+          gender: formData.gender,
+          country: formData.country,
+          city: formData.city,
+          phone: formData.phone,
+          email: formData.email || undefined,
+          isCaregiver: formData.isCaregiver,
+          caregiverName: formData.caregiverName,
+          disabilityCategory: formData.disabilityCategory,
+          requestedAid: formData.requestedAid,
+          hasExistingDevice: formData.hasExistingDevice,
+          deviceCondition: formData.deviceCondition,
+          urgencyLevel: formData.urgencyLevel,
+          story: formData.story,
+        },
+      });
+      setTrackingCode(result.tracking_code);
       setSubmitted(true);
       window.scrollTo({ top: 0, behavior: 'smooth' });
+    } catch (err) {
+      setServerError(err instanceof Error ? err.message : 'Something went wrong. Please try again.');
+    } finally {
+      setSubmitting(false);
     }
   };
+
 
   const resetForm = () => {
     setFormData({
