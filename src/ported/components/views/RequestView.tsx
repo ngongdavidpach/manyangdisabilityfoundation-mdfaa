@@ -8,7 +8,10 @@ import {
   Layers, 
   AlertCircle
 } from 'lucide-react';
+import { useServerFn } from '@tanstack/react-start';
 import { FOUNDATION_INFO } from '../../data/foundationData';
+import { submitAidRequest } from '@/lib/intake.functions';
+
 
 export const RequestView: React.FC = () => {
   const [step, setStep] = useState<number>(1);
