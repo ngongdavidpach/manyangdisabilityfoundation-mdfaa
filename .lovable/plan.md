@@ -1,9 +1,23 @@
-## Plan: Replace `.inputValidator()` with `.validator()`
+## Plan: Silence harmless "use client" directive warnings
 
-Rename every `createServerFn().inputValidator(...)` call to `.validator(...)` in:
-- `src/lib/receipts.functions.ts`
-- `src/lib/donations.functions.ts`
-- `src/lib/api/example.functions.ts`
-- `src/lib/intake.functions.ts` (if any uses are present there)
+Add a Rollup `onwarn` filter in `vite.config.ts` that drops `MODULE_LEVEL_DIRECTIVE` warnings originating from `node_modules` (these come from `@tanstack/react-router`'s `"use client"` markers, which Vite/Rollup don't need but emit a warning for during SSR/client bundling). All other warnings still surface.
 
-Then run `npm run build` to confirm the deprecation warnings are gone and the build still succeeds. Pure rename — no behavior changes.
+```ts
+export default defineConfig({
+  vite: {
+    build: {
+      rollupOptions: {
+        onwarn(warning, defaultHandler) {
+          if (
+            warning.code === "MODULE_LEVEL_DIRECTIVE" &&
+            warning.message.includes("use client")
+          ) return;
+          defaultHandler(warning);
+        },
+      },
+    },
+  },
+});
+```
+
+Then run `npm run build` to confirm the notices are gone and the build still succeeds.
