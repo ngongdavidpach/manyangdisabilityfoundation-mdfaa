@@ -155,12 +155,13 @@ export const GetInvolvedView: React.FC = () => {
           <div className="space-y-2">
             <h2 className="text-2xl font-bold text-slate-900">Thank You for Your Generous Offer!</h2>
             <p className="text-sm text-slate-600 max-w-md mx-auto">
-              Your registration parameters have been directly forwarded to the MDF engagement team.
+              Your submission has been received and is now in our intake queue. The MDF engagement team will review your details and follow up by email.
             </p>
           </div>
           <p className="text-xs text-slate-500 max-w-sm mx-auto">
-            Our volunteer network managers typically assess profiles and schedule onboarding sessions within 3-5 business days.
+            Our volunteer network managers typically respond within 3-5 business days.
           </p>
+
           <div className="pt-4">
             <button
               onClick={resetForms}
