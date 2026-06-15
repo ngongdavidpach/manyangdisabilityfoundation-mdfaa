@@ -324,15 +324,20 @@ export const GetInvolvedView: React.FC = () => {
                 </div>
               </div>
 
-              <div className="pt-4 border-t border-slate-100 text-right">
+              <div className="pt-4 border-t border-slate-100 flex flex-col items-end gap-2">
+                {serverError && (
+                  <p className="text-xs text-red-600 font-medium">{serverError}</p>
+                )}
                 <button
                   type="submit"
-                  className="bg-blue-600 hover:bg-blue-700 text-white font-bold px-8 py-3 rounded-lg text-xs transition-colors inline-flex items-center gap-1.5 shadow-xs"
+                  disabled={submitting}
+                  className="bg-blue-600 hover:bg-blue-700 disabled:opacity-60 text-white font-bold px-8 py-3 rounded-lg text-xs transition-colors inline-flex items-center gap-1.5 shadow-xs"
                 >
-                  <span>Submit Volunteer Offer</span>
+                  <span>{submitting ? 'Submitting…' : 'Submit Volunteer Offer'}</span>
                   <ArrowRight className="w-4 h-4" />
                 </button>
               </div>
+
             </form>
           )}
 
