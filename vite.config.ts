@@ -10,25 +10,33 @@ import { defineConfig } from "@lovable.dev/vite-tanstack-config";
 // classic SPA build with index.html as the entry, which TanStack Start
 // does not have (SSR via Nitro). A static service worker can be added
 // under public/sw.js if PWA behavior is needed later.
+// Silence harmless "use client" directive warnings from libraries like
+// @tanstack/react-router. Rollup ignores top-level directives when
+// bundling and the notice isn't actionable. The handler is applied to
+// every Vite environment (client + ssr) since TanStack Start builds both.
+const silenceUseClient = {
+  onwarn(warning: { code?: string; message?: string }, defaultHandler: (w: unknown) => void) {
+    if (
+      (warning.code === "MODULE_LEVEL_DIRECTIVE" || warning.code === "SOURCEMAP_ERROR") &&
+      typeof warning.message === "string" &&
+      warning.message.includes("use client")
+    ) {
+      return;
+    }
+    if (typeof warning.message === "string" && warning.message.includes('"use client"')) {
+      return;
+    }
+    defaultHandler(warning);
+  },
+};
+
 export default defineConfig({
   vite: {
-    build: {
-      rollupOptions: {
-        onwarn(warning, defaultHandler) {
-          // Silence harmless "use client" directive warnings from
-          // @tanstack/react-router (and other RSC-tagged libraries).
-          // Rollup ignores top-level directives during bundling; the
-          // notice doesn't indicate a real issue.
-          if (
-            warning.code === "MODULE_LEVEL_DIRECTIVE" &&
-            typeof warning.message === "string" &&
-            warning.message.includes("use client")
-          ) {
-            return;
-          }
-          defaultHandler(warning);
-        },
-      },
+    build: { rollupOptions: silenceUseClient },
+    environments: {
+      client: { build: { rollupOptions: silenceUseClient } },
+      ssr: { build: { rollupOptions: silenceUseClient } },
     },
   },
 });
+
