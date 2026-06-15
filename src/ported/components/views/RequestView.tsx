@@ -649,17 +649,25 @@ export const RequestView: React.FC = () => {
                   <ArrowRight className="w-3.5 h-3.5" />
                 </button>
               ) : (
-                <button
-                  type="submit"
-                  className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-8 py-2.5 rounded-lg text-xs transition-colors shadow-xs flex items-center gap-1.5"
-                >
-                  <CheckCircle2 className="w-4 h-4" />
-                  <span>Submit Official Application</span>
-                </button>
+                <div className="flex flex-col items-end gap-2">
+                  {serverError && (
+                    <p className="text-xs text-red-600 font-medium">{serverError}</p>
+                  )}
+                  <button
+                    type="submit"
+                    disabled={submitting}
+                    className="bg-emerald-600 hover:bg-emerald-700 disabled:opacity-60 text-white font-bold px-8 py-2.5 rounded-lg text-xs transition-colors shadow-xs flex items-center gap-1.5"
+                  >
+                    <CheckCircle2 className="w-4 h-4" />
+                    <span>{submitting ? 'Submitting…' : 'Submit Official Application'}</span>
+                  </button>
+                </div>
               )}
             </div>
 
           </form>
+
+
 
         </div>
       )}
