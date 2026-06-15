@@ -27,7 +27,7 @@ function validate(d: DonationInput): DonationInput {
 
 export const insertDonation = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: DonationInput) => validate(d))
+  .validator((d: DonationInput) => validate(d))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
     const { data: isAdmin } = await supabase.rpc("has_role", {
@@ -67,7 +67,7 @@ export const insertDonation = createServerFn({ method: "POST" })
 
 export const deleteDonation = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: { id: string }) => d)
+  .validator((d: { id: string }) => d)
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
     const { data: isAdmin } = await supabase.rpc("has_role", {

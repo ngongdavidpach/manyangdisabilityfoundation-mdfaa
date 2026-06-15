@@ -6,7 +6,7 @@ import { enforceRateLimit } from "@/lib/rateLimit.server";
 // insert a row in `public.receipts`, and return the storage path.
 export const generateReceipt = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: { donationId: string }) => d)
+  .validator((d: { donationId: string }) => d)
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
 
@@ -85,7 +85,7 @@ export const generateReceipt = createServerFn({ method: "POST" })
 
 export const getReceiptUrl = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: { donationId: string }) => d)
+  .validator((d: { donationId: string }) => d)
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
     await enforceRateLimit({ bucket: "receipt-url", max: 60, windowSeconds: 3600, key: userId });
