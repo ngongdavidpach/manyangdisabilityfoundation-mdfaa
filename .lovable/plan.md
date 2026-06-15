@@ -1,10 +1,9 @@
-## Plan: Verify the production build compiles cleanly
+## Plan: Replace `.inputValidator()` with `.validator()`
 
-### Steps
-1. Run `npm run build` and capture full output (the previous error log was truncated to just the rolldown stack tail).
-2. If it fails, read the actual plugin/source error from the full output and fix it.
-3. Re-run `npm run build` to confirm a clean exit (and `npm run build:dev` since that's the script the earlier failure was attributed to).
+Rename every `createServerFn().inputValidator(...)` call to `.validator(...)` in:
+- `src/lib/receipts.functions.ts`
+- `src/lib/donations.functions.ts`
+- `src/lib/api/example.functions.ts`
+- `src/lib/intake.functions.ts` (if any uses are present there)
 
-### Notes
-- No Cloudflare config files will be added — `@lovable.dev/vite-tanstack-config` already targets Cloudflare Workers via Nitro, and Lovable manages the deploy.
-- No `package.json` semver changes; this only validates the regenerated `package-lock.json`.
+Then run `npm run build` to confirm the deprecation warnings are gone and the build still succeeds. Pure rename — no behavior changes.
