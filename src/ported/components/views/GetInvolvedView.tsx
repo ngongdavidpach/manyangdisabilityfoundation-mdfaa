@@ -67,21 +67,59 @@ export const GetInvolvedView: React.FC = () => {
     });
   };
 
-  const handleVSubmit = (e: React.FormEvent) => {
+  const handleVSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (vForm.fullName && vForm.email) {
+    if (!vForm.fullName || !vForm.email) return;
+    setServerError('');
+    setSubmitting(true);
+    try {
+      await submitVolunteerFn({
+        data: {
+          fullName: vForm.fullName,
+          email: vForm.email,
+          phone: vForm.phone,
+          country: vForm.country,
+          city: vForm.city,
+          skills: vForm.skills,
+          availability: vForm.availability,
+          message: vForm.message,
+        },
+      });
       setSubmitted(true);
       window.scrollTo({ top: 0, behavior: 'smooth' });
+    } catch (err) {
+      setServerError(err instanceof Error ? err.message : 'Something went wrong. Please try again.');
+    } finally {
+      setSubmitting(false);
     }
   };
 
-  const handlePSubmit = (e: React.FormEvent) => {
+  const handlePSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (pForm.orgName && pForm.email) {
+    if (!pForm.orgName || !pForm.email || !pForm.contactPerson) return;
+    setServerError('');
+    setSubmitting(true);
+    try {
+      await submitPartnerFn({
+        data: {
+          orgName: pForm.orgName,
+          contactPerson: pForm.contactPerson,
+          email: pForm.email,
+          phone: pForm.phone,
+          orgType: pForm.orgType,
+          partnershipType: pForm.partnershipType,
+          message: pForm.message,
+        },
+      });
       setSubmitted(true);
       window.scrollTo({ top: 0, behavior: 'smooth' });
+    } catch (err) {
+      setServerError(err instanceof Error ? err.message : 'Something went wrong. Please try again.');
+    } finally {
+      setSubmitting(false);
     }
   };
+
 
   const resetForms = () => {
     setSubmitted(false);
