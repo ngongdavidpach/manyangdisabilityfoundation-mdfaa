@@ -13,7 +13,6 @@ import {
   Newspaper,
   Home,
   Image as GalleryIcon,
-  User,
   LogOut,
   LayoutDashboard,
   ShieldCheck
