@@ -1,15 +1,16 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { ProgramsView } from "../ported/components/views/ProgramsView";
+import { getPageSeo, type PageSeo } from "../lib/pageSeo.functions";
+import { buildRouteHead } from "../lib/routeHead";
 
 export const Route = createFileRoute("/programs")({
-  head: () => ({
-    meta: [
-      { title: "Programs — Manyang Disability Foundation" },
-      { name: "description", content: "Mobility aids, surgical rehab, inclusive education, livelihood micro-grants, and advocacy." },
-      { property: "og:title", content: "Programs — Manyang Disability Foundation" },
-      { property: "og:url", content: "https://manyangfoundation.lovable.app/programs" },
-    ],
-    links: [{ rel: "canonical", href: "https://manyangfoundation.lovable.app/programs" }],
-  }),
+  loader: () => getPageSeo({ data: { pageKey: "programs" } }).catch((): PageSeo => ({})),
+  head: ({ loaderData }) =>
+    buildRouteHead({
+      path: "/programs",
+      defaultTitle: "Programs — Manyang Disability Foundation",
+      defaultDescription: "Mobility aids, surgical rehab, inclusive education, livelihood micro-grants, and advocacy.",
+      seo: loaderData,
+    }),
   component: ProgramsView,
 });

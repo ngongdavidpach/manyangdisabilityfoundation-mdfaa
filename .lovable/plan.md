@@ -1,37 +1,50 @@
-## Goal
+# Plan
 
-Run an SEO review on the project, verify Google Search Console ownership for the live site, and submit the sitemap.
+## 1. Hide Sign in from the navbar (desktop + mobile)
 
-## Target site
+`src/ported/components/Navbar.tsx`
+- Remove the desktop `Sign in` `<Link>` block (only shown when `!isAuthenticated`).
+- Remove the mobile `Sign in` button in the mobile menu's auth branch.
+- Keep everything else intact: signed-in user menu, Donate button, Request Aid flow that still redirects to `/auth/login` when triggered, and the user-menu's Sign Out.
 
-- Site identifier: `https://manyangdisabilityfoundation.org/`
-- Sitemap URL: `https://manyangdisabilityfoundation.org/sitemap.xml` (already served by `src/routes/sitemap[.]xml.ts`)
+Users can still reach `/auth/login` directly or via protected actions (Request Aid, dashboard, admin) — only the visible navbar entry is removed.
 
-## Steps
+## 2. Confirm/expose existing admin controls for pages
 
-1. **Trigger SEO review**
-   - Read current findings via the SEO findings tool, then start a fresh scan (requires user approval). Direct user to the SEO results panel for output.
+Admins already have (no changes needed, just confirming surface in the Admin Console):
+- **Navigation visibility & order** — `NavigationPagesEditor` (toggle each nav item on/off, reorder).
+- **Page content** — `PageSettingsEditor` (hero text/image, headings, intros, section toggles for Home, About, Programs, Gallery, News, Events, Get Involved, Donate, Request, Footer/Contact, Site).
 
-2. **Verify site ownership via Google Search Console (META method)**
-   - Request a `META` verification token from the Site Verification API for `https://manyangdisabilityfoundation.org/`.
-   - Inject the returned `<meta name="google-site-verification" content="…">` into the site root by adding it to the `head().meta` array in `src/routes/__root.tsx` so it ships in SSR HTML for every route (including `/`).
-   - Note: the verification call in step 3 will only succeed once the change is **published** to `manyangdisabilityfoundation.org` (Google fetches the live domain, not the preview). The plan will surface a publish action so the user can deploy before we proceed.
+## 3. New: per-page SEO management
 
-3. **Call the verify endpoint**
-   - After the user publishes, POST to `siteVerification/v1/webResource?verificationMethod=META` to confirm ownership.
+Add an editable SEO block (title, description, og:image, optional canonical/noindex) for each public page, stored in `page_settings.content.seo`, and consumed by the routes' `head()`.
 
-4. **Add the verified site to Search Console**
-   - PUT `webmasters/v3/sites/https%3A%2F%2Fmanyangdisabilityfoundation.org%2F` to register the property.
+### Editor
+`src/ported/components/admin/PageSettingsEditor.tsx`
+- Append four SEO fields to every page entry in `PAGES`:
+  - `seo.title` (text), `seo.description` (textarea), `seo.ogImage` (image), `seo.noindex` (bool).
 
-5. **Submit the sitemap**
-   - PUT `webmasters/v3/sites/https%3A%2F%2Fmanyangdisabilityfoundation.org%2F/sitemaps/https%3A%2F%2Fmanyangdisabilityfoundation.org%2Fsitemap.xml` to submit `/sitemap.xml` for indexing.
+### Server fn to read SEO
+`src/lib/pageSeo.functions.ts` (new) — public `getPageSeo({ pageKey })` server fn using the server publishable client to read `page_settings.content.seo` for one key. Returns `{ title?, description?, ogImage?, noindex? }` or `{}`.
 
-## Files to change
+Add a narrow RLS `TO anon` SELECT policy on `page_settings` (already has admin policies; need to confirm anon read access via migration if missing) so the publishable client can read it.
 
-- `src/routes/__root.tsx` — add one `{ name: "google-site-verification", content: "<token>" }` entry to the existing `head().meta` array. No other edits.
+### Route wiring (public pages)
+For each public route — `index.tsx`, `about.tsx`, `programs.tsx`, `gallery.tsx`, `news.tsx`, `get-involved.tsx`, `donate.tsx`, `request.tsx`:
+- Add a `loader` that calls `getPageSeo({ pageKey: '<key>' })` via `queryClient.ensureQueryData`, with a graceful fallback to `{}` on error.
+- Update `head({ loaderData })` to merge loader SEO over the existing static defaults: `title`, `description`, `og:title`, `og:description`, `og:image` / `twitter:image`, and `{ name: 'robots', content: 'noindex' }` when `seo.noindex` is true.
+- Keep current canonical/og:url logic untouched.
 
-## Notes
+Each loader must set `errorComponent` and `notFoundComponent` (template-standard fallback) per project rules.
 
-- Steps 1 (SEO scan) and 2 (request token + add meta tag) can run immediately.
-- Steps 3–5 require the meta tag to be live on `manyangdisabilityfoundation.org`. After the meta tag is added, you'll need to publish; then I'll run verify, site registration, and sitemap submission in one batch.
-- No changes to `sitemap[.]xml.ts` or `robots.txt` are needed — both are already correctly configured for `manyangdisabilityfoundation.org`.
+## Technical Details
+
+- **Files edited**: `src/ported/components/Navbar.tsx`, `src/ported/components/admin/PageSettingsEditor.tsx`, `src/routes/index.tsx`, `src/routes/about.tsx`, `src/routes/programs.tsx`, `src/routes/gallery.tsx`, `src/routes/news.tsx`, `src/routes/get-involved.tsx`, `src/routes/donate.tsx`, `src/routes/request.tsx`.
+- **Files created**: `src/lib/pageSeo.functions.ts`.
+- **Migration**: add `GRANT SELECT ON public.page_settings TO anon` and a `TO anon` SELECT RLS policy if not already present, so SSR can read SEO without a session. Verify current policies first; only add what's missing.
+- **No changes** to auth, user roles, `__root.tsx` defaults, sitemap, or the existing `NavigationPagesEditor`/admin shell — admins already get to the SEO fields through the existing "Page settings" tab.
+
+## Out of scope
+- Drag-and-drop page reordering beyond what `NavigationPagesEditor` already supports.
+- A WYSIWYG/block editor — content edits stay in the existing structured form.
+- Changing how Request Aid / dashboard / admin routes redirect to `/auth/login`.

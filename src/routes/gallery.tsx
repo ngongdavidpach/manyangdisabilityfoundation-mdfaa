@@ -1,15 +1,16 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { GalleryView } from "../ported/components/views/GalleryView";
+import { getPageSeo, type PageSeo } from "../lib/pageSeo.functions";
+import { buildRouteHead } from "../lib/routeHead";
 
 export const Route = createFileRoute("/gallery")({
-  head: () => ({
-    meta: [
-      { title: "Gallery — Manyang Disability Foundation" },
-      { name: "description", content: "Photos from outreach missions, wheelchair distributions, and community events." },
-      { property: "og:title", content: "Gallery — Manyang Disability Foundation" },
-      { property: "og:url", content: "https://manyangfoundation.lovable.app/gallery" },
-    ],
-    links: [{ rel: "canonical", href: "https://manyangfoundation.lovable.app/gallery" }],
-  }),
+  loader: () => getPageSeo({ data: { pageKey: "gallery" } }).catch((): PageSeo => ({})),
+  head: ({ loaderData }) =>
+    buildRouteHead({
+      path: "/gallery",
+      defaultTitle: "Gallery — Manyang Disability Foundation",
+      defaultDescription: "Photos from outreach missions, wheelchair distributions, and community events.",
+      seo: loaderData,
+    }),
   component: GalleryView,
 });
