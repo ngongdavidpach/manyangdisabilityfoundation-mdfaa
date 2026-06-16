@@ -215,14 +215,7 @@ export const Navbar: React.FC = () => {
                   </>
                 )}
               </div>
-            ) : (
-              <Link
-                to="/auth/login"
-                className="flex items-center gap-1.5 text-sm font-semibold text-slate-700 hover:text-blue-700 px-3 py-2 rounded-lg border border-slate-200 hover:border-blue-300 hover:bg-blue-50 transition-colors"
-              >
-                <User className="w-4 h-4" /> Sign in
-              </Link>
-            )}
+            ) : null}
           </div>
 
           <div className="flex items-center gap-2 sm:hidden">
