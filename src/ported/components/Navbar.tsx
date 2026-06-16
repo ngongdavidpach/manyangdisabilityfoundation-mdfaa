@@ -280,43 +280,33 @@ export const Navbar: React.FC = () => {
               );
             })}
 
-            <div className="pt-3 border-t border-slate-100 space-y-1.5 mt-3">
-              {isAuthenticated ? (
-                <>
-                  <button
-                    onClick={() => { navigate({ to: '/dashboard' }); setMobileMenuOpen(false); }}
-                    className="w-full flex items-center gap-3 px-4 py-3 rounded-lg bg-blue-50 text-blue-700 font-semibold"
-                  >
-                    <LayoutDashboard className="w-5 h-5" />
-                    <span>My Dashboard</span>
-                  </button>
-                  {hasAdminAccess() && (
-                    <button
-                      onClick={() => { navigate({ to: '/admin' }); setMobileMenuOpen(false); }}
-                      className="w-full flex items-center gap-3 px-4 py-3 rounded-lg bg-red-50 text-red-700 font-semibold"
-                    >
-                      <ShieldCheck className="w-5 h-5" />
-                      <span>Admin Console</span>
-                    </button>
-                  )}
-                  <button
-                    onClick={handleSignOut}
-                    className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-slate-600 hover:bg-slate-50 font-medium"
-                  >
-                    <LogOut className="w-5 h-5" />
-                    <span>Sign Out</span>
-                  </button>
-                </>
-              ) : (
+            {isAuthenticated && (
+              <div className="pt-3 border-t border-slate-100 space-y-1.5 mt-3">
                 <button
-                  onClick={() => { navigate({ to: '/auth/login' }); setMobileMenuOpen(false); }}
-                  className="w-full flex items-center gap-3 px-4 py-3 rounded-lg bg-blue-600 text-white font-semibold"
+                  onClick={() => { navigate({ to: '/dashboard' }); setMobileMenuOpen(false); }}
+                  className="w-full flex items-center gap-3 px-4 py-3 rounded-lg bg-blue-50 text-blue-700 font-semibold"
                 >
-                  <User className="w-5 h-5" />
-                  <span>Sign in</span>
+                  <LayoutDashboard className="w-5 h-5" />
+                  <span>My Dashboard</span>
                 </button>
-              )}
-            </div>
+                {hasAdminAccess() && (
+                  <button
+                    onClick={() => { navigate({ to: '/admin' }); setMobileMenuOpen(false); }}
+                    className="w-full flex items-center gap-3 px-4 py-3 rounded-lg bg-red-50 text-red-700 font-semibold"
+                  >
+                    <ShieldCheck className="w-5 h-5" />
+                    <span>Admin Console</span>
+                  </button>
+                )}
+                <button
+                  onClick={handleSignOut}
+                  className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-slate-600 hover:bg-slate-50 font-medium"
+                >
+                  <LogOut className="w-5 h-5" />
+                  <span>Sign Out</span>
+                </button>
+              </div>
+            )}
           </div>
         </div>
       )}
