@@ -15,7 +15,6 @@ import {
   Image as GalleryIcon,
   LogOut,
   LayoutDashboard,
-  ShieldCheck
 } from 'lucide-react';
 import { FOUNDATION_INFO } from '../data/foundationData';
 import { useAuth } from '../contexts/AuthContext';
@@ -55,7 +54,6 @@ export const Navbar: React.FC = () => {
     home: Home, about: Users, programs: Layers, gallery: GalleryIcon,
     request: HelpCircle, news: Newspaper, 'get-involved': HeartHandshake,
   };
-  const protectedSet = new Set(['request']);
   const navLinks = navConfig.order
     .map((id) => NAV_ITEM_DEFS.find((d) => d.id === id))
     .filter((d): d is typeof NAV_ITEM_DEFS[number] => !!d && navConfig.flags[d.flag] !== false)
@@ -63,20 +61,15 @@ export const Navbar: React.FC = () => {
       id: d.id,
       label: d.label,
       icon: iconMap[d.id] || Home,
-      protected: protectedSet.has(d.id),
       to: PATH_FOR[d.id] || '/',
     }));
 
   const handleNavClick = (link: { id: string; to: string }) => {
-    if (link.id === 'request' && !isAuthenticated) {
-      navigate({ to: '/auth/login', search: { redirect: link.to } });
-    } else {
       navigate({ to: link.to });
-    }
-    setMobileMenuOpen(false);
-    setUserMenuOpen(false);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
+      setMobileMenuOpen(false);
+      setUserMenuOpen(false);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
 
   const handleSignOut = async () => {
     await logout();
@@ -109,7 +102,7 @@ export const Navbar: React.FC = () => {
               onClick={() => handleNavClick({ id: 'request', to: '/request' })}
               className="text-amber-300 hover:text-amber-100 transition font-semibold underline text-[11px]"
             >
-              {isAuthenticated ? 'My Applications' : 'Need a Wheelchair?'}
+              Request Aid
             </button>
           </div>
         </div>
@@ -131,7 +124,6 @@ export const Navbar: React.FC = () => {
             {navLinks.map((link) => {
               const Icon = link.icon;
               const isActive = isLinkActive(link);
-              const isProtected = link.protected && !isAuthenticated;
               return (
                 <button
                   key={link.id}
@@ -139,14 +131,11 @@ export const Navbar: React.FC = () => {
                   className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-all ${
                     isActive
                       ? 'bg-blue-50 text-blue-700 font-semibold'
-                      : isProtected
-                      ? 'text-slate-400 hover:text-slate-600 hover:bg-slate-50'
                       : 'text-slate-600 hover:text-blue-600 hover:bg-slate-50'
                   }`}
                 >
-                  <Icon className={`w-4 h-4 ${isActive ? 'text-blue-600' : isProtected ? 'text-slate-300' : 'text-slate-400'}`} />
+                  <Icon className={`w-4 h-4 ${isActive ? 'text-blue-600' : 'text-slate-400'}`} />
                   <span>{link.label}</span>
-                  {isProtected && <ShieldCheck className="w-3 h-3 text-slate-400" />}
                 </button>
               );
             })}
@@ -251,7 +240,6 @@ export const Navbar: React.FC = () => {
             {navLinks.map((link) => {
               const Icon = link.icon;
               const isActive = isLinkActive(link);
-              const isProtected = link.protected && !isAuthenticated;
               return (
                 <button
                   key={link.id}
@@ -259,14 +247,11 @@ export const Navbar: React.FC = () => {
                   className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-base font-medium transition-colors ${
                     isActive
                       ? 'bg-blue-50 text-blue-700 font-semibold'
-                      : isProtected
-                      ? 'text-slate-400 bg-slate-50'
                       : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
                   }`}
                 >
                   <Icon className={`w-5 h-5 ${isActive ? 'text-blue-600' : 'text-slate-400'}`} />
                   <span>{link.label}</span>
-                  {isProtected && <ShieldCheck className="w-3.5 h-3.5 text-slate-300 ml-auto" />}
                 </button>
               );
             })}
