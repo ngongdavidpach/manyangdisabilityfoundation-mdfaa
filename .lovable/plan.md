@@ -1,12 +1,14 @@
 Replace the login form at `/auth/login` with a dual-purpose page: a "Send a Message" contact form as the default view, plus a "Staff Sign In" tab for admin access. This preserves all existing redirect links while giving visitors a way to contact the foundation.
 
 **Files to modify:**
+
 - `src/ported/components/views/LoginView.tsx` — convert to a tabbed contact/login page
 - `src/routes/auth.login.tsx` — update title and meta description
 - `src/ported/components/Navbar.tsx` — keep redirect logic unchanged (staff can use the Sign In tab)
 - `src/ported/components/ProtectedRoute.tsx` — keep redirect logic unchanged
 
 **Files to create:**
+
 - `src/lib/contact.functions.ts` — server function to store contact messages in Supabase
 - Database migration for `contact_messages` table (or reuse existing contacts table if available)
 

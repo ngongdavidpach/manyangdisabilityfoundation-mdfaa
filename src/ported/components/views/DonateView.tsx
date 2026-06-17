@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import {
   Heart,
   CheckCircle2,
@@ -9,13 +9,13 @@ import {
   Sparkles,
   FileText,
   Info,
-} from 'lucide-react';
-import { useServerFn } from '@tanstack/react-start';
-import { FOUNDATION_INFO } from '../../data/foundationData';
-import { submitDonationIntent } from '@/lib/intake.functions';
-import { usePageSettings } from '../../hooks/usePageSettings';
+} from "lucide-react";
+import { useServerFn } from "@tanstack/react-start";
+import { FOUNDATION_INFO } from "../../data/foundationData";
+import { submitDonationIntent } from "@/lib/intake.functions";
+import { usePageSettings } from "../../hooks/usePageSettings";
 
-type Channel = 'bank' | 'momo' | 'paypal';
+type Channel = "bank" | "momo" | "paypal";
 
 interface DonationTier {
   amount: number;
@@ -29,18 +29,18 @@ interface DonateContent {
 }
 
 export const DonateView: React.FC = () => {
-  const [frequency, setFrequency] = useState<'one-time' | 'monthly'>('one-time');
+  const [frequency, setFrequency] = useState<"one-time" | "monthly">("one-time");
   const [amount, setAmount] = useState<number>(150);
-  const [customAmount, setCustomAmount] = useState<string>('');
-  const [channel, setChannel] = useState<Channel>('bank');
+  const [customAmount, setCustomAmount] = useState<string>("");
+  const [channel, setChannel] = useState<Channel>("bank");
 
   const [donor, setDonor] = useState({
-    fullName: '',
-    email: '',
-    phone: '',
-    country: 'United States',
+    fullName: "",
+    email: "",
+    phone: "",
+    country: "United States",
     isAnonymous: false,
-    message: '',
+    message: "",
   });
 
   const [processing, setProcessing] = useState<boolean>(false);
@@ -49,16 +49,16 @@ export const DonateView: React.FC = () => {
     reference: string;
     date: string;
     amount: number;
-    frequency: 'one-time' | 'monthly';
+    frequency: "one-time" | "monthly";
     name: string;
     email: string;
     channel: Channel;
   }>(null);
-  const [serverError, setServerError] = useState<string>('');
+  const [serverError, setServerError] = useState<string>("");
 
   const submitIntent = useServerFn(submitDonationIntent);
 
-  const { content: donateContent } = usePageSettings<DonateContent>('donate', {});
+  const { content: donateContent } = usePageSettings<DonateContent>("donate", {});
 
   const donationTiers = donateContent?.donationTiers || [];
 
@@ -66,7 +66,7 @@ export const DonateView: React.FC = () => {
 
   const handleAmountSelect = (tierAmount: number) => {
     setAmount(tierAmount);
-    setCustomAmount('');
+    setCustomAmount("");
   };
 
   const handleCustomChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -79,7 +79,7 @@ export const DonateView: React.FC = () => {
   const handlePledgeSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (amount < 1) return;
-    setServerError('');
+    setServerError("");
     setProcessing(true);
     try {
       const result = await submitIntent({
@@ -90,7 +90,7 @@ export const DonateView: React.FC = () => {
           donorCountry: donor.country,
           isAnonymous: donor.isAnonymous,
           amount,
-          currency: 'USD',
+          currency: "USD",
           frequency,
           channel,
           message: donor.message || undefined,
@@ -99,16 +99,22 @@ export const DonateView: React.FC = () => {
       setCompleted(true);
       setPledge({
         reference: result.reference,
-        date: new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }),
+        date: new Date().toLocaleDateString("en-US", {
+          year: "numeric",
+          month: "long",
+          day: "numeric",
+        }),
         amount,
         frequency,
-        name: donor.isAnonymous ? 'Anonymous Donor' : (donor.fullName || 'Supporter'),
-        email: donor.email || 'Not provided',
+        name: donor.isAnonymous ? "Anonymous Donor" : donor.fullName || "Supporter",
+        email: donor.email || "Not provided",
         channel,
       });
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      window.scrollTo({ top: 0, behavior: "smooth" });
     } catch (err) {
-      setServerError(err instanceof Error ? err.message : 'Unable to record your pledge. Please try again.');
+      setServerError(
+        err instanceof Error ? err.message : "Unable to record your pledge. Please try again.",
+      );
     } finally {
       setProcessing(false);
     }
@@ -118,12 +124,11 @@ export const DonateView: React.FC = () => {
     setCompleted(false);
     setPledge(null);
     setAmount(150);
-    setCustomAmount('');
+    setCustomAmount("");
   };
 
   return (
     <div className="space-y-12 py-10 animate-fade-in max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-
       {/* Header */}
       <div className="text-center space-y-3">
         <span className="bg-amber-100 text-amber-900 text-xs font-bold px-3 py-1 rounded-md uppercase tracking-wider inline-block">
@@ -133,8 +138,9 @@ export const DonateView: React.FC = () => {
           Invest in Mobility and Dignity
         </h1>
         <p className="text-sm sm:text-base text-slate-600 leading-relaxed max-w-2xl mx-auto">
-          Online card processing is launching soon. Today, pledge your gift and we'll send you secure transfer instructions
-          (bank wire, mobile money, or PayPal) so your contribution reaches the field directly.
+          Online card processing is launching soon. Today, pledge your gift and we'll send you
+          secure transfer instructions (bank wire, mobile money, or PayPal) so your contribution
+          reaches the field directly.
         </p>
       </div>
 
@@ -142,15 +148,15 @@ export const DonateView: React.FC = () => {
       <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 flex items-start gap-3 max-w-3xl mx-auto">
         <Info className="w-5 h-5 text-blue-700 shrink-0 mt-0.5" />
         <div className="text-xs text-blue-900 leading-relaxed">
-          <strong>We do not collect card or mobile-money account numbers on this site.</strong> Submitting the form below
-          records a non-binding pledge and emails you our verified transfer details. A real online card checkout is coming soon.
+          <strong>We do not collect card or mobile-money account numbers on this site.</strong>{" "}
+          Submitting the form below records a non-binding pledge and emails you our verified
+          transfer details. A real online card checkout is coming soon.
         </div>
       </div>
 
       {completed && pledge ? (
         /* Pledge Confirmation */
         <div className="bg-white rounded-2xl border border-slate-200 shadow-md overflow-hidden max-w-2xl mx-auto animate-fade-in">
-
           <div className="bg-blue-900 text-white p-6 sm:p-8 text-center relative">
             <div className="absolute top-4 right-4 bg-amber-400 text-slate-950 text-[10px] font-bold px-2.5 py-1 rounded uppercase tracking-wider">
               Pledge Recorded
@@ -161,9 +167,7 @@ export const DonateView: React.FC = () => {
             </div>
 
             <h2 className="text-2xl font-bold">Thank You for Your Pledge!</h2>
-            <p className="text-blue-200 text-xs mt-1">
-              {FOUNDATION_INFO.name}
-            </p>
+            <p className="text-blue-200 text-xs mt-1">{FOUNDATION_INFO.name}</p>
           </div>
 
           <div className="p-6 sm:p-8 space-y-6">
@@ -172,7 +176,10 @@ export const DonateView: React.FC = () => {
                 Pledged Amount
               </span>
               <span className="text-4xl sm:text-5xl font-extrabold text-slate-900 block mt-1">
-                ${pledge.amount}.00 <span className="text-xs font-normal text-slate-500 uppercase">{pledge.frequency}</span>
+                ${pledge.amount}.00{" "}
+                <span className="text-xs font-normal text-slate-500 uppercase">
+                  {pledge.frequency}
+                </span>
               </span>
               <span className="inline-flex items-center gap-1 text-xs text-amber-700 font-bold bg-amber-50 px-2.5 py-1 rounded-full mt-2">
                 <Info className="w-3.5 h-3.5" /> Awaiting transfer — not yet received
@@ -200,8 +207,9 @@ export const DonateView: React.FC = () => {
 
             <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 text-[11px] text-slate-600 leading-relaxed">
               <p className="font-bold text-slate-800 mb-1">Next Steps</p>
-              Our donor relations team will email <strong>{pledge.email}</strong> within 1-2 business days with verified
-              transfer instructions for your selected channel. A tax-deductible receipt will be issued once funds are received.
+              Our donor relations team will email <strong>{pledge.email}</strong> within 1-2
+              business days with verified transfer instructions for your selected channel. A
+              tax-deductible receipt will be issued once funds are received.
             </div>
 
             <div className="flex flex-col sm:flex-row gap-3 pt-2">
@@ -224,25 +232,27 @@ export const DonateView: React.FC = () => {
       ) : (
         /* Pledge Form */
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-
           <div className="lg:col-span-2 space-y-6">
-
             {/* Frequency */}
             <div className="bg-white p-2 rounded-xl border border-slate-200 flex gap-2">
               <button
                 type="button"
-                onClick={() => setFrequency('one-time')}
+                onClick={() => setFrequency("one-time")}
                 className={`flex-1 py-3 rounded-lg font-bold text-xs transition-all ${
-                  frequency === 'one-time' ? 'bg-blue-900 text-white shadow-xs' : 'text-slate-600 hover:bg-slate-50'
+                  frequency === "one-time"
+                    ? "bg-blue-900 text-white shadow-xs"
+                    : "text-slate-600 hover:bg-slate-50"
                 }`}
               >
                 One-Time Gift
               </button>
               <button
                 type="button"
-                onClick={() => setFrequency('monthly')}
+                onClick={() => setFrequency("monthly")}
                 className={`flex-1 py-3 rounded-lg font-bold text-xs transition-all flex items-center justify-center gap-1.5 ${
-                  frequency === 'monthly' ? 'bg-blue-900 text-white shadow-xs' : 'text-slate-600 hover:bg-slate-50'
+                  frequency === "monthly"
+                    ? "bg-blue-900 text-white shadow-xs"
+                    : "text-slate-600 hover:bg-slate-50"
                 }`}
               >
                 <Sparkles className="w-3.5 h-3.5 text-amber-400" />
@@ -252,7 +262,9 @@ export const DonateView: React.FC = () => {
 
             {/* Tiers */}
             <div className="space-y-3">
-              <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider">Select Your Impact Level</label>
+              <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider">
+                Select Your Impact Level
+              </label>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {donationTiers.map((tier) => {
                   const isSelected = amount === tier.amount && !customAmount;
@@ -263,20 +275,26 @@ export const DonateView: React.FC = () => {
                       onClick={() => handleAmountSelect(tier.amount)}
                       className={`p-4 rounded-xl border text-left transition-all flex flex-col justify-between ${
                         isSelected
-                          ? 'border-blue-600 bg-blue-50/40 ring-2 ring-blue-600'
-                          : 'border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50/50'
+                          ? "border-blue-600 bg-blue-50/40 ring-2 ring-blue-600"
+                          : "border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50/50"
                       }`}
                     >
                       <div>
                         <div className="flex justify-between items-center mb-1">
-                          <span className={`text-xl font-extrabold ${isSelected ? 'text-blue-700' : 'text-slate-900'}`}>
+                          <span
+                            className={`text-xl font-extrabold ${isSelected ? "text-blue-700" : "text-slate-900"}`}
+                          >
                             ${tier.amount}
                           </span>
                           {isSelected && (
-                            <span className="bg-blue-600 text-white text-[9px] font-bold px-2 py-0.5 rounded uppercase">Selected</span>
+                            <span className="bg-blue-600 text-white text-[9px] font-bold px-2 py-0.5 rounded uppercase">
+                              Selected
+                            </span>
                           )}
                         </div>
-                        <span className="text-xs font-bold text-slate-800 block mb-1">{tier.label}</span>
+                        <span className="text-xs font-bold text-slate-800 block mb-1">
+                          {tier.label}
+                        </span>
                         <p className="text-[11px] text-slate-500 leading-relaxed">{tier.desc}</p>
                       </div>
                     </button>
@@ -287,7 +305,9 @@ export const DonateView: React.FC = () => {
 
             {/* Custom amount */}
             <div className="bg-white p-4 rounded-xl border border-slate-200 space-y-2">
-              <label className="block text-xs font-bold text-slate-700">Or Enter Custom Amount ($ USD)</label>
+              <label className="block text-xs font-bold text-slate-700">
+                Or Enter Custom Amount ($ USD)
+              </label>
               <div className="relative max-w-xs">
                 <span className="absolute left-3 top-2.5 text-sm font-bold text-slate-400">$</span>
                 <input
@@ -303,7 +323,9 @@ export const DonateView: React.FC = () => {
 
             {/* Channel */}
             <div className="space-y-3">
-              <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider">Preferred Transfer Channel</label>
+              <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider">
+                Preferred Transfer Channel
+              </label>
               <div className="grid grid-cols-3 gap-2">
                 {channels.map((c) => {
                   const Icon = c.icon;
@@ -315,27 +337,34 @@ export const DonateView: React.FC = () => {
                       onClick={() => setChannel(c.id)}
                       className={`p-3 rounded-xl border flex flex-col items-center justify-center gap-1.5 transition-all ${
                         isActive
-                          ? 'border-amber-500 bg-amber-50/40 text-slate-950 font-bold ring-1 ring-amber-500'
-                          : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50'
+                          ? "border-amber-500 bg-amber-50/40 text-slate-950 font-bold ring-1 ring-amber-500"
+                          : "border-slate-200 bg-white text-slate-600 hover:bg-slate-50"
                       }`}
                     >
-                      <Icon className={`w-5 h-5 ${isActive ? 'text-amber-600' : 'text-slate-400'}`} />
+                      <Icon
+                        className={`w-5 h-5 ${isActive ? "text-amber-600" : "text-slate-400"}`}
+                      />
                       <span className="text-xs">{c.label}</span>
                     </button>
                   );
                 })}
               </div>
               <p className="text-[11px] text-slate-500">
-                We'll email verified instructions for your selected channel. No account numbers are collected here.
+                We'll email verified instructions for your selected channel. No account numbers are
+                collected here.
               </p>
             </div>
 
             {/* Donor info */}
-            <form onSubmit={handlePledgeSubmit} className="bg-white p-6 sm:p-8 rounded-2xl border border-slate-200 space-y-6">
-
+            <form
+              onSubmit={handlePledgeSubmit}
+              className="bg-white p-6 sm:p-8 rounded-2xl border border-slate-200 space-y-6"
+            >
               <div className="border-b border-slate-100 pb-3">
                 <h3 className="text-sm font-bold text-slate-900">Your Contact Details</h3>
-                <p className="text-xs text-slate-500">So we can send transfer instructions and your receipt once funds are received.</p>
+                <p className="text-xs text-slate-500">
+                  So we can send transfer instructions and your receipt once funds are received.
+                </p>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -347,13 +376,15 @@ export const DonateView: React.FC = () => {
                     disabled={donor.isAnonymous}
                     value={donor.fullName}
                     onChange={(e) => setDonor({ ...donor, fullName: e.target.value })}
-                    placeholder={donor.isAnonymous ? 'Anonymous Donor' : 'Your legal name'}
+                    placeholder={donor.isAnonymous ? "Anonymous Donor" : "Your legal name"}
                     className="w-full bg-slate-50 border border-slate-300 rounded-lg p-2.5 text-xs text-slate-900 focus:outline-hidden focus:border-blue-500 disabled:opacity-50"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">Email Address *</label>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">
+                    Email Address *
+                  </label>
                   <input
                     type="email"
                     required
@@ -367,7 +398,9 @@ export const DonateView: React.FC = () => {
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">Phone (Optional)</label>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">
+                    Phone (Optional)
+                  </label>
                   <input
                     type="tel"
                     value={donor.phone}
@@ -389,7 +422,9 @@ export const DonateView: React.FC = () => {
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">Optional Message</label>
+                <label className="block text-xs font-bold text-slate-700 mb-1">
+                  Optional Message
+                </label>
                 <input
                   type="text"
                   value={donor.message}
@@ -428,7 +463,9 @@ export const DonateView: React.FC = () => {
                   ) : (
                     <>
                       <Heart className="w-4 h-4 fill-slate-950 text-slate-950" />
-                      <span>Pledge ${amount}.00 {frequency === 'monthly' ? 'Monthly' : ''}</span>
+                      <span>
+                        Pledge ${amount}.00 {frequency === "monthly" ? "Monthly" : ""}
+                      </span>
                     </>
                   )}
                 </button>
@@ -441,61 +478,82 @@ export const DonateView: React.FC = () => {
                 <span>•</span>
                 <span>Pledges are non-binding</span>
               </div>
-
             </form>
-
           </div>
 
           {/* Sidebar */}
           <div className="space-y-6">
-
             <div className="bg-slate-900 text-white p-6 rounded-2xl shadow-xs space-y-4">
-              <span className="text-[10px] font-bold uppercase tracking-widest text-amber-400 block">Pledge Summary</span>
+              <span className="text-[10px] font-bold uppercase tracking-widest text-amber-400 block">
+                Pledge Summary
+              </span>
               <div>
                 <span className="text-xs text-slate-400 block">Your Pledge:</span>
                 <span className="text-3xl font-extrabold text-white block">
-                  ${amount}.00 <span className="text-xs font-normal text-slate-400">{frequency === 'monthly' ? '/ month' : ''}</span>
+                  ${amount}.00{" "}
+                  <span className="text-xs font-normal text-slate-400">
+                    {frequency === "monthly" ? "/ month" : ""}
+                  </span>
                 </span>
               </div>
 
               <div className="pt-2 border-t border-slate-800 space-y-2 text-xs">
                 <span className="font-bold text-blue-400 block">What this gift can enable:</span>
                 {amount < 30 ? (
-                  <p className="text-slate-300 leading-relaxed">A complete heavy-duty wheel and repair tool set to overhaul a damaged custom wheelchair.</p>
+                  <p className="text-slate-300 leading-relaxed">
+                    A complete heavy-duty wheel and repair tool set to overhaul a damaged custom
+                    wheelchair.
+                  </p>
                 ) : amount < 100 ? (
-                  <p className="text-slate-300 leading-relaxed">2-3 orthopedic assessments and neuro-rehabilitation therapy sessions.</p>
+                  <p className="text-slate-300 leading-relaxed">
+                    2-3 orthopedic assessments and neuro-rehabilitation therapy sessions.
+                  </p>
                 ) : amount < 300 ? (
-                  <p className="text-slate-300 leading-relaxed">Custom seating adaptation and home provision of a rugged all-terrain wheelchair.</p>
+                  <p className="text-slate-300 leading-relaxed">
+                    Custom seating adaptation and home provision of a rugged all-terrain wheelchair.
+                  </p>
                 ) : (
-                  <p className="text-slate-300 leading-relaxed">A complete livelihood micro-enterprise startup toolkit for a disabled adult.</p>
+                  <p className="text-slate-300 leading-relaxed">
+                    A complete livelihood micro-enterprise startup toolkit for a disabled adult.
+                  </p>
                 )}
               </div>
 
               <div className="bg-slate-800 p-3 rounded-lg text-[11px] text-slate-300 space-y-1">
                 <span className="font-bold text-white block">Stewardship Commitment</span>
-                <p>Over 90% of all direct donations go straight to equipment provision and field healthcare capacity.</p>
+                <p>
+                  Over 90% of all direct donations go straight to equipment provision and field
+                  healthcare capacity.
+                </p>
               </div>
             </div>
 
             <div className="bg-white p-6 rounded-xl border border-slate-200 space-y-3">
-              <h4 className="text-xs font-bold uppercase tracking-wider text-slate-900">Frequently Asked</h4>
+              <h4 className="text-xs font-bold uppercase tracking-wider text-slate-900">
+                Frequently Asked
+              </h4>
               <div className="space-y-2 text-xs">
                 <div>
-                  <span className="font-bold text-slate-800 block">When will online card payments launch?</span>
-                  <p className="text-slate-500 mt-0.5">We're working on hosted card checkout. In the meantime, your pledge reserves your gift and we'll email secure transfer steps.</p>
+                  <span className="font-bold text-slate-800 block">
+                    When will online card payments launch?
+                  </span>
+                  <p className="text-slate-500 mt-0.5">
+                    We're working on hosted card checkout. In the meantime, your pledge reserves
+                    your gift and we'll email secure transfer steps.
+                  </p>
                 </div>
                 <div className="pt-2 border-t border-slate-100">
                   <span className="font-bold text-slate-800 block">Is my pledge binding?</span>
-                  <p className="text-slate-500 mt-0.5">No. A pledge is a non-binding signal of intent. You complete the gift by transferring funds via the channel we email you.</p>
+                  <p className="text-slate-500 mt-0.5">
+                    No. A pledge is a non-binding signal of intent. You complete the gift by
+                    transferring funds via the channel we email you.
+                  </p>
                 </div>
               </div>
             </div>
-
           </div>
-
         </div>
       )}
-
     </div>
   );
 };

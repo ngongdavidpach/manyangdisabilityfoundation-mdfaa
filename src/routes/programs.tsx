@@ -9,7 +9,8 @@ export const Route = createFileRoute("/programs")({
     buildRouteHead({
       path: "/programs",
       defaultTitle: "Programs — Manyang Disability Foundation",
-      defaultDescription: "Mobility aids, surgical rehab, inclusive education, livelihood micro-grants, and advocacy.",
+      defaultDescription:
+        "Mobility aids, surgical rehab, inclusive education, livelihood micro-grants, and advocacy.",
       seo: loaderData,
     }),
   component: ProgramsView,

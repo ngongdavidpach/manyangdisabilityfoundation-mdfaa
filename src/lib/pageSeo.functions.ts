@@ -1,6 +1,6 @@
-import { createServerFn } from '@tanstack/react-start';
-import { createClient } from '@supabase/supabase-js';
-import type { Database } from '@/integrations/supabase/types';
+import { createServerFn } from "@tanstack/react-start";
+import { createClient } from "@supabase/supabase-js";
+import type { Database } from "@/integrations/supabase/types";
 
 export type PageSeo = {
   title?: string;
@@ -9,7 +9,7 @@ export type PageSeo = {
   noindex?: boolean;
 };
 
-export const getPageSeo = createServerFn({ method: 'GET' })
+export const getPageSeo = createServerFn({ method: "GET" })
   .inputValidator((data: { pageKey: string }) => data)
   .handler(async ({ data }): Promise<PageSeo> => {
     try {
@@ -19,16 +19,16 @@ export const getPageSeo = createServerFn({ method: 'GET' })
         { auth: { storage: undefined, persistSession: false, autoRefreshToken: false } },
       );
       const { data: row } = await supabase
-        .from('page_settings')
-        .select('content')
-        .eq('page_key', data.pageKey)
+        .from("page_settings")
+        .select("content")
+        .eq("page_key", data.pageKey)
         .maybeSingle();
       const seo = (row?.content as any)?.seo;
-      if (!seo || typeof seo !== 'object') return {};
+      if (!seo || typeof seo !== "object") return {};
       return {
-        title: typeof seo.title === 'string' ? seo.title : undefined,
-        description: typeof seo.description === 'string' ? seo.description : undefined,
-        ogImage: typeof seo.ogImage === 'string' ? seo.ogImage : undefined,
+        title: typeof seo.title === "string" ? seo.title : undefined,
+        description: typeof seo.description === "string" ? seo.description : undefined,
+        ogImage: typeof seo.ogImage === "string" ? seo.ogImage : undefined,
         noindex: !!seo.noindex,
       };
     } catch {

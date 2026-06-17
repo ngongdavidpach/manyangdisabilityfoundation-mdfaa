@@ -1,4 +1,4 @@
-export type UserRole = 'guest' | 'member' | 'donor' | 'volunteer' | 'beneficiary' | 'admin';
+export type UserRole = "guest" | "member" | "donor" | "volunteer" | "beneficiary" | "admin";
 
 export interface User {
   id: string;
@@ -39,9 +39,9 @@ export interface RegistrationData {
 export interface ApplicationRecord {
   id: string;
   userId: string;
-  type: 'aid-request' | 'volunteer' | 'donation';
+  type: "aid-request" | "volunteer" | "donation";
   title: string;
-  status: 'pending' | 'in-review' | 'approved' | 'completed' | 'rejected';
+  status: "pending" | "in-review" | "approved" | "completed" | "rejected";
   submittedAt: string;
   updatedAt: string;
   summary: string;
@@ -52,9 +52,9 @@ export interface DonationRecord {
   id: string;
   userId: string;
   amount: number;
-  frequency: 'one-time' | 'monthly';
+  frequency: "one-time" | "monthly";
   pillar: string;
-  status: 'completed' | 'pending' | 'failed';
+  status: "completed" | "pending" | "failed";
   date: string;
   referenceCode: string;
 }

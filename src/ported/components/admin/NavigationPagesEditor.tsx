@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from 'react';
-import { supabase } from '@/integrations/supabase/client';
-import { Save, GripVertical, ArrowUp, ArrowDown, Eye, EyeOff } from 'lucide-react';
-import { NAV_ITEM_DEFS, resolveNavOrder } from '../../lib/navItems';
+import React, { useEffect, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { Save, GripVertical, ArrowUp, ArrowDown, Eye, EyeOff } from "lucide-react";
+import { NAV_ITEM_DEFS, resolveNavOrder } from "../../lib/navItems";
 
 const DEFAULT_ORDER = NAV_ITEM_DEFS.map((i) => i.id);
 
@@ -13,7 +13,11 @@ export const NavigationPagesEditor: React.FC = () => {
   const [dragId, setDragId] = useState<string | null>(null);
 
   useEffect(() => {
-    supabase.from('page_settings').select('content').eq('page_key', 'navigation').maybeSingle()
+    supabase
+      .from("page_settings")
+      .select("content")
+      .eq("page_key", "navigation")
+      .maybeSingle()
       .then(({ data }) => {
         const c = (data?.content as any) || {};
         setContent(c);
@@ -50,10 +54,12 @@ export const NavigationPagesEditor: React.FC = () => {
 
   const save = async () => {
     setSaving(true);
-    await supabase.from('page_settings').upsert(
-      { page_key: 'navigation', content: { ...content, order } },
-      { onConflict: 'page_key' }
-    );
+    await supabase
+      .from("page_settings")
+      .upsert(
+        { page_key: "navigation", content: { ...content, order } },
+        { onConflict: "page_key" },
+      );
     setSaving(false);
     setSaved(true);
     setTimeout(() => setSaved(false), 2000);
@@ -64,14 +70,16 @@ export const NavigationPagesEditor: React.FC = () => {
       <div className="flex items-center justify-between border-b pb-3">
         <div>
           <h3 className="text-lg font-bold text-slate-900">Navigation pages</h3>
-          <p className="text-xs text-slate-500 mt-0.5">Drag to reorder, or hide pages from the public navbar.</p>
+          <p className="text-xs text-slate-500 mt-0.5">
+            Drag to reorder, or hide pages from the public navbar.
+          </p>
         </div>
         <button
           onClick={save}
           disabled={saving}
           className="bg-blue-600 hover:bg-blue-700 disabled:bg-slate-400 text-white text-sm font-medium px-4 py-2 rounded-md flex items-center gap-2"
         >
-          <Save className="w-4 h-4" /> {saving ? 'Saving…' : saved ? 'Saved ✓' : 'Save changes'}
+          <Save className="w-4 h-4" /> {saving ? "Saving…" : saved ? "Saved ✓" : "Save changes"}
         </button>
       </div>
       <ul className="space-y-2">
@@ -87,7 +95,7 @@ export const NavigationPagesEditor: React.FC = () => {
               onDragOver={(e) => e.preventDefault()}
               onDrop={() => onDrop(id)}
               className={`flex items-center gap-3 p-3 rounded-md border ${
-                dragId === id ? 'border-blue-400 bg-blue-50' : 'border-slate-200 bg-slate-50'
+                dragId === id ? "border-blue-400 bg-blue-50" : "border-slate-200 bg-slate-50"
               }`}
             >
               <GripVertical className="w-4 h-4 text-slate-400 cursor-grab" />
@@ -112,11 +120,11 @@ export const NavigationPagesEditor: React.FC = () => {
               <button
                 onClick={() => toggle(def.flag)}
                 className={`flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded ${
-                  visible ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-200 text-slate-500'
+                  visible ? "bg-emerald-100 text-emerald-700" : "bg-slate-200 text-slate-500"
                 }`}
               >
                 {visible ? <Eye className="w-3.5 h-3.5" /> : <EyeOff className="w-3.5 h-3.5" />}
-                {visible ? 'Visible' : 'Hidden'}
+                {visible ? "Visible" : "Hidden"}
               </button>
             </li>
           );

@@ -9,7 +9,8 @@ export const Route = createFileRoute("/get-involved")({
     buildRouteHead({
       path: "/get-involved",
       defaultTitle: "Get Involved — Manyang Disability Foundation",
-      defaultDescription: "Volunteer, partner, fundraise, or join an outreach mission with the foundation.",
+      defaultDescription:
+        "Volunteer, partner, fundraise, or join an outreach mission with the foundation.",
       seo: loaderData,
     }),
   component: GetInvolvedView,

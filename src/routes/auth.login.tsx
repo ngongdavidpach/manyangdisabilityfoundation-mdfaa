@@ -10,10 +10,17 @@ export const Route = createFileRoute("/auth/login")({
   head: () => ({
     meta: [
       { title: "Contact Us — Manyang Disability Foundation" },
-      { name: "description", content: "Send a message to the Manyang Disability Foundation team or sign in as staff." },
+      {
+        name: "description",
+        content: "Send a message to the Manyang Disability Foundation team or sign in as staff.",
+      },
       { name: "robots", content: "noindex" },
       { property: "og:title", content: "Sign in — Manyang Disability Foundation" },
-      { property: "og:description", content: "Sign in to your Manyang Disability Foundation account to manage requests and profile." },
+      {
+        property: "og:description",
+        content:
+          "Sign in to your Manyang Disability Foundation account to manage requests and profile.",
+      },
       { property: "og:type", content: "website" },
       { property: "og:url", content: "https://manyangdisabilityfoundation.org/auth/login" },
       { property: "og:image", content: "https://manyangdisabilityfoundation.org/images/logo.png" },

@@ -89,8 +89,8 @@ export const FOUNDATION_INFO = {
     facebook: "",
     twitter: "",
     linkedin: "",
-    instagram: ""
-  }
+    instagram: "",
+  },
 };
 
 // Empty arrays - content should be managed via admin page_settings or CMS

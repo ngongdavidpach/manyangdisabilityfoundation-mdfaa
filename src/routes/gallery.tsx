@@ -9,7 +9,8 @@ export const Route = createFileRoute("/gallery")({
     buildRouteHead({
       path: "/gallery",
       defaultTitle: "Gallery — Manyang Disability Foundation",
-      defaultDescription: "Photos from outreach missions, wheelchair distributions, and community events.",
+      defaultDescription:
+        "Photos from outreach missions, wheelchair distributions, and community events.",
       seo: loaderData,
     }),
   component: GalleryView,

@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { useNavigate, useSearch } from '@tanstack/react-router';
+import React, { useState } from "react";
+import { useNavigate, useSearch } from "@tanstack/react-router";
 import {
   Mail,
   Lock,
@@ -12,65 +12,65 @@ import {
   MessageSquare,
   Send,
   User,
-  CheckCircle2
-} from 'lucide-react';
-import { useAuth } from '../../contexts/AuthContext';
-import { supabase } from '@/integrations/supabase/client';
+  CheckCircle2,
+} from "lucide-react";
+import { useAuth } from "../../contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
 
 const SUBJECT_OPTIONS = [
-  'General Inquiry',
-  'Volunteer Opportunity',
-  'Donation Question',
-  'Partnership',
-  'Media / Press',
-  'Other',
+  "General Inquiry",
+  "Volunteer Opportunity",
+  "Donation Question",
+  "Partnership",
+  "Media / Press",
+  "Other",
 ];
 
-type Tab = 'message' | 'signin';
+type Tab = "message" | "signin";
 
 export const LoginView: React.FC = () => {
   const navigate = useNavigate();
   const search = useSearch({ strict: false }) as { redirect?: string };
   const { login, hasAdminAccess } = useAuth();
 
-  const [tab, setTab] = useState<Tab>('message');
+  const [tab, setTab] = useState<Tab>("message");
 
   // Sign in state
-  const [form, setForm] = useState({ email: '', password: '', rememberMe: true });
+  const [form, setForm] = useState({ email: "", password: "", rememberMe: true });
   const [showPassword, setShowPassword] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const [isProcessing, setIsProcessing] = useState(false);
 
   // Contact message state
   const [msg, setMsg] = useState({
-    name: '',
-    email: '',
+    name: "",
+    email: "",
     subject: SUBJECT_OPTIONS[0],
-    message: '',
+    message: "",
   });
-  const [msgError, setMsgError] = useState('');
+  const [msgError, setMsgError] = useState("");
   const [msgSending, setMsgSending] = useState(false);
   const [msgSent, setMsgSent] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
+    setError("");
     if (!form.email || !form.password) {
-      setError('Please fill in all required fields.');
+      setError("Please fill in all required fields.");
       return;
     }
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) {
-      setError('Please enter a valid email address.');
+      setError("Please enter a valid email address.");
       return;
     }
     setIsProcessing(true);
     (async () => {
       const result = await login(form.email, form.password);
       if (result.success) {
-        const dest = search.redirect || (hasAdminAccess() ? '/admin' : '/dashboard');
+        const dest = search.redirect || (hasAdminAccess() ? "/admin" : "/dashboard");
         navigate({ to: dest });
       } else {
-        setError(result.error || 'Authentication failed.');
+        setError(result.error || "Authentication failed.");
       }
       setIsProcessing(false);
     })();
@@ -78,7 +78,7 @@ export const LoginView: React.FC = () => {
 
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
-    setMsgError('');
+    setMsgError("");
 
     const name = msg.name.trim();
     const email = msg.email.trim();
@@ -86,46 +86,47 @@ export const LoginView: React.FC = () => {
     const message = msg.message.trim();
 
     if (!name || !email || !subject || !message) {
-      setMsgError('Please fill in all fields.');
+      setMsgError("Please fill in all fields.");
       return;
     }
     if (name.length > 100) {
-      setMsgError('Name must be less than 100 characters.');
+      setMsgError("Name must be less than 100 characters.");
       return;
     }
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || email.length > 255) {
-      setMsgError('Please enter a valid email address.');
+      setMsgError("Please enter a valid email address.");
       return;
     }
     if (message.length > 2000) {
-      setMsgError('Message must be less than 2000 characters.');
+      setMsgError("Message must be less than 2000 characters.");
       return;
     }
 
     setMsgSending(true);
     const { error: insertErr } = await supabase
-      .from('contact_messages')
+      .from("contact_messages")
       .insert({ name, email, subject, message });
     setMsgSending(false);
 
     if (insertErr) {
-      setMsgError('Could not send your message. Please try again later.');
+      setMsgError("Could not send your message. Please try again later.");
       return;
     }
     setMsgSent(true);
-    setMsg({ name: '', email: '', subject: SUBJECT_OPTIONS[0], message: '' });
+    setMsg({ name: "", email: "", subject: SUBJECT_OPTIONS[0], message: "" });
   };
 
   return (
     <div className="min-h-[80vh] flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 animate-fade-in">
       <div className="max-w-5xl w-full grid grid-cols-1 lg:grid-cols-2 gap-10 items-center">
-
         {/* Left: Brand panel */}
         <div className="hidden lg:block space-y-6">
           <div className="flex items-center gap-3">
             <img src="/images/logo.png" alt="MDF Logo" className="w-16 h-16 object-contain" />
             <div>
-              <h1 className="text-xl font-bold text-slate-900 leading-tight">Manyang Disability Foundation</h1>
+              <h1 className="text-xl font-bold text-slate-900 leading-tight">
+                Manyang Disability Foundation
+              </h1>
               <p className="text-xs text-blue-600 font-medium">We're here to help</p>
             </div>
           </div>
@@ -136,8 +137,8 @@ export const LoginView: React.FC = () => {
           </h2>
 
           <p className="text-sm text-slate-600 leading-relaxed max-w-md">
-            Whether you'd like to volunteer, partner with us, ask about a donation, or share your story —
-            send us a message and our team will get back to you within 1–2 business days.
+            Whether you'd like to volunteer, partner with us, ask about a donation, or share your
+            story — send us a message and our team will get back to you within 1–2 business days.
           </p>
 
           <div className="space-y-3 pt-2">
@@ -167,9 +168,14 @@ export const LoginView: React.FC = () => {
           <div className="flex p-1 bg-slate-100 rounded-lg mb-6">
             <button
               type="button"
-              onClick={() => { setTab('message'); setError(''); }}
+              onClick={() => {
+                setTab("message");
+                setError("");
+              }}
               className={`flex-1 flex items-center justify-center gap-1.5 py-2 px-3 rounded-md text-xs font-bold transition-all ${
-                tab === 'message' ? 'bg-white text-blue-700 shadow-xs' : 'text-slate-500 hover:text-slate-700'
+                tab === "message"
+                  ? "bg-white text-blue-700 shadow-xs"
+                  : "text-slate-500 hover:text-slate-700"
               }`}
             >
               <MessageSquare className="w-3.5 h-3.5" />
@@ -177,9 +183,14 @@ export const LoginView: React.FC = () => {
             </button>
             <button
               type="button"
-              onClick={() => { setTab('signin'); setMsgError(''); }}
+              onClick={() => {
+                setTab("signin");
+                setMsgError("");
+              }}
               className={`flex-1 flex items-center justify-center gap-1.5 py-2 px-3 rounded-md text-xs font-bold transition-all ${
-                tab === 'signin' ? 'bg-white text-blue-700 shadow-xs' : 'text-slate-500 hover:text-slate-700'
+                tab === "signin"
+                  ? "bg-white text-blue-700 shadow-xs"
+                  : "text-slate-500 hover:text-slate-700"
               }`}
             >
               <LogIn className="w-3.5 h-3.5" />
@@ -187,7 +198,7 @@ export const LoginView: React.FC = () => {
             </button>
           </div>
 
-          {tab === 'message' ? (
+          {tab === "message" ? (
             <>
               <h3 className="text-2xl font-bold text-slate-900">Send us a message</h3>
               <p className="text-xs text-slate-500 mt-1">
@@ -219,7 +230,9 @@ export const LoginView: React.FC = () => {
                   )}
 
                   <div>
-                    <label className="block text-xs font-bold text-slate-700 mb-1.5">Full Name</label>
+                    <label className="block text-xs font-bold text-slate-700 mb-1.5">
+                      Full Name
+                    </label>
                     <div className="relative">
                       <span className="absolute left-3 top-2.5 text-slate-400">
                         <User className="w-4 h-4" />
@@ -237,7 +250,9 @@ export const LoginView: React.FC = () => {
                   </div>
 
                   <div>
-                    <label className="block text-xs font-bold text-slate-700 mb-1.5">Email Address</label>
+                    <label className="block text-xs font-bold text-slate-700 mb-1.5">
+                      Email Address
+                    </label>
                     <div className="relative">
                       <span className="absolute left-3 top-2.5 text-slate-400">
                         <Mail className="w-4 h-4" />
@@ -261,13 +276,20 @@ export const LoginView: React.FC = () => {
                       onChange={(e) => setMsg({ ...msg, subject: e.target.value })}
                       className="w-full bg-slate-50 border border-slate-300 rounded-lg py-2.5 px-3 text-xs text-slate-900 focus:outline-hidden focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                     >
-                      {SUBJECT_OPTIONS.map((s) => <option key={s} value={s}>{s}</option>)}
+                      {SUBJECT_OPTIONS.map((s) => (
+                        <option key={s} value={s}>
+                          {s}
+                        </option>
+                      ))}
                     </select>
                   </div>
 
                   <div>
                     <label className="block text-xs font-bold text-slate-700 mb-1.5">
-                      Message <span className="text-slate-400 font-normal">({msg.message.length}/2000)</span>
+                      Message{" "}
+                      <span className="text-slate-400 font-normal">
+                        ({msg.message.length}/2000)
+                      </span>
                     </label>
                     <textarea
                       required
@@ -316,7 +338,9 @@ export const LoginView: React.FC = () => {
                 )}
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1.5">Email Address</label>
+                  <label className="block text-xs font-bold text-slate-700 mb-1.5">
+                    Email Address
+                  </label>
                   <div className="relative">
                     <span className="absolute left-3 top-2.5 text-slate-400">
                       <Mail className="w-4 h-4" />
@@ -339,7 +363,7 @@ export const LoginView: React.FC = () => {
                       <Lock className="w-4 h-4" />
                     </span>
                     <input
-                      type={showPassword ? 'text' : 'password'}
+                      type={showPassword ? "text" : "password"}
                       required
                       value={form.password}
                       onChange={(e) => setForm({ ...form, password: e.target.value })}
@@ -367,7 +391,10 @@ export const LoginView: React.FC = () => {
                     />
                     <span>Remember me for 30 days</span>
                   </label>
-                  <button type="button" className="text-xs text-blue-600 hover:underline font-medium">
+                  <button
+                    type="button"
+                    className="text-xs text-blue-600 hover:underline font-medium"
+                  >
                     Forgot password?
                   </button>
                 </div>
@@ -394,7 +421,6 @@ export const LoginView: React.FC = () => {
             </>
           )}
         </div>
-
       </div>
     </div>
   );

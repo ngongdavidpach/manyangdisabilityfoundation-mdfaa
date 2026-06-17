@@ -1,81 +1,136 @@
-import React, { useEffect, useState } from 'react';
-import { supabase } from '@/integrations/supabase/client';
-import { ImageUploader } from './ImageUploader';
-import { Save, RotateCcw } from 'lucide-react';
+import React, { useEffect, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { ImageUploader } from "./ImageUploader";
+import { Save, RotateCcw } from "lucide-react";
 
 const SEO_FIELDS = [
-  { path: 'seo.title', label: 'SEO title (browser tab + search result)', type: 'text' },
-  { path: 'seo.description', label: 'SEO description (search result snippet)', type: 'textarea' },
-  { path: 'seo.ogImage', label: 'Social share image (og:image)', type: 'image' },
-  { path: 'seo.noindex', label: 'Hide this page from search engines (noindex)', type: 'bool' },
+  { path: "seo.title", label: "SEO title (browser tab + search result)", type: "text" },
+  { path: "seo.description", label: "SEO description (search result snippet)", type: "textarea" },
+  { path: "seo.ogImage", label: "Social share image (og:image)", type: "image" },
+  { path: "seo.noindex", label: "Hide this page from search engines (noindex)", type: "bool" },
 ];
 
 const PAGES_RAW = [
-  { key: 'home', label: 'Home Page', fields: [
-    { path: 'hero.title', label: 'Hero title', type: 'text' },
-    { path: 'hero.subtitle', label: 'Hero subtitle', type: 'textarea' },
-    { path: 'hero.image', label: 'Hero image', type: 'image' },
-    { path: 'hero.ctaPrimary', label: 'Primary CTA label', type: 'text' },
-    { path: 'intro.heading', label: 'Intro heading', type: 'text' },
-    { path: 'intro.body', label: 'Intro body', type: 'textarea' },
-    { path: 'insight.title', label: 'Foundation insight title', type: 'text' },
-    { path: 'insight.body', label: 'Foundation insight body', type: 'textarea' },
-    { path: 'insight.cover', label: 'Foundation insight cover image', type: 'image' },
-    { path: 'insight.brochureUrl', label: 'Foundation brochure URL (optional)', type: 'text' },
-    { path: 'showInsight', label: 'Show foundation insight section', type: 'bool' },
-    { path: 'showStats', label: 'Show stats section', type: 'bool' },
-    { path: 'showPrograms', label: 'Show programs section', type: 'bool' },
-  ], seo: true },
-  { key: 'about', label: 'About', fields: [
-    { path: 'heading', label: 'Heading', type: 'text' },
-    { path: 'intro', label: 'Intro', type: 'textarea' },
-    { path: 'showStaff', label: 'Show staff grid', type: 'bool' },
-  ], seo: true },
-  { key: 'programs', label: 'Programs', fields: [
-    { path: 'heading', label: 'Heading', type: 'text' },
-    { path: 'intro', label: 'Intro', type: 'textarea' },
-  ], seo: true },
-  { key: 'gallery', label: 'Gallery', fields: [
-    { path: 'heading', label: 'Heading', type: 'text' },
-    { path: 'intro', label: 'Intro', type: 'textarea' },
-  ], seo: true },
-  { key: 'news', label: 'News', fields: [
-    { path: 'heading', label: 'Heading', type: 'text' },
-    { path: 'intro', label: 'Intro', type: 'textarea' },
-  ], seo: true },
-  { key: 'events', label: 'Events', fields: [
-    { path: 'heading', label: 'Heading', type: 'text' },
-    { path: 'intro', label: 'Intro', type: 'textarea' },
-  ], seo: false },
-  { key: 'get-involved', label: 'Get Involved', fields: [
-    { path: 'heading', label: 'Heading', type: 'text' },
-    { path: 'intro', label: 'Intro', type: 'textarea' },
-  ], seo: true },
-  { key: 'donate', label: 'Donate', fields: [
-    { path: 'heading', label: 'Heading', type: 'text' },
-    { path: 'intro', label: 'Intro', type: 'textarea' },
-  ], seo: true },
-  { key: 'request', label: 'Request', fields: [
-    { path: 'heading', label: 'Heading', type: 'text' },
-    { path: 'intro', label: 'Intro', type: 'textarea' },
-  ], seo: false },
-  { key: 'footer', label: 'Footer & Contact', fields: [
-    { path: 'address', label: 'Address', type: 'text' },
-    { path: 'phone', label: 'Phone', type: 'text' },
-    { path: 'email', label: 'Email', type: 'text' },
-    { path: 'workingHours', label: 'Working hours', type: 'text' },
-    { path: 'socials.facebook', label: 'Facebook URL', type: 'text' },
-    { path: 'socials.twitter', label: 'Twitter / X URL', type: 'text' },
-    { path: 'socials.instagram', label: 'Instagram URL', type: 'text' },
-    { path: 'socials.linkedin', label: 'LinkedIn URL', type: 'text' },
-    { path: 'socials.youtube', label: 'YouTube URL', type: 'text' },
-    { path: 'socials.tiktok', label: 'TikTok URL', type: 'text' },
-  ], seo: false },
+  {
+    key: "home",
+    label: "Home Page",
+    fields: [
+      { path: "hero.title", label: "Hero title", type: "text" },
+      { path: "hero.subtitle", label: "Hero subtitle", type: "textarea" },
+      { path: "hero.image", label: "Hero image", type: "image" },
+      { path: "hero.ctaPrimary", label: "Primary CTA label", type: "text" },
+      { path: "intro.heading", label: "Intro heading", type: "text" },
+      { path: "intro.body", label: "Intro body", type: "textarea" },
+      { path: "insight.title", label: "Foundation insight title", type: "text" },
+      { path: "insight.body", label: "Foundation insight body", type: "textarea" },
+      { path: "insight.cover", label: "Foundation insight cover image", type: "image" },
+      { path: "insight.brochureUrl", label: "Foundation brochure URL (optional)", type: "text" },
+      { path: "showInsight", label: "Show foundation insight section", type: "bool" },
+      { path: "showStats", label: "Show stats section", type: "bool" },
+      { path: "showPrograms", label: "Show programs section", type: "bool" },
+    ],
+    seo: true,
+  },
+  {
+    key: "about",
+    label: "About",
+    fields: [
+      { path: "heading", label: "Heading", type: "text" },
+      { path: "intro", label: "Intro", type: "textarea" },
+      { path: "showStaff", label: "Show staff grid", type: "bool" },
+    ],
+    seo: true,
+  },
+  {
+    key: "programs",
+    label: "Programs",
+    fields: [
+      { path: "heading", label: "Heading", type: "text" },
+      { path: "intro", label: "Intro", type: "textarea" },
+    ],
+    seo: true,
+  },
+  {
+    key: "gallery",
+    label: "Gallery",
+    fields: [
+      { path: "heading", label: "Heading", type: "text" },
+      { path: "intro", label: "Intro", type: "textarea" },
+    ],
+    seo: true,
+  },
+  {
+    key: "news",
+    label: "News",
+    fields: [
+      { path: "heading", label: "Heading", type: "text" },
+      { path: "intro", label: "Intro", type: "textarea" },
+    ],
+    seo: true,
+  },
+  {
+    key: "events",
+    label: "Events",
+    fields: [
+      { path: "heading", label: "Heading", type: "text" },
+      { path: "intro", label: "Intro", type: "textarea" },
+    ],
+    seo: false,
+  },
+  {
+    key: "get-involved",
+    label: "Get Involved",
+    fields: [
+      { path: "heading", label: "Heading", type: "text" },
+      { path: "intro", label: "Intro", type: "textarea" },
+    ],
+    seo: true,
+  },
+  {
+    key: "donate",
+    label: "Donate",
+    fields: [
+      { path: "heading", label: "Heading", type: "text" },
+      { path: "intro", label: "Intro", type: "textarea" },
+    ],
+    seo: true,
+  },
+  {
+    key: "request",
+    label: "Request",
+    fields: [
+      { path: "heading", label: "Heading", type: "text" },
+      { path: "intro", label: "Intro", type: "textarea" },
+    ],
+    seo: false,
+  },
+  {
+    key: "footer",
+    label: "Footer & Contact",
+    fields: [
+      { path: "address", label: "Address", type: "text" },
+      { path: "phone", label: "Phone", type: "text" },
+      { path: "email", label: "Email", type: "text" },
+      { path: "workingHours", label: "Working hours", type: "text" },
+      { path: "socials.facebook", label: "Facebook URL", type: "text" },
+      { path: "socials.twitter", label: "Twitter / X URL", type: "text" },
+      { path: "socials.instagram", label: "Instagram URL", type: "text" },
+      { path: "socials.linkedin", label: "LinkedIn URL", type: "text" },
+      { path: "socials.youtube", label: "YouTube URL", type: "text" },
+      { path: "socials.tiktok", label: "TikTok URL", type: "text" },
+    ],
+    seo: false,
+  },
   // Navigation visibility & order live in Settings tab → Navigation pages.
-  { key: 'site', label: 'Site / Security', fields: [
-    { path: 'name', label: 'Site name', type: 'text' },
-    { path: 'tagline', label: 'Tagline', type: 'text' },
-  ], seo: false },
+  {
+    key: "site",
+    label: "Site / Security",
+    fields: [
+      { path: "name", label: "Site name", type: "text" },
+      { path: "tagline", label: "Tagline", type: "text" },
+    ],
+    seo: false,
+  },
 ];
 
 const PAGES = PAGES_RAW.map((p) => ({
@@ -84,11 +139,11 @@ const PAGES = PAGES_RAW.map((p) => ({
 }));
 
 function get(obj: any, path: string) {
-  return path.split('.').reduce((o, k) => o?.[k], obj);
+  return path.split(".").reduce((o, k) => o?.[k], obj);
 }
 function set(obj: any, path: string, value: any) {
   const out = { ...obj };
-  const keys = path.split('.');
+  const keys = path.split(".");
   let cur = out;
   for (let i = 0; i < keys.length - 1; i++) {
     cur[keys[i]] = { ...(cur[keys[i]] ?? {}) };
@@ -104,16 +159,22 @@ export const PageSettingsEditor: React.FC = () => {
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
 
-  const active = PAGES.find(p => p.key === activeKey)!;
+  const active = PAGES.find((p) => p.key === activeKey)!;
 
   useEffect(() => {
-    supabase.from('page_settings').select('content').eq('page_key', activeKey).maybeSingle()
+    supabase
+      .from("page_settings")
+      .select("content")
+      .eq("page_key", activeKey)
+      .maybeSingle()
       .then(({ data }) => setContent(data?.content || {}));
   }, [activeKey]);
 
   const save = async () => {
     setSaving(true);
-    await supabase.from('page_settings').upsert({ page_key: activeKey, content }, { onConflict: 'page_key' });
+    await supabase
+      .from("page_settings")
+      .upsert({ page_key: activeKey, content }, { onConflict: "page_key" });
     setSaving(false);
     setSaved(true);
     setTimeout(() => setSaved(false), 2000);
@@ -123,12 +184,12 @@ export const PageSettingsEditor: React.FC = () => {
     <div className="grid grid-cols-1 lg:grid-cols-[220px_1fr] gap-4">
       <aside className="space-y-1">
         <h3 className="text-xs font-semibold uppercase text-slate-500 mb-2 px-2">Pages</h3>
-        {PAGES.map(p => (
+        {PAGES.map((p) => (
           <button
             key={p.key}
             onClick={() => setActiveKey(p.key)}
             className={`w-full text-left text-sm px-3 py-2 rounded-md transition-colors ${
-              activeKey === p.key ? 'bg-blue-600 text-white' : 'text-slate-700 hover:bg-slate-100'
+              activeKey === p.key ? "bg-blue-600 text-white" : "text-slate-700 hover:bg-slate-100"
             }`}
           >
             {p.label}
@@ -143,13 +204,13 @@ export const PageSettingsEditor: React.FC = () => {
             disabled={saving}
             className="bg-blue-600 hover:bg-blue-700 disabled:bg-slate-400 text-white text-sm font-medium px-4 py-2 rounded-md flex items-center gap-2"
           >
-            <Save className="w-4 h-4" /> {saving ? 'Saving…' : saved ? 'Saved ✓' : 'Save changes'}
+            <Save className="w-4 h-4" /> {saving ? "Saving…" : saved ? "Saved ✓" : "Save changes"}
           </button>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {active.fields.map((f) => {
             const v = get(content, f.path);
-            if (f.type === 'image') {
+            if (f.type === "image") {
               return (
                 <div key={f.path} className="md:col-span-2">
                   <ImageUploader
@@ -161,7 +222,7 @@ export const PageSettingsEditor: React.FC = () => {
                 </div>
               );
             }
-            if (f.type === 'bool') {
+            if (f.type === "bool") {
               return (
                 <label key={f.path} className="flex items-center gap-2 py-2">
                   <input
@@ -173,13 +234,13 @@ export const PageSettingsEditor: React.FC = () => {
                 </label>
               );
             }
-            if (f.type === 'textarea') {
+            if (f.type === "textarea") {
               return (
                 <div key={f.path} className="md:col-span-2 space-y-1">
                   <label className="text-xs font-semibold text-slate-600">{f.label}</label>
                   <textarea
                     rows={3}
-                    value={v ?? ''}
+                    value={v ?? ""}
                     onChange={(e) => setContent(set(content, f.path, e.target.value))}
                     className="w-full px-3 py-2 border border-slate-300 rounded-md text-sm"
                   />
@@ -190,9 +251,17 @@ export const PageSettingsEditor: React.FC = () => {
               <div key={f.path} className="space-y-1">
                 <label className="text-xs font-semibold text-slate-600">{f.label}</label>
                 <input
-                  type={f.type === 'number' ? 'number' : 'text'}
-                  value={v ?? ''}
-                  onChange={(e) => setContent(set(content, f.path, f.type === 'number' ? Number(e.target.value) : e.target.value))}
+                  type={f.type === "number" ? "number" : "text"}
+                  value={v ?? ""}
+                  onChange={(e) =>
+                    setContent(
+                      set(
+                        content,
+                        f.path,
+                        f.type === "number" ? Number(e.target.value) : e.target.value,
+                      ),
+                    )
+                  }
                   className="w-full px-3 py-2 border border-slate-300 rounded-md text-sm"
                 />
               </div>

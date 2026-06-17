@@ -4,7 +4,8 @@ import { getPageSeo, type PageSeo } from "../lib/pageSeo.functions";
 
 const DEFAULTS = {
   title: "Manyang Disability Foundation — Mobility, Health & Education",
-  description: "Uplifting persons with disabilities through tailored mobility aids, healthcare access, inclusive education, and sustainable livelihoods.",
+  description:
+    "Uplifting persons with disabilities through tailored mobility aids, healthcare access, inclusive education, and sustainable livelihoods.",
 };
 
 export const Route = createFileRoute("/")({

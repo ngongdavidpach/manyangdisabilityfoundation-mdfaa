@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Link, useNavigate } from '@tanstack/react-router';
+import React, { useState } from "react";
+import { Link, useNavigate } from "@tanstack/react-router";
 import {
   UserPlus,
   ArrowRight,
@@ -10,68 +10,84 @@ import {
   HandHeart,
   Accessibility,
   Eye,
-  EyeOff
-} from 'lucide-react';
-import { useAuth } from '../../contexts/AuthContext';
-import type { UserRole } from '../../types/auth';
-import { getPasswordStrength } from '../../utils/auth';
+  EyeOff,
+} from "lucide-react";
+import { useAuth } from "../../contexts/AuthContext";
+import type { UserRole } from "../../types/auth";
+import { getPasswordStrength } from "../../utils/auth";
 
 export const RegisterView: React.FC = () => {
   const navigate = useNavigate();
   const { register } = useAuth();
 
   const [form, setForm] = useState({
-    fullName: '',
-    email: '',
-    password: '',
-    confirmPassword: '',
-    role: 'member' as UserRole,
-    phone: '',
-    country: '',
+    fullName: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
+    role: "member" as UserRole,
+    phone: "",
+    country: "",
     acceptTerms: false,
-    acceptPrivacy: false
+    acceptPrivacy: false,
   });
   const [showPassword, setShowPassword] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const [isProcessing, setIsProcessing] = useState(false);
 
   const passwordStrength = getPasswordStrength(form.password);
-  const passwordsMatch = form.password && form.confirmPassword && form.password === form.confirmPassword;
+  const passwordsMatch =
+    form.password && form.confirmPassword && form.password === form.confirmPassword;
 
   const roles: Array<{ id: UserRole; label: string; description: string; icon: typeof User }> = [
-    { id: 'member', label: 'General Member', description: 'Stay updated and support our cause', icon: User },
-    { id: 'donor', label: 'Donor', description: 'Track your giving and receipts', icon: Heart },
-    { id: 'volunteer', label: 'Volunteer', description: 'Join our outreach missions', icon: HandHeart },
-    { id: 'beneficiary', label: 'Beneficiary', description: 'Request mobility and medical aid', icon: Accessibility }
+    {
+      id: "member",
+      label: "General Member",
+      description: "Stay updated and support our cause",
+      icon: User,
+    },
+    { id: "donor", label: "Donor", description: "Track your giving and receipts", icon: Heart },
+    {
+      id: "volunteer",
+      label: "Volunteer",
+      description: "Join our outreach missions",
+      icon: HandHeart,
+    },
+    {
+      id: "beneficiary",
+      label: "Beneficiary",
+      description: "Request mobility and medical aid",
+      icon: Accessibility,
+    },
   ];
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
+    setError("");
 
     // Validation
     if (!form.fullName || !form.email || !form.password || !form.confirmPassword) {
-      setError('Please fill in all required fields.');
+      setError("Please fill in all required fields.");
       return;
     }
 
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) {
-      setError('Please enter a valid email address.');
+      setError("Please enter a valid email address.");
       return;
     }
 
     if (form.password.length < 8) {
-      setError('Password must be at least 8 characters long.');
+      setError("Password must be at least 8 characters long.");
       return;
     }
 
     if (form.password !== form.confirmPassword) {
-      setError('Passwords do not match.');
+      setError("Passwords do not match.");
       return;
     }
 
     if (!form.acceptTerms) {
-      setError('Please accept the Terms of Service to continue.');
+      setError("Please accept the Terms of Service to continue.");
       return;
     }
 
@@ -84,25 +100,24 @@ export const RegisterView: React.FC = () => {
         role: form.role,
       });
       if (result.success) {
-        navigate({ to: '/dashboard' });
+        navigate({ to: "/dashboard" });
       } else {
-        setError(result.error || 'Registration failed.');
+        setError(result.error || "Registration failed.");
       }
       setIsProcessing(false);
     })();
   };
 
   const strengthColors: Record<string, string> = {
-    red: 'bg-red-500',
-    amber: 'bg-amber-500',
-    blue: 'bg-blue-500',
-    emerald: 'bg-emerald-500'
+    red: "bg-red-500",
+    amber: "bg-amber-500",
+    blue: "bg-blue-500",
+    emerald: "bg-emerald-500",
   };
 
   return (
     <div className="py-12 px-4 sm:px-6 lg:px-8 animate-fade-in">
       <div className="max-w-3xl mx-auto">
-        
         {/* Header */}
         <div className="text-center space-y-3 mb-8">
           <span className="bg-blue-100 text-blue-800 text-xs font-bold px-3 py-1 rounded-md uppercase tracking-wider inline-block">
@@ -112,14 +127,13 @@ export const RegisterView: React.FC = () => {
             Create Your MDF Account
           </h1>
           <p className="text-sm text-slate-600 max-w-xl mx-auto">
-            Register in under 2 minutes to track your applications, manage donations, and join our global network of advocates.
+            Register in under 2 minutes to track your applications, manage donations, and join our
+            global network of advocates.
           </p>
         </div>
 
         <div className="bg-white rounded-2xl border border-slate-200 shadow-xs p-6 sm:p-8">
-          
           <form onSubmit={handleSubmit} className="space-y-6">
-            
             {error && (
               <div className="bg-red-50 border border-red-200 text-red-700 text-xs p-3 rounded-lg flex items-start gap-2">
                 <X className="w-4 h-4 shrink-0 mt-0.5" />
@@ -133,30 +147,30 @@ export const RegisterView: React.FC = () => {
                 I am joining as...
               </label>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                {roles.map(role => {
+                {roles.map((role) => {
                   const Icon = role.icon;
                   const isSelected = form.role === role.id;
                   return (
                     <button
                       type="button"
                       key={role.id}
-                      onClick={() => setForm({...form, role: role.id})}
+                      onClick={() => setForm({ ...form, role: role.id })}
                       className={`p-3 rounded-xl border text-left flex items-start gap-3 transition-all ${
-                        isSelected 
-                          ? 'border-blue-600 bg-blue-50/40 ring-2 ring-blue-600' 
-                          : 'border-slate-200 bg-white hover:border-slate-300'
+                        isSelected
+                          ? "border-blue-600 bg-blue-50/40 ring-2 ring-blue-600"
+                          : "border-slate-200 bg-white hover:border-slate-300"
                       }`}
                     >
-                      <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${isSelected ? 'bg-blue-600 text-white' : 'bg-slate-100 text-slate-500'}`}>
+                      <div
+                        className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${isSelected ? "bg-blue-600 text-white" : "bg-slate-100 text-slate-500"}`}
+                      >
                         <Icon className="w-4 h-4" />
                       </div>
                       <div>
                         <span className="text-xs font-bold text-slate-900 block">{role.label}</span>
                         <span className="text-[10px] text-slate-500">{role.description}</span>
                       </div>
-                      {isSelected && (
-                        <Check className="w-4 h-4 text-blue-600 shrink-0 ml-auto" />
-                      )}
+                      {isSelected && <Check className="w-4 h-4 text-blue-600 shrink-0 ml-auto" />}
                     </button>
                   );
                 })}
@@ -166,14 +180,12 @@ export const RegisterView: React.FC = () => {
             {/* Personal info */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1.5">
-                  Full Name *
-                </label>
+                <label className="block text-xs font-bold text-slate-700 mb-1.5">Full Name *</label>
                 <input
                   type="text"
                   required
                   value={form.fullName}
-                  onChange={(e) => setForm({...form, fullName: e.target.value})}
+                  onChange={(e) => setForm({ ...form, fullName: e.target.value })}
                   placeholder="Enter your legal name"
                   className="w-full bg-slate-50 border border-slate-300 rounded-lg py-2.5 px-3 text-xs text-slate-900 focus:outline-hidden focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                 />
@@ -187,7 +199,7 @@ export const RegisterView: React.FC = () => {
                   type="email"
                   required
                   value={form.email}
-                  onChange={(e) => setForm({...form, email: e.target.value})}
+                  onChange={(e) => setForm({ ...form, email: e.target.value })}
                   placeholder="you@example.com"
                   className="w-full bg-slate-50 border border-slate-300 rounded-lg py-2.5 px-3 text-xs text-slate-900 focus:outline-hidden focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                 />
@@ -200,7 +212,7 @@ export const RegisterView: React.FC = () => {
                 <input
                   type="tel"
                   value={form.phone}
-                  onChange={(e) => setForm({...form, phone: e.target.value})}
+                  onChange={(e) => setForm({ ...form, phone: e.target.value })}
                   placeholder="+1 (555) 000-0000"
                   className="w-full bg-slate-50 border border-slate-300 rounded-lg py-2.5 px-3 text-xs text-slate-900 focus:outline-hidden focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                 />
@@ -213,7 +225,7 @@ export const RegisterView: React.FC = () => {
                 <input
                   type="text"
                   value={form.country}
-                  onChange={(e) => setForm({...form, country: e.target.value})}
+                  onChange={(e) => setForm({ ...form, country: e.target.value })}
                   placeholder="e.g. Cameroon"
                   className="w-full bg-slate-50 border border-slate-300 rounded-lg py-2.5 px-3 text-xs text-slate-900 focus:outline-hidden focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                 />
@@ -223,15 +235,13 @@ export const RegisterView: React.FC = () => {
             {/* Password with strength indicator */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1.5">
-                  Password *
-                </label>
+                <label className="block text-xs font-bold text-slate-700 mb-1.5">Password *</label>
                 <div className="relative">
                   <input
-                    type={showPassword ? 'text' : 'password'}
+                    type={showPassword ? "text" : "password"}
                     required
                     value={form.password}
-                    onChange={(e) => setForm({...form, password: e.target.value})}
+                    onChange={(e) => setForm({ ...form, password: e.target.value })}
                     placeholder="Minimum 8 characters"
                     className="w-full bg-slate-50 border border-slate-300 rounded-lg py-2.5 px-3 pr-10 text-xs text-slate-900 focus:outline-hidden focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                   />
@@ -248,11 +258,13 @@ export const RegisterView: React.FC = () => {
                 {form.password && (
                   <div className="mt-2 space-y-1.5">
                     <div className="flex gap-1">
-                      {[1, 2, 3, 4, 5].map(i => (
+                      {[1, 2, 3, 4, 5].map((i) => (
                         <div
                           key={i}
                           className={`h-1 flex-1 rounded-full ${
-                            i <= passwordStrength.score ? strengthColors[passwordStrength.color] : 'bg-slate-200'
+                            i <= passwordStrength.score
+                              ? strengthColors[passwordStrength.color]
+                              : "bg-slate-200"
                           }`}
                         />
                       ))}
@@ -270,17 +282,17 @@ export const RegisterView: React.FC = () => {
                 </label>
                 <div className="relative">
                   <input
-                    type={showPassword ? 'text' : 'password'}
+                    type={showPassword ? "text" : "password"}
                     required
                     value={form.confirmPassword}
-                    onChange={(e) => setForm({...form, confirmPassword: e.target.value})}
+                    onChange={(e) => setForm({ ...form, confirmPassword: e.target.value })}
                     placeholder="Re-enter password"
                     className={`w-full bg-slate-50 border rounded-lg py-2.5 px-3 text-xs text-slate-900 focus:outline-hidden focus:ring-2 ${
                       form.confirmPassword
-                        ? passwordsMatch 
-                          ? 'border-emerald-500 focus:border-emerald-500 focus:ring-emerald-100' 
-                          : 'border-red-500 focus:border-red-500 focus:ring-red-100'
-                        : 'border-slate-300 focus:border-blue-500 focus:ring-blue-100'
+                        ? passwordsMatch
+                          ? "border-emerald-500 focus:border-emerald-500 focus:ring-emerald-100"
+                          : "border-red-500 focus:border-red-500 focus:ring-red-100"
+                        : "border-slate-300 focus:border-blue-500 focus:ring-blue-100"
                     }`}
                   />
                   {form.confirmPassword && (
@@ -305,9 +317,18 @@ export const RegisterView: React.FC = () => {
                   type="checkbox"
                   className="rounded border-slate-300 text-blue-600 focus:ring-blue-500"
                   checked={form.acceptTerms}
-                  onChange={(e) => setForm({...form, acceptTerms: e.target.checked})}
+                  onChange={(e) => setForm({ ...form, acceptTerms: e.target.checked })}
                 />
-                <span>I accept the <button type="button" className="text-blue-600 hover:underline font-medium">Terms of Service</button> and <button type="button" className="text-blue-600 hover:underline font-medium">Privacy Policy</button></span>
+                <span>
+                  I accept the{" "}
+                  <button type="button" className="text-blue-600 hover:underline font-medium">
+                    Terms of Service
+                  </button>{" "}
+                  and{" "}
+                  <button type="button" className="text-blue-600 hover:underline font-medium">
+                    Privacy Policy
+                  </button>
+                </span>
               </label>
             </div>
 
@@ -332,20 +353,18 @@ export const RegisterView: React.FC = () => {
 
             <div className="text-center pt-3 border-t border-slate-100">
               <p className="text-xs text-slate-500">
-                Already have an account?{' '}
+                Already have an account?{" "}
                 <button
                   type="button"
-                  onClick={() => navigate({ to: '/auth/login' })}
+                  onClick={() => navigate({ to: "/auth/login" })}
                   className="text-blue-600 hover:underline font-semibold"
                 >
                   Sign in here
                 </button>
               </p>
             </div>
-
           </form>
         </div>
-
       </div>
     </div>
   );
