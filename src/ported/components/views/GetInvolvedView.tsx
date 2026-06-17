@@ -11,42 +11,63 @@ import {
   GraduationCap,
   Globe
 } from 'lucide-react';
+import { useServerFn } from '@tanstack/react-start';
 import { FOUNDATION_INFO } from '../../data/foundationData';
+import { submitVolunteerApplication, submitPartnerInquiry } from '@/lib/intake.functions';
+import { CountrySelect } from '../ui/CountrySelect';
+import { usePageSettings } from '../../hooks/usePageSettings';
+
+interface GetInvolvedContent {
+  availableSkills?: Array<{ id: string; label: string; icon: any }>;
+  volunteerOptions?: {
+    availability?: Array<{ value: string; label: string }>;
+  };
+  partnerOptions?: {
+    orgTypes?: Array<{ value: string; label: string }>;
+    partnershipTypes?: Array<{ value: string; label: string }>;
+  };
+}
+
 
 export const GetInvolvedView: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'volunteer' | 'partner'>('volunteer');
   const [submitted, setSubmitted] = useState<boolean>(false);
+  const [submitting, setSubmitting] = useState<boolean>(false);
+  const [serverError, setServerError] = useState<string>('');
+  const submitVolunteerFn = useServerFn(submitVolunteerApplication);
+  const submitPartnerFn = useServerFn(submitPartnerInquiry);
 
-  // Volunteer State
-  const [vForm, setVForm] = useState({
-    fullName: '',
-    email: '',
-    phone: '',
-    country: 'Cameroon',
-    city: '',
-    skills: [] as string[],
-    availability: 'part-time',
-    message: ''
-  });
-
-  // Partner State
-  const [pForm, setPForm] = useState({
-    orgName: '',
-    contactPerson: '',
-    email: '',
-    phone: '',
-    orgType: 'corporate',
-    partnershipType: 'raw-materials',
-    message: ''
-  });
-
-  const availableSkills = [
+  const { content: getInvolvedContent } = usePageSettings<GetInvolvedContent>('get-involved', {});
+  
+  const availableSkills = getInvolvedContent?.availableSkills || [
     { id: 'repair', label: 'Biomedical & Equipment Repair', icon: Wrench },
     { id: 'medical', label: 'Medical Care & Rehab Therapy', icon: HeartPulse },
     { id: 'education', label: 'Special Needs Inclusive Teaching', icon: GraduationCap },
     { id: 'logistics', label: 'Field Logistics & Distribution', icon: Users },
     { id: 'digital', label: 'Digital Awareness & Media', icon: Globe },
     { id: 'fundraising', label: 'Grant Writing & Fundraising', icon: Sparkles },
+  ];
+
+  const availabilityOptions = getInvolvedContent?.volunteerOptions?.availability || [
+    { value: 'part-time', label: 'A few hours per week' },
+    { value: 'events', label: 'On-call for major distribution days' },
+    { value: 'remote', label: 'Remote digital advising only' },
+    { value: 'full-time', label: 'Full-time sabbatical / field mission' }
+  ];
+
+  const orgTypeOptions = getInvolvedContent?.partnerOptions?.orgTypes || [
+    { value: 'corporate', label: 'Private Corporation / Enterprise' },
+    { value: 'hospital', label: 'Hospital / Healthcare Provider' },
+    { value: 'university', label: 'Academic Institution / University' },
+    { value: 'foundation', label: 'Philanthropic Foundation' },
+    { value: 'ngo', label: 'International Non-Governmental Organization' }
+  ];
+
+  const partnershipTypeOptions = getInvolvedContent?.partnerOptions?.partnershipTypes || [
+    { value: 'raw-materials', label: 'Donation of Raw Materials & Wheelchair Parts' },
+    { value: 'funding', label: 'Direct Programmatic Capacity Funding' },
+    { value: 'medical-staff', label: 'Deployment of Specialized Medical Personnel' },
+    { value: 'advocacy-media', label: 'Media Awareness & Co-Branded Advocacy' }
   ];
 
   const handleVSkillToggle = (skillId: string) => {
@@ -59,21 +80,59 @@ export const GetInvolvedView: React.FC = () => {
     });
   };
 
-  const handleVSubmit = (e: React.FormEvent) => {
+  const handleVSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (vForm.fullName && vForm.email) {
+    if (!vForm.fullName || !vForm.email) return;
+    setServerError('');
+    setSubmitting(true);
+    try {
+      await submitVolunteerFn({
+        data: {
+          fullName: vForm.fullName,
+          email: vForm.email,
+          phone: vForm.phone,
+          country: vForm.country,
+          city: vForm.city,
+          skills: vForm.skills,
+          availability: vForm.availability,
+          message: vForm.message,
+        },
+      });
       setSubmitted(true);
       window.scrollTo({ top: 0, behavior: 'smooth' });
+    } catch (err) {
+      setServerError(err instanceof Error ? err.message : 'Something went wrong. Please try again.');
+    } finally {
+      setSubmitting(false);
     }
   };
 
-  const handlePSubmit = (e: React.FormEvent) => {
+  const handlePSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (pForm.orgName && pForm.email) {
+    if (!pForm.orgName || !pForm.email || !pForm.contactPerson) return;
+    setServerError('');
+    setSubmitting(true);
+    try {
+      await submitPartnerFn({
+        data: {
+          orgName: pForm.orgName,
+          contactPerson: pForm.contactPerson,
+          email: pForm.email,
+          phone: pForm.phone,
+          orgType: pForm.orgType,
+          partnershipType: pForm.partnershipType,
+          message: pForm.message,
+        },
+      });
       setSubmitted(true);
       window.scrollTo({ top: 0, behavior: 'smooth' });
+    } catch (err) {
+      setServerError(err instanceof Error ? err.message : 'Something went wrong. Please try again.');
+    } finally {
+      setSubmitting(false);
     }
   };
+
 
   const resetForms = () => {
     setSubmitted(false);
@@ -109,12 +168,13 @@ export const GetInvolvedView: React.FC = () => {
           <div className="space-y-2">
             <h2 className="text-2xl font-bold text-slate-900">Thank You for Your Generous Offer!</h2>
             <p className="text-sm text-slate-600 max-w-md mx-auto">
-              Your registration parameters have been directly forwarded to the MDF engagement team.
+              Your submission has been received and is now in our intake queue. The MDF engagement team will review your details and follow up by email.
             </p>
           </div>
           <p className="text-xs text-slate-500 max-w-sm mx-auto">
-            Our volunteer network managers typically assess profiles and schedule onboarding sessions within 3-5 business days.
+            Our volunteer network managers typically respond within 3-5 business days.
           </p>
+
           <div className="pt-4">
             <button
               onClick={resetForms}
@@ -199,12 +259,13 @@ export const GetInvolvedView: React.FC = () => {
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">Country</label>
-                  <input
-                    type="text"
+                  <CountrySelect
+                    id="volunteer-country"
+                    name="country"
                     value={vForm.country}
-                    onChange={(e) => setVForm({...vForm, country: e.target.value})}
-                    className="w-full bg-slate-50 border border-slate-300 rounded-lg p-2.5 text-xs text-slate-900 focus:outline-hidden focus:border-blue-500"
+                    onChange={(value) => setVForm({...vForm, country: value})}
+                    placeholder="Search or select a country..."
+                    label="Country"
                   />
                 </div>
                 <div>
@@ -258,10 +319,9 @@ export const GetInvolvedView: React.FC = () => {
                     onChange={(e) => setVForm({...vForm, availability: e.target.value})}
                     className="w-full bg-slate-50 border border-slate-300 rounded-lg p-2.5 text-xs text-slate-900 focus:outline-hidden focus:border-blue-500"
                   >
-                    <option value="part-time">A few hours per week</option>
-                    <option value="events">On-call for major distribution days</option>
-                    <option value="remote">Remote digital advising only</option>
-                    <option value="full-time">Full-time sabbatical / field mission</option>
+                    {availabilityOptions.map(opt => (
+                      <option key={opt.value} value={opt.value}>{opt.label}</option>
+                    ))}
                   </select>
                 </div>
 
@@ -277,15 +337,20 @@ export const GetInvolvedView: React.FC = () => {
                 </div>
               </div>
 
-              <div className="pt-4 border-t border-slate-100 text-right">
+              <div className="pt-4 border-t border-slate-100 flex flex-col items-end gap-2">
+                {serverError && (
+                  <p className="text-xs text-red-600 font-medium">{serverError}</p>
+                )}
                 <button
                   type="submit"
-                  className="bg-blue-600 hover:bg-blue-700 text-white font-bold px-8 py-3 rounded-lg text-xs transition-colors inline-flex items-center gap-1.5 shadow-xs"
+                  disabled={submitting}
+                  className="bg-blue-600 hover:bg-blue-700 disabled:opacity-60 text-white font-bold px-8 py-3 rounded-lg text-xs transition-colors inline-flex items-center gap-1.5 shadow-xs"
                 >
-                  <span>Submit Volunteer Offer</span>
+                  <span>{submitting ? 'Submitting…' : 'Submit Volunteer Offer'}</span>
                   <ArrowRight className="w-4 h-4" />
                 </button>
               </div>
+
             </form>
           )}
 
@@ -356,11 +421,9 @@ export const GetInvolvedView: React.FC = () => {
                     onChange={(e) => setPForm({...pForm, orgType: e.target.value})}
                     className="w-full bg-slate-50 border border-slate-300 rounded-lg p-2.5 text-xs text-slate-900 focus:outline-hidden focus:border-blue-500"
                   >
-                    <option value="corporate">Private Corporation / Enterprise</option>
-                    <option value="hospital">Hospital / Healthcare Provider</option>
-                    <option value="university">Academic Institution / University</option>
-                    <option value="foundation">Philanthropic Foundation</option>
-                    <option value="ngo">International Non-Governmental Organization</option>
+                    {orgTypeOptions.map(opt => (
+                      <option key={opt.value} value={opt.value}>{opt.label}</option>
+                    ))}
                   </select>
                 </div>
 
@@ -373,10 +436,9 @@ export const GetInvolvedView: React.FC = () => {
                     onChange={(e) => setPForm({...pForm, partnershipType: e.target.value})}
                     className="w-full bg-slate-50 border border-slate-300 rounded-lg p-2.5 text-xs text-slate-900 focus:outline-hidden focus:border-blue-500"
                   >
-                    <option value="raw-materials">Donation of Raw Materials & Wheelchair Parts</option>
-                    <option value="funding">Direct Programmatic Capacity Funding</option>
-                    <option value="medical-staff">Deployment of Specialized Medical Personnel</option>
-                    <option value="advocacy-media">Media Awareness & Co-Branded Advocacy</option>
+                    {partnershipTypeOptions.map(opt => (
+                      <option key={opt.value} value={opt.value}>{opt.label}</option>
+                    ))}
                   </select>
                 </div>
               </div>
@@ -392,15 +454,20 @@ export const GetInvolvedView: React.FC = () => {
                 />
               </div>
 
-              <div className="pt-4 border-t border-slate-100 text-right">
+              <div className="pt-4 border-t border-slate-100 flex flex-col items-end gap-2">
+                {serverError && (
+                  <p className="text-xs text-red-600 font-medium">{serverError}</p>
+                )}
                 <button
                   type="submit"
-                  className="bg-blue-600 hover:bg-blue-700 text-white font-bold px-8 py-3 rounded-lg text-xs transition-colors inline-flex items-center gap-1.5 shadow-xs"
+                  disabled={submitting}
+                  className="bg-blue-600 hover:bg-blue-700 disabled:opacity-60 text-white font-bold px-8 py-3 rounded-lg text-xs transition-colors inline-flex items-center gap-1.5 shadow-xs"
                 >
-                  <span>Submit Partnership Proposal</span>
+                  <span>{submitting ? 'Submitting…' : 'Submit Partnership Proposal'}</span>
                   <ArrowRight className="w-4 h-4" />
                 </button>
               </div>
+
             </form>
           )}
 

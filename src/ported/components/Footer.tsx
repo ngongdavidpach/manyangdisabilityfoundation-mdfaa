@@ -42,15 +42,9 @@ import { supabase } from "@/integrations/supabase/client";
 import { NAV_ITEM_DEFS, resolveNavOrder } from "../lib/navItems";
 
 const PATH_FOR: Record<string, string> = {
-  home: "/",
-  about: "/about",
-  programs: "/programs",
-  gallery: "/gallery",
-  request: "/request",
-  news: "/news",
-  "get-involved": "/get-involved",
-  donate: "/donate",
-  "admin-signup": "/admin-signup",
+  home: '/', about: '/about', programs: '/programs', gallery: '/gallery',
+  request: '/request', news: '/news', 'get-involved': '/get-involved',
+  donate: '/donate',
 };
 
 interface FooterSettings {
@@ -278,7 +272,7 @@ export const Footer: React.FC = () => {
 
       <div className="bg-slate-950 py-6 text-xs text-slate-500 select-none">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row justify-between items-center gap-4 text-center sm:text-left">
-          <p onDoubleClick={() => handleLink("admin-signup")} className="cursor-default">
+          <p className="cursor-default">
             © {new Date().getFullYear()} Manyang Disability Foundation. All rights reserved.
           </p>
           <div className="flex items-center gap-4">
@@ -290,14 +284,6 @@ export const Footer: React.FC = () => {
               Governance
             </button>
             <span>•</span>
-            <button
-              onClick={() => handleLink("admin-signup")}
-              title="Admin"
-              className="w-4 h-4 text-slate-800 hover:text-red-500"
-              aria-label="Admin"
-            >
-              <span className="text-[10px] font-mono">π</span>
-            </button>
           </div>
         </div>
       </div>

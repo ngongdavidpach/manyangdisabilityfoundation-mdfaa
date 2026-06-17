@@ -17,7 +17,6 @@ import { Route as GetInvolvedRouteImport } from './routes/get-involved'
 import { Route as GalleryRouteImport } from './routes/gallery'
 import { Route as DonateRouteImport } from './routes/donate'
 import { Route as DashboardRouteImport } from './routes/dashboard'
-import { Route as AdminSignupRouteImport } from './routes/admin-signup'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
@@ -66,11 +65,6 @@ const DonateRoute = DonateRouteImport.update({
 const DashboardRoute = DashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AdminSignupRoute = AdminSignupRouteImport.update({
-  id: '/admin-signup',
-  path: '/admin-signup',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminRoute = AdminRouteImport.update({
@@ -125,7 +119,6 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/admin': typeof AdminRoute
-  '/admin-signup': typeof AdminSignupRoute
   '/dashboard': typeof DashboardRoute
   '/donate': typeof DonateRoute
   '/gallery': typeof GalleryRoute
@@ -145,7 +138,6 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/admin': typeof AdminRoute
-  '/admin-signup': typeof AdminSignupRoute
   '/dashboard': typeof DashboardRoute
   '/donate': typeof DonateRoute
   '/gallery': typeof GalleryRoute
@@ -166,7 +158,6 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/admin': typeof AdminRoute
-  '/admin-signup': typeof AdminSignupRoute
   '/dashboard': typeof DashboardRoute
   '/donate': typeof DonateRoute
   '/gallery': typeof GalleryRoute
@@ -188,7 +179,6 @@ export interface FileRouteTypes {
     | '/'
     | '/about'
     | '/admin'
-    | '/admin-signup'
     | '/dashboard'
     | '/donate'
     | '/gallery'
@@ -208,7 +198,6 @@ export interface FileRouteTypes {
     | '/'
     | '/about'
     | '/admin'
-    | '/admin-signup'
     | '/dashboard'
     | '/donate'
     | '/gallery'
@@ -228,7 +217,6 @@ export interface FileRouteTypes {
     | '/'
     | '/about'
     | '/admin'
-    | '/admin-signup'
     | '/dashboard'
     | '/donate'
     | '/gallery'
@@ -249,7 +237,6 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AboutRoute: typeof AboutRoute
   AdminRoute: typeof AdminRoute
-  AdminSignupRoute: typeof AdminSignupRoute
   DashboardRoute: typeof DashboardRoute
   DonateRoute: typeof DonateRoute
   GalleryRoute: typeof GalleryRoute
@@ -321,13 +308,6 @@ declare module '@tanstack/react-router' {
       path: '/dashboard'
       fullPath: '/dashboard'
       preLoaderRoute: typeof DashboardRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/admin-signup': {
-      id: '/admin-signup'
-      path: '/admin-signup'
-      fullPath: '/admin-signup'
-      preLoaderRoute: typeof AdminSignupRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/admin': {
@@ -410,7 +390,6 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
   AdminRoute: AdminRoute,
-  AdminSignupRoute: AdminSignupRoute,
   DashboardRoute: DashboardRoute,
   DonateRoute: DonateRoute,
   GalleryRoute: GalleryRoute,

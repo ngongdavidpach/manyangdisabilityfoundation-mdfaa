@@ -8,12 +8,19 @@ import {
   Layers, 
   AlertCircle
 } from 'lucide-react';
+import { useServerFn } from '@tanstack/react-start';
 import { FOUNDATION_INFO } from '../../data/foundationData';
+import { submitAidRequest } from '@/lib/intake.functions';
+
 
 export const RequestView: React.FC = () => {
   const [step, setStep] = useState<number>(1);
   const [submitted, setSubmitted] = useState<boolean>(false);
   const [trackingCode, setTrackingCode] = useState<string>('');
+  const [submitting, setSubmitting] = useState<boolean>(false);
+  const [serverError, setServerError] = useState<string>('');
+  const submitAidRequestFn = useServerFn(submitAidRequest);
+
 
   // Form State
   const [formData, setFormData] = useState({
@@ -96,17 +103,41 @@ export const RequestView: React.FC = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (validateStep(3)) {
-      // Generate a wonderful high-fidelity tracking ID
-      const randomNum = Math.floor(100000 + Math.random() * 900000);
-      const code = `MDF-AID-${new Date().getFullYear()}-${randomNum}`;
-      setTrackingCode(code);
+    if (!validateStep(3)) return;
+    setServerError('');
+    setSubmitting(true);
+    try {
+      const result = await submitAidRequestFn({
+        data: {
+          fullName: formData.fullName,
+          age: formData.age,
+          gender: formData.gender,
+          country: formData.country,
+          city: formData.city,
+          phone: formData.phone,
+          email: formData.email || undefined,
+          isCaregiver: formData.isCaregiver,
+          caregiverName: formData.caregiverName,
+          disabilityCategory: formData.disabilityCategory,
+          requestedAid: formData.requestedAid,
+          hasExistingDevice: formData.hasExistingDevice,
+          deviceCondition: formData.deviceCondition,
+          urgencyLevel: formData.urgencyLevel,
+          story: formData.story,
+        },
+      });
+      setTrackingCode(result.tracking_code);
       setSubmitted(true);
       window.scrollTo({ top: 0, behavior: 'smooth' });
+    } catch (err) {
+      setServerError(err instanceof Error ? err.message : 'Something went wrong. Please try again.');
+    } finally {
+      setSubmitting(false);
     }
   };
+
 
   const resetForm = () => {
     setFormData({
@@ -618,17 +649,25 @@ export const RequestView: React.FC = () => {
                   <ArrowRight className="w-3.5 h-3.5" />
                 </button>
               ) : (
-                <button
-                  type="submit"
-                  className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-8 py-2.5 rounded-lg text-xs transition-colors shadow-xs flex items-center gap-1.5"
-                >
-                  <CheckCircle2 className="w-4 h-4" />
-                  <span>Submit Official Application</span>
-                </button>
+                <div className="flex flex-col items-end gap-2">
+                  {serverError && (
+                    <p className="text-xs text-red-600 font-medium">{serverError}</p>
+                  )}
+                  <button
+                    type="submit"
+                    disabled={submitting}
+                    className="bg-emerald-600 hover:bg-emerald-700 disabled:opacity-60 text-white font-bold px-8 py-2.5 rounded-lg text-xs transition-colors shadow-xs flex items-center gap-1.5"
+                  >
+                    <CheckCircle2 className="w-4 h-4" />
+                    <span>{submitting ? 'Submitting…' : 'Submit Official Application'}</span>
+                  </button>
+                </div>
               )}
             </div>
 
           </form>
+
+
 
         </div>
       )}
