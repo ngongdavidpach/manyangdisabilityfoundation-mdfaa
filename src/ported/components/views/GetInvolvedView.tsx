@@ -14,6 +14,7 @@ import {
 import { useServerFn } from '@tanstack/react-start';
 import { FOUNDATION_INFO } from '../../data/foundationData';
 import { submitVolunteerApplication, submitPartnerInquiry } from '@/lib/intake.functions';
+import { CountrySelect } from '../ui/CountrySelect';
 
 
 export const GetInvolvedView: React.FC = () => {
@@ -246,12 +247,13 @@ export const GetInvolvedView: React.FC = () => {
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">Country</label>
-                  <input
-                    type="text"
+                  <CountrySelect
+                    id="volunteer-country"
+                    name="country"
                     value={vForm.country}
-                    onChange={(e) => setVForm({...vForm, country: e.target.value})}
-                    className="w-full bg-slate-50 border border-slate-300 rounded-lg p-2.5 text-xs text-slate-900 focus:outline-hidden focus:border-blue-500"
+                    onChange={(value) => setVForm({...vForm, country: value})}
+                    placeholder="Search or select a country..."
+                    label="Country"
                   />
                 </div>
                 <div>
