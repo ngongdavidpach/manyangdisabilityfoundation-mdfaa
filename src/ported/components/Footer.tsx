@@ -196,9 +196,6 @@ export const Footer: React.FC = () => {
             <span>•</span>
             <button onClick={() => handleLink('about')} className="hover:text-slate-400">Governance</button>
             <span>•</span>
-            <button onClick={() => handleLink('admin-login')} title="Admin" className="w-4 h-4 text-slate-800 hover:text-red-500" aria-label="Admin">
-              <span className="text-[10px] font-mono">π</span>
-            </button>
           </div>
         </div>
       </div>
