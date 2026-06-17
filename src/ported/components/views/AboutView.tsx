@@ -30,34 +30,21 @@ export const AboutView: React.FC = () => {
 
   const { content: aboutContent } = usePageSettings<AboutContent>('about', {});
   const faqs = aboutContent?.faqs || [];
-  
+
   const toggleFaq = (index: number) => {
     setActiveFaq(activeFaq === index ? null : index);
   };
 
-  const filteredFaqs = faqCategory === 'all' 
-    ? faqs 
+  const filteredFaqs = faqCategory === 'all'
+    ? faqs
     : faqs.filter(f => f.category === faqCategory);
 
-  const originText = aboutContent?.aboutContent?.origin || "The Manyang Disability Foundation was birthed from firsthand observations of the severe systemic disadvantages faced by persons with disabilities in developing regions, particularly across Sub-Saharan Africa. In areas where physical infrastructure is unforgiving, the lack of an assistive device can instantly mean isolation from schools, markets, and healthcare.";
-  const philosophyText = aboutContent?.aboutContent?.philosophy || "Inspired by the solidarity and community-driven ethics of our founders and partners—including international scholars, humanitarians, and grassroots activists—we set out to eliminate these barriers. We recognize that true liberation is not merely the absence of pity, but the dynamic provision of real tools: sturdy wheelchairs, surgical interventions, inclusive classrooms, and micro-loans.";
-  const partnershipText = aboutContent?.aboutContent?.partnership || "Today, our global network partners directly with biomedical workshops, physical therapists, and local community elders to deliver tailored assistance without multi-layered bureaucratic hurdles.";
-  const stats = aboutContent?.aboutContent?.stats || [
-    { label: "Direct community assessment models", value: "100%" },
-    { label: "Cost passed to the final beneficiary", value: "Zero" }
-  ];
-  const team = aboutContent?.team || [
-    { name: "David T. Ngong, Ph.D.", role: "Co-Founder & Board Chair", bio: "Professor of Religion and Theology with deep interdisciplinary focus on African liberation, ethics, and community reconstruction.", image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=600&q=80" },
-    { name: "Dr. Sarah Lin-Pach", role: "Director of Medical Interventions", bio: "Certified orthopedic surgeon specializing in pediatric reconstructive care and low-cost adaptive prosthetics.", image: "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&w=600&q=80" },
-    { name: "Emmanuel K. Manyang", role: "Chief Field Operations Officer", bio: "Grassroots mobilization expert overseeing biomedical equipment distribution and direct emergency repair clinics.", image: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=600&q=80" },
-    { name: "Amina Al-Mansoor", role: "Head of Livelihoods & Advocacy", bio: "Former UN policy consultant advising on inclusive micro-finance frameworks and legal disability protections.", image: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=600&q=80" }
-  ];
-  const financialAllocation = aboutContent?.financialAllocation || [
-    { category: "Direct Mobility Aids & Custom Repairs", percentage: "45%", desc: "Procurement of wheelchairs, raw materials, and biomedical technician stipends." },
-    { category: "Healthcare & Surgical Subsidies", percentage: "25%", desc: "Direct payment to partner hospitals for reconstructive operations and physical therapy." },
-    { category: "Inclusive Education & Livelihood Grants", percentage: "20%", desc: "Tuition coverage, accessible tech, and direct startup kits for adults." },
-    { category: "Administrative & Fundraising Overhead", percentage: "10%", desc: "Essential compliance, secure digital infrastructure, and outreach logistics." }
-  ];
+  const originText = aboutContent?.aboutContent?.origin || "";
+  const philosophyText = aboutContent?.aboutContent?.philosophy || "";
+  const partnershipText = aboutContent?.aboutContent?.partnership || "";
+  const stats = aboutContent?.aboutContent?.stats || [];
+  const team = aboutContent?.team || [];
+  const financialAllocation = aboutContent?.financialAllocation || [];
 
   return (
     <div className="space-y-16 lg:space-y-24 py-10 animate-fade-in">

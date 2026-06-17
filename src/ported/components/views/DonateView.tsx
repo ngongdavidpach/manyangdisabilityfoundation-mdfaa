@@ -59,19 +59,10 @@ export const DonateView: React.FC = () => {
   const submitIntent = useServerFn(submitDonationIntent);
 
   const { content: donateContent } = usePageSettings<DonateContent>('donate', {});
-  
-  const donationTiers = donateContent?.donationTiers || [
-    { amount: 25, label: 'Mobility Repair Kit', desc: 'Heavy-duty replacement wheels, toolkits, and local mechanic stipends.' },
-    { amount: 50, label: 'Rehab Sessions', desc: 'Customized post-surgical physical therapy and orthopedic assessments.' },
-    { amount: 150, label: 'Custom Wheelchair', desc: 'Procures and fits an all-terrain manual wheelchair for rough terrain.' },
-    { amount: 500, label: 'Livelihood Grant', desc: 'Vocational startup asset kit and micro-loan for an adult with a disability.' },
-  ];
 
-  const channels = donateContent?.channels || [
-    { id: 'bank' as const, label: 'Bank Wire', icon: Building },
-    { id: 'momo' as const, label: 'Mobile Money', icon: Smartphone },
-    { id: 'paypal' as const, label: 'PayPal', icon: Globe },
-  ];
+  const donationTiers = donateContent?.donationTiers || [];
+
+  const channels = donateContent?.channels || [];
 
   const handleAmountSelect = (tierAmount: number) => {
     setAmount(tierAmount);
