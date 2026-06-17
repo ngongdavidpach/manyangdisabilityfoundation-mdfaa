@@ -9,8 +9,8 @@ export const Route = createFileRoute("/auth/login")({
   }),
   head: () => ({
     meta: [
-      { title: "Sign in — Manyang Disability Foundation" },
-      { name: "description", content: "Sign in to your Manyang Disability Foundation account to manage requests and profile." },
+      { title: "Contact Us — Manyang Disability Foundation" },
+      { name: "description", content: "Send a message to the Manyang Disability Foundation team or sign in as staff." },
       { name: "robots", content: "noindex" },
       { property: "og:title", content: "Sign in — Manyang Disability Foundation" },
       { property: "og:description", content: "Sign in to your Manyang Disability Foundation account to manage requests and profile." },

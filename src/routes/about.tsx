@@ -1,5 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { AboutView } from "../ported/components/views/AboutView";
+import { getPageSeo, type PageSeo } from "../lib/pageSeo.functions";
+import { buildRouteHead } from "../lib/routeHead";
 
 export const Route = createFileRoute("/about")({
   head: () => ({

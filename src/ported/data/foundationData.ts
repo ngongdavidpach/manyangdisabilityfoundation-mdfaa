@@ -6,7 +6,7 @@ export interface Program {
   iconName: string;
   image: string;
   impactStats: string;
-  category: 'mobility' | 'healthcare' | 'education' | 'livelihood' | 'advocacy';
+  category: "mobility" | "healthcare" | "education" | "livelihood" | "advocacy";
 }
 
 export interface SuccessStory {
@@ -37,14 +37,14 @@ export interface NewsArticle {
 export interface FAQItem {
   question: string;
   answer: string;
-  category: 'general' | 'donations' | 'assistance' | 'volunteering';
+  category: "general" | "donations" | "assistance" | "volunteering";
 }
 
 export interface GalleryImage {
   id: string;
   title: string;
   location: string;
-  category: 'mobility' | 'medical' | 'education' | 'livelihood';
+  category: "mobility" | "medical" | "education" | "livelihood";
   url: string;
   date: string;
   description: string;
@@ -56,7 +56,7 @@ export interface FoundationEvent {
   date: string;
   time: string;
   location: string;
-  type: 'upcoming' | 'past';
+  type: "upcoming" | "past";
   category: string;
   description: string;
   image: string;
@@ -76,8 +76,10 @@ export const FOUNDATION_INFO = {
   name: "Manyang Disability Foundation",
   shortName: "MDF",
   tagline: "Empowering Abilities, Restoring Dignity, Transforming Lives",
-  mission: "To provide essential mobility aids, comprehensive healthcare access, inclusive education, and sustainable livelihood opportunities to vulnerable individuals and persons with disabilities, ensuring they live with utmost dignity and independence.",
-  vision: "A fully inclusive society where individuals of all abilities have barrier-free access to opportunities, active community involvement, and the resources to achieve their maximum potential.",
+  mission:
+    "To provide essential mobility aids, comprehensive healthcare access, inclusive education, and sustainable livelihood opportunities to vulnerable individuals and persons with disabilities, ensuring they live with utmost dignity and independence.",
+  vision:
+    "A fully inclusive society where individuals of all abilities have barrier-free access to opportunities, active community involvement, and the resources to achieve their maximum potential.",
   email: "info@manyangdisabilityfoundation.org",
   phone: "+1 (555) 382-9104",
   altPhone: "+237 670 123 456",

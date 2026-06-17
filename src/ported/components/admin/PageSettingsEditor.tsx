@@ -3,7 +3,14 @@ import { supabase } from '@/integrations/supabase/client';
 import { ImageUploader } from './ImageUploader';
 import { Save, RotateCcw } from 'lucide-react';
 
-const PAGES = [
+const SEO_FIELDS = [
+  { path: 'seo.title', label: 'SEO title (browser tab + search result)', type: 'text' },
+  { path: 'seo.description', label: 'SEO description (search result snippet)', type: 'textarea' },
+  { path: 'seo.ogImage', label: 'Social share image (og:image)', type: 'image' },
+  { path: 'seo.noindex', label: 'Hide this page from search engines (noindex)', type: 'bool' },
+];
+
+const PAGES_RAW = [
   { key: 'home', label: 'Home Page', fields: [
     { path: 'hero.title', label: 'Hero title', type: 'text' },
     { path: 'hero.subtitle', label: 'Hero subtitle', type: 'textarea' },
@@ -18,40 +25,40 @@ const PAGES = [
     { path: 'showInsight', label: 'Show foundation insight section', type: 'bool' },
     { path: 'showStats', label: 'Show stats section', type: 'bool' },
     { path: 'showPrograms', label: 'Show programs section', type: 'bool' },
-  ]},
+  ], seo: true },
   { key: 'about', label: 'About', fields: [
     { path: 'heading', label: 'Heading', type: 'text' },
     { path: 'intro', label: 'Intro', type: 'textarea' },
     { path: 'showStaff', label: 'Show staff grid', type: 'bool' },
-  ]},
+  ], seo: true },
   { key: 'programs', label: 'Programs', fields: [
     { path: 'heading', label: 'Heading', type: 'text' },
     { path: 'intro', label: 'Intro', type: 'textarea' },
-  ]},
+  ], seo: true },
   { key: 'gallery', label: 'Gallery', fields: [
     { path: 'heading', label: 'Heading', type: 'text' },
     { path: 'intro', label: 'Intro', type: 'textarea' },
-  ]},
+  ], seo: true },
   { key: 'news', label: 'News', fields: [
     { path: 'heading', label: 'Heading', type: 'text' },
     { path: 'intro', label: 'Intro', type: 'textarea' },
-  ]},
+  ], seo: true },
   { key: 'events', label: 'Events', fields: [
     { path: 'heading', label: 'Heading', type: 'text' },
     { path: 'intro', label: 'Intro', type: 'textarea' },
-  ]},
+  ], seo: false },
   { key: 'get-involved', label: 'Get Involved', fields: [
     { path: 'heading', label: 'Heading', type: 'text' },
     { path: 'intro', label: 'Intro', type: 'textarea' },
-  ]},
+  ], seo: true },
   { key: 'donate', label: 'Donate', fields: [
     { path: 'heading', label: 'Heading', type: 'text' },
     { path: 'intro', label: 'Intro', type: 'textarea' },
-  ]},
+  ], seo: true },
   { key: 'request', label: 'Request', fields: [
     { path: 'heading', label: 'Heading', type: 'text' },
     { path: 'intro', label: 'Intro', type: 'textarea' },
-  ]},
+  ], seo: false },
   { key: 'footer', label: 'Footer & Contact', fields: [
     { path: 'address', label: 'Address', type: 'text' },
     { path: 'phone', label: 'Phone', type: 'text' },
@@ -63,13 +70,18 @@ const PAGES = [
     { path: 'socials.linkedin', label: 'LinkedIn URL', type: 'text' },
     { path: 'socials.youtube', label: 'YouTube URL', type: 'text' },
     { path: 'socials.tiktok', label: 'TikTok URL', type: 'text' },
-  ]},
+  ], seo: false },
   // Navigation visibility & order live in Settings tab → Navigation pages.
   { key: 'site', label: 'Site / Security', fields: [
     { path: 'name', label: 'Site name', type: 'text' },
     { path: 'tagline', label: 'Tagline', type: 'text' },
-  ]},
+  ], seo: false },
 ];
+
+const PAGES = PAGES_RAW.map((p) => ({
+  ...p,
+  fields: p.seo ? [...p.fields, ...SEO_FIELDS] : p.fields,
+}));
 
 function get(obj: any, path: string) {
   return path.split('.').reduce((o, k) => o?.[k], obj);

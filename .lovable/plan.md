@@ -1,13 +1,42 @@
-## Plan: Update Favicon with Uploaded Logo
+Replace the login form at `/auth/login` with a dual-purpose page: a "Send a Message" contact form as the default view, plus a "Staff Sign In" tab for admin access. This preserves all existing redirect links while giving visitors a way to contact the foundation.
 
-The uploaded image is a square circular logo (589×591px). The existing `public/images/logo.png` is a wide banner (1408×768px). All favicon, apple-touch-icon, and PWA manifest references already point to `/images/logo.png`.
+**Files to modify:**
+- `src/ported/components/views/LoginView.tsx` — convert to a tabbed contact/login page
+- `src/routes/auth.login.tsx` — update title and meta description
+- `src/ported/components/Navbar.tsx` — keep redirect logic unchanged (staff can use the Sign In tab)
+- `src/ported/components/ProtectedRoute.tsx` — keep redirect logic unchanged
 
-### Changes
+**Files to create:**
+- `src/lib/contact.functions.ts` — server function to store contact messages in Supabase
+- Database migration for `contact_messages` table (or reuse existing contacts table if available)
 
-1. **Replace `public/images/logo.png`** with the uploaded `image.png`.
-2. **No code changes needed** — `src/routes/__root.tsx` and `vite.config.ts` already reference `/images/logo.png` for favicon, apple-touch-icon, and PWA manifest icons.
+**Detailed plan:**
 
-The new circular logo will automatically become the favicon, apple-touch-icon, and PWA icon across the site.
+1. **Tabbed UI in LoginView.tsx**
+   - Add a tab switcher at the top of the right panel: [Send a Message] [Staff Sign In]
+   - Default active tab: "Send a Message"
+   - "Send a Message" tab shows:
+     - Full Name input
+     - Email input
+     - Subject input (select dropdown with common options: General Inquiry, Volunteer, Donation, Partnership, Other)
+     - Message textarea
+     - Submit button "Send Message"
+     - Success message after submission
+   - "Staff Sign In" tab shows the existing login form (email, password, sign in button)
+   - Keep the left brand panel unchanged (foundation logo, welcome text, security badges)
 
-### Optional add-on
-I can also generate smaller sizes (e.g., 32×32, 180×180) and add explicit `<link rel="icon">` sizes for optimal browser/PWA support. Let me know if you'd like that.
+2. **Backend: store messages**
+   - Create `submitContactMessage` server function in `src/lib/contact.functions.ts`
+   - Validate inputs (name, email, subject, message)
+   - Insert into a new `contact_messages` table in Supabase (or check if `contacts` table exists)
+   - Return success/error response
+
+3. **Database migration**
+   - Create `contact_messages` table: id, name, email, subject, message, created_at, status (new/read/replied)
+   - Add appropriate RLS policies (allow anonymous inserts, admin-only reads)
+   - Add GRANT statements for anon and authenticated roles
+
+4. **Route metadata update**
+   - Update `src/routes/auth.login.tsx` title to "Contact Us — Manyang Disability Foundation" or keep "Sign In" with updated description
+
+**Open question:** Should the "Send a Message" tab be a completely separate page (e.g., `/contact`) instead of sharing `/auth/login`? If so, we would create a new `/contact` route and keep `/auth/login` purely for staff login. This would be cleaner but requires updating all redirect references. With the tabbed approach, no existing code needs to change.

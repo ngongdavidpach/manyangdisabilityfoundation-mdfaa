@@ -13,7 +13,6 @@ import {
   Newspaper,
   Home,
   Image as GalleryIcon,
-  User,
   LogOut,
   LayoutDashboard,
   ShieldCheck
@@ -207,14 +206,7 @@ export const Navbar: React.FC = () => {
                   </>
                 )}
               </div>
-            ) : (
-              <Link
-                to="/auth/login"
-                className="flex items-center gap-1.5 text-sm font-semibold text-slate-700 hover:text-blue-700 px-3 py-2 rounded-lg border border-slate-200 hover:border-blue-300 hover:bg-blue-50 transition-colors"
-              >
-                <User className="w-4 h-4" /> Sign in
-              </Link>
-            )}
+            ) : null}
           </div>
 
           <div className="flex items-center gap-2 sm:hidden">
@@ -299,14 +291,14 @@ export const Navbar: React.FC = () => {
               </>
               ) : (
                 <button
-                  onClick={() => { navigate({ to: '/auth/login' }); setMobileMenuOpen(false); }}
-                  className="w-full flex items-center gap-3 px-4 py-3 rounded-lg bg-blue-600 text-white font-semibold"
+                  onClick={handleSignOut}
+                  className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-slate-600 hover:bg-slate-50 font-medium"
                 >
-                  <User className="w-5 h-5" />
-                  <span>Sign in</span>
+                  <LogOut className="w-5 h-5" />
+                  <span>Sign Out</span>
                 </button>
-              )}
-            </div>
+              </div>
+            )}
           </div>
         </div>
       )}
