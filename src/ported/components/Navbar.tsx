@@ -35,7 +35,7 @@ const PATH_FOR: Record<string, string> = {
 export const Navbar: React.FC = () => {
   const navigate = useNavigate();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
-  const { user, isAuthenticated, hasAdminAccess, logout } = useAuth();
+  const { user, isAuthenticated, logout } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
 
@@ -189,22 +189,14 @@ export const Navbar: React.FC = () => {
                         <p className="text-[10px] text-slate-500 truncate">{user.email}</p>
                       </div>
                       <div className="p-1">
-                        <button
-                          onClick={() => { navigate({ to: '/dashboard' }); setUserMenuOpen(false); }}
-                          className="w-full flex items-center gap-2.5 px-3 py-2 text-xs text-slate-700 hover:bg-blue-50 hover:text-blue-700 rounded-lg transition-colors"
-                        >
-                          <LayoutDashboard className="w-4 h-4" /> My Dashboard
-                        </button>
-                        {hasAdminAccess() && (
-                          <button
-                            onClick={() => { navigate({ to: '/admin' }); setUserMenuOpen(false); setMobileMenuOpen(false); }}
-                            className="w-full flex items-center gap-2.5 px-3 py-2 text-xs text-slate-700 hover:bg-red-50 hover:text-red-700 rounded-lg transition-colors"
-                          >
-                            <ShieldCheck className="w-4 h-4" /> Admin Console
-                          </button>
-                        )}
-                        <div className="my-1 border-t border-slate-100" />
-                        <button
+                      <button
+                        onClick={() => { navigate({ to: '/dashboard' }); setUserMenuOpen(false); }}
+                        className="w-full flex items-center gap-2.5 px-3 py-2 text-xs text-slate-700 hover:bg-blue-50 hover:text-blue-700 rounded-lg transition-colors"
+                      >
+                        <LayoutDashboard className="w-4 h-4" /> My Dashboard
+                      </button>
+                      <div className="my-1 border-t border-slate-100" />
+                      <button
                           onClick={handleSignOut}
                           className="w-full flex items-center gap-2.5 px-3 py-2 text-xs text-red-600 hover:bg-red-50 rounded-lg transition-colors"
                         >
@@ -289,31 +281,22 @@ export const Navbar: React.FC = () => {
 
             <div className="pt-3 border-t border-slate-100 space-y-1.5 mt-3">
               {isAuthenticated ? (
-                <>
-                  <button
-                    onClick={() => { navigate({ to: '/dashboard' }); setMobileMenuOpen(false); }}
-                    className="w-full flex items-center gap-3 px-4 py-3 rounded-lg bg-blue-50 text-blue-700 font-semibold"
-                  >
-                    <LayoutDashboard className="w-5 h-5" />
-                    <span>My Dashboard</span>
-                  </button>
-                  {hasAdminAccess() && (
-                    <button
-                      onClick={() => { navigate({ to: '/admin' }); setMobileMenuOpen(false); }}
-                      className="w-full flex items-center gap-3 px-4 py-3 rounded-lg bg-red-50 text-red-700 font-semibold"
-                    >
-                      <ShieldCheck className="w-5 h-5" />
-                      <span>Admin Console</span>
-                    </button>
-                  )}
-                  <button
-                    onClick={handleSignOut}
-                    className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-slate-600 hover:bg-slate-50 font-medium"
-                  >
-                    <LogOut className="w-5 h-5" />
-                    <span>Sign Out</span>
-                  </button>
-                </>
+              <>
+              <button
+                onClick={() => { navigate({ to: '/dashboard' }); setMobileMenuOpen(false); }}
+                className="w-full flex items-center gap-3 px-4 py-3 rounded-lg bg-blue-50 text-blue-700 font-semibold"
+              >
+                <LayoutDashboard className="w-5 h-5" />
+                <span>My Dashboard</span>
+              </button>
+              <button
+                onClick={handleSignOut}
+                className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-slate-600 hover:bg-slate-50 font-medium"
+              >
+                <LogOut className="w-5 h-5" />
+                <span>Sign Out</span>
+              </button>
+              </>
               ) : (
                 <button
                   onClick={() => { navigate({ to: '/auth/login' }); setMobileMenuOpen(false); }}
