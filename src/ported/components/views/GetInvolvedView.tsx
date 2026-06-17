@@ -15,6 +15,18 @@ import { useServerFn } from '@tanstack/react-start';
 import { FOUNDATION_INFO } from '../../data/foundationData';
 import { submitVolunteerApplication, submitPartnerInquiry } from '@/lib/intake.functions';
 import { CountrySelect } from '../ui/CountrySelect';
+import { usePageSettings } from '../../hooks/usePageSettings';
+
+interface GetInvolvedContent {
+  availableSkills?: Array<{ id: string; label: string; icon: any }>;
+  volunteerOptions?: {
+    availability?: Array<{ value: string; label: string }>;
+  };
+  partnerOptions?: {
+    orgTypes?: Array<{ value: string; label: string }>;
+    partnershipTypes?: Array<{ value: string; label: string }>;
+  };
+}
 
 
 export const GetInvolvedView: React.FC = () => {
@@ -25,37 +37,37 @@ export const GetInvolvedView: React.FC = () => {
   const submitVolunteerFn = useServerFn(submitVolunteerApplication);
   const submitPartnerFn = useServerFn(submitPartnerInquiry);
 
-
-  // Volunteer State
-  const [vForm, setVForm] = useState({
-    fullName: '',
-    email: '',
-    phone: '',
-    country: 'Cameroon',
-    city: '',
-    skills: [] as string[],
-    availability: 'part-time',
-    message: ''
-  });
-
-  // Partner State
-  const [pForm, setPForm] = useState({
-    orgName: '',
-    contactPerson: '',
-    email: '',
-    phone: '',
-    orgType: 'corporate',
-    partnershipType: 'raw-materials',
-    message: ''
-  });
-
-  const availableSkills = [
+  const { content: getInvolvedContent } = usePageSettings<GetInvolvedContent>('get-involved', {});
+  
+  const availableSkills = getInvolvedContent?.availableSkills || [
     { id: 'repair', label: 'Biomedical & Equipment Repair', icon: Wrench },
     { id: 'medical', label: 'Medical Care & Rehab Therapy', icon: HeartPulse },
     { id: 'education', label: 'Special Needs Inclusive Teaching', icon: GraduationCap },
     { id: 'logistics', label: 'Field Logistics & Distribution', icon: Users },
     { id: 'digital', label: 'Digital Awareness & Media', icon: Globe },
     { id: 'fundraising', label: 'Grant Writing & Fundraising', icon: Sparkles },
+  ];
+
+  const availabilityOptions = getInvolvedContent?.volunteerOptions?.availability || [
+    { value: 'part-time', label: 'A few hours per week' },
+    { value: 'events', label: 'On-call for major distribution days' },
+    { value: 'remote', label: 'Remote digital advising only' },
+    { value: 'full-time', label: 'Full-time sabbatical / field mission' }
+  ];
+
+  const orgTypeOptions = getInvolvedContent?.partnerOptions?.orgTypes || [
+    { value: 'corporate', label: 'Private Corporation / Enterprise' },
+    { value: 'hospital', label: 'Hospital / Healthcare Provider' },
+    { value: 'university', label: 'Academic Institution / University' },
+    { value: 'foundation', label: 'Philanthropic Foundation' },
+    { value: 'ngo', label: 'International Non-Governmental Organization' }
+  ];
+
+  const partnershipTypeOptions = getInvolvedContent?.partnerOptions?.partnershipTypes || [
+    { value: 'raw-materials', label: 'Donation of Raw Materials & Wheelchair Parts' },
+    { value: 'funding', label: 'Direct Programmatic Capacity Funding' },
+    { value: 'medical-staff', label: 'Deployment of Specialized Medical Personnel' },
+    { value: 'advocacy-media', label: 'Media Awareness & Co-Branded Advocacy' }
   ];
 
   const handleVSkillToggle = (skillId: string) => {
@@ -307,10 +319,9 @@ export const GetInvolvedView: React.FC = () => {
                     onChange={(e) => setVForm({...vForm, availability: e.target.value})}
                     className="w-full bg-slate-50 border border-slate-300 rounded-lg p-2.5 text-xs text-slate-900 focus:outline-hidden focus:border-blue-500"
                   >
-                    <option value="part-time">A few hours per week</option>
-                    <option value="events">On-call for major distribution days</option>
-                    <option value="remote">Remote digital advising only</option>
-                    <option value="full-time">Full-time sabbatical / field mission</option>
+                    {availabilityOptions.map(opt => (
+                      <option key={opt.value} value={opt.value}>{opt.label}</option>
+                    ))}
                   </select>
                 </div>
 
@@ -410,11 +421,9 @@ export const GetInvolvedView: React.FC = () => {
                     onChange={(e) => setPForm({...pForm, orgType: e.target.value})}
                     className="w-full bg-slate-50 border border-slate-300 rounded-lg p-2.5 text-xs text-slate-900 focus:outline-hidden focus:border-blue-500"
                   >
-                    <option value="corporate">Private Corporation / Enterprise</option>
-                    <option value="hospital">Hospital / Healthcare Provider</option>
-                    <option value="university">Academic Institution / University</option>
-                    <option value="foundation">Philanthropic Foundation</option>
-                    <option value="ngo">International Non-Governmental Organization</option>
+                    {orgTypeOptions.map(opt => (
+                      <option key={opt.value} value={opt.value}>{opt.label}</option>
+                    ))}
                   </select>
                 </div>
 
@@ -427,10 +436,9 @@ export const GetInvolvedView: React.FC = () => {
                     onChange={(e) => setPForm({...pForm, partnershipType: e.target.value})}
                     className="w-full bg-slate-50 border border-slate-300 rounded-lg p-2.5 text-xs text-slate-900 focus:outline-hidden focus:border-blue-500"
                   >
-                    <option value="raw-materials">Donation of Raw Materials & Wheelchair Parts</option>
-                    <option value="funding">Direct Programmatic Capacity Funding</option>
-                    <option value="medical-staff">Deployment of Specialized Medical Personnel</option>
-                    <option value="advocacy-media">Media Awareness & Co-Branded Advocacy</option>
+                    {partnershipTypeOptions.map(opt => (
+                      <option key={opt.value} value={opt.value}>{opt.label}</option>
+                    ))}
                   </select>
                 </div>
               </div>

@@ -11,13 +11,32 @@ import {
   CheckCircle2,
   Heart
 } from 'lucide-react';
-import { PROGRAMS, SUCCESS_STORIES } from '../../data/foundationData';
+import { type Program, type SuccessStory } from '../../data/foundationData';
+import { usePageSettings } from '../../hooks/usePageSettings';
+
+interface ProgramsContent {
+  programs?: Program[];
+  successStories?: SuccessStory[];
+  crossCutting?: {
+    title: string;
+    subtitle: string;
+    body: string;
+    highlights: string[];
+    ctaText: string;
+    ctaLink: string;
+  };
+}
 
 export const ProgramsView: React.FC = () => {
   const navigate = useNavigate();
   const [activeCategory, setActiveCategory] = useState<string>('all');
-  const [selectedStory, setSelectedStory] = useState(SUCCESS_STORIES[0]);
 
+  const { content: programsContent } = usePageSettings<ProgramsContent>('programs', {});
+  const programs = programsContent?.programs || [];
+  const successStories = programsContent?.successStories || [];
+  const crossCutting = programsContent?.crossCutting;
+
+  const [selectedStory, setSelectedStory] = useState(successStories[0] || null);
 
   const getProgramIcon = (iconName: string) => {
     switch (iconName) {
@@ -31,8 +50,8 @@ export const ProgramsView: React.FC = () => {
   };
 
   const filteredPrograms = activeCategory === 'all' 
-    ? PROGRAMS 
-    : PROGRAMS.filter(p => p.category === activeCategory);
+    ? programs 
+    : programs.filter(p => p.category === activeCategory);
 
   return (
     <div className="space-y-16 lg:space-y-24 py-10 animate-fade-in">
@@ -160,7 +179,7 @@ export const ProgramsView: React.FC = () => {
               <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider block mb-2">
                 Select a Narrative:
               </span>
-              {SUCCESS_STORIES.map((story) => {
+              {successStories.map((story) => {
                 const isSelected = selectedStory.id === story.id;
                 return (
                   <button
@@ -229,58 +248,46 @@ export const ProgramsView: React.FC = () => {
         </div>
       </section>
 
-      {/* Cross-cutting initiatives */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="bg-blue-50 rounded-2xl border border-blue-100 p-8 lg:p-12">
-          <div className="max-w-3xl space-y-6">
-            <span className="bg-blue-600 text-white text-xs font-bold px-3 py-1 rounded uppercase tracking-wider">
-              Emergency Mobility Response
-            </span>
+      {/* Cross-cutting initiatives (admin-managed) */}
+      {crossCutting && (
+        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="bg-blue-50 rounded-2xl border border-blue-100 p-8 lg:p-12">
+            <div className="max-w-3xl space-y-6">
+              <span className="bg-blue-600 text-white text-xs font-bold px-3 py-1 rounded uppercase tracking-wider">
+                Emergency Mobility Response
+              </span>
 
-            <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">
-              The Critical Need for Mobile Wheelchair Repair Workshops
-            </h2>
+              <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">
+                {crossCutting.title}
+              </h2>
 
-            <p className="text-sm text-slate-700 leading-relaxed">
-              Procuring a brand new wheelchair is life-changing, but keeping it functional in rough environments requires constant maintenance. Many humanitarian agencies donate unadapted hospital chairs that break down within months. 
-            </p>
+              <p className="text-sm text-slate-700 leading-relaxed">
+                {crossCutting.body}
+              </p>
 
-            <p className="text-sm text-slate-700 leading-relaxed font-medium">
-              The Manyang Disability Foundation solves this by providing <strong>Direct Repair Grants</strong> and training local biomedical technicians. We host scheduled pop-up repair clinics where beneficiaries receive high-durability rubber tires, re-welded cross-braces, and custom cushions to prevent dangerous pressure sores.
-            </p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+                {crossCutting.highlights.map((highlight, i) => (
+                  <div key={i} className="flex items-center gap-2 text-xs font-bold text-blue-900">
+                    <CheckCircle2 className="w-4 h-4 text-blue-600 shrink-0" />
+                    <span>{highlight}</span>
+                  </div>
+                ))}
+              </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
-              <div className="flex items-center gap-2 text-xs font-bold text-blue-900">
-                <CheckCircle2 className="w-4 h-4 text-blue-600 shrink-0" />
-                <span>Extends average chair lifecycle by 4+ years</span>
+              <div className="pt-4">
+                <button
+                  onClick={() => navigate({ to: crossCutting.ctaLink })}
+                  className="bg-blue-600 hover:bg-blue-700 text-white font-bold px-6 py-3 rounded-lg text-xs transition-colors inline-flex items-center gap-2"
+                >
+                  <span>{crossCutting.ctaText}</span>
+                  <ArrowRight className="w-4 h-4" />
+                </button>
               </div>
-              <div className="flex items-center gap-2 text-xs font-bold text-blue-900">
-                <CheckCircle2 className="w-4 h-4 text-blue-600 shrink-0" />
-                <span>Prevents secondary pressure ulcer complications</span>
-              </div>
-              <div className="flex items-center gap-2 text-xs font-bold text-blue-900">
-                <CheckCircle2 className="w-4 h-4 text-blue-600 shrink-0" />
-                <span>Stimulates local technician craft livelihoods</span>
-              </div>
-              <div className="flex items-center gap-2 text-xs font-bold text-blue-900">
-                <CheckCircle2 className="w-4 h-4 text-blue-600 shrink-0" />
-                <span>Direct cash relief for broken hardware parts</span>
-              </div>
+
             </div>
-
-            <div className="pt-4">
-              <button
-                onClick={() => navigate({ to: '/donate' })}
-                className="bg-blue-600 hover:bg-blue-700 text-white font-bold px-6 py-3 rounded-lg text-xs transition-colors inline-flex items-center gap-2"
-              >
-                <span>Support Our Next Mobile Repair Camp</span>
-                <ArrowRight className="w-4 h-4" />
-              </button>
-            </div>
-
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
     </div>
   );

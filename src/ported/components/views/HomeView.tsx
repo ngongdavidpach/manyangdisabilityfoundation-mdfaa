@@ -14,17 +14,39 @@ import {
   CheckCircle,
   HelpCircle,
   Download,
-  PlayCircle
+  PlayCircle,
+  Image as ImageIcon,
+  Newspaper,
+  Calendar,
+  MapPin
 } from 'lucide-react';
-import { 
-  FOUNDATION_INFO, 
-  IMPACT_METRICS, 
-  PROGRAMS, 
-  SUCCESS_STORIES, 
-  NEWS_ARTICLES 
-} from '../../data/foundationData';
+import { FOUNDATION_INFO, type Program, type SuccessStory, type ImpactMetric } from '../../data/foundationData';
 import { usePageSettings } from '../../hooks/usePageSettings';
 import { toEmbedUrl } from '../../lib/videoEmbed';
+
+interface HomeContent {
+  insight?: {
+    title?: string;
+    body?: string;
+    cover?: string;
+    brochureUrl?: string;
+    brochureName?: string;
+    videoUrl?: string;
+  };
+  showInsight?: boolean;
+  impactMetrics?: ImpactMetric[];
+  featuredPrograms?: Program[];
+  successStories?: SuccessStory[];
+  callout?: {
+    title: string;
+    body: string;
+    image: string;
+    ctaText: string;
+    ctaLink: string;
+    secondaryCtaText?: string;
+    secondaryCtaLink?: string;
+  };
+}
 
 interface HomeInsight {
   insight?: {
@@ -41,10 +63,16 @@ interface HomeInsight {
 export const HomeView: React.FC = () => {
   const navigate = useNavigate();
 
-  const { content: homeContent } = usePageSettings<HomeInsight>('home', {});
+  const { content: homeContent } = usePageSettings<HomeContent>('home', {});
   const insight = homeContent?.insight;
   const showInsight = homeContent?.showInsight !== false && !!(insight?.title || insight?.body || insight?.cover || insight?.brochureUrl || insight?.videoUrl);
   const embedUrl = toEmbedUrl(insight?.videoUrl);
+  
+  // Use admin-controlled content with fallbacks
+  const impactMetrics = homeContent?.impactMetrics || [];
+  const featuredPrograms = homeContent?.featuredPrograms || [];
+  const successStories = homeContent?.successStories || [];
+  const callout = homeContent?.callout;
 
   const getProgramIcon = (iconName: string) => {
     switch (iconName) {
@@ -153,7 +181,7 @@ export const HomeView: React.FC = () => {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-            {IMPACT_METRICS.map((metric) => (
+            {impactMetrics.map((metric) => (
               <div key={metric.id} className="flex flex-col items-center text-center p-4 rounded-xl bg-slate-50">
                 <div className="w-14 h-14 rounded-full bg-blue-900 flex items-center justify-center mb-3 shadow-xs">
                   {getMetricIcon(metric.icon)}
@@ -241,53 +269,57 @@ export const HomeView: React.FC = () => {
         </section>
       )}
 
-      {/* Real Event / Action callout: Yii Wheelchair repair bulletin */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="bg-gradient-to-r from-blue-900 to-indigo-900 rounded-2xl overflow-hidden shadow-sm text-white">
-          <div className="grid grid-cols-1 lg:grid-cols-3">
-            <div className="p-8 lg:p-12 lg:col-span-2 flex flex-col justify-between space-y-6">
-              <div>
-                <span className="bg-amber-400 text-slate-950 text-xs font-bold px-3 py-1 rounded-md uppercase tracking-wider inline-block">
-                  Live Field Outreach Report
-                </span>
-                <h3 className="text-2xl sm:text-3xl font-bold tracking-tight mt-3">
-                  Restoring Yii's Mobility: Emergency Repair Stipends Distributed Today
-                </h3>
-                <p className="text-blue-100 text-sm mt-3 leading-relaxed">
-                  In many resource-constrained areas, acquiring a replacement wheelchair takes months. When local entrepreneur Yii's main transport wheel buckled, his entire family's livelihood stood still. The MDF Direct Aid Fund stepped in immediately with raw parts and specialized local mechanics to fully restore his customized mobility aid!
-                </p>
+      {/* Real Event / Action callout (admin-managed) */}
+      {callout && (
+        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="bg-gradient-to-r from-blue-900 to-indigo-900 rounded-2xl overflow-hidden shadow-sm text-white">
+            <div className="grid grid-cols-1 lg:grid-cols-3">
+              <div className="p-8 lg:p-12 lg:col-span-2 flex flex-col justify-between space-y-6">
+                <div>
+                  <span className="bg-amber-400 text-slate-950 text-xs font-bold px-3 py-1 rounded-md uppercase tracking-wider inline-block">
+                    Live Field Outreach Report
+                  </span>
+                  <h3 className="text-2xl sm:text-3xl font-bold tracking-tight mt-3">
+                    {callout.title}
+                  </h3>
+                  <p className="text-blue-100 text-sm mt-3 leading-relaxed">
+                    {callout.body}
+                  </p>
+                </div>
+
+                <div className="flex flex-wrap gap-4 pt-2">
+                  <button
+                    onClick={() => navigate({ to: callout.ctaLink })}
+                    className="bg-white text-blue-900 hover:bg-blue-50 font-bold px-5 py-2.5 rounded-lg text-sm transition-colors"
+                  >
+                    {callout.ctaText}
+                  </button>
+                  {callout.secondaryCtaText && callout.secondaryCtaLink && (
+                    <button
+                      onClick={() => navigate({ to: callout.secondaryCtaLink })}
+                      className="bg-transparent hover:bg-white/10 text-amber-300 font-semibold px-4 py-2.5 rounded-lg text-sm transition-colors border border-amber-300/40"
+                    >
+                      {callout.secondaryCtaText}
+                    </button>
+                  )}
+                </div>
               </div>
 
-              <div className="flex flex-wrap gap-4 pt-2">
-                <button
-                  onClick={() => navigate({ to: '/news' })}
-                  className="bg-white text-blue-900 hover:bg-blue-50 font-bold px-5 py-2.5 rounded-lg text-sm transition-colors"
-                >
-                  Read Full Story
-                </button>
-                <button
-                  onClick={() => navigate({ to: '/donate' })}
-                  className="bg-transparent hover:bg-white/10 text-amber-300 font-semibold px-4 py-2.5 rounded-lg text-sm transition-colors border border-amber-300/40"
-                >
-                  Fund a $25 Repair Kit
-                </button>
-              </div>
-            </div>
-
-            <div className="relative min-h-[240px] lg:min-h-auto bg-slate-800">
-              <img 
-                src="https://images.unsplash.com/photo-1565706596465-b1a82f3c7e09?auto=format&fit=crop&w=800&q=80" 
-                alt="Wheelchair technical repairs in action" 
-                className="absolute inset-0 w-full h-full object-cover"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 to-transparent lg:hidden" />
-              <div className="absolute bottom-4 left-4 right-4 lg:hidden">
-                <p className="text-xs text-slate-200 italic">"They restored my ability to provide for my family with dignity." – Yii</p>
+              <div className="relative min-h-[240px] lg:min-h-auto bg-slate-800">
+                <img 
+                  src={callout.image} 
+                  alt={callout.title} 
+                  className="absolute inset-0 w-full h-full object-cover"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 to-transparent lg:hidden" />
+                <div className="absolute bottom-4 left-4 right-4 lg:hidden">
+                  <p className="text-xs text-slate-200 italic">"They restored my ability to provide for my family with dignity." – Yii</p>
+                </div>
               </div>
             </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* Core Programs Showcase */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -310,7 +342,7 @@ export const HomeView: React.FC = () => {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {PROGRAMS.slice(0, 3).map((program) => (
+          {featuredPrograms.slice(0, 3).map((program) => (
             <div 
               key={program.id}
               className="bg-white rounded-xl overflow-hidden border border-slate-200 hover:shadow-md transition-shadow flex flex-col justify-between"
@@ -360,7 +392,7 @@ export const HomeView: React.FC = () => {
 
         {/* Secondary programs fast links */}
         <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 gap-4">
-          {PROGRAMS.slice(3).map((program) => (
+          {featuredPrograms.slice(3).map((program) => (
             <div 
               key={program.id}
               onClick={() => navigate({ to: '/programs' })}
@@ -393,7 +425,7 @@ export const HomeView: React.FC = () => {
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {SUCCESS_STORIES.map((story) => (
+            {successStories.map((story) => (
               <div key={story.id} className="bg-white rounded-xl shadow-xs overflow-hidden flex flex-col justify-between">
                 <div className="p-6">
                   <div className="flex items-center gap-3 mb-4">

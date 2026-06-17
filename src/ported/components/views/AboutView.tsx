@@ -9,19 +9,55 @@ import {
   CheckCircle2, 
   ChevronDown 
 } from 'lucide-react';
-import { FOUNDATION_INFO, FAQS } from '../../data/foundationData';
+import { FOUNDATION_INFO, type FAQItem } from '../../data/foundationData';
+import { usePageSettings } from '../../hooks/usePageSettings';
+
+interface AboutContent {
+  faqs?: FAQItem[];
+  aboutContent?: {
+    origin: string;
+    philosophy: string;
+    partnership: string;
+    stats: Array<{ label: string; value: string }>;
+  };
+  team?: Array<{ name: string; role: string; bio: string; image: string }>;
+  financialAllocation?: Array<{ category: string; percentage: string; desc: string }>;
+}
 
 export const AboutView: React.FC = () => {
   const [activeFaq, setActiveFaq] = useState<number | null>(null);
   const [faqCategory, setFaqCategory] = useState<string>('all');
 
+  const { content: aboutContent } = usePageSettings<AboutContent>('about', {});
+  const faqs = aboutContent?.faqs || [];
+  
   const toggleFaq = (index: number) => {
     setActiveFaq(activeFaq === index ? null : index);
   };
 
   const filteredFaqs = faqCategory === 'all' 
-    ? FAQS 
-    : FAQS.filter(f => f.category === faqCategory);
+    ? faqs 
+    : faqs.filter(f => f.category === faqCategory);
+
+  const originText = aboutContent?.aboutContent?.origin || "The Manyang Disability Foundation was birthed from firsthand observations of the severe systemic disadvantages faced by persons with disabilities in developing regions, particularly across Sub-Saharan Africa. In areas where physical infrastructure is unforgiving, the lack of an assistive device can instantly mean isolation from schools, markets, and healthcare.";
+  const philosophyText = aboutContent?.aboutContent?.philosophy || "Inspired by the solidarity and community-driven ethics of our founders and partners—including international scholars, humanitarians, and grassroots activists—we set out to eliminate these barriers. We recognize that true liberation is not merely the absence of pity, but the dynamic provision of real tools: sturdy wheelchairs, surgical interventions, inclusive classrooms, and micro-loans.";
+  const partnershipText = aboutContent?.aboutContent?.partnership || "Today, our global network partners directly with biomedical workshops, physical therapists, and local community elders to deliver tailored assistance without multi-layered bureaucratic hurdles.";
+  const stats = aboutContent?.aboutContent?.stats || [
+    { label: "Direct community assessment models", value: "100%" },
+    { label: "Cost passed to the final beneficiary", value: "Zero" }
+  ];
+  const team = aboutContent?.team || [
+    { name: "David T. Ngong, Ph.D.", role: "Co-Founder & Board Chair", bio: "Professor of Religion and Theology with deep interdisciplinary focus on African liberation, ethics, and community reconstruction.", image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=600&q=80" },
+    { name: "Dr. Sarah Lin-Pach", role: "Director of Medical Interventions", bio: "Certified orthopedic surgeon specializing in pediatric reconstructive care and low-cost adaptive prosthetics.", image: "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&w=600&q=80" },
+    { name: "Emmanuel K. Manyang", role: "Chief Field Operations Officer", bio: "Grassroots mobilization expert overseeing biomedical equipment distribution and direct emergency repair clinics.", image: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=600&q=80" },
+    { name: "Amina Al-Mansoor", role: "Head of Livelihoods & Advocacy", bio: "Former UN policy consultant advising on inclusive micro-finance frameworks and legal disability protections.", image: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=600&q=80" }
+  ];
+  const financialAllocation = aboutContent?.financialAllocation || [
+    { category: "Direct Mobility Aids & Custom Repairs", percentage: "45%", desc: "Procurement of wheelchairs, raw materials, and biomedical technician stipends." },
+    { category: "Healthcare & Surgical Subsidies", percentage: "25%", desc: "Direct payment to partner hospitals for reconstructive operations and physical therapy." },
+    { category: "Inclusive Education & Livelihood Grants", percentage: "20%", desc: "Tuition coverage, accessible tech, and direct startup kits for adults." },
+    { category: "Administrative & Fundraising Overhead", percentage: "10%", desc: "Essential compliance, secure digital infrastructure, and outreach logistics." }
+  ];
 
   return (
     <div className="space-y-16 lg:space-y-24 py-10 animate-fade-in">
@@ -55,25 +91,23 @@ export const AboutView: React.FC = () => {
 
             <div className="space-y-4 text-sm text-slate-600 leading-relaxed">
               <p>
-                The Manyang Disability Foundation was birthed from firsthand observations of the severe systemic disadvantages faced by persons with disabilities in developing regions, particularly across Sub-Saharan Africa. In areas where physical infrastructure is unforgiving, the lack of an assistive device can instantly mean isolation from schools, markets, and healthcare.
+                {originText}
               </p>
               <p>
-                Inspired by the solidarity and community-driven ethics of our founders and partners—including international scholars, humanitarians, and grassroots activists—we set out to eliminate these barriers. We recognize that true liberation is not merely the absence of pity, but the dynamic provision of real tools: sturdy wheelchairs, surgical interventions, inclusive classrooms, and micro-loans.
+                {philosophyText}
               </p>
               <p className="font-medium text-slate-900">
-                Today, our global network partners directly with biomedical workshops, physical therapists, and local community elders to deliver tailored assistance without multi-layered bureaucratic hurdles.
+                {partnershipText}
               </p>
             </div>
 
             <div className="grid grid-cols-2 gap-4 pt-4">
-              <div className="p-4 rounded-xl bg-blue-50 border border-blue-100">
-                <span className="block text-2xl font-extrabold text-blue-700">100%</span>
-                <span className="block text-xs font-medium text-slate-600 mt-1">Direct community assessment models</span>
-              </div>
-              <div className="p-4 rounded-xl bg-amber-50 border border-amber-100">
-                <span className="block text-2xl font-extrabold text-amber-700">Zero</span>
-                <span className="block text-xs font-medium text-slate-600 mt-1">Cost passed to the final beneficiary</span>
-              </div>
+              {stats.map((stat, i) => (
+                <div key={i} className="p-4 rounded-xl bg-blue-50 border border-blue-100">
+                  <span className="block text-2xl font-extrabold text-blue-700">{stat.value}</span>
+                  <span className="block text-xs font-medium text-slate-600 mt-1">{stat.label}</span>
+                </div>
+              ))}
             </div>
           </div>
 
@@ -190,32 +224,7 @@ export const AboutView: React.FC = () => {
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-          {[
-            {
-              name: "David T. Ngong, Ph.D.",
-              role: "Co-Founder & Board Chair",
-              bio: "Professor of Religion and Theology with deep interdisciplinary focus on African liberation, ethics, and community reconstruction.",
-              image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=600&q=80"
-            },
-            {
-              name: "Dr. Sarah Lin-Pach",
-              role: "Director of Medical Interventions",
-              bio: "Certified orthopedic surgeon specializing in pediatric reconstructive care and low-cost adaptive prosthetics.",
-              image: "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&w=600&q=80"
-            },
-            {
-              name: "Emmanuel K. Manyang",
-              role: "Chief Field Operations Officer",
-              bio: "Grassroots mobilization expert overseeing biomedical equipment distribution and direct emergency repair clinics.",
-              image: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=600&q=80"
-            },
-            {
-              name: "Amina Al-Mansoor",
-              role: "Head of Livelihoods & Advocacy",
-              bio: "Former UN policy consultant advising on inclusive micro-finance frameworks and legal disability protections.",
-              image: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=600&q=80"
-            }
-          ].map((member, i) => (
+          {team.map((member, i) => (
             <div key={i} className="bg-white rounded-xl overflow-hidden border border-slate-200 shadow-xs flex flex-col justify-between">
               <div>
                 <div className="h-64 w-full bg-slate-100">
@@ -260,12 +269,7 @@ export const AboutView: React.FC = () => {
             </div>
 
             <div className="lg:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {[
-                { category: "Direct Mobility Aids & Custom Repairs", percentage: "45%", desc: "Procurement of wheelchairs, raw materials, and biomedical technician stipends." },
-                { category: "Healthcare & Surgical Subsidies", percentage: "25%", desc: "Direct payment to partner hospitals for reconstructive operations and physical therapy." },
-                { category: "Inclusive Education & Livelihood Grants", percentage: "20%", desc: "Tuition coverage, accessible tech, and direct startup kits for adults." },
-                { category: "Administrative & Fundraising Overhead", percentage: "10%", desc: "Essential compliance, secure digital infrastructure, and outreach logistics." }
-              ].map((item, index) => (
+              {financialAllocation.map((item, index) => (
                 <div key={index} className="p-4 rounded-xl bg-slate-50 border border-slate-200 flex flex-col justify-between">
                   <div>
                     <div className="flex justify-between items-center mb-1">

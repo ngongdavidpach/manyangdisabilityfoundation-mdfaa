@@ -64,6 +64,13 @@ export interface FoundationEvent {
   seatsAvailable?: number;
 }
 
+export interface ImpactMetric {
+  id: string;
+  label: string;
+  value: string;
+  icon: string;
+}
+
 // Foundation info - admin can override via page_settings in /admin
 export const FOUNDATION_INFO = {
   name: "Manyang Disability Foundation",

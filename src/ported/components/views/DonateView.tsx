@@ -13,8 +13,20 @@ import {
 import { useServerFn } from '@tanstack/react-start';
 import { FOUNDATION_INFO } from '../../data/foundationData';
 import { submitDonationIntent } from '@/lib/intake.functions';
+import { usePageSettings } from '../../hooks/usePageSettings';
 
 type Channel = 'bank' | 'momo' | 'paypal';
+
+interface DonationTier {
+  amount: number;
+  label: string;
+  desc: string;
+}
+
+interface DonateContent {
+  donationTiers?: DonationTier[];
+  channels?: Array<{ id: Channel; label: string; icon: any }>;
+}
 
 export const DonateView: React.FC = () => {
   const [frequency, setFrequency] = useState<'one-time' | 'monthly'>('one-time');
@@ -46,11 +58,19 @@ export const DonateView: React.FC = () => {
 
   const submitIntent = useServerFn(submitDonationIntent);
 
-  const donationTiers = [
+  const { content: donateContent } = usePageSettings<DonateContent>('donate', {});
+  
+  const donationTiers = donateContent?.donationTiers || [
     { amount: 25, label: 'Mobility Repair Kit', desc: 'Heavy-duty replacement wheels, toolkits, and local mechanic stipends.' },
     { amount: 50, label: 'Rehab Sessions', desc: 'Customized post-surgical physical therapy and orthopedic assessments.' },
     { amount: 150, label: 'Custom Wheelchair', desc: 'Procures and fits an all-terrain manual wheelchair for rough terrain.' },
     { amount: 500, label: 'Livelihood Grant', desc: 'Vocational startup asset kit and micro-loan for an adult with a disability.' },
+  ];
+
+  const channels = donateContent?.channels || [
+    { id: 'bank' as const, label: 'Bank Wire', icon: Building },
+    { id: 'momo' as const, label: 'Mobile Money', icon: Smartphone },
+    { id: 'paypal' as const, label: 'PayPal', icon: Globe },
   ];
 
   const handleAmountSelect = (tierAmount: number) => {
@@ -294,11 +314,7 @@ export const DonateView: React.FC = () => {
             <div className="space-y-3">
               <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider">Preferred Transfer Channel</label>
               <div className="grid grid-cols-3 gap-2">
-                {[
-                  { id: 'bank' as const, label: 'Bank Wire', icon: Building },
-                  { id: 'momo' as const, label: 'Mobile Money', icon: Smartphone },
-                  { id: 'paypal' as const, label: 'PayPal', icon: Globe },
-                ].map((c) => {
+                {channels.map((c) => {
                   const Icon = c.icon;
                   const isActive = channel === c.id;
                   return (

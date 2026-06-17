@@ -7,17 +7,24 @@ import {
   Heart, 
   Maximize2
 } from 'lucide-react';
-import { GALLERY_IMAGES, GalleryImage } from '../../data/foundationData';
+import { type GalleryImage } from '../../data/foundationData';
+import { usePageSettings } from '../../hooks/usePageSettings';
+
+interface GalleryContent {
+  images?: GalleryImage[];
+}
 
 export const GalleryView: React.FC = () => {
   const navigate = useNavigate();
   const [activeCategory, setActiveCategory] = useState<string>('all');
   const [selectedImage, setSelectedImage] = useState<GalleryImage | null>(null);
 
+  const { content: galleryContent } = usePageSettings<GalleryContent>('gallery', {});
+  const images = galleryContent?.images || [];
 
   const filteredImages = activeCategory === 'all' 
-    ? GALLERY_IMAGES 
-    : GALLERY_IMAGES.filter(img => img.category === activeCategory);
+    ? images 
+    : images.filter(img => img.category === activeCategory);
 
   const getCategoryLabel = (cat: string) => {
     switch (cat) {

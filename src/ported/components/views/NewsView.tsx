@@ -15,8 +15,14 @@ import {
   CalendarDays,
   FileText
 } from 'lucide-react';
-import { NEWS_ARTICLES, FOUNDATION_EVENTS, FoundationEvent } from '../../data/foundationData';
+import { type NewsArticle, type FoundationEvent } from '../../data/foundationData';
 import { submitEventRsvp } from '@/lib/intake.functions';
+import { usePageSettings } from '../../hooks/usePageSettings';
+
+interface NewsContent {
+  articles?: NewsArticle[];
+  events?: FoundationEvent[];
+}
 
 
 interface NewsViewProps {
@@ -29,6 +35,10 @@ export const NewsView: React.FC<NewsViewProps> = ({ articleId }) => {
   const [activeTab, setActiveTab] = useState<'news' | 'events'>('news');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
 
+  const { content: newsContent } = usePageSettings<NewsContent>('news', {});
+  const articles = newsContent?.articles || [];
+  const events = newsContent?.events || [];
+
   // Event RSVP Simulator State
   const [rsvpEvent, setRsvpEvent] = useState<FoundationEvent | null>(null);
   const [rsvpName, setRsvpName] = useState('');
@@ -40,7 +50,7 @@ export const NewsView: React.FC<NewsViewProps> = ({ articleId }) => {
   const submitEventRsvpFn = useServerFn(submitEventRsvp);
 
   const isArticleView = !!articleId;
-  const currentArticle = articleId ? NEWS_ARTICLES.find(a => a.id === articleId) : null;
+  const currentArticle = articleId ? articles.find(a => a.id === articleId) : null;
 
 
   const handleShare = () => {
@@ -176,7 +186,7 @@ export const NewsView: React.FC<NewsViewProps> = ({ articleId }) => {
           </h3>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-            {NEWS_ARTICLES.filter(a => a.id !== currentArticle.id).slice(0, 2).map((article) => (
+            {articles.filter(a => a.id !== currentArticle.id).slice(0, 2).map((article) => (
               <div 
                 key={article.id}
                 onClick={() => {
@@ -206,10 +216,10 @@ export const NewsView: React.FC<NewsViewProps> = ({ articleId }) => {
   }
 
   // Render Core Archive Tabs
-  const newsCategories = ['all', ...Array.from(new Set(NEWS_ARTICLES.map(a => a.category)))];
+  const newsCategories = ['all', ...Array.from(new Set(articles.map(a => a.category)))];
   const filteredArticles = selectedCategory === 'all'
-    ? NEWS_ARTICLES
-    : NEWS_ARTICLES.filter(a => a.category === selectedCategory);
+    ? articles
+    : articles.filter(a => a.category === selectedCategory);
 
   return (
     <div className="space-y-12 py-10 animate-fade-in max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -346,7 +356,7 @@ export const NewsView: React.FC<NewsViewProps> = ({ articleId }) => {
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-              {FOUNDATION_EVENTS.filter(e => e.type === 'upcoming').map(evt => (
+              {events.filter(e => e.type === 'upcoming').map(evt => (
                 <div key={evt.id} className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-xs flex flex-col justify-between">
                   <div>
                     <div className="h-48 w-full relative">
@@ -408,7 +418,7 @@ export const NewsView: React.FC<NewsViewProps> = ({ articleId }) => {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {FOUNDATION_EVENTS.filter(e => e.type === 'past').map(evt => (
+              {events.filter(e => e.type === 'past').map(evt => (
                 <div key={evt.id} className="bg-white p-5 rounded-xl border border-slate-200 flex flex-col sm:flex-row gap-5 items-center">
                   <img src={evt.image} alt={evt.title} className="w-full sm:w-32 h-32 rounded-lg object-cover shrink-0" />
                   <div className="space-y-2 flex-1 w-full">
