@@ -10,7 +10,7 @@ export type PageSeo = {
 };
 
 export const getPageSeo = createServerFn({ method: "GET" })
-  .inputValidator((data: { pageKey: string }) => data)
+  .validator((data: { pageKey: string }) => data)
   .handler(async ({ data }): Promise<PageSeo> => {
     try {
       const supabase = createClient<Database>(

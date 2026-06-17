@@ -41,7 +41,7 @@ const aidRequestSchema = z.object({
 });
 
 export const submitAidRequest = createServerFn({ method: "POST" })
-  .inputValidator((data: z.input<typeof aidRequestSchema>) => aidRequestSchema.parse(data))
+  .validator((data: z.input<typeof aidRequestSchema>) => aidRequestSchema.parse(data))
   .handler(async ({ data }) => {
     await enforceRateLimit({ bucket: "aid-request", max: 5, windowSeconds: 3600 });
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
@@ -83,7 +83,7 @@ const rsvpSchema = z.object({
 });
 
 export const submitEventRsvp = createServerFn({ method: "POST" })
-  .inputValidator((data: z.input<typeof rsvpSchema>) => rsvpSchema.parse(data))
+  .validator((data: z.input<typeof rsvpSchema>) => rsvpSchema.parse(data))
   .handler(async ({ data }) => {
     await enforceRateLimit({ bucket: "event-rsvp", max: 10, windowSeconds: 3600 });
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
@@ -114,7 +114,7 @@ const volunteerSchema = z.object({
 });
 
 export const submitVolunteerApplication = createServerFn({ method: "POST" })
-  .inputValidator((data: z.input<typeof volunteerSchema>) => volunteerSchema.parse(data))
+  .validator((data: z.input<typeof volunteerSchema>) => volunteerSchema.parse(data))
   .handler(async ({ data }) => {
     await enforceRateLimit({ bucket: "volunteer-app", max: 5, windowSeconds: 3600 });
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
@@ -147,7 +147,7 @@ const partnerSchema = z.object({
 });
 
 export const submitPartnerInquiry = createServerFn({ method: "POST" })
-  .inputValidator((data: z.input<typeof partnerSchema>) => partnerSchema.parse(data))
+  .validator((data: z.input<typeof partnerSchema>) => partnerSchema.parse(data))
   .handler(async ({ data }) => {
     await enforceRateLimit({ bucket: "partner-inq", max: 5, windowSeconds: 3600 });
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
@@ -192,7 +192,7 @@ const donationIntentSchema = z.object({
 });
 
 export const submitDonationIntent = createServerFn({ method: "POST" })
-  .inputValidator((data: z.input<typeof donationIntentSchema>) => donationIntentSchema.parse(data))
+  .validator((data: z.input<typeof donationIntentSchema>) => donationIntentSchema.parse(data))
   .handler(async ({ data }) => {
     await enforceRateLimit({ bucket: "donation-intent", max: 10, windowSeconds: 3600 });
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
