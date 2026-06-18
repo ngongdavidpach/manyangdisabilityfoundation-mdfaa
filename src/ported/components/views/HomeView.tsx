@@ -598,66 +598,28 @@ export const HomeView: React.FC = () => {
         </div>
       </section>
 
-      {/* Latest News & Updates */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-baseline mb-8">
-          <div>
-            <h2 className="text-xs font-bold uppercase tracking-widest text-blue-600">
-              Foundation Dispatches
-            </h2>
-            <p className="text-2xl font-bold text-slate-900 tracking-tight mt-1">
-              Recent News & Field Reports
-            </p>
-          </div>
-          <button
-            onClick={() => navigate({ to: "/news" })}
-            className="text-blue-600 hover:text-blue-800 font-semibold text-xs flex items-center gap-1 group"
-          >
-            <span>All Articles</span>
-            <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
-          </button>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {NEWS_ARTICLES.slice(0, 3).map((article) => (
-            <div
-              key={article.id}
-              onClick={() => navigate({ to: "/news/$slug", params: { slug: String(article.id) } })}
-              className="bg-white rounded-xl overflow-hidden border border-slate-200 hover:shadow-sm cursor-pointer transition-all flex flex-col justify-between group"
-            >
-              <div>
-                <div className="h-40 w-full overflow-hidden relative">
-                  <img
-                    src={article.image}
-                    alt={article.title}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                  />
-                  <div className="absolute bottom-2 left-2 bg-slate-900/80 backdrop-blur-xs text-white text-[10px] font-medium px-2 py-0.5 rounded">
-                    {article.category}
-                  </div>
-                </div>
-
-                <div className="p-5">
-                  <span className="text-[11px] text-slate-400 block mb-1">
-                    {article.date} • {article.readTime}
-                  </span>
-                  <h4 className="font-bold text-slate-900 text-sm group-hover:text-blue-600 transition-colors line-clamp-2">
-                    {article.title}
-                  </h4>
-                  <p className="text-xs text-slate-600 mt-2 line-clamp-2">{article.summary}</p>
-                </div>
-              </div>
-
-              <div className="px-5 py-3 bg-slate-50 border-t border-slate-100 flex items-center justify-between text-[11px]">
-                <span className="text-slate-500 font-medium">By {article.author}</span>
-                <span className="text-blue-600 font-bold group-hover:translate-x-0.5 transition-transform">
-                  Read ›
-                </span>
-              </div>
+      {/* Latest News & Updates - hidden until admin publishes articles */}
+      {false && (
+        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-baseline mb-8">
+            <div>
+              <h2 className="text-xs font-bold uppercase tracking-widest text-blue-600">
+                Foundation Dispatches
+              </h2>
+              <p className="text-2xl font-bold text-slate-900 tracking-tight mt-1">
+                Recent News & Field Reports
+              </p>
             </div>
-          ))}
-        </div>
-      </section>
+            <button
+              onClick={() => navigate({ to: "/news" })}
+              className="text-blue-600 hover:text-blue-800 font-semibold text-xs flex items-center gap-1 group"
+            >
+              <span>All Articles</span>
+              <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
+            </button>
+          </div>
+        </section>
+      )}
 
       {/* Final Call to Action */}
       <section className="bg-blue-600 text-white text-center py-16">
