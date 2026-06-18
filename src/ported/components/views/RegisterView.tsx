@@ -356,7 +356,7 @@ export const RegisterView: React.FC = () => {
                 Already have an account?{" "}
                 <button
                   type="button"
-                  onClick={() => navigate({ to: "/auth/login" })}
+                  onClick={() => navigate({ to: "/auth/staff-login" })}
                   className="text-blue-600 hover:underline font-semibold"
                 >
                   Sign in here

@@ -20,9 +20,11 @@ export const getPageSeo = createServerFn({ method: "GET" })
       );
       const { data: row } = await supabase
         .from("page_settings")
-        .select("content")
+        .select("content, published")
         .eq("page_key", data.pageKey)
         .maybeSingle();
+      // Only expose SEO for published pages on the public site
+      if (!row || !(row as any).published) return {};
       const seo = (row?.content as any)?.seo;
       if (!seo || typeof seo !== "object") return {};
       return {
