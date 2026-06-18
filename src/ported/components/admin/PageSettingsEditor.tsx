@@ -156,6 +156,7 @@ function set(obj: any, path: string, value: any) {
 export const PageSettingsEditor: React.FC = () => {
   const [activeKey, setActiveKey] = useState(PAGES[0].key);
   const [content, setContent] = useState<any>({});
+  const [published, setPublished] = useState<boolean>(false);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
 
@@ -164,20 +165,36 @@ export const PageSettingsEditor: React.FC = () => {
   useEffect(() => {
     supabase
       .from("page_settings")
-      .select("content")
+      .select("content, published")
       .eq("page_key", activeKey)
       .maybeSingle()
-      .then(({ data }) => setContent(data?.content || {}));
+      .then(({ data }) => {
+        setContent(data?.content || {});
+        setPublished(!!(data as any)?.published);
+      });
   }, [activeKey]);
 
   const save = async () => {
     setSaving(true);
     await supabase
       .from("page_settings")
-      .upsert({ page_key: activeKey, content }, { onConflict: "page_key" });
+      .upsert(
+        { page_key: activeKey, content, published } as any,
+        { onConflict: "page_key" },
+      );
     setSaving(false);
     setSaved(true);
     setTimeout(() => setSaved(false), 2000);
+  };
+
+  const togglePublished = async (next: boolean) => {
+    setPublished(next);
+    await supabase
+      .from("page_settings")
+      .upsert(
+        { page_key: activeKey, content, published: next } as any,
+        { onConflict: "page_key" },
+      );
   };
 
   return (

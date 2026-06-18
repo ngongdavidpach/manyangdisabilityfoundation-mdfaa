@@ -23,6 +23,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as NewsSlugRouteImport } from './routes/news.$slug'
 import { Route as GuidesFreeMedicalEquipmentRouteImport } from './routes/guides.free-medical-equipment'
 import { Route as GuidesDonateSuppliesRouteImport } from './routes/guides.donate-supplies'
+import { Route as AuthStaffLoginRouteImport } from './routes/auth.staff-login'
 import { Route as AuthRegisterRouteImport } from './routes/auth.register'
 import { Route as AuthLoginRouteImport } from './routes/auth.login'
 import { Route as LovableEmailQueueProcessRouteImport } from './routes/lovable/email/queue/process'
@@ -98,6 +99,11 @@ const GuidesDonateSuppliesRoute = GuidesDonateSuppliesRouteImport.update({
   path: '/guides/donate-supplies',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthStaffLoginRoute = AuthStaffLoginRouteImport.update({
+  id: '/auth/staff-login',
+  path: '/auth/staff-login',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthRegisterRoute = AuthRegisterRouteImport.update({
   id: '/auth/register',
   path: '/auth/register',
@@ -129,6 +135,7 @@ export interface FileRoutesByFullPath {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/auth/login': typeof AuthLoginRoute
   '/auth/register': typeof AuthRegisterRoute
+  '/auth/staff-login': typeof AuthStaffLoginRoute
   '/guides/donate-supplies': typeof GuidesDonateSuppliesRoute
   '/guides/free-medical-equipment': typeof GuidesFreeMedicalEquipmentRoute
   '/news/$slug': typeof NewsSlugRoute
@@ -148,6 +155,7 @@ export interface FileRoutesByTo {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/auth/login': typeof AuthLoginRoute
   '/auth/register': typeof AuthRegisterRoute
+  '/auth/staff-login': typeof AuthStaffLoginRoute
   '/guides/donate-supplies': typeof GuidesDonateSuppliesRoute
   '/guides/free-medical-equipment': typeof GuidesFreeMedicalEquipmentRoute
   '/news/$slug': typeof NewsSlugRoute
@@ -168,6 +176,7 @@ export interface FileRoutesById {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/auth/login': typeof AuthLoginRoute
   '/auth/register': typeof AuthRegisterRoute
+  '/auth/staff-login': typeof AuthStaffLoginRoute
   '/guides/donate-supplies': typeof GuidesDonateSuppliesRoute
   '/guides/free-medical-equipment': typeof GuidesFreeMedicalEquipmentRoute
   '/news/$slug': typeof NewsSlugRoute
@@ -189,6 +198,7 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/auth/login'
     | '/auth/register'
+    | '/auth/staff-login'
     | '/guides/donate-supplies'
     | '/guides/free-medical-equipment'
     | '/news/$slug'
@@ -208,6 +218,7 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/auth/login'
     | '/auth/register'
+    | '/auth/staff-login'
     | '/guides/donate-supplies'
     | '/guides/free-medical-equipment'
     | '/news/$slug'
@@ -227,6 +238,7 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/auth/login'
     | '/auth/register'
+    | '/auth/staff-login'
     | '/guides/donate-supplies'
     | '/guides/free-medical-equipment'
     | '/news/$slug'
@@ -247,6 +259,7 @@ export interface RootRouteChildren {
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   AuthLoginRoute: typeof AuthLoginRoute
   AuthRegisterRoute: typeof AuthRegisterRoute
+  AuthStaffLoginRoute: typeof AuthStaffLoginRoute
   GuidesDonateSuppliesRoute: typeof GuidesDonateSuppliesRoute
   GuidesFreeMedicalEquipmentRoute: typeof GuidesFreeMedicalEquipmentRoute
   LovableEmailQueueProcessRoute: typeof LovableEmailQueueProcessRoute
@@ -352,6 +365,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof GuidesDonateSuppliesRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/auth/staff-login': {
+      id: '/auth/staff-login'
+      path: '/auth/staff-login'
+      fullPath: '/auth/staff-login'
+      preLoaderRoute: typeof AuthStaffLoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/auth/register': {
       id: '/auth/register'
       path: '/auth/register'
@@ -400,6 +420,7 @@ const rootRouteChildren: RootRouteChildren = {
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   AuthLoginRoute: AuthLoginRoute,
   AuthRegisterRoute: AuthRegisterRoute,
+  AuthStaffLoginRoute: AuthStaffLoginRoute,
   GuidesDonateSuppliesRoute: GuidesDonateSuppliesRoute,
   GuidesFreeMedicalEquipmentRoute: GuidesFreeMedicalEquipmentRoute,
   LovableEmailQueueProcessRoute: LovableEmailQueueProcessRoute,
