@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { ImageUploader } from "./ImageUploader";
-import { Save, RotateCcw } from "lucide-react";
+import { Save } from "lucide-react";
 
 const SEO_FIELDS = [
   { path: "seo.title", label: "SEO title (browser tab + search result)", type: "text" },
@@ -156,6 +156,7 @@ function set(obj: any, path: string, value: any) {
 export const PageSettingsEditor: React.FC = () => {
   const [activeKey, setActiveKey] = useState(PAGES[0].key);
   const [content, setContent] = useState<any>({});
+  const [published, setPublished] = useState<boolean>(false);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
 
@@ -164,20 +165,36 @@ export const PageSettingsEditor: React.FC = () => {
   useEffect(() => {
     supabase
       .from("page_settings")
-      .select("content")
+      .select("content, published")
       .eq("page_key", activeKey)
       .maybeSingle()
-      .then(({ data }) => setContent(data?.content || {}));
+      .then(({ data }) => {
+        setContent(data?.content || {});
+        setPublished(!!(data as any)?.published);
+      });
   }, [activeKey]);
 
   const save = async () => {
     setSaving(true);
     await supabase
       .from("page_settings")
-      .upsert({ page_key: activeKey, content }, { onConflict: "page_key" });
+      .upsert(
+        { page_key: activeKey, content, published } as any,
+        { onConflict: "page_key" },
+      );
     setSaving(false);
     setSaved(true);
     setTimeout(() => setSaved(false), 2000);
+  };
+
+  const togglePublished = async (next: boolean) => {
+    setPublished(next);
+    await supabase
+      .from("page_settings")
+      .upsert(
+        { page_key: activeKey, content, published: next } as any,
+        { onConflict: "page_key" },
+      );
   };
 
   return (
@@ -197,15 +214,37 @@ export const PageSettingsEditor: React.FC = () => {
         ))}
       </aside>
       <div className="bg-white rounded-lg border border-slate-200 p-5 space-y-4">
-        <div className="flex items-center justify-between border-b pb-3">
-          <h3 className="text-lg font-bold text-slate-900">{active.label}</h3>
-          <button
-            onClick={save}
-            disabled={saving}
-            className="bg-blue-600 hover:bg-blue-700 disabled:bg-slate-400 text-white text-sm font-medium px-4 py-2 rounded-md flex items-center gap-2"
-          >
-            <Save className="w-4 h-4" /> {saving ? "Saving…" : saved ? "Saved ✓" : "Save changes"}
-          </button>
+        <div className="flex items-center justify-between border-b pb-3 gap-3 flex-wrap">
+          <div className="flex items-center gap-3">
+            <h3 className="text-lg font-bold text-slate-900">{active.label}</h3>
+            <span
+              className={`text-[11px] font-bold px-2 py-0.5 rounded-full ${
+                published
+                  ? "bg-emerald-100 text-emerald-700"
+                  : "bg-amber-100 text-amber-700"
+              }`}
+            >
+              {published ? "● Live" : "● Draft"}
+            </span>
+          </div>
+          <div className="flex items-center gap-3">
+            <label className="inline-flex items-center gap-2 text-xs font-medium text-slate-700 cursor-pointer select-none">
+              <input
+                type="checkbox"
+                checked={published}
+                onChange={(e) => togglePublished(e.target.checked)}
+                className="rounded border-slate-300 text-emerald-600 focus:ring-emerald-500"
+              />
+              <span>Published (visible to public)</span>
+            </label>
+            <button
+              onClick={save}
+              disabled={saving}
+              className="bg-blue-600 hover:bg-blue-700 disabled:bg-slate-400 text-white text-sm font-medium px-4 py-2 rounded-md flex items-center gap-2"
+            >
+              <Save className="w-4 h-4" /> {saving ? "Saving…" : saved ? "Saved ✓" : "Save changes"}
+            </button>
+          </div>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {active.fields.map((f) => {

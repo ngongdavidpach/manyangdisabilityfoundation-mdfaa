@@ -36,6 +36,27 @@ export const GetInvolvedView: React.FC = () => {
   const submitVolunteerFn = useServerFn(submitVolunteerApplication);
   const submitPartnerFn = useServerFn(submitPartnerInquiry);
 
+  const [vForm, setVForm] = useState({
+    fullName: "",
+    email: "",
+    phone: "",
+    country: "Cameroon",
+    city: "",
+    skills: [] as string[],
+    availability: "part-time",
+    message: "",
+  });
+
+  const [pForm, setPForm] = useState({
+    orgName: "",
+    contactPerson: "",
+    email: "",
+    phone: "",
+    orgType: "corporate",
+    partnershipType: "raw-materials",
+    message: "",
+  });
+
   const { content: getInvolvedContent } = usePageSettings<GetInvolvedContent>("get-involved", {});
 
   const availableSkills = getInvolvedContent?.availableSkills || [
