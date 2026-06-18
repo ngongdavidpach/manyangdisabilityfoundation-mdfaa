@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { ImageUploader } from "./ImageUploader";
-import { Save, RotateCcw } from "lucide-react";
+import { Save } from "lucide-react";
 
 const SEO_FIELDS = [
   { path: "seo.title", label: "SEO title (browser tab + search result)", type: "text" },
