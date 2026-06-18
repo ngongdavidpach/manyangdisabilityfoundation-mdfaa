@@ -1,44 +1,49 @@
-Replace the login form at `/auth/login` with a dual-purpose page: a "Send a Message" contact form as the default view, plus a "Staff Sign In" tab for admin access. This preserves all existing redirect links while giving visitors a way to contact the foundation.
+## 1. Hide Staff Sign In (manual URL access)
 
-**Files to modify:**
+**`src/ported/components/views/LoginView.tsx`** — Remove the tabbed UI. The page becomes the contact ("Send a Message") form only. Staff still reach the login form by typing `/auth/staff-login` directly.
 
-- `src/ported/components/views/LoginView.tsx` — convert to a tabbed contact/login page
-- `src/routes/auth.login.tsx` — update title and meta description
-- `src/ported/components/Navbar.tsx` — keep redirect logic unchanged (staff can use the Sign In tab)
-- `src/ported/components/ProtectedRoute.tsx` — keep redirect logic unchanged
+**New route `src/routes/auth.staff-login.tsx`** — Move the existing email/password login form into its own view (`StaffLoginView`) at this URL. No nav links anywhere point to it; admins bookmark it. `robots: noindex`.
 
-**Files to create:**
+**Update redirect references**:
+- `src/ported/components/ProtectedRoute.tsx` — redirect unauthenticated users to `/auth/staff-login` instead of `/auth/login`.
+- `src/ported/components/views/RegisterView.tsx` — any "back to sign in" link → `/auth/staff-login`.
 
-- `src/lib/contact.functions.ts` — server function to store contact messages in Supabase
-- Database migration for `contact_messages` table (or reuse existing contacts table if available)
+## 2. Fix `vForm is not defined` runtime error
 
-**Detailed plan:**
+**`src/ported/components/views/GetInvolvedView.tsx`** — Add the missing `useState` for `vForm` (and any sibling form state that was dropped) near the top of the component, matching the shape already used in handlers (`fullName, email, phone, country, city, skills[], availability, message`). Verify partner form state (`pForm`/`setPForm`) is present too; add if missing.
 
-1. **Tabbed UI in LoginView.tsx**
-   - Add a tab switcher at the top of the right panel: [Send a Message] [Staff Sign In]
-   - Default active tab: "Send a Message"
-   - "Send a Message" tab shows:
-     - Full Name input
-     - Email input
-     - Subject input (select dropdown with common options: General Inquiry, Volunteer, Donation, Partnership, Other)
-     - Message textarea
-     - Submit button "Send Message"
-     - Success message after submission
-   - "Staff Sign In" tab shows the existing login form (email, password, sign in button)
-   - Keep the left brand panel unchanged (foundation logo, welcome text, security badges)
+## 3. Remove seeded data
 
-2. **Backend: store messages**
-   - Create `submitContactMessage` server function in `src/lib/contact.functions.ts`
-   - Validate inputs (name, email, subject, message)
-   - Insert into a new `contact_messages` table in Supabase (or check if `contacts` table exists)
-   - Return success/error response
+**New migration** that deletes:
+- All rows in `news_articles`, `events`, `media_assets` (gallery), `staff_members`, `programs`-related rows.
+- All rows in `contacts`, `contact_messages`, `donations`, `donation_intents`, `volunteer_applications`, `partner_inquiries`, `event_rsvps`, `contact_interactions`, `expenses`, `budgets`.
+- All rows in `page_settings` (clears default hero text, intros, etc. — admin fills via Admin → Pages).
 
-3. **Database migration**
-   - Create `contact_messages` table: id, name, email, subject, message, created_at, status (new/read/replied)
-   - Add appropriate RLS policies (allow anonymous inserts, admin-only reads)
-   - Add GRANT statements for anon and authenticated roles
+The Foundation Insight section and any hard-coded demo content in `src/ported/data/foundationData.ts` already export empty arrays — no change there.
 
-4. **Route metadata update**
-   - Update `src/routes/auth.login.tsx` title to "Contact Us — Manyang Disability Foundation" or keep "Sign In" with updated description
+## 4. "Publish to public" — per-page publish toggle
 
-**Open question:** Should the "Send a Message" tab be a completely separate page (e.g., `/contact`) instead of sharing `/auth/login`? If so, we would create a new `/contact` route and keep `/auth/login` purely for staff login. This would be cleaner but requires updating all redirect references. With the tabbed approach, no existing code needs to change.
+**Migration** — add `published boolean NOT NULL DEFAULT false` to `page_settings`. (Re-grant not needed; column inherits table grants.) Add a public read policy if not already present scoped to `published = true` for `anon`.
+
+**`src/ported/components/admin/PageSettingsEditor.tsx`** — Add a "Published" switch next to Save. Toggling persists to the `published` column. Show a small status pill (Draft / Live).
+
+**`src/ported/hooks/usePageSettings.ts`** — Return `{ content, published, loading, save, setPublished, reload }`. When `published === false` and the viewer is not an admin, components should treat content as empty/fallback.
+
+**Public route views (Home, About, Programs, Gallery, News, Events, Get Involved, Donate)** — If `!published && !isAdmin`, render a simple "This page is being prepared — check back soon." placeholder instead of empty hero. Admins always see live editing.
+
+**SEO loader (`src/lib/pageSeo.functions.ts`)** — Only return SEO when `published = true`; otherwise return empty so defaults kick in.
+
+## 5. Verify
+
+After build:
+- Visit `/get-involved` → no `vForm` error.
+- Visit `/auth/login` → contact form only, no Staff Sign In tab.
+- Visit `/auth/staff-login` → login form works, redirects admin to `/admin`.
+- Admin → Pages → toggle Published on/off → public view updates accordingly.
+- Confirm seeded rows are gone via DB count check.
+
+## Notes
+
+- Admin role assignment is already wired (`bootstrap_first_admin` + `has_role`); no changes there.
+- Navbar already has Sign In hidden — no change.
+- `auth.login.tsx` head stays "Contact Us — MDF".
