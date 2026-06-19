@@ -175,7 +175,7 @@ export const Footer: React.FC = () => {
             <div className="flex items-center gap-3">
               <img
                 src="/images/logo.png"
-                alt="MDF Logo"
+                alt="Manyang Disability Foundation Logo"
                 className="w-12 h-12 object-contain"
                 loading="lazy"
               />

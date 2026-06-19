@@ -239,7 +239,7 @@ export const HomeView: React.FC = () => {
                 ) : insight.cover ? (
                   <img
                     src={insight.cover}
-                    alt={insight.title || "Foundation"}
+                    alt={insight.title || "Manyang Disability Foundation outreach"}
                     className="absolute inset-0 w-full h-full object-cover"
                   />
                 ) : (

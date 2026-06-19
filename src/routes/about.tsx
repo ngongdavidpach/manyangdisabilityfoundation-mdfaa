@@ -32,12 +32,13 @@ export const Route = createFileRoute("/about")({
         type: "application/ld+json",
         children: JSON.stringify({
           "@context": "https://schema.org",
-          "@type": "WebPage",
-          name: "About — Manyang Disability Foundation",
+          "@type": "Organization",
+          name: "Manyang Disability Foundation",
+          url: "https://manyangdisabilityfoundation.org/",
+          logo: "https://manyangdisabilityfoundation.org/images/logo.png",
           description:
-            "Our mission, governance, and approach to supporting persons with disabilities.",
-          url: "https://manyangdisabilityfoundation.org/about",
-          publisher: { "@type": "Organization", name: "Manyang Disability Foundation" },
+            "Manyang Disability Foundation supports persons with disabilities through mobility aids, healthcare access, inclusive education, and sustainable livelihoods.",
+          sameAs: ["https://manyangdisabilityfoundation.lovable.app"],
         }),
       },
     ],
