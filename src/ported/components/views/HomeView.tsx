@@ -20,7 +20,7 @@ import {
   Calendar,
   MapPin
 } from 'lucide-react';
-import { FOUNDATION_INFO, type Program, type SuccessStory, type ImpactMetric } from '../../data/foundationData';
+import { FOUNDATION_INFO, NEWS_ARTICLES, type Program, type SuccessStory, type ImpactMetric, type NewsArticle } from '../../data/foundationData';
 import { usePageSettings } from '../../hooks/usePageSettings';
 import { toEmbedUrl } from '../../lib/videoEmbed';
 
