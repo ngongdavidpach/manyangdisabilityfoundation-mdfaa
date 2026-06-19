@@ -165,6 +165,7 @@ export const ProgramsView: React.FC = () => {
       </section>
 
       {/* Success Story Deep Spotlight */}
+      {successStories.length > 0 && selectedStory && (
       <section className="bg-slate-900 text-white py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-xl mx-auto mb-12">
@@ -241,6 +242,8 @@ export const ProgramsView: React.FC = () => {
           </div>
         </div>
       </section>
+      )}
+
 
       {/* Cross-cutting initiatives (admin-managed) */}
       {crossCutting && (
