@@ -563,7 +563,7 @@ export const HomeView: React.FC = () => {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {NEWS_ARTICLES.slice(0, 3).map((article) => (
+          {NEWS_ARTICLES.slice(0, 3).map((article: NewsArticle) => (
             <div 
               key={article.id}
               onClick={() => navigate({ to: '/news/$slug', params: { slug: String(article.id) } })}
