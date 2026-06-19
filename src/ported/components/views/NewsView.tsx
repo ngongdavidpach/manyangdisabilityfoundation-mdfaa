@@ -164,7 +164,7 @@ export const NewsView: React.FC<NewsViewProps> = ({ articleId }) => {
         {/* Footer Engagement */}
         <div className="bg-blue-50 rounded-2xl p-6 sm:p-8 border border-blue-100 flex flex-col sm:flex-row justify-between items-center gap-6 text-center sm:text-left">
           <div>
-            <h4 className="font-bold text-slate-900 text-base">Inspired by this dispatch?</h4>
+            <h2 className="font-bold text-slate-900 text-base">Inspired by this dispatch?</h2>
             <p className="text-xs text-slate-600 mt-1">
               Your contribution allows us to continue organizing these life-saving interventions.
             </p>
