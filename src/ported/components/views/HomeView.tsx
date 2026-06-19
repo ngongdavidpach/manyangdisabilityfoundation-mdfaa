@@ -20,7 +20,7 @@ import {
   Calendar,
   MapPin
 } from 'lucide-react';
-import { FOUNDATION_INFO, type Program, type SuccessStory, type ImpactMetric } from '../../data/foundationData';
+import { FOUNDATION_INFO, NEWS_ARTICLES, type Program, type SuccessStory, type ImpactMetric, type NewsArticle } from '../../data/foundationData';
 import { usePageSettings } from '../../hooks/usePageSettings';
 import { toEmbedUrl } from '../../lib/videoEmbed';
 
@@ -563,7 +563,7 @@ export const HomeView: React.FC = () => {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {NEWS_ARTICLES.slice(0, 3).map((article) => (
+          {NEWS_ARTICLES.slice(0, 3).map((article: NewsArticle) => (
             <div 
               key={article.id}
               onClick={() => navigate({ to: '/news/$slug', params: { slug: String(article.id) } })}
