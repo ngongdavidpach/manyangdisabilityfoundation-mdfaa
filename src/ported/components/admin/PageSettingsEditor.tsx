@@ -170,9 +170,11 @@ export const PageSettingsEditor: React.FC = () => {
       .maybeSingle()
       .then(({ data }) => {
         setContent(data?.content || {});
-        setPublished(!!(data as any)?.published);
+        // Default new (not-yet-saved) pages to Published so admins don't have to flip a switch
+        setPublished(data ? !!(data as any).published : true);
       });
   }, [activeKey]);
+
 
   const save = async () => {
     setSaving(true);

@@ -332,7 +332,7 @@ export const GetInvolvedView: React.FC = () => {
                 </label>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                   {availableSkills.map((skill) => {
-                    const Icon = skill.icon;
+                    const Icon = typeof skill.icon === "function" ? skill.icon : Sparkles;
                     const isSelected = vForm.skills.includes(skill.id);
                     return (
                       <button

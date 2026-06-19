@@ -11,6 +11,8 @@ import {
 import { useServerFn } from "@tanstack/react-start";
 import { FOUNDATION_INFO } from "../../data/foundationData";
 import { submitAidRequest } from "@/lib/intake.functions";
+import { CountrySelect } from "../ui/CountrySelect";
+
 
 export const RequestView: React.FC = () => {
   const [step, setStep] = useState<number>(1);
@@ -384,23 +386,15 @@ export const RequestView: React.FC = () => {
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-xs font-bold text-slate-700 mb-1">
-                      Country of Residence *
-                    </label>
-                    <select
-                      name="country"
-                      value={formData.country}
-                      onChange={handleInputChange}
-                      className="w-full bg-slate-50 border border-slate-300 rounded-lg p-2.5 text-xs text-slate-900 focus:outline-hidden focus:border-blue-500"
-                    >
-                      <option value="Cameroon">Cameroon</option>
-                      <option value="Kenya">Kenya</option>
-                      <option value="Nigeria">Nigeria</option>
-                      <option value="Uganda">Uganda</option>
-                      <option value="Other">Other Country</option>
-                    </select>
-                  </div>
+                  <CountrySelect
+                    id="request-country"
+                    name="country"
+                    label="Country of Residence"
+                    required
+                    value={formData.country}
+                    onChange={(v) => setFormData((prev) => ({ ...prev, country: v }))}
+                  />
+
 
                   <div>
                     <label className="block text-xs font-bold text-slate-700 mb-1">

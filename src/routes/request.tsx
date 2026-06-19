@@ -1,6 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { RequestView } from "../ported/components/views/RequestView";
-import { ProtectedRoute } from "../ported/components/ProtectedRoute";
 
 export const Route = createFileRoute("/request")({
   head: () => ({
@@ -23,9 +22,5 @@ export const Route = createFileRoute("/request")({
       { property: "og:image", content: "https://manyangdisabilityfoundation.org/images/logo.png" },
     ],
   }),
-  component: () => (
-    <ProtectedRoute>
-      <RequestView />
-    </ProtectedRoute>
-  ),
+  component: RequestView,
 });
