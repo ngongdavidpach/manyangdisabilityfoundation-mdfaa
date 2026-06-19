@@ -733,18 +733,21 @@ export type Database = {
         Row: {
           content: Json
           page_key: string
+          published: boolean
           updated_at: string
           updated_by: string | null
         }
         Insert: {
           content?: Json
           page_key: string
+          published?: boolean
           updated_at?: string
           updated_by?: string | null
         }
         Update: {
           content?: Json
           page_key?: string
+          published?: boolean
           updated_at?: string
           updated_by?: string | null
         }
