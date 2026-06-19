@@ -297,8 +297,8 @@ export const Navbar: React.FC = () => {
                   <LogOut className="w-5 h-5" />
                   <span>Sign Out</span>
                 </button>
-              </div>
-            )}
+              )}
+            </div>
           </div>
         </div>
       )}
