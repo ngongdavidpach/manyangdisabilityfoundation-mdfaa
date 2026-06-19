@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from "react";
 
 interface Country {
   name: string;
@@ -19,12 +19,12 @@ interface CountrySelectProps {
 export const CountrySelect: React.FC<CountrySelectProps> = ({
   value,
   onChange,
-  placeholder = 'Search or select a country...',
-  label = 'Country',
+  placeholder = "Search or select a country...",
+  label = "Country",
   required = false,
-  id = 'country-select',
-  name = 'country',
-  className = '',
+  id = "country-select",
+  name = "country",
+  className = "",
 }) => {
   const [countries, setCountries] = useState<Country[]>([]);
   const [loading, setLoading] = useState(true);
@@ -35,74 +35,75 @@ export const CountrySelect: React.FC<CountrySelectProps> = ({
     const fetchCountries = async () => {
       try {
         setLoading(true);
-        const response = await fetch('https://restcountries.com/v3.1/all?fields=name,cca2');
-        
+        const response = await fetch("https://restcountries.com/v3.1/all?fields=name,cca2");
+
         if (!response.ok) {
           throw new Error(`Failed to fetch countries: ${response.status}`);
         }
-        
+
         const data = await response.json();
-        
+
         // Extract and sort country names
         const countryList: Country[] = data
           .map((country: any) => ({
-            name: country.name?.common || '',
-            code: country.cca2?.toLowerCase() || '',
+            name: country.name?.common || "",
+            code: country.cca2?.toLowerCase() || "",
           }))
           .filter((country: Country) => country.name && country.code)
           .sort((a: Country, b: Country) => a.name.localeCompare(b.name));
         
+
         setCountries(countryList);
         setError(null);
       } catch (err) {
-        console.error('Error fetching countries:', err);
-        setError('Unable to load country list. Please type manually.');
+        console.error("Error fetching countries:", err);
+        setError("Unable to load country list. Please type manually.");
         // Fallback to a basic list of common countries
         setCountries([
-          { name: 'Afghanistan', code: 'af' },
-          { name: 'Albania', code: 'al' },
-          { name: 'Algeria', code: 'dz' },
-          { name: 'Andorra', code: 'ad' },
-          { name: 'Angola', code: 'ao' },
-          { name: 'Argentina', code: 'ar' },
-          { name: 'Australia', code: 'au' },
-          { name: 'Austria', code: 'at' },
-          { name: 'Bangladesh', code: 'bd' },
-          { name: 'Belgium', code: 'be' },
-          { name: 'Brazil', code: 'br' },
-          { name: 'Cameroon', code: 'cm' },
-          { name: 'Canada', code: 'ca' },
-          { name: 'China', code: 'cn' },
-          { name: 'Democratic Republic of the Congo', code: 'cd' },
-          { name: 'Denmark', code: 'dk' },
-          { name: 'Egypt', code: 'eg' },
-          { name: 'Ethiopia', code: 'et' },
-          { name: 'France', code: 'fr' },
-          { name: 'Germany', code: 'de' },
-          { name: 'Ghana', code: 'gh' },
-          { name: 'India', code: 'in' },
-          { name: 'Indonesia', code: 'id' },
-          { name: 'Italy', code: 'it' },
-          { name: 'Japan', code: 'jp' },
-          { name: 'Kenya', code: 'ke' },
-          { name: 'Mexico', code: 'mx' },
-          { name: 'Netherlands', code: 'nl' },
-          { name: 'Nigeria', code: 'ng' },
-          { name: 'Pakistan', code: 'pk' },
-          { name: 'Philippines', code: 'ph' },
-          { name: 'Poland', code: 'pl' },
-          { name: 'Russia', code: 'ru' },
-          { name: 'South Africa', code: 'za' },
-          { name: 'South Korea', code: 'kr' },
-          { name: 'Spain', code: 'es' },
-          { name: 'Sweden', code: 'se' },
-          { name: 'Switzerland', code: 'ch' },
-          { name: 'Tanzania', code: 'tz' },
-          { name: 'Turkey', code: 'tr' },
-          { name: 'Uganda', code: 'ug' },
-          { name: 'United Kingdom', code: 'gb' },
-          { name: 'United States', code: 'us' },
-          { name: 'Vietnam', code: 'vn' },
+          { name: "Afghanistan", code: "af" },
+          { name: "Albania", code: "al" },
+          { name: "Algeria", code: "dz" },
+          { name: "Andorra", code: "ad" },
+          { name: "Angola", code: "ao" },
+          { name: "Argentina", code: "ar" },
+          { name: "Australia", code: "au" },
+          { name: "Austria", code: "at" },
+          { name: "Bangladesh", code: "bd" },
+          { name: "Belgium", code: "be" },
+          { name: "Brazil", code: "br" },
+          { name: "Cameroon", code: "cm" },
+          { name: "Canada", code: "ca" },
+          { name: "China", code: "cn" },
+          { name: "Democratic Republic of the Congo", code: "cd" },
+          { name: "Denmark", code: "dk" },
+          { name: "Egypt", code: "eg" },
+          { name: "Ethiopia", code: "et" },
+          { name: "France", code: "fr" },
+          { name: "Germany", code: "de" },
+          { name: "Ghana", code: "gh" },
+          { name: "India", code: "in" },
+          { name: "Indonesia", code: "id" },
+          { name: "Italy", code: "it" },
+          { name: "Japan", code: "jp" },
+          { name: "Kenya", code: "ke" },
+          { name: "Mexico", code: "mx" },
+          { name: "Netherlands", code: "nl" },
+          { name: "Nigeria", code: "ng" },
+          { name: "Pakistan", code: "pk" },
+          { name: "Philippines", code: "ph" },
+          { name: "Poland", code: "pl" },
+          { name: "Russia", code: "ru" },
+          { name: "South Africa", code: "za" },
+          { name: "South Korea", code: "kr" },
+          { name: "Spain", code: "es" },
+          { name: "Sweden", code: "se" },
+          { name: "Switzerland", code: "ch" },
+          { name: "Tanzania", code: "tz" },
+          { name: "Turkey", code: "tr" },
+          { name: "Uganda", code: "ug" },
+          { name: "United Kingdom", code: "gb" },
+          { name: "United States", code: "us" },
+          { name: "Vietnam", code: "vn" },
         ]);
       } finally {
         setLoading(false);
@@ -139,8 +140,8 @@ export const CountrySelect: React.FC<CountrySelectProps> = ({
           className={`
             w-full bg-slate-50 border border-slate-300 rounded-lg p-2.5 text-xs text-slate-900
             focus:outline-hidden focus:border-blue-500 focus:ring-1 focus:ring-blue-500
-            ${loading ? 'text-slate-400' : ''}
-            ${error ? 'border-amber-300 bg-amber-50' : ''}
+            ${loading ? "text-slate-400" : ""}
+            ${error ? "border-amber-300 bg-amber-50" : ""}
           `}
           disabled={loading}
         />
@@ -152,7 +153,11 @@ export const CountrySelect: React.FC<CountrySelectProps> = ({
         {error && !loading && (
           <p className="mt-1 text-xs text-amber-700 flex items-center gap-1">
             <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-              <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+              <path
+                fillRule="evenodd"
+                d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
+                clipRule="evenodd"
+              />
             </svg>
             {error}
           </p>

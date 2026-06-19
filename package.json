@@ -6,15 +6,7 @@
   "scripts": {
     "dev": "vite dev",
     "build": "vite build",
-    "scripts": {
-  "dev": "vite dev",
-  "build": "vite build",
-  "postbuild": "node -e \"import('fs').then(fs => fs.default.rmSync('dist/client/_redirects', {force: true}))\"",
-  "build:dev": "vite build --mode development",
-  "preview": "vite preview",
-  "lint": "eslint .",
-  "format": "prettier --write ."
-},
+    "postbuild": "node -e \"import('fs').then(fs => fs.default.rmSync('dist/client/_redirects', {force: true}))\"",
     "build:dev": "vite build --mode development",
     "preview": "vite preview",
     "lint": "eslint .",
@@ -84,7 +76,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.32.0",
-    "@lovable.dev/vite-tanstack-config": "^2.4.0",
+    "@lovable.dev/vite-tanstack-config": "2.5.3",
     "@types/node": "^22.16.5",
     "@types/react": "^19.2.0",
     "@types/react-dom": "^19.2.0",

@@ -13,8 +13,7 @@ import { createLogger } from "vite";
 const logger = createLogger();
 const originalWarn = logger.warn;
 const originalWarnOnce = logger.warnOnce;
-const shouldIgnore = (msg: string) =>
-  msg.includes('"use client"') || msg.includes("'use client'");
+const shouldIgnore = (msg: string) => msg.includes('"use client"') || msg.includes("'use client'");
 logger.warn = (msg, opts) => {
   if (shouldIgnore(msg)) return;
   originalWarn(msg, opts);

@@ -1,84 +1,37 @@
-import React, { useState } from 'react';
-import { useNavigate, useSearch } from '@tanstack/react-router';
+import React, { useState } from "react";
 import {
   Mail,
-  Lock,
-  Eye,
-  EyeOff,
-  LogIn,
-  ArrowRight,
   ShieldCheck,
   AlertTriangle,
-  MessageSquare,
   Send,
   User,
-  CheckCircle2
-} from 'lucide-react';
-import { useAuth } from '../../contexts/AuthContext';
-import { supabase } from '@/integrations/supabase/client';
+  CheckCircle2,
+} from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 
 const SUBJECT_OPTIONS = [
-  'General Inquiry',
-  'Volunteer Opportunity',
-  'Donation Question',
-  'Partnership',
-  'Media / Press',
-  'Other',
+  "General Inquiry",
+  "Volunteer Opportunity",
+  "Donation Question",
+  "Partnership",
+  "Media / Press",
+  "Other",
 ];
 
-type Tab = 'message' | 'signin';
-
 export const LoginView: React.FC = () => {
-  const navigate = useNavigate();
-  const search = useSearch({ strict: false }) as { redirect?: string };
-  const { login, hasAdminAccess } = useAuth();
-
-  const [tab, setTab] = useState<Tab>('message');
-
-  // Sign in state
-  const [form, setForm] = useState({ email: '', password: '', rememberMe: true });
-  const [showPassword, setShowPassword] = useState(false);
-  const [error, setError] = useState('');
-  const [isProcessing, setIsProcessing] = useState(false);
-
-  // Contact message state
   const [msg, setMsg] = useState({
-    name: '',
-    email: '',
+    name: "",
+    email: "",
     subject: SUBJECT_OPTIONS[0],
-    message: '',
+    message: "",
   });
-  const [msgError, setMsgError] = useState('');
+  const [msgError, setMsgError] = useState("");
   const [msgSending, setMsgSending] = useState(false);
   const [msgSent, setMsgSent] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    setError('');
-    if (!form.email || !form.password) {
-      setError('Please fill in all required fields.');
-      return;
-    }
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) {
-      setError('Please enter a valid email address.');
-      return;
-    }
-    setIsProcessing(true);
-    (async () => {
-      const result = await login(form.email, form.password);
-      if (result.success) {
-        const dest = search.redirect || (hasAdminAccess() ? '/admin' : '/dashboard');
-        navigate({ to: dest });
-      } else {
-        setError(result.error || 'Authentication failed.');
-      }
-      setIsProcessing(false);
-    })();
-  };
-
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
-    setMsgError('');
+    setMsgError("");
 
     const name = msg.name.trim();
     const email = msg.email.trim();
@@ -86,46 +39,47 @@ export const LoginView: React.FC = () => {
     const message = msg.message.trim();
 
     if (!name || !email || !subject || !message) {
-      setMsgError('Please fill in all fields.');
+      setMsgError("Please fill in all fields.");
       return;
     }
     if (name.length > 100) {
-      setMsgError('Name must be less than 100 characters.');
+      setMsgError("Name must be less than 100 characters.");
       return;
     }
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || email.length > 255) {
-      setMsgError('Please enter a valid email address.');
+      setMsgError("Please enter a valid email address.");
       return;
     }
     if (message.length > 2000) {
-      setMsgError('Message must be less than 2000 characters.');
+      setMsgError("Message must be less than 2000 characters.");
       return;
     }
 
     setMsgSending(true);
     const { error: insertErr } = await supabase
-      .from('contact_messages')
+      .from("contact_messages")
       .insert({ name, email, subject, message });
     setMsgSending(false);
 
     if (insertErr) {
-      setMsgError('Could not send your message. Please try again later.');
+      setMsgError("Could not send your message. Please try again later.");
       return;
     }
     setMsgSent(true);
-    setMsg({ name: '', email: '', subject: SUBJECT_OPTIONS[0], message: '' });
+    setMsg({ name: "", email: "", subject: SUBJECT_OPTIONS[0], message: "" });
   };
 
   return (
     <div className="min-h-[80vh] flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 animate-fade-in">
       <div className="max-w-5xl w-full grid grid-cols-1 lg:grid-cols-2 gap-10 items-center">
-
         {/* Left: Brand panel */}
         <div className="hidden lg:block space-y-6">
           <div className="flex items-center gap-3">
             <img src="/images/logo.png" alt="MDF Logo" className="w-16 h-16 object-contain" />
             <div>
-              <h1 className="text-xl font-bold text-slate-900 leading-tight">Manyang Disability Foundation</h1>
+              <h1 className="text-xl font-bold text-slate-900 leading-tight">
+                Manyang Disability Foundation
+              </h1>
               <p className="text-xs text-blue-600 font-medium">We're here to help</p>
             </div>
           </div>
@@ -136,8 +90,8 @@ export const LoginView: React.FC = () => {
           </h2>
 
           <p className="text-sm text-slate-600 leading-relaxed max-w-md">
-            Whether you'd like to volunteer, partner with us, ask about a donation, or share your story —
-            send us a message and our team will get back to you within 1–2 business days.
+            Whether you'd like to volunteer, partner with us, ask about a donation, or share your
+            story — send us a message and our team will get back to you within 1–2 business days.
           </p>
 
           <div className="space-y-3 pt-2">
@@ -149,252 +103,136 @@ export const LoginView: React.FC = () => {
               <ShieldCheck className="w-4 h-4 text-emerald-500 shrink-0" />
               <span>Foundation staff respond personally to every inquiry</span>
             </div>
-            <div className="flex items-center gap-3 text-xs text-slate-600">
-              <ShieldCheck className="w-4 h-4 text-emerald-500 shrink-0" />
-              <span>GDPR-compliant data handling</span>
-            </div>
           </div>
         </div>
 
-        {/* Right: Tabbed panel */}
+        {/* Right: Contact form panel */}
         <div className="bg-white p-6 sm:p-8 rounded-2xl border border-slate-200 shadow-xs">
           <div className="lg:hidden flex items-center gap-3 mb-6">
             <img src="/images/logo.png" alt="MDF Logo" className="w-12 h-12 object-contain" />
             <h1 className="text-lg font-bold text-slate-900">Manyang Disability Foundation</h1>
           </div>
 
-          {/* Tabs */}
-          <div className="flex p-1 bg-slate-100 rounded-lg mb-6">
-            <button
-              type="button"
-              onClick={() => { setTab('message'); setError(''); }}
-              className={`flex-1 flex items-center justify-center gap-1.5 py-2 px-3 rounded-md text-xs font-bold transition-all ${
-                tab === 'message' ? 'bg-white text-blue-700 shadow-xs' : 'text-slate-500 hover:text-slate-700'
-              }`}
-            >
-              <MessageSquare className="w-3.5 h-3.5" />
-              Send a Message
-            </button>
-            <button
-              type="button"
-              onClick={() => { setTab('signin'); setMsgError(''); }}
-              className={`flex-1 flex items-center justify-center gap-1.5 py-2 px-3 rounded-md text-xs font-bold transition-all ${
-                tab === 'signin' ? 'bg-white text-blue-700 shadow-xs' : 'text-slate-500 hover:text-slate-700'
-              }`}
-            >
-              <LogIn className="w-3.5 h-3.5" />
-              Staff Sign In
-            </button>
-          </div>
+          <h3 className="text-2xl font-bold text-slate-900">Send us a message</h3>
+          <p className="text-xs text-slate-500 mt-1">
+            Fill in the form below and we'll get back to you shortly.
+          </p>
 
-          {tab === 'message' ? (
-            <>
-              <h3 className="text-2xl font-bold text-slate-900">Send us a message</h3>
-              <p className="text-xs text-slate-500 mt-1">
-                Fill in the form below and we'll get back to you shortly.
+          {msgSent ? (
+            <div className="mt-6 p-6 bg-emerald-50 border border-emerald-200 rounded-xl text-center">
+              <CheckCircle2 className="w-10 h-10 text-emerald-500 mx-auto mb-3" />
+              <h4 className="text-base font-bold text-emerald-900">Message sent!</h4>
+              <p className="text-xs text-emerald-700 mt-1">
+                Thank you for reaching out. Our team will respond within 1–2 business days.
               </p>
-
-              {msgSent ? (
-                <div className="mt-6 p-6 bg-emerald-50 border border-emerald-200 rounded-xl text-center">
-                  <CheckCircle2 className="w-10 h-10 text-emerald-500 mx-auto mb-3" />
-                  <h4 className="text-base font-bold text-emerald-900">Message sent!</h4>
-                  <p className="text-xs text-emerald-700 mt-1">
-                    Thank you for reaching out. Our team will respond within 1–2 business days.
-                  </p>
-                  <button
-                    type="button"
-                    onClick={() => setMsgSent(false)}
-                    className="mt-4 text-xs font-bold text-emerald-700 hover:text-emerald-900 underline"
-                  >
-                    Send another message
-                  </button>
-                </div>
-              ) : (
-                <form onSubmit={handleSendMessage} className="space-y-4 mt-6">
-                  {msgError && (
-                    <div className="bg-red-50 border border-red-200 text-red-700 text-xs p-3 rounded-lg flex items-start gap-2">
-                      <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" />
-                      <span>{msgError}</span>
-                    </div>
-                  )}
-
-                  <div>
-                    <label className="block text-xs font-bold text-slate-700 mb-1.5">Full Name</label>
-                    <div className="relative">
-                      <span className="absolute left-3 top-2.5 text-slate-400">
-                        <User className="w-4 h-4" />
-                      </span>
-                      <input
-                        type="text"
-                        required
-                        maxLength={100}
-                        value={msg.name}
-                        onChange={(e) => setMsg({ ...msg, name: e.target.value })}
-                        placeholder="Your full name"
-                        className="w-full bg-slate-50 border border-slate-300 rounded-lg py-2.5 pl-10 pr-3 text-xs text-slate-900 focus:outline-hidden focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
-                      />
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="block text-xs font-bold text-slate-700 mb-1.5">Email Address</label>
-                    <div className="relative">
-                      <span className="absolute left-3 top-2.5 text-slate-400">
-                        <Mail className="w-4 h-4" />
-                      </span>
-                      <input
-                        type="email"
-                        required
-                        maxLength={255}
-                        value={msg.email}
-                        onChange={(e) => setMsg({ ...msg, email: e.target.value })}
-                        placeholder="you@example.com"
-                        className="w-full bg-slate-50 border border-slate-300 rounded-lg py-2.5 pl-10 pr-3 text-xs text-slate-900 focus:outline-hidden focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
-                      />
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="block text-xs font-bold text-slate-700 mb-1.5">Subject</label>
-                    <select
-                      value={msg.subject}
-                      onChange={(e) => setMsg({ ...msg, subject: e.target.value })}
-                      className="w-full bg-slate-50 border border-slate-300 rounded-lg py-2.5 px-3 text-xs text-slate-900 focus:outline-hidden focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
-                    >
-                      {SUBJECT_OPTIONS.map((s) => <option key={s} value={s}>{s}</option>)}
-                    </select>
-                  </div>
-
-                  <div>
-                    <label className="block text-xs font-bold text-slate-700 mb-1.5">
-                      Message <span className="text-slate-400 font-normal">({msg.message.length}/2000)</span>
-                    </label>
-                    <textarea
-                      required
-                      maxLength={2000}
-                      rows={5}
-                      value={msg.message}
-                      onChange={(e) => setMsg({ ...msg, message: e.target.value })}
-                      placeholder="How can we help you?"
-                      className="w-full bg-slate-50 border border-slate-300 rounded-lg py-2.5 px-3 text-xs text-slate-900 focus:outline-hidden focus:border-blue-500 focus:ring-2 focus:ring-blue-100 resize-none"
-                    />
-                  </div>
-
-                  <button
-                    type="submit"
-                    disabled={msgSending}
-                    className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-bold py-3 rounded-lg text-sm transition-colors flex items-center justify-center gap-1.5 shadow-xs"
-                  >
-                    {msgSending ? (
-                      <>
-                        <div className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />
-                        <span>Sending...</span>
-                      </>
-                    ) : (
-                      <>
-                        <Send className="w-4 h-4" />
-                        <span>Send Message</span>
-                      </>
-                    )}
-                  </button>
-                </form>
-              )}
-            </>
+              <button
+                type="button"
+                onClick={() => setMsgSent(false)}
+                className="mt-4 text-xs font-bold text-emerald-700 hover:text-emerald-900 underline"
+              >
+                Send another message
+              </button>
+            </div>
           ) : (
-            <>
-              <h3 className="text-2xl font-bold text-slate-900">Sign in to your account</h3>
-              <p className="text-xs text-slate-500 mt-1">
-                Use your registered email and password to continue.
-              </p>
-
-              <form onSubmit={handleSubmit} className="space-y-4 mt-6">
-                {error && (
-                  <div className="bg-red-50 border border-red-200 text-red-700 text-xs p-3 rounded-lg flex items-start gap-2">
-                    <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" />
-                    <span>{error}</span>
-                  </div>
-                )}
-
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1.5">Email Address</label>
-                  <div className="relative">
-                    <span className="absolute left-3 top-2.5 text-slate-400">
-                      <Mail className="w-4 h-4" />
-                    </span>
-                    <input
-                      type="email"
-                      required
-                      value={form.email}
-                      onChange={(e) => setForm({ ...form, email: e.target.value })}
-                      placeholder="you@example.com"
-                      className="w-full bg-slate-50 border border-slate-300 rounded-lg py-2.5 pl-10 pr-3 text-xs text-slate-900 focus:outline-hidden focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
-                    />
-                  </div>
+            <form onSubmit={handleSendMessage} className="space-y-4 mt-6">
+              {msgError && (
+                <div className="bg-red-50 border border-red-200 text-red-700 text-xs p-3 rounded-lg flex items-start gap-2">
+                  <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" />
+                  <span>{msgError}</span>
                 </div>
+              )}
 
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1.5">Password</label>
-                  <div className="relative">
-                    <span className="absolute left-3 top-2.5 text-slate-400">
-                      <Lock className="w-4 h-4" />
-                    </span>
-                    <input
-                      type={showPassword ? 'text' : 'password'}
-                      required
-                      value={form.password}
-                      onChange={(e) => setForm({ ...form, password: e.target.value })}
-                      placeholder="Enter your password"
-                      className="w-full bg-slate-50 border border-slate-300 rounded-lg py-2.5 pl-10 pr-10 text-xs text-slate-900 focus:outline-hidden focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3 top-2.5 text-slate-400 hover:text-slate-700"
-                      aria-label="Toggle password visibility"
-                    >
-                      {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                    </button>
-                  </div>
+              <div>
+                <label className="block text-xs font-bold text-slate-700 mb-1.5">Full Name</label>
+                <div className="relative">
+                  <span className="absolute left-3 top-2.5 text-slate-400">
+                    <User className="w-4 h-4" />
+                  </span>
+                  <input
+                    type="text"
+                    required
+                    maxLength={100}
+                    value={msg.name}
+                    onChange={(e) => setMsg({ ...msg, name: e.target.value })}
+                    placeholder="Your full name"
+                    className="w-full bg-slate-50 border border-slate-300 rounded-lg py-2.5 pl-10 pr-3 text-xs text-slate-900 focus:outline-hidden focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                  />
                 </div>
+              </div>
 
-                <div className="flex items-center justify-between">
-                  <label className="inline-flex items-center gap-2 text-xs text-slate-700 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={form.rememberMe}
-                      onChange={(e) => setForm({ ...form, rememberMe: e.target.checked })}
-                      className="rounded border-slate-300 text-blue-600 focus:ring-blue-500"
-                    />
-                    <span>Remember me for 30 days</span>
-                  </label>
-                  <button type="button" className="text-xs text-blue-600 hover:underline font-medium">
-                    Forgot password?
-                  </button>
+              <div>
+                <label className="block text-xs font-bold text-slate-700 mb-1.5">
+                  Email Address
+                </label>
+                <div className="relative">
+                  <span className="absolute left-3 top-2.5 text-slate-400">
+                    <Mail className="w-4 h-4" />
+                  </span>
+                  <input
+                    type="email"
+                    required
+                    maxLength={255}
+                    value={msg.email}
+                    onChange={(e) => setMsg({ ...msg, email: e.target.value })}
+                    placeholder="you@example.com"
+                    className="w-full bg-slate-50 border border-slate-300 rounded-lg py-2.5 pl-10 pr-3 text-xs text-slate-900 focus:outline-hidden focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                  />
                 </div>
+              </div>
 
-                <button
-                  type="submit"
-                  disabled={isProcessing}
-                  className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-bold py-3 rounded-lg text-sm transition-colors flex items-center justify-center gap-1.5 shadow-xs"
+              <div>
+                <label className="block text-xs font-bold text-slate-700 mb-1.5">Subject</label>
+                <select
+                  value={msg.subject}
+                  onChange={(e) => setMsg({ ...msg, subject: e.target.value })}
+                  className="w-full bg-slate-50 border border-slate-300 rounded-lg py-2.5 px-3 text-xs text-slate-900 focus:outline-hidden focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                 >
-                  {isProcessing ? (
-                    <>
-                      <div className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />
-                      <span>Authenticating...</span>
-                    </>
-                  ) : (
-                    <>
-                      <LogIn className="w-4 h-4" />
-                      <span>Sign In</span>
-                      <ArrowRight className="w-4 h-4" />
-                    </>
-                  )}
-                </button>
-              </form>
-            </>
+                  {SUBJECT_OPTIONS.map((s) => (
+                    <option key={s} value={s}>
+                      {s}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-slate-700 mb-1.5">
+                  Message{" "}
+                  <span className="text-slate-400 font-normal">
+                    ({msg.message.length}/2000)
+                  </span>
+                </label>
+                <textarea
+                  required
+                  maxLength={2000}
+                  rows={5}
+                  value={msg.message}
+                  onChange={(e) => setMsg({ ...msg, message: e.target.value })}
+                  placeholder="How can we help you?"
+                  className="w-full bg-slate-50 border border-slate-300 rounded-lg py-2.5 px-3 text-xs text-slate-900 focus:outline-hidden focus:border-blue-500 focus:ring-2 focus:ring-blue-100 resize-none"
+                />
+              </div>
+
+              <button
+                type="submit"
+                disabled={msgSending}
+                className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-bold py-3 rounded-lg text-sm transition-colors flex items-center justify-center gap-1.5 shadow-xs"
+              >
+                {msgSending ? (
+                  <>
+                    <div className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />
+                    <span>Sending...</span>
+                  </>
+                ) : (
+                  <>
+                    <Send className="w-4 h-4" />
+                    <span>Send Message</span>
+                  </>
+                )}
+              </button>
+            </form>
           )}
         </div>
-
       </div>
     </div>
   );

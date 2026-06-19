@@ -19,8 +19,6 @@ export const generateReceipt = createServerFn({ method: "POST" })
 
     await enforceRateLimit({ bucket: "receipt-gen", max: 30, windowSeconds: 3600, key: userId });
 
-
-
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
     const { data: donation, error: dErr } = await supabaseAdmin
@@ -29,7 +27,8 @@ export const generateReceipt = createServerFn({ method: "POST" })
       .eq("id", data.donationId)
       .single();
     if (dErr || !donation) throw new Error("Donation not found");
-    if (donation.status !== "completed") throw new Error("Only completed donations can be receipted");
+    if (donation.status !== "completed")
+      throw new Error("Only completed donations can be receipted");
 
     const { PDFDocument, StandardFonts, rgb } = await import("pdf-lib");
     const pdf = await PDFDocument.create();
@@ -37,8 +36,14 @@ export const generateReceipt = createServerFn({ method: "POST" })
     const font = await pdf.embedFont(StandardFonts.Helvetica);
     const bold = await pdf.embedFont(StandardFonts.HelveticaBold);
 
-    const draw = (text: string, x: number, y: number, size = 11, f = font, color = rgb(0.1, 0.1, 0.1)) =>
-      page.drawText(text, { x, y, size, font: f, color });
+    const draw = (
+      text: string,
+      x: number,
+      y: number,
+      size = 11,
+      f = font,
+      color = rgb(0.1, 0.1, 0.1),
+    ) => page.drawText(text, { x, y, size, font: f, color });
 
     draw("Manyang Disability Foundation", 50, 790, 18, bold, rgb(0.12, 0.25, 0.69));
     draw("Donation Receipt", 50, 765, 14, bold);
@@ -60,7 +65,12 @@ export const generateReceipt = createServerFn({ method: "POST" })
     if (donation.message) row("Message", donation.message.slice(0, 80));
 
     draw("Thank you for your generous support.", 50, y - 20, 11, bold, rgb(0.12, 0.45, 0.25));
-    draw("This receipt acknowledges receipt of the donation above. Keep for your records.", 50, y - 40, 9);
+    draw(
+      "This receipt acknowledges receipt of the donation above. Keep for your records.",
+      50,
+      y - 40,
+      9,
+    );
 
     const bytes = await pdf.save();
     const path = `donations/${donation.id}/receipt-${donation.receipt_number ?? "draft"}.pdf`;
@@ -97,7 +107,8 @@ export const getReceiptUrl = createServerFn({ method: "POST" })
     if (!receipt) throw new Error("No receipt");
 
     const { data: isAdmin } = await supabase.rpc("has_role", { _user_id: userId, _role: "admin" });
-    const donationUserId = (receipt as { donations?: { user_id?: string } | null }).donations?.user_id;
+    const donationUserId = (receipt as { donations?: { user_id?: string } | null }).donations
+      ?.user_id;
     if (!isAdmin && donationUserId !== userId) throw new Error("Forbidden");
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");

@@ -27,7 +27,10 @@ function NotFoundComponent() {
           The page you're looking for doesn't exist or has been moved.
         </p>
         <div className="mt-6">
-          <Link to="/" className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90">
+          <Link
+            to="/"
+            className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+          >
             Go home
           </Link>
         </div>
@@ -39,17 +42,32 @@ function NotFoundComponent() {
 function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
   console.error(error);
   const router = useRouter();
-  useEffect(() => { reportLovableError(error, { boundary: "tanstack_root_error_component" }); }, [error]);
+  useEffect(() => {
+    reportLovableError(error, { boundary: "tanstack_root_error_component" });
+  }, [error]);
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
       <div className="max-w-md text-center">
-        <h1 className="text-xl font-semibold tracking-tight text-foreground">This page didn't load</h1>
-        <p className="mt-2 text-sm text-muted-foreground">Something went wrong on our end. You can try refreshing or head back home.</p>
+        <h1 className="text-xl font-semibold tracking-tight text-foreground">
+          This page didn't load
+        </h1>
+        <p className="mt-2 text-sm text-muted-foreground">
+          Something went wrong on our end. You can try refreshing or head back home.
+        </p>
         <div className="mt-6 flex flex-wrap justify-center gap-2">
-          <button onClick={() => { router.invalidate(); reset(); }} className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90">
+          <button
+            onClick={() => {
+              router.invalidate();
+              reset();
+            }}
+            className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+          >
             Try again
           </button>
-          <a href="/" className="inline-flex items-center justify-center rounded-md border border-input bg-background px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-accent">
+          <a
+            href="/"
+            className="inline-flex items-center justify-center rounded-md border border-input bg-background px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-accent"
+          >
             Go home
           </a>
         </div>
@@ -60,30 +78,28 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
 
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
   head: () => ({
-      meta: [
-        { charSet: "utf-8" },
-        { name: "viewport", content: "width=device-width, initial-scale=1" },
-        { title: "Manyang Disability Foundation" },
-        { name: "description", content: "Manyang Disability Foundation: mobility aids, healthcare, education and livelihoods for persons with disabilities." },
-        { name: "google-site-verification", content: "-DIrDvS3tDZ6w814f7AHO6jAwsSG-kA3Cr8BnSFtZis" },
-        { property: "og:type", content: "website" },
-        { property: "og:site_name", content: "Manyang Disability Foundation" },
-        { property: "og:image", content: "https://manyangdisabilityfoundation.org/images/logo.png" },
-        { property: "og:image:width", content: "512" },
-        { property: "og:image:height", content: "512" },
-        { name: "twitter:card", content: "summary_large_image" },
-        { name: "twitter:site", content: "@manyangfoundation" },
-        { name: "theme-color", content: "#1e40af" },
-        { name: "apple-mobile-web-app-capable", content: "yes" },
-        { name: "apple-mobile-web-app-status-bar-style", content: "black-translucent" },
-      ],
-      links: [
-        { rel: "stylesheet", href: appCss },
-        { rel: "icon", type: "image/png", href: "/images/logo.png" },
-        { rel: "apple-touch-icon", href: "/images/logo.png" },
-        { rel: "manifest", href: "/manifest.webmanifest" },
-      ],
-    }),
+    meta: [
+      { charSet: "utf-8" },
+      { name: "viewport", content: "width=device-width, initial-scale=1" },
+      { name: "google-site-verification", content: "-DIrDvS3tDZ6w814f7AHO6jAwsSG-kA3Cr8BnSFtZis" },
+      { property: "og:type", content: "website" },
+      { property: "og:site_name", content: "Manyang Disability Foundation" },
+      { property: "og:image", content: "https://manyangdisabilityfoundation.org/images/logo.png" },
+      { property: "og:image:width", content: "512" },
+      { property: "og:image:height", content: "512" },
+      { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:site", content: "@manyangfoundation" },
+      { name: "theme-color", content: "#1e40af" },
+      { name: "apple-mobile-web-app-capable", content: "yes" },
+      { name: "apple-mobile-web-app-status-bar-style", content: "black-translucent" },
+    ],
+    links: [
+      { rel: "stylesheet", href: appCss },
+      { rel: "icon", type: "image/png", href: "/images/logo.png" },
+      { rel: "apple-touch-icon", href: "/images/logo.png" },
+      { rel: "manifest", href: "/manifest.webmanifest" },
+    ],
+  }),
   shellComponent: RootShell,
   component: RootComponent,
   notFoundComponent: NotFoundComponent,
@@ -93,20 +109,27 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 function RootShell({ children }: { children: ReactNode }) {
   return (
     <html lang="en">
-      <head><HeadContent /></head>
-      <body>{children}<Scripts /></body>
+      <head>
+        <HeadContent />
+      </head>
+      <body>
+        {children}
+        <Scripts />
+      </body>
     </html>
   );
 }
 
 function ClientShell() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
-  const hideChrome = pathname.startsWith('/admin');
+  const hideChrome = pathname.startsWith("/admin");
   if (hideChrome) return <Outlet />;
   return (
     <div className="min-h-screen flex flex-col bg-slate-50">
       <Navbar />
-      <main className="flex-1"><Outlet /></main>
+      <main className="flex-1">
+        <Outlet />
+      </main>
       <Footer />
     </div>
   );
@@ -114,7 +137,9 @@ function ClientShell() {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
-  useEffect(() => { registerServiceWorker(); }, []);
+  useEffect(() => {
+    registerServiceWorker();
+  }, []);
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>

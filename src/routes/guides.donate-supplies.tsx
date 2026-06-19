@@ -5,18 +5,33 @@ export const Route = createFileRoute("/guides/donate-supplies")({
   head: () => ({
     meta: [
       { title: "Where to Donate Used Medical Equipment — Manyang Disability Foundation" },
-      { name: "description", content: "Guide to donating used wheelchairs, crutches, and medical supplies to the Manyang Disability Foundation and partner programs." },
+      {
+        name: "description",
+        content:
+          "Guide to donating used wheelchairs, crutches, and medical supplies to the Manyang Disability Foundation and partner programs.",
+      },
       { property: "og:title", content: "Where to Donate Used Medical Equipment" },
-      { property: "og:description", content: "How to donate used wheelchairs, crutches, and medical supplies near you." },
+      {
+        property: "og:description",
+        content: "How to donate used wheelchairs, crutches, and medical supplies near you.",
+      },
       { property: "og:type", content: "article" },
-      { property: "og:url", content: "https://manyangdisabilityfoundation.org/guides/donate-supplies" },
+      {
+        property: "og:url",
+        content: "https://manyangdisabilityfoundation.org/guides/donate-supplies",
+      },
       { property: "og:image", content: "https://manyangdisabilityfoundation.org/images/logo.png" },
       { property: "og:site_name", content: "Manyang Disability Foundation" },
       { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:title", content: "Where to Donate Used Medical Equipment" },
-      { name: "twitter:description", content: "How to donate used wheelchairs, crutches, and medical supplies near you." },
+      {
+        name: "twitter:description",
+        content: "How to donate used wheelchairs, crutches, and medical supplies near you.",
+      },
     ],
-    links: [{ rel: "canonical", href: "https://manyangdisabilityfoundation.org/guides/donate-supplies" }],
+    links: [
+      { rel: "canonical", href: "https://manyangdisabilityfoundation.org/guides/donate-supplies" },
+    ],
     scripts: [
       {
         type: "application/ld+json",
@@ -24,7 +39,8 @@ export const Route = createFileRoute("/guides/donate-supplies")({
           "@context": "https://schema.org",
           "@type": "Article",
           headline: "Where to Donate Used Medical Equipment",
-          description: "Guide to donating used wheelchairs, crutches, and medical supplies to the Manyang Disability Foundation and partner programs.",
+          description:
+            "Guide to donating used wheelchairs, crutches, and medical supplies to the Manyang Disability Foundation and partner programs.",
           image: "https://manyangdisabilityfoundation.org/images/logo.png",
           author: {
             "@type": "Organization",
@@ -34,7 +50,10 @@ export const Route = createFileRoute("/guides/donate-supplies")({
           publisher: {
             "@type": "Organization",
             name: "Manyang Disability Foundation",
-            logo: { "@type": "ImageObject", url: "https://manyangdisabilityfoundation.org/images/logo.png" },
+            logo: {
+              "@type": "ImageObject",
+              url: "https://manyangdisabilityfoundation.org/images/logo.png",
+            },
           },
           mainEntityOfPage: "https://manyangdisabilityfoundation.org/guides/donate-supplies",
         }),
@@ -51,7 +70,9 @@ function DonateSuppliesGuide() {
         Where to Donate Used Medical Equipment
       </h1>
       <p className="text-slate-600 text-lg mb-8">
-        Have a wheelchair, walker, crutches, or other mobility aid you no longer need? Your equipment can transform someone's life. Here's how to donate used medical supplies to the Manyang Disability Foundation and our partner network.
+        Have a wheelchair, walker, crutches, or other mobility aid you no longer need? Your
+        equipment can transform someone's life. Here's how to donate used medical supplies to the
+        Manyang Disability Foundation and our partner network.
       </p>
 
       <h2 className="text-2xl font-bold text-slate-900 mt-10 mb-3">What we accept</h2>
@@ -73,24 +94,48 @@ function DonateSuppliesGuide() {
 
       <h2 className="text-2xl font-bold text-slate-900 mt-10 mb-3">How to donate</h2>
       <ol className="list-decimal pl-6 space-y-2 text-slate-700">
-        <li><strong>Email us a list and photos</strong> at <a className="text-blue-700 underline" href={`mailto:${FOUNDATION_INFO.email}`}>{FOUNDATION_INFO.email}</a> so we can confirm fit and condition.</li>
-        <li><strong>We'll coordinate pickup or a drop-off point</strong> with the nearest partner clinic or volunteer.</li>
-        <li><strong>Receive a donation acknowledgement</strong> for your records once items are inspected and accepted.</li>
+        <li>
+          <strong>Email us a list and photos</strong> at{" "}
+          <a className="text-blue-700 underline" href={`mailto:${FOUNDATION_INFO.email}`}>
+            {FOUNDATION_INFO.email}
+          </a>{" "}
+          so we can confirm fit and condition.
+        </li>
+        <li>
+          <strong>We'll coordinate pickup or a drop-off point</strong> with the nearest partner
+          clinic or volunteer.
+        </li>
+        <li>
+          <strong>Receive a donation acknowledgement</strong> for your records once items are
+          inspected and accepted.
+        </li>
       </ol>
 
       <h2 className="text-2xl font-bold text-slate-900 mt-10 mb-3">Donating near you</h2>
       <p className="text-slate-700">
-        If you're outside our direct service area, we can refer you to vetted partners that refurbish and redistribute mobility equipment to people with disabilities in low-resource settings. Reach out — we'll help you find the closest option.
+        If you're outside our direct service area, we can refer you to vetted partners that
+        refurbish and redistribute mobility equipment to people with disabilities in low-resource
+        settings. Reach out — we'll help you find the closest option.
       </p>
 
       <h2 className="text-2xl font-bold text-slate-900 mt-10 mb-3">Prefer to give financially?</h2>
       <p className="text-slate-700">
-        A monetary donation lets us source custom-fit wheelchairs and rehabilitation services where they're needed most. <Link to="/donate" className="text-blue-700 underline">Donate online here</Link>.
+        A monetary donation lets us source custom-fit wheelchairs and rehabilitation services where
+        they're needed most.{" "}
+        <Link to="/donate" className="text-blue-700 underline">
+          Donate online here
+        </Link>
+        .
       </p>
 
       <div className="mt-12 p-6 bg-blue-50 rounded-xl border border-blue-100">
         <p className="text-slate-800 font-semibold mb-2">Contact our supplies team</p>
-        <p className="text-slate-700 text-sm">Email: <a className="text-blue-700 underline" href={`mailto:${FOUNDATION_INFO.email}`}>{FOUNDATION_INFO.email}</a></p>
+        <p className="text-slate-700 text-sm">
+          Email:{" "}
+          <a className="text-blue-700 underline" href={`mailto:${FOUNDATION_INFO.email}`}>
+            {FOUNDATION_INFO.email}
+          </a>
+        </p>
         <p className="text-slate-700 text-sm">Phone: {FOUNDATION_INFO.phone}</p>
       </div>
     </article>

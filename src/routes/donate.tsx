@@ -9,7 +9,8 @@ export const Route = createFileRoute("/donate")({
     buildRouteHead({
       path: "/donate",
       defaultTitle: "Donate — Manyang Disability Foundation",
-      defaultDescription: "Fund custom wheelchairs, rehabilitation surgeries, and inclusive classroom tools.",
+      defaultDescription:
+        "Fund custom wheelchairs, rehabilitation surgeries, and inclusive classroom tools.",
       seo: loaderData,
     }),
   component: DonateView,

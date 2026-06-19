@@ -16,7 +16,10 @@ export const Route = createFileRoute("/news/$slug")({
         { property: "og:description", content: desc },
         { property: "og:type", content: "article" },
         { property: "og:url", content: url },
-        { property: "og:image", content: article?.image || "https://manyangdisabilityfoundation.org/images/logo.png" },
+        {
+          property: "og:image",
+          content: article?.image || "https://manyangdisabilityfoundation.org/images/logo.png",
+        },
         { property: "og:site_name", content: "Manyang Disability Foundation" },
         { name: "twitter:card", content: "summary_large_image" },
         { name: "twitter:title", content: title },
@@ -38,7 +41,10 @@ export const Route = createFileRoute("/news/$slug")({
                   publisher: {
                     "@type": "Organization",
                     name: "Manyang Disability Foundation",
-                    logo: { "@type": "ImageObject", url: "https://manyangdisabilityfoundation.org/images/logo.png" },
+                    logo: {
+                      "@type": "ImageObject",
+                      url: "https://manyangdisabilityfoundation.org/images/logo.png",
+                    },
                   },
                   mainEntityOfPage: url,
                 }),

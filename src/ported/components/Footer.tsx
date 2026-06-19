@@ -42,9 +42,14 @@ import { supabase } from "@/integrations/supabase/client";
 import { NAV_ITEM_DEFS, resolveNavOrder } from "../lib/navItems";
 
 const PATH_FOR: Record<string, string> = {
-  home: '/', about: '/about', programs: '/programs', gallery: '/gallery',
-  request: '/request', news: '/news', 'get-involved': '/get-involved',
-  donate: '/donate',
+  home: "/",
+  about: "/about",
+  programs: "/programs",
+  gallery: "/gallery",
+  request: "/request",
+  news: "/news",
+  "get-involved": "/get-involved",
+  donate: "/donate",
 };
 
 interface FooterSettings {
@@ -52,7 +57,14 @@ interface FooterSettings {
   phone: string;
   email: string;
   workingHours: string;
-  socials: { facebook: string; twitter: string; instagram: string; linkedin: string; youtube: string; tiktok: string };
+  socials: {
+    facebook: string;
+    twitter: string;
+    instagram: string;
+    linkedin: string;
+    youtube: string;
+    tiktok: string;
+  };
 }
 
 const DEFAULTS: FooterSettings = {
@@ -76,7 +88,9 @@ export const Footer: React.FC = () => {
   const [email, setEmailVal] = useState("");
   const [subscribed, setSubscribed] = useState(false);
   const [s, setS] = useState<FooterSettings>(DEFAULTS);
-  const [navLinks, setNavLinks] = useState(NAV_ITEM_DEFS.map((d) => ({ id: d.id, label: d.label })));
+  const [navLinks, setNavLinks] = useState(
+    NAV_ITEM_DEFS.map((d) => ({ id: d.id, label: d.label })),
+  );
 
   useEffect(() => {
     supabase
@@ -134,7 +148,8 @@ export const Footer: React.FC = () => {
           <div className="text-center md:text-left">
             <h3 className="text-xl font-bold text-white">Can you help restore mobility today?</h3>
             <p className="text-blue-200 text-sm mt-1 max-w-xl">
-              Your contribution procures custom wheelchairs, funds rehabilitation, and builds inclusive classroom tools.
+              Your contribution procures custom wheelchairs, funds rehabilitation, and builds
+              inclusive classroom tools.
             </p>
           </div>
           <div className="flex flex-wrap gap-3 justify-center">
@@ -158,7 +173,12 @@ export const Footer: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8 lg:gap-12">
           <div className="lg:col-span-2 space-y-4">
             <div className="flex items-center gap-3">
-              <img src="/images/logo.png" alt="MDF Logo" className="w-12 h-12 object-contain" loading="lazy" />
+              <img
+                src="/images/logo.png"
+                alt="Manyang Disability Foundation Logo"
+                className="w-12 h-12 object-contain"
+                loading="lazy"
+              />
               <span className="font-bold text-lg text-white">Manyang Disability Foundation</span>
             </div>
             <p className="text-sm text-slate-400 leading-relaxed">
@@ -188,7 +208,9 @@ export const Footer: React.FC = () => {
           </div>
 
           <div className="space-y-4">
-            <h4 className="text-sm font-semibold uppercase tracking-wider text-white">Quick Links</h4>
+            <h4 className="text-sm font-semibold uppercase tracking-wider text-white">
+              Quick Links
+            </h4>
             <ul className="space-y-2.5 text-sm">
               {navLinks.map((link) => (
                 <li key={link.id}>
@@ -196,7 +218,9 @@ export const Footer: React.FC = () => {
                     onClick={() => handleLink(link.id)}
                     className="text-slate-400 hover:text-white transition-colors inline-flex items-center gap-1.5 group text-left"
                   >
-                    <span className="group-hover:translate-x-1 transition-transform text-blue-500">›</span>
+                    <span className="group-hover:translate-x-1 transition-transform text-blue-500">
+                      ›
+                    </span>
                     {link.label}
                   </button>
                 </li>
@@ -205,7 +229,9 @@ export const Footer: React.FC = () => {
           </div>
 
           <div className="space-y-4">
-            <h4 className="text-sm font-semibold uppercase tracking-wider text-white">Impact Pillars</h4>
+            <h4 className="text-sm font-semibold uppercase tracking-wider text-white">
+              Impact Pillars
+            </h4>
             <ul className="space-y-2.5 text-sm text-slate-400">
               <li>Mobility & Wheelchairs</li>
               <li>Surgical & Physical Rehab</li>
@@ -217,7 +243,9 @@ export const Footer: React.FC = () => {
           </div>
 
           <div className="space-y-4">
-            <h4 className="text-sm font-semibold uppercase tracking-wider text-white">Headquarters</h4>
+            <h4 className="text-sm font-semibold uppercase tracking-wider text-white">
+              Headquarters
+            </h4>
             <ul className="space-y-3 text-sm text-slate-400">
               <li className="flex items-start gap-2.5">
                 <MapPin className="w-4 h-4 text-blue-500 shrink-0 mt-0.5" />
@@ -231,7 +259,9 @@ export const Footer: React.FC = () => {
                 <Mail className="w-4 h-4 text-blue-500 shrink-0" />
                 <span className="truncate">{s.email}</span>
               </li>
-              <li className="pt-2 text-xs text-slate-500 border-t border-slate-800">{s.workingHours}</li>
+              <li className="pt-2 text-xs text-slate-500 border-t border-slate-800">
+                {s.workingHours}
+              </li>
             </ul>
           </div>
         </div>

@@ -1,42 +1,34 @@
-Replace the login form at `/auth/login` with a dual-purpose page: a "Send a Message" contact form as the default view, plus a "Staff Sign In" tab for admin access. This preserves all existing redirect links while giving visitors a way to contact the foundation.
+## Goal
+Cross-check every client and server write path (INSERT/UPDATE/UPSERT/DELETE) against the actual RLS policies, GRANTs, NOT NULL columns, and defaults — then produce a report of likely-failing endpoints. No code changes in this pass.
 
-**Files to modify:**
-- `src/ported/components/views/LoginView.tsx` — convert to a tabbed contact/login page
-- `src/routes/auth.login.tsx` — update title and meta description
-- `src/ported/components/Navbar.tsx` — keep redirect logic unchanged (staff can use the Sign In tab)
-- `src/ported/components/ProtectedRoute.tsx` — keep redirect logic unchanged
+## Scope
+Tables in `public`: aid_requests, contacts, contact_messages, contact_interactions, donations, donation_intents, events, event_rsvps, news_articles, gallery/media_assets, staff_members, expenses/budgets/expense_categories, partner_inquiries, volunteer_applications, profiles, user_roles, page_settings, receipts, rate_limits, email_* tables.
 
-**Files to create:**
-- `src/lib/contact.functions.ts` — server function to store contact messages in Supabase
-- Database migration for `contact_messages` table (or reuse existing contacts table if available)
+## Method
+1. **Pull policy + schema truth from DB** for each table:
+   - RLS enabled? Policies (cmd, roles, USING, WITH CHECK).
+   - GRANTs per role (anon / authenticated / service_role).
+   - Columns: NOT NULL, defaults, FK to `auth.users`.
+2. **Inventory write call sites** in code:
+   - Client writes: `rg "\.from\(['\"]\w+['\"]\)\.(insert|update|upsert|delete)" src` (browser supabase client → runs as the signed-in user, RLS applies).
+   - Server-fn writes: same pattern inside `src/lib/**/*.functions.ts` and `*.server.ts`; classify each as `requireSupabaseAuth` (user RLS) vs `supabaseAdmin` (bypasses RLS).
+   - Public route loaders that trigger writes (should be none).
+3. **Match each call against the policy**:
+   - Does the payload include the column the policy checks (e.g. `user_id = auth.uid()`)?
+   - Are all NOT NULL columns without defaults supplied?
+   - Does the caller's role have the required GRANT?
+   - For admin-only tables (donations, expenses, staff, page_settings, etc.), is the server fn gated by `has_role(..., 'admin')`?
+4. **Cross-reference with runtime evidence**:
+   - Postgres logs for `new row violates row-level security policy`, `null value in column ... violates not-null`, `permission denied for table`.
+   - Recent ~24h slice via `supabase--analytics_query` on `postgres_logs`.
 
-**Detailed plan:**
+## Deliverable
+A single report per table with:
+- Policy summary (one line per cmd).
+- Each write site (file:line, client vs server, auth context).
+- Verdict: OK / Risk (with reason: missing field, role mismatch, RLS predicate not satisfied, missing GRANT).
+- Suggested fix (one line) — no edits applied.
+- Top endpoints with observed failures from logs.
 
-1. **Tabbed UI in LoginView.tsx**
-   - Add a tab switcher at the top of the right panel: [Send a Message] [Staff Sign In]
-   - Default active tab: "Send a Message"
-   - "Send a Message" tab shows:
-     - Full Name input
-     - Email input
-     - Subject input (select dropdown with common options: General Inquiry, Volunteer, Donation, Partnership, Other)
-     - Message textarea
-     - Submit button "Send Message"
-     - Success message after submission
-   - "Staff Sign In" tab shows the existing login form (email, password, sign in button)
-   - Keep the left brand panel unchanged (foundation logo, welcome text, security badges)
-
-2. **Backend: store messages**
-   - Create `submitContactMessage` server function in `src/lib/contact.functions.ts`
-   - Validate inputs (name, email, subject, message)
-   - Insert into a new `contact_messages` table in Supabase (or check if `contacts` table exists)
-   - Return success/error response
-
-3. **Database migration**
-   - Create `contact_messages` table: id, name, email, subject, message, created_at, status (new/read/replied)
-   - Add appropriate RLS policies (allow anonymous inserts, admin-only reads)
-   - Add GRANT statements for anon and authenticated roles
-
-4. **Route metadata update**
-   - Update `src/routes/auth.login.tsx` title to "Contact Us — Manyang Disability Foundation" or keep "Sign In" with updated description
-
-**Open question:** Should the "Send a Message" tab be a completely separate page (e.g., `/contact`) instead of sharing `/auth/login`? If so, we would create a new `/contact` route and keep `/auth/login` purely for staff login. This would be cleaner but requires updating all redirect references. With the tabbed approach, no existing code needs to change.
+## Out of scope
+- No migrations, no code edits. If the audit finds real bugs, I'll propose a follow-up plan with concrete fixes for your approval.

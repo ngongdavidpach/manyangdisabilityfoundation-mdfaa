@@ -1,4 +1,4 @@
-import type { User, UserRole } from '../types/auth';
+import type { User, UserRole } from "../types/auth";
 
 // NOTE: Legacy localStorage-backed auth (hashPassword / authenticateUser /
 // registerUser / verifyPassword / saveSession / loadSession / getUsersDB)
@@ -15,7 +15,9 @@ export const generateReferenceCode = (prefix: string): string => {
 };
 
 // Password strength evaluation (UI only — does not store anything)
-export const getPasswordStrength = (password: string): {
+export const getPasswordStrength = (
+  password: string,
+): {
   score: number;
   label: string;
   color: string;
@@ -31,16 +33,16 @@ export const getPasswordStrength = (password: string): {
 
   const score = Object.values(requirements).filter(Boolean).length;
 
-  if (score <= 2) return { score, label: 'Weak', color: 'red', requirements };
-  if (score <= 3) return { score, label: 'Fair', color: 'amber', requirements };
-  if (score <= 4) return { score, label: 'Strong', color: 'blue', requirements };
-  return { score, label: 'Very Strong', color: 'emerald', requirements };
+  if (score <= 2) return { score, label: "Weak", color: "red", requirements };
+  if (score <= 3) return { score, label: "Fair", color: "amber", requirements };
+  if (score <= 4) return { score, label: "Strong", color: "blue", requirements };
+  return { score, label: "Very Strong", color: "emerald", requirements };
 };
 
 // Application / donation history are demo helpers kept only for the
 // dashboard UI; real records should move to Supabase tables in a future pass.
-const APPS_DB_KEY = 'mdf_applications_db';
-const DONATIONS_DB_KEY = 'mdf_donations_db';
+const APPS_DB_KEY = "mdf_applications_db";
+const DONATIONS_DB_KEY = "mdf_donations_db";
 
 export const saveApplication = (record: {
   userId: string;
@@ -54,7 +56,7 @@ export const saveApplication = (record: {
   db.push({
     id: generateId(),
     ...record,
-    status: 'pending',
+    status: "pending",
     submittedAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   });
@@ -79,7 +81,7 @@ export const saveDonation = (record: {
   db.push({
     id: generateId(),
     ...record,
-    status: 'completed',
+    status: "completed",
     date: new Date().toISOString(),
   });
   localStorage.setItem(DONATIONS_DB_KEY, JSON.stringify(db));
@@ -99,24 +101,24 @@ export const hasRole = (user: User | null, roles: UserRole[]): boolean => {
 
 export const getRoleLabel = (role: UserRole): string => {
   const labels: Record<UserRole, string> = {
-    guest: 'Guest',
-    member: 'Member',
-    donor: 'Supporter',
-    volunteer: 'Volunteer',
-    beneficiary: 'Beneficiary',
-    admin: 'Administrator',
+    guest: "Guest",
+    member: "Member",
+    donor: "Supporter",
+    volunteer: "Volunteer",
+    beneficiary: "Beneficiary",
+    admin: "Administrator",
   };
   return labels[role];
 };
 
 export const getRoleColor = (role: UserRole): string => {
   const colors: Record<UserRole, string> = {
-    guest: 'bg-slate-100 text-slate-700',
-    member: 'bg-blue-100 text-blue-700',
-    donor: 'bg-amber-100 text-amber-700',
-    volunteer: 'bg-emerald-100 text-emerald-700',
-    beneficiary: 'bg-purple-100 text-purple-700',
-    admin: 'bg-red-100 text-red-700',
+    guest: "bg-slate-100 text-slate-700",
+    member: "bg-blue-100 text-blue-700",
+    donor: "bg-amber-100 text-amber-700",
+    volunteer: "bg-emerald-100 text-emerald-700",
+    beneficiary: "bg-purple-100 text-purple-700",
+    admin: "bg-red-100 text-red-700",
   };
   return colors[role];
 };
