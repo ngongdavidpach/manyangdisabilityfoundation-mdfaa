@@ -147,7 +147,7 @@ export const RequestView: React.FC = () => {
       fullName: "",
       age: "",
       gender: "prefer-not-to-say",
-      country: "Cameroon",
+      country: "",
       city: "",
       phone: "",
       email: "",
