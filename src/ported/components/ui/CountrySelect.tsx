@@ -51,6 +51,7 @@ export const CountrySelect: React.FC<CountrySelectProps> = ({
           }))
           .filter((country: Country) => country.name && country.code)
           .sort((a: Country, b: Country) => a.name.localeCompare(b.name));
+        
 
         setCountries(countryList);
         setError(null);

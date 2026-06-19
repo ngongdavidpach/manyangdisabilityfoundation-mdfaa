@@ -37,28 +37,27 @@ export const GetInvolvedView: React.FC = () => {
   const submitPartnerFn = useServerFn(submitPartnerInquiry);
 
   const [vForm, setVForm] = useState({
-    fullName: "",
-    email: "",
-    phone: "",
-    country: "Cameroon",
-    city: "",
+    fullName: '',
+    email: '',
+    phone: '',
+    country: '',
+    city: '',
     skills: [] as string[],
-    availability: "part-time",
-    message: "",
+    availability: 'part-time',
+    message: '',
   });
-
   const [pForm, setPForm] = useState({
-    orgName: "",
-    contactPerson: "",
-    email: "",
-    phone: "",
-    orgType: "corporate",
-    partnershipType: "raw-materials",
-    message: "",
+    orgName: '',
+    contactPerson: '',
+    email: '',
+    phone: '',
+    orgType: 'corporate',
+    partnershipType: 'raw-materials',
+    message: '',
   });
 
-  const { content: getInvolvedContent } = usePageSettings<GetInvolvedContent>("get-involved", {});
-
+  const { content: getInvolvedContent } = usePageSettings<GetInvolvedContent>('get-involved', {});
+  
   const availableSkills = getInvolvedContent?.availableSkills || [
     { id: "repair", label: "Biomedical & Equipment Repair", icon: Wrench },
     { id: "medical", label: "Medical Care & Rehab Therapy", icon: HeartPulse },
