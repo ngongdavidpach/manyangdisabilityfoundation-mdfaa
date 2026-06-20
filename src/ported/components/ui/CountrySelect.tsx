@@ -57,7 +57,7 @@ export const CountrySelect: React.FC<CountrySelectProps> = ({
         setError(null);
       } catch (err) {
         console.error("Error fetching countries:", err);
-        setError("Unable to load country list. Please type manually.");
+        setError("\n");
         // Fallback to a basic list of common countries
         setCountries([
           { name: "Afghanistan", code: "af" },
