@@ -49,8 +49,9 @@ export const Navbar: React.FC = () => {
       .eq("page_key", "navigation")
       .maybeSingle()
       .then(({ data }) => {
-        const c = (data?.content as any) || {};
-        setNavConfig({ order: resolveNavOrder(c.order), flags: c });
+        if (!data?.content) return;
+        const c = data.content as any;
+        setNavConfig((prev) => ({ order: resolveNavOrder(c.order) || prev.order, flags: c }));
       });
   }, []);
 
