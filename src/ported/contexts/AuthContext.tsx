@@ -59,12 +59,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         });
       }, 0);
     });
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      buildUser(session?.user).then((u) => {
-        setUser(u);
-        setIsLoading(false);
-      });
-    });
     return () => sub.subscription.unsubscribe();
   }, []);
 
