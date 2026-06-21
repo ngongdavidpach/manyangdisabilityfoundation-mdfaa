@@ -1,38 +1,26 @@
-## Context
+## Goal
+Expose the existing `StaffLoginView` at a dedicated `/admin-login` route so admins can sign in, and redirect unauthenticated visitors of `/admin` there instead of the homepage.
 
-Your database is already live on Lovable Cloud — there's nothing to "sync." All real content tables exist and most views already read from them. Only two pockets of hardcoded data remain in the app.
+## Changes
 
-## What's still hardcoded
+1. **New route `src/routes/admin-login.tsx`**
+   - Renders `StaffLoginView`.
+   - `head()` with title "Admin Login — Manyang Disability Foundation", `robots: noindex`, basic OG tags.
+   - Reads `?redirect=` search param (already used by `StaffLoginView`) so after sign-in users return to the originally requested page.
 
-1. **`FOUNDATION_INFO`** (org name, mission, vision, email, phone, address, socials) — used in `Navbar`, `AboutView`, `DonateView`, `GetInvolvedView`, `RequestView`.
-2. **`NEWS_ARTICLES`** import in `HomeView.tsx` — referenced but the array is already empty, so the "Latest News" section on the homepage renders nothing.
+2. **Update `src/ported/components/ProtectedRoute.tsx`**
+   - On unauthenticated, navigate to `/admin-login?redirect=<current-path>` instead of `/`.
+   - Keep the "Access Restricted" UI for authenticated users without the required role.
 
-Everything else (news pages, events, staff, gallery, programs grids, donations, requests, volunteers, contact messages) already uses Supabase.
+3. **Update `src/ported/components/views/AdminDashboardView.tsx` / Navbar (only if currently linking to a homepage login modal)**
+   - Add a small "Admin Login" link in the footer or keep the existing entry point; no visual redesign.
 
-## Plan
+## Out of scope
+- No changes to auth logic, Supabase config, Apple/Google providers (already wired).
+- No new database tables or roles.
+- No redesign of the login form itself.
 
-### 1. Make `FOUNDATION_INFO` editable & live-loaded
-- Add a `foundation` row in `page_settings` (JSON shape mirrors `FOUNDATION_INFO`: name, shortName, tagline, mission, vision, email, phone, altPhone, address, workingHours, socials).
-- Create a small `useFoundationInfo()` hook wrapping `usePageSettings("foundation", FOUNDATION_INFO)` so the static object becomes the fallback and the DB value wins once present.
-- Replace direct `FOUNDATION_INFO.*` reads in `Navbar`, `AboutView`, `DonateView`, `GetInvolvedView`, `RequestView` with values from the hook.
-- Add a **Foundation Info** editor tab in the admin (`AdminDashboardView`) — simple form (name, tagline, mission, vision, contact, socials) that saves via the hook.
-
-### 2. Wire `HomeView` "Latest News" to live data
-- Remove the `NEWS_ARTICLES` import.
-- Fetch the 3 latest published rows from `news_articles` (ordered by `published_at` desc) via `supabase.from("news_articles")…limit(3)`.
-- Render the same card markup, mapping DB columns (`title`, `summary`, `cover_image_url`, `published_at`, `slug`) to the existing UI; link each card to `/news/$slug`.
-- Show a friendly empty state when no articles exist yet.
-
-### 3. Verify CRUD coverage in the admin
-- Confirm the existing admin managers all already write through Supabase (they do: `NewsManager`, `EventsManager`, `StaffManager`, `GalleryManager`, `DonationsManager`, `ExpensesManager`, `ContactsManager`, `PageSettingsEditor`, `NavigationPagesEditor`). No changes needed beyond adding the new Foundation Info editor in step 1.
-
-### 4. Clean up
-- Keep `foundationData.ts` only for type definitions and the `FOUNDATION_INFO` fallback constant; remove the now-unused empty arrays (`PROGRAMS`, `IMPACT_METRICS`, `SUCCESS_STORIES`, `FAQS`, `GALLERY_IMAGES`, `FOUNDATION_EVENTS`, `NEWS_ARTICLES`) so the file can't drift back into a placeholder source.
-
-### Out of scope
-- No schema migration is required — `page_settings` already exists with the right shape and policies. We just write a new row through the admin UI.
-- No change to authentication, RLS, or other tables.
-
-## Technical notes
-- Files touched: `src/ported/hooks/useFoundationInfo.ts` (new), `src/ported/components/Navbar.tsx`, `src/ported/components/views/{Home,About,Donate,GetInvolved,Request}View.tsx`, `src/ported/components/views/AdminDashboardView.tsx`, a new `src/ported/components/admin/FoundationInfoEditor.tsx`, and a slim-down of `src/ported/data/foundationData.ts`.
-- All reads use the existing `@/integrations/supabase/client` browser client; writes go through `usePageSettings.save()` which is already RLS-protected to admins.
+## Acceptance
+- Visiting `/admin` while signed out lands on `/admin-login` with the form visible.
+- Successful sign-in as an admin returns to `/admin`.
+- Non-admin authenticated users still see "Access Restricted" on `/admin`.
