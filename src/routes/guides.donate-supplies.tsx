@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { FOUNDATION_INFO } from "../ported/data/foundationData";
+import { useFoundationInfo } from "../ported/hooks/useFoundationInfo";
 
 export const Route = createFileRoute("/guides/donate-supplies")({
   head: () => ({
@@ -64,6 +64,7 @@ export const Route = createFileRoute("/guides/donate-supplies")({
 });
 
 function DonateSuppliesGuide() {
+  const { content: FOUNDATION_INFO } = useFoundationInfo();
   return (
     <article className="max-w-3xl mx-auto px-4 sm:px-6 py-12 prose prose-slate">
       <h1 className="text-3xl sm:text-4xl font-bold text-slate-900 mb-4">
