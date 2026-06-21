@@ -218,3 +218,29 @@ export const submitDonationIntent = createServerFn({ method: "POST" })
     }
     return { reference };
   });
+
+// ---------- contact_messages ----------
+const contactMessageSchema = z.object({
+  name: str(100).min(1),
+  email: z.string().trim().max(255).email(),
+  subject: str(200).min(1),
+  message: str(2000).min(1),
+});
+
+export const submitContactMessage = createServerFn({ method: "POST" })
+  .validator((data: z.input<typeof contactMessageSchema>) => contactMessageSchema.parse(data))
+  .handler(async ({ data }) => {
+    await enforceRateLimit({ bucket: "contact-msg", max: 5, windowSeconds: 3600 });
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { error } = await supabaseAdmin.from("contact_messages").insert({
+      name: data.name,
+      email: data.email,
+      subject: data.subject,
+      message: data.message,
+    });
+    if (error) {
+      console.error("[submitContactMessage]", error);
+      throw new Error("Unable to send your message. Please try again later.");
+    }
+    return { ok: true };
+  });

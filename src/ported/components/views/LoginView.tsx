@@ -7,7 +7,8 @@ import {
   User,
   CheckCircle2,
 } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
+import { useServerFn } from "@tanstack/react-start";
+import { submitContactMessage } from "@/lib/intake.functions";
 
 const SUBJECT_OPTIONS = [
   "General Inquiry",
@@ -19,6 +20,7 @@ const SUBJECT_OPTIONS = [
 ];
 
 export const LoginView: React.FC = () => {
+  const sendContactMessage = useServerFn(submitContactMessage);
   const [msg, setMsg] = useState({
     name: "",
     email: "",
@@ -56,15 +58,16 @@ export const LoginView: React.FC = () => {
     }
 
     setMsgSending(true);
-    const { error: insertErr } = await supabase
-      .from("contact_messages")
-      .insert({ name, email, subject, message });
-    setMsgSending(false);
-
-    if (insertErr) {
-      setMsgError("Could not send your message. Please try again later.");
+    try {
+      await sendContactMessage({ data: { name, email, subject, message } });
+    } catch (err) {
+      setMsgSending(false);
+      const message =
+        err instanceof Error ? err.message : "Could not send your message. Please try again later.";
+      setMsgError(message);
       return;
     }
+    setMsgSending(false);
     setMsgSent(true);
     setMsg({ name: "", email: "", subject: SUBJECT_OPTIONS[0], message: "" });
   };
