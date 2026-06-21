@@ -1,26 +1,16 @@
 ## Goal
-Expose the existing `StaffLoginView` at a dedicated `/admin-login` route so admins can sign in, and redirect unauthenticated visitors of `/admin` there instead of the homepage.
+Remove the standalone `/admin-login` route and show the login form inline at `/admin` when the user isn't authenticated.
 
 ## Changes
 
-1. **New route `src/routes/admin-login.tsx`**
-   - Renders `StaffLoginView`.
-   - `head()` with title "Admin Login — Manyang Disability Foundation", `robots: noindex`, basic OG tags.
-   - Reads `?redirect=` search param (already used by `StaffLoginView`) so after sign-in users return to the originally requested page.
+1. **Delete `src/routes/admin-login.tsx`** — the dedicated login route goes away.
 
-2. **Update `src/ported/components/ProtectedRoute.tsx`**
-   - On unauthenticated, navigate to `/admin-login?redirect=<current-path>` instead of `/`.
-   - Keep the "Access Restricted" UI for authenticated users without the required role.
+2. **Update `src/routes/admin.tsx`** — instead of wrapping `<AdminDashboard />` in `<ProtectedRoute>`, render `<StaffLoginView />` when unauthenticated and `<AdminDashboard />` (still role-gated) when signed in. URL stays `/admin` whether logged in or not.
 
-3. **Update `src/ported/components/views/AdminDashboardView.tsx` / Navbar (only if currently linking to a homepage login modal)**
-   - Add a small "Admin Login" link in the footer or keep the existing entry point; no visual redesign.
+3. **Update `src/ported/components/ProtectedRoute.tsx`** — change the unauthenticated redirect target from `/admin-login` to `/admin` (so any other protected page sends users to the admin login surface).
 
-## Out of scope
-- No changes to auth logic, Supabase config, Apple/Google providers (already wired).
-- No new database tables or roles.
-- No redesign of the login form itself.
+4. **Update `src/ported/components/views/StaffLoginView.tsx`** — after successful login, navigate to the `redirect` search param or `/admin` (no longer `/admin-login` aware). Confirm it doesn't link back to `/admin-login` anywhere.
 
-## Acceptance
-- Visiting `/admin` while signed out lands on `/admin-login` with the form visible.
-- Successful sign-in as an admin returns to `/admin`.
-- Non-admin authenticated users still see "Access Restricted" on `/admin`.
+5. **Search for other references to `/admin-login`** (e.g. in Navbar, AuthContext, or links) and repoint them to `/admin`.
+
+No backend/database changes. No new dependencies.
