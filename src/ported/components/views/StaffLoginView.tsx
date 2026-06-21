@@ -11,6 +11,7 @@ import {
   AlertTriangle,
 } from "lucide-react";
 import { useAuth } from "../../contexts/AuthContext";
+import { lovable } from "@/integrations/lovable/index";
 
 export const StaffLoginView: React.FC = () => {
   const navigate = useNavigate();
@@ -136,6 +137,34 @@ export const StaffLoginView: React.FC = () => {
                 <ArrowRight className="w-4 h-4" />
               </>
             )}
+          </button>
+
+          <div className="relative my-2">
+            <div className="absolute inset-0 flex items-center">
+              <span className="w-full border-t border-slate-200" />
+            </div>
+            <div className="relative flex justify-center text-[10px] uppercase tracking-wider">
+              <span className="bg-white px-2 text-slate-400">or continue with</span>
+            </div>
+          </div>
+
+          <button
+            type="button"
+            onClick={async () => {
+              setError("");
+              const result = await lovable.auth.signInWithOAuth("apple", {
+                redirect_uri: window.location.origin,
+              });
+              if (result.error) {
+                setError("Apple sign-in failed. Please try again.");
+              }
+            }}
+            className="w-full bg-black hover:bg-slate-800 text-white font-semibold py-3 rounded-lg text-sm flex items-center justify-center gap-2 transition-colors"
+          >
+            <svg viewBox="0 0 24 24" className="w-4 h-4 fill-current" aria-hidden="true">
+              <path d="M16.365 1.43c0 1.14-.413 2.225-1.24 3.057-.852.86-1.88 1.355-3.005 1.262-.027-1.07.41-2.184 1.21-3.018.832-.86 2.005-1.395 3.035-1.301zM20.78 17.21c-.39.9-.85 1.726-1.39 2.486-.733 1.04-1.336 1.762-1.804 2.165-.722.65-1.498.984-2.327 1.005-.594 0-1.31-.169-2.144-.512-.836-.343-1.604-.512-2.307-.512-.738 0-1.527.17-2.366.512-.84.343-1.516.523-2.034.54-.797.034-1.59-.31-2.38-1.034-.508-.44-1.137-1.189-1.887-2.246-.804-1.124-1.464-2.428-1.98-3.912-.55-1.604-.825-3.158-.825-4.66 0-1.726.373-3.215 1.12-4.466A6.572 6.572 0 0 1 3.7 4.187a6.21 6.21 0 0 1 3.097-.834c.629 0 1.452.195 2.473.577 1.018.384 1.671.578 1.956.578.214 0 .94-.227 2.177-.679 1.169-.42 2.156-.594 2.964-.524 2.187.177 3.832 1.04 4.93 2.595-1.96 1.19-2.93 2.856-2.91 4.99.018 1.66.621 3.04 1.808 4.135.537.51 1.137.904 1.802 1.183-.144.42-.297.823-.46 1.21z" />
+            </svg>
+            <span>Sign in with Apple</span>
           </button>
 
           <div className="pt-3 border-t border-slate-100 flex items-center gap-2 text-[11px] text-slate-500">
