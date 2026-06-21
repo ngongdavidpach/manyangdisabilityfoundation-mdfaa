@@ -16,7 +16,7 @@ import {
   LogOut,
   LayoutDashboard,
 } from "lucide-react";
-import { FOUNDATION_INFO } from "../data/foundationData";
+import { useFoundationInfo } from "../hooks/useFoundationInfo";
 import { useAuth } from "../contexts/AuthContext";
 import { getRoleLabel, getRoleColor } from "../utils/auth";
 
