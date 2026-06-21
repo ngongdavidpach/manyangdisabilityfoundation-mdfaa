@@ -29,6 +29,7 @@ interface GetInvolvedContent {
 }
 
 export const GetInvolvedView: React.FC = () => {
+  const { content: foundationInfo } = useFoundationInfo();
   const [activeTab, setActiveTab] = useState<"volunteer" | "partner">("volunteer");
   const [submitted, setSubmitted] = useState<boolean>(false);
   const [submitting, setSubmitting] = useState<boolean>(false);

@@ -29,6 +29,7 @@ interface DonateContent {
 }
 
 export const DonateView: React.FC = () => {
+  const { content: foundationInfo } = useFoundationInfo();
   const [frequency, setFrequency] = useState<"one-time" | "monthly">("one-time");
   const [amount, setAmount] = useState<number>(150);
   const [customAmount, setCustomAmount] = useState<string>("");

@@ -15,6 +15,7 @@ import { CountrySelect } from "../ui/CountrySelect";
 
 
 export const RequestView: React.FC = () => {
+  const { content: foundationInfo } = useFoundationInfo();
   const [step, setStep] = useState<number>(1);
   const [submitted, setSubmitted] = useState<boolean>(false);
   const [trackingCode, setTrackingCode] = useState<string>("");
