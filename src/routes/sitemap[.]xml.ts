@@ -28,9 +28,18 @@ export const Route = createFileRoute("/sitemap.xml")({
 
         // News articles
         try {
-          const { NEWS_ARTICLES } = await import("../ported/data/foundationData");
-          for (const a of NEWS_ARTICLES) {
-            entries.push({ path: `/news/${a.id}`, changefreq: "monthly", priority: "0.6" });
+          const { createClient } = await import("@supabase/supabase-js");
+          const client = createClient(
+            process.env.SUPABASE_URL!,
+            process.env.SUPABASE_PUBLISHABLE_KEY!,
+            { auth: { storage: undefined, persistSession: false, autoRefreshToken: false } },
+          );
+          const { data } = await client
+            .from("news_articles")
+            .select("slug")
+            .eq("status", "published");
+          for (const a of (data as Array<{ slug: string }>) || []) {
+            entries.push({ path: `/news/${a.slug}`, changefreq: "monthly", priority: "0.6" });
           }
         } catch {}
 

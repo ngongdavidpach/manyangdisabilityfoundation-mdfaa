@@ -1,29 +1,38 @@
-## Changes
+## Context
 
-### 1. Delete auth route files
-- `src/routes/auth.login.tsx`
-- `src/routes/auth.register.tsx`
-- `src/routes/auth.staff-login.tsx`
+Your database is already live on Lovable Cloud — there's nothing to "sync." All real content tables exist and most views already read from them. Only two pockets of hardcoded data remain in the app.
 
-The TanStack route tree regenerates automatically. Toast / inline messages elsewhere in the app are untouched.
+## What's still hardcoded
 
-### 2. Fix dangling references to the removed routes
-- `src/ported/components/ProtectedRoute.tsx` (line 19): change the unauth redirect from `/auth/staff-login` to `/` (no login page exists anymore).
-- `src/ported/components/views/RegisterView.tsx` (line 359): remove the "Staff login" button that navigates to `/auth/staff-login`. (The view file itself stays — it's orphaned but harmless; deleting it would risk breaking imports elsewhere.)
+1. **`FOUNDATION_INFO`** (org name, mission, vision, email, phone, address, socials) — used in `Navbar`, `AboutView`, `DonateView`, `GetInvolvedView`, `RequestView`.
+2. **`NEWS_ARTICLES`** import in `HomeView.tsx` — referenced but the array is already empty, so the "Latest News" section on the homepage renders nothing.
 
-### 3. Fix the whole-page flicker on refresh
+Everything else (news pages, events, staff, gallery, programs grids, donations, requests, volunteers, contact messages) already uses Supabase.
 
-Two compounding causes:
+## Plan
 
-**a) `AuthContext` double-fires the initial user load.** It subscribes to `onAuthStateChange` (which already fires an `INITIAL_SESSION` event on mount) AND separately calls `getSession().then(buildUser)`. Both paths call `setUser` + `setIsLoading(false)`, so the tree renders → re-renders → re-renders. Combined with `ProtectedRoute`'s `isLoading` spinner this looks like a full-page flash.
+### 1. Make `FOUNDATION_INFO` editable & live-loaded
+- Add a `foundation` row in `page_settings` (JSON shape mirrors `FOUNDATION_INFO`: name, shortName, tagline, mission, vision, email, phone, altPhone, address, workingHours, socials).
+- Create a small `useFoundationInfo()` hook wrapping `usePageSettings("foundation", FOUNDATION_INFO)` so the static object becomes the fallback and the DB value wins once present.
+- Replace direct `FOUNDATION_INFO.*` reads in `Navbar`, `AboutView`, `DonateView`, `GetInvolvedView`, `RequestView` with values from the hook.
+- Add a **Foundation Info** editor tab in the admin (`AdminDashboardView`) — simple form (name, tagline, mission, vision, contact, socials) that saves via the hook.
 
-Fix: rely solely on `onAuthStateChange` for hydration. Remove the redundant `getSession().then(buildUser)` block — the listener delivers the initial session synchronously enough that no extra fetch is needed.
+### 2. Wire `HomeView` "Latest News" to live data
+- Remove the `NEWS_ARTICLES` import.
+- Fetch the 3 latest published rows from `news_articles` (ordered by `published_at` desc) via `supabase.from("news_articles")…limit(3)`.
+- Render the same card markup, mapping DB columns (`title`, `summary`, `cover_image_url`, `published_at`, `slug`) to the existing UI; link each card to `/news/$slug`.
+- Show a friendly empty state when no articles exist yet.
 
-**b) `Navbar` resets `navConfig` after the `page_settings` fetch resolves.** The initial state uses the full default order, but as soon as the fetch resolves it replaces both `order` and `flags`, which re-renders the whole nav. On a cold refresh this is visible as the top bar repainting.
+### 3. Verify CRUD coverage in the admin
+- Confirm the existing admin managers all already write through Supabase (they do: `NewsManager`, `EventsManager`, `StaffManager`, `GalleryManager`, `DonationsManager`, `ExpensesManager`, `ContactsManager`, `PageSettingsEditor`, `NavigationPagesEditor`). No changes needed beyond adding the new Foundation Info editor in step 1.
 
-Fix: only merge `flags` from the fetched content; keep the resolved order stable (`resolveNavOrder` already handles defaults). Wrap the fetch result in a single `setNavConfig` that only updates if `data` exists, so an empty/missing row doesn't trigger a needless re-render.
+### 4. Clean up
+- Keep `foundationData.ts` only for type definitions and the `FOUNDATION_INFO` fallback constant; remove the now-unused empty arrays (`PROGRAMS`, `IMPACT_METRICS`, `SUCCESS_STORIES`, `FAQS`, `GALLERY_IMAGES`, `FOUNDATION_EVENTS`, `NEWS_ARTICLES`) so the file can't drift back into a placeholder source.
 
-### Verification
-- Navigate to `/auth/login`, `/auth/register`, `/auth/staff-login` → expect the root `NotFoundComponent` (404).
-- Refresh `/`, `/request`, `/dashboard` → no visible page-content flash; navbar stays put.
-- Sign in / sign out still work via the existing dashboard / auth flows that don't depend on the deleted pages.
+### Out of scope
+- No schema migration is required — `page_settings` already exists with the right shape and policies. We just write a new row through the admin UI.
+- No change to authentication, RLS, or other tables.
+
+## Technical notes
+- Files touched: `src/ported/hooks/useFoundationInfo.ts` (new), `src/ported/components/Navbar.tsx`, `src/ported/components/views/{Home,About,Donate,GetInvolved,Request}View.tsx`, `src/ported/components/views/AdminDashboardView.tsx`, a new `src/ported/components/admin/FoundationInfoEditor.tsx`, and a slim-down of `src/ported/data/foundationData.ts`.
+- All reads use the existing `@/integrations/supabase/client` browser client; writes go through `usePageSettings.save()` which is already RLS-protected to admins.

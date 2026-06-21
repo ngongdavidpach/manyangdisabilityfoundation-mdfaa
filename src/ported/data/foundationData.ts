@@ -93,17 +93,8 @@ export const FOUNDATION_INFO = {
   },
 };
 
-// Empty arrays - content should be managed via admin page_settings or CMS
-export const IMPACT_METRICS: Array<{ id: string; label: string; value: string; icon: string }> = [];
+// Live content lives in Supabase tables (news_articles, events, staff_members,
+// media_assets) and the `page_settings` row keyed `foundation` (managed via the
+// admin "Foundation Info" editor). The type exports above remain for components
+// that still rely on the shapes.
 
-export const PROGRAMS: Program[] = [];
-
-export const SUCCESS_STORIES: SuccessStory[] = [];
-
-export const NEWS_ARTICLES: NewsArticle[] = [];
-
-export const FAQS: FAQItem[] = [];
-
-export const GALLERY_IMAGES: GalleryImage[] = [];
-
-export const FOUNDATION_EVENTS: FoundationEvent[] = [];

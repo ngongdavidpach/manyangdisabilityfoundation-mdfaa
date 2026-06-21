@@ -29,10 +29,12 @@ import { PipelineView } from "../admin/PipelineView";
 import { DonationsManager } from "../admin/DonationsManager";
 import { ExpensesManager } from "../admin/ExpensesManager";
 import { FinanceReports } from "../admin/FinanceReports";
+import { FoundationInfoEditor } from "../admin/FoundationInfoEditor";
 
 type Tab =
   | "overview"
   | "pages"
+  | "foundation"
   | "insight"
   | "gallery"
   | "news"
@@ -77,6 +79,7 @@ export const AdminDashboard: React.FC = () => {
     { id: "expenses", label: "Expenses", icon: Wallet },
     { id: "reports", label: "Reports", icon: BarChart3 },
     { id: "insight", label: "Foundation Insight", icon: Sparkles },
+    { id: "foundation", label: "Foundation Info", icon: SettingsIcon },
     { id: "pages", label: "Page Content", icon: FileText },
     { id: "gallery", label: "Media Library", icon: ImageIcon },
     { id: "news", label: "News", icon: Newspaper },
@@ -159,6 +162,7 @@ export const AdminDashboard: React.FC = () => {
           {tab === "expenses" && <ExpensesManager />}
           {tab === "reports" && <FinanceReports />}
           {tab === "pages" && <PageSettingsEditor />}
+          {tab === "foundation" && <FoundationInfoEditor />}
           {tab === "insight" && <FoundationInsightManager />}
           {tab === "gallery" && <GalleryManager />}
           {tab === "news" && <NewsManager />}

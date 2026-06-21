@@ -11,7 +11,7 @@ import {
   Info,
 } from "lucide-react";
 import { useServerFn } from "@tanstack/react-start";
-import { FOUNDATION_INFO } from "../../data/foundationData";
+import { useFoundationInfo } from "../../hooks/useFoundationInfo";
 import { submitDonationIntent } from "@/lib/intake.functions";
 import { usePageSettings } from "../../hooks/usePageSettings";
 
@@ -29,6 +29,7 @@ interface DonateContent {
 }
 
 export const DonateView: React.FC = () => {
+  const { content: foundationInfo } = useFoundationInfo();
   const [frequency, setFrequency] = useState<"one-time" | "monthly">("one-time");
   const [amount, setAmount] = useState<number>(150);
   const [customAmount, setCustomAmount] = useState<string>("");
@@ -167,7 +168,7 @@ export const DonateView: React.FC = () => {
             </div>
 
             <h2 className="text-2xl font-bold">Thank You for Your Pledge!</h2>
-            <p className="text-blue-200 text-xs mt-1">{FOUNDATION_INFO.name}</p>
+            <p className="text-blue-200 text-xs mt-1">{foundationInfo.name}</p>
           </div>
 
           <div className="p-6 sm:p-8 space-y-6">

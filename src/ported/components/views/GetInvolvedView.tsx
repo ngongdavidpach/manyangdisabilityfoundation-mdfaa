@@ -12,7 +12,7 @@ import {
   Globe,
 } from "lucide-react";
 import { useServerFn } from "@tanstack/react-start";
-import { FOUNDATION_INFO } from "../../data/foundationData";
+import { useFoundationInfo } from "../../hooks/useFoundationInfo";
 import { submitVolunteerApplication, submitPartnerInquiry } from "@/lib/intake.functions";
 import { CountrySelect } from "../ui/CountrySelect";
 import { usePageSettings } from "../../hooks/usePageSettings";
@@ -29,6 +29,7 @@ interface GetInvolvedContent {
 }
 
 export const GetInvolvedView: React.FC = () => {
+  const { content: foundationInfo } = useFoundationInfo();
   const [activeTab, setActiveTab] = useState<"volunteer" | "partner">("volunteer");
   const [submitted, setSubmitted] = useState<boolean>(false);
   const [submitting, setSubmitting] = useState<boolean>(false);
@@ -556,7 +557,7 @@ export const GetInvolvedView: React.FC = () => {
         <p className="text-xs font-bold text-slate-900">Direct Institutional Relations</p>
         <p className="text-xs text-slate-600">
           For bilateral funding frameworks or urgent corporate giving, directly reach our Board
-          Chair at <strong className="text-blue-600">{FOUNDATION_INFO.email}</strong>
+          Chair at <strong className="text-blue-600">{foundationInfo.email}</strong>
         </p>
       </div>
     </div>

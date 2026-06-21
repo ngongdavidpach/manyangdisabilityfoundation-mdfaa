@@ -9,12 +9,13 @@ import {
   AlertCircle,
 } from "lucide-react";
 import { useServerFn } from "@tanstack/react-start";
-import { FOUNDATION_INFO } from "../../data/foundationData";
+import { useFoundationInfo } from "../../hooks/useFoundationInfo";
 import { submitAidRequest } from "@/lib/intake.functions";
 import { CountrySelect } from "../ui/CountrySelect";
 
 
 export const RequestView: React.FC = () => {
+  const { content: foundationInfo } = useFoundationInfo();
   const [step, setStep] = useState<number>(1);
   const [submitted, setSubmitted] = useState<boolean>(false);
   const [trackingCode, setTrackingCode] = useState<string>("");
@@ -747,8 +748,8 @@ export const RequestView: React.FC = () => {
         <p className="text-xs text-slate-500">Need direct help with your intake submission?</p>
         <p className="text-xs text-slate-600">
           Call our community officers at{" "}
-          <strong className="text-blue-600">{FOUNDATION_INFO.phone}</strong> or send an email to{" "}
-          <strong className="text-blue-600">{FOUNDATION_INFO.email}</strong>.
+          <strong className="text-blue-600">{foundationInfo.phone}</strong> or send an email to{" "}
+          <strong className="text-blue-600">{foundationInfo.email}</strong>.
         </p>
       </div>
     </div>

@@ -16,7 +16,7 @@ import {
   LogOut,
   LayoutDashboard,
 } from "lucide-react";
-import { FOUNDATION_INFO } from "../data/foundationData";
+import { useFoundationInfo } from "../hooks/useFoundationInfo";
 import { useAuth } from "../contexts/AuthContext";
 import { getRoleLabel, getRoleColor } from "../utils/auth";
 
@@ -34,6 +34,7 @@ export const Navbar: React.FC = () => {
   const navigate = useNavigate();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const { user, isAuthenticated, isAdmin, logout } = useAuth();
+  const { content: foundationInfo } = useFoundationInfo();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
 
@@ -102,10 +103,10 @@ export const Navbar: React.FC = () => {
           <div className="flex items-center gap-4">
             <span>
               <strong className="text-amber-400">Emergency Aid Line:</strong>{" "}
-              {FOUNDATION_INFO.phone}
+              {foundationInfo.phone}
             </span>
             <span className="hidden md:inline text-blue-300">|</span>
-            <span className="hidden md:inline">{FOUNDATION_INFO.email}</span>
+            <span className="hidden md:inline">{foundationInfo.email}</span>
           </div>
           <div className="flex items-center gap-3">
             <span className="bg-blue-800 text-blue-200 px-2 py-0.5 rounded font-medium hidden sm:inline">

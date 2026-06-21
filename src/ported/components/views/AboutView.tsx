@@ -9,8 +9,9 @@ import {
   CheckCircle2,
   ChevronDown,
 } from "lucide-react";
-import { FOUNDATION_INFO, type FAQItem } from "../../data/foundationData";
+import { type FAQItem } from "../../data/foundationData";
 import { usePageSettings } from "../../hooks/usePageSettings";
+import { useFoundationInfo } from "../../hooks/useFoundationInfo";
 
 interface AboutContent {
   faqs?: FAQItem[];
@@ -27,6 +28,8 @@ interface AboutContent {
 export const AboutView: React.FC = () => {
   const [activeFaq, setActiveFaq] = useState<number | null>(null);
   const [faqCategory, setFaqCategory] = useState<string>("all");
+  const { content: foundationInfo } = useFoundationInfo();
+
 
   const { content: aboutContent } = usePageSettings<AboutContent>("about", {});
   const faqs = aboutContent?.faqs || [];
@@ -120,7 +123,7 @@ export const AboutView: React.FC = () => {
                   <Target className="w-5 h-5" />
                   <h4 className="font-bold text-sm">Our Mission</h4>
                 </div>
-                <p className="text-xs text-slate-600 leading-relaxed">{FOUNDATION_INFO.mission}</p>
+                <p className="text-xs text-slate-600 leading-relaxed">{foundationInfo.mission}</p>
               </div>
 
               <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-xs">
@@ -128,7 +131,7 @@ export const AboutView: React.FC = () => {
                   <Eye className="w-5 h-5" />
                   <h4 className="font-bold text-sm">Our Vision</h4>
                 </div>
-                <p className="text-xs text-slate-600 leading-relaxed">{FOUNDATION_INFO.vision}</p>
+                <p className="text-xs text-slate-600 leading-relaxed">{foundationInfo.vision}</p>
               </div>
             </div>
           </div>
