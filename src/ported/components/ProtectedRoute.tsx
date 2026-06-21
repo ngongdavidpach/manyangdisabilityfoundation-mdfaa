@@ -16,7 +16,7 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requir
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
-      navigate({ to: "/" });
+      navigate({ to: "/admin-login", search: { redirect: pathname } });
     }
   }, [isLoading, isAuthenticated, navigate, pathname]);
 
