@@ -1,9 +1,34 @@
+import { useEffect, useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { Heart, ArrowRight } from "lucide-react";
-import { NEWS_ARTICLES, type NewsArticle } from "../../data/foundationData";
+import { supabase } from "@/integrations/supabase/client";
+
+interface NewsRow {
+  id: string;
+  slug: string;
+  title: string;
+  excerpt: string | null;
+  cover_image: string | null;
+  published_at: string | null;
+}
 
 export const HomeView = () => {
   const navigate = useNavigate();
+  const [articles, setArticles] = useState<NewsRow[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    supabase
+      .from("news_articles")
+      .select("id, slug, title, excerpt, cover_image, published_at")
+      .eq("status", "published")
+      .order("published_at", { ascending: false })
+      .limit(3)
+      .then(({ data }) => {
+        setArticles((data as NewsRow[]) || []);
+        setLoading(false);
+      });
+  }, []);
 
   return (
     <div>
@@ -27,49 +52,55 @@ export const HomeView = () => {
           </button>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {NEWS_ARTICLES.slice(0, 3).map((article: NewsArticle) => (
-            <div
-              key={article.id}
-              onClick={() =>
-                navigate({ to: "/news/$slug", params: { slug: String(article.id) } })
-              }
-              className="bg-white rounded-xl overflow-hidden border border-slate-200 hover:shadow-sm cursor-pointer transition-all flex flex-col justify-between group"
-            >
-              <div>
-                <div className="h-40 w-full overflow-hidden relative">
-                  <img
-                    src={article.image}
-                    alt={article.title || "Manyang Disability Foundation outreach"}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                  />
-                  <div className="absolute bottom-2 left-2 bg-slate-900/80 backdrop-blur-xs text-white text-[10px] font-medium px-2 py-0.5 rounded">
-                    {article.category}
+        {loading ? (
+          <p className="text-sm text-slate-500">Loading latest news…</p>
+        ) : articles.length === 0 ? (
+          <div className="bg-slate-50 border border-slate-200 rounded-xl p-8 text-center">
+            <p className="text-sm text-slate-600">No news articles published yet. Check back soon.</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {articles.map((article) => (
+              <div
+                key={article.id}
+                onClick={() => navigate({ to: "/news/$slug", params: { slug: article.slug } })}
+                className="bg-white rounded-xl overflow-hidden border border-slate-200 hover:shadow-sm cursor-pointer transition-all flex flex-col justify-between group"
+              >
+                <div>
+                  {article.cover_image && (
+                    <div className="h-40 w-full overflow-hidden relative">
+                      <img
+                        src={article.cover_image}
+                        alt={article.title}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      />
+                    </div>
+                  )}
+
+                  <div className="p-5">
+                    <span className="text-[11px] text-slate-400 block mb-1">
+                      {article.published_at
+                        ? new Date(article.published_at).toLocaleDateString()
+                        : ""}
+                    </span>
+                    <h2 className="font-bold text-slate-900 text-sm group-hover:text-blue-600 transition-colors line-clamp-2">
+                      {article.title}
+                    </h2>
+                    {article.excerpt && (
+                      <p className="text-xs text-slate-600 mt-2 line-clamp-2">{article.excerpt}</p>
+                    )}
                   </div>
                 </div>
 
-                <div className="p-5">
-                  <span className="text-[11px] text-slate-400 block mb-1">
-                    {article.date} • {article.readTime}
+                <div className="px-5 py-3 bg-slate-50 border-t border-slate-100 flex items-center justify-end text-[11px]">
+                  <span className="text-blue-600 font-bold group-hover:translate-x-0.5 transition-transform">
+                    Read ›
                   </span>
-                  <h2 className="font-bold text-slate-900 text-sm group-hover:text-blue-600 transition-colors line-clamp-2">
-                    {article.title}
-                  </h2>
-                  <p className="text-xs text-slate-600 mt-2 line-clamp-2">
-                    {article.summary}
-                  </p>
                 </div>
               </div>
-
-              <div className="px-5 py-3 bg-slate-50 border-t border-slate-100 flex items-center justify-between text-[11px]">
-                <span className="text-slate-500 font-medium">By {article.author}</span>
-                <span className="text-blue-600 font-bold group-hover:translate-x-0.5 transition-transform">
-                  Read ›
-                </span>
-              </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
       </section>
 
       {/* Final Call to Action */}
