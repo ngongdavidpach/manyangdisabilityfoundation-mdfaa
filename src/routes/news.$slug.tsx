@@ -76,9 +76,8 @@ export const Route = createFileRoute("/news/$slug")({
               image: a.cover_image ? [a.cover_image] : undefined,
               datePublished: a.published_at || undefined,
               dateModified: a.published_at || undefined,
-              author: a.author
-                ? [{ "@type": "Person", name: a.author }]
-                : [{ "@type": "Organization", name: "Manyang Disability Foundation" }],
+              author: [{ "@type": "Organization", name: "Manyang Disability Foundation" }],
+
               publisher: {
                 "@type": "Organization",
                 name: "Manyang Disability Foundation",
