@@ -60,7 +60,38 @@ export const HomeView = () => {
 
   return (
     <div>
+      {/* Hero */}
+      <section className="bg-gradient-to-b from-blue-50 via-white to-white border-b border-slate-100">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-20 text-center">
+          <span className="bg-blue-100 text-blue-800 text-[11px] font-bold px-2.5 py-1 rounded-md uppercase tracking-wider inline-block mb-4">
+            Manyang Disability Foundation
+          </span>
+          <h1 className="text-3xl sm:text-5xl font-extrabold text-slate-900 tracking-tight">
+            Empowering Lives through Mobility, Care, and Community
+          </h1>
+          <p className="text-base sm:text-lg text-slate-600 mt-5 max-w-2xl mx-auto leading-relaxed">
+            We provide mobility aids, medical equipment, and direct support to
+            people living with disabilities across South Sudan.
+          </p>
+          <div className="flex flex-wrap gap-3 justify-center pt-6">
+            <button
+              onClick={() => navigate({ to: "/donate" })}
+              className="bg-blue-600 hover:bg-blue-700 text-white font-bold px-6 py-3 rounded-lg text-sm transition-colors"
+            >
+              Donate Now
+            </button>
+            <button
+              onClick={() => navigate({ to: "/get-involved" })}
+              className="bg-white hover:bg-slate-50 text-slate-900 font-semibold px-6 py-3 rounded-lg border border-slate-300 text-sm transition-colors"
+            >
+              Get Involved
+            </button>
+          </div>
+        </div>
+      </section>
+
       {/* Foundation Insight */}
+
       {hasInsight && (
         <section className="bg-gradient-to-b from-slate-50 to-white border-b border-slate-200">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
@@ -131,12 +162,13 @@ export const HomeView = () => {
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <div className="flex justify-between items-baseline mb-8">
           <div>
-            <h2 className="text-xs font-bold uppercase tracking-widest text-blue-600">
+            <span className="text-xs font-bold uppercase tracking-widest text-blue-600 block">
               Foundation Dispatches
-            </h2>
-            <p className="text-2xl font-bold text-slate-900 tracking-tight mt-1">
+            </span>
+            <h2 className="text-2xl font-bold text-slate-900 tracking-tight mt-1">
               Recent News & Field Reports
-            </p>
+            </h2>
+
           </div>
           <button
             onClick={() => navigate({ to: "/news" })}
@@ -178,9 +210,10 @@ export const HomeView = () => {
                         ? new Date(article.published_at).toLocaleDateString()
                         : ""}
                     </span>
-                    <h2 className="font-bold text-slate-900 text-sm group-hover:text-blue-600 transition-colors line-clamp-2">
+                    <h3 className="font-bold text-slate-900 text-sm group-hover:text-blue-600 transition-colors line-clamp-2">
                       {article.title}
-                    </h2>
+                    </h3>
+
                     {article.excerpt && (
                       <p className="text-xs text-slate-600 mt-2 line-clamp-2">{article.excerpt}</p>
                     )}
