@@ -71,21 +71,44 @@ export const AdminDashboard: React.FC = () => {
     );
   }, [tab]);
 
-  const tabs: { id: Tab; label: string; icon: any }[] = [
-    { id: "overview", label: "Overview", icon: LayoutDashboard },
-    { id: "contacts", label: "Contacts", icon: Users },
-    { id: "pipeline", label: "Pipeline", icon: Workflow },
-    { id: "donations", label: "Donations", icon: HeartHandshake },
-    { id: "expenses", label: "Expenses", icon: Wallet },
-    { id: "reports", label: "Reports", icon: BarChart3 },
-    { id: "insight", label: "Foundation Insight", icon: Sparkles },
-    { id: "foundation", label: "Foundation Info", icon: SettingsIcon },
-    { id: "pages", label: "Page Content", icon: FileText },
-    { id: "gallery", label: "Media Library", icon: ImageIcon },
-    { id: "news", label: "News", icon: Newspaper },
-    { id: "events", label: "Events", icon: Calendar },
-    { id: "staff", label: "Staff", icon: Users },
-    { id: "settings", label: "Settings", icon: SettingsIcon },
+  const sections: { label: string; items: { id: Tab; label: string; icon: any }[] }[] = [
+    {
+      label: "Overview",
+      items: [{ id: "overview", label: "Overview", icon: LayoutDashboard }],
+    },
+    {
+      label: "People",
+      items: [
+        { id: "contacts", label: "Contacts", icon: Users },
+        { id: "pipeline", label: "Pipeline", icon: Workflow },
+        { id: "staff", label: "Staff", icon: Users },
+      ],
+    },
+    {
+      label: "Finance",
+      items: [
+        { id: "donations", label: "Donations", icon: HeartHandshake },
+        { id: "expenses", label: "Expenses", icon: Wallet },
+        { id: "reports", label: "Reports", icon: BarChart3 },
+      ],
+    },
+    {
+      label: "Content",
+      items: [
+        { id: "pages", label: "Page Content", icon: FileText },
+        { id: "gallery", label: "Media Library", icon: ImageIcon },
+        { id: "news", label: "News", icon: Newspaper },
+        { id: "events", label: "Events", icon: Calendar },
+        { id: "insight", label: "Foundation Insight", icon: Sparkles },
+      ],
+    },
+    {
+      label: "System",
+      items: [
+        { id: "foundation", label: "Foundation Info", icon: SettingsIcon },
+        { id: "settings", label: "Settings", icon: SettingsIcon },
+      ],
+    },
   ];
 
   return (
@@ -100,6 +123,9 @@ export const AdminDashboard: React.FC = () => {
             <span className="text-sm text-slate-600 hidden sm:block">
               {user?.fullName || user?.email}
             </span>
+            <span className="hidden sm:inline-flex items-center gap-1 text-[10px] font-semibold uppercase tracking-wider text-blue-700 bg-blue-50 border border-blue-200 px-2 py-0.5 rounded-full">
+              Admin
+            </span>
             <button
               onClick={onLogout}
               className="text-sm text-slate-600 hover:text-rose-600 flex items-center gap-1"
@@ -110,18 +136,25 @@ export const AdminDashboard: React.FC = () => {
         </div>
       </header>
 
-      <div className="max-w-7xl mx-auto px-4 py-6 grid grid-cols-1 lg:grid-cols-[200px_1fr] gap-6">
-        <nav className="space-y-1">
-          {tabs.map((t) => (
-            <button
-              key={t.id}
-              onClick={() => setTab(t.id)}
-              className={`w-full text-left text-sm font-medium px-3 py-2 rounded-md flex items-center gap-2 transition-colors ${
-                tab === t.id ? "bg-blue-600 text-white" : "text-slate-700 hover:bg-slate-100"
-              }`}
-            >
-              <t.icon className="w-4 h-4" /> {t.label}
-            </button>
+      <div className="max-w-7xl mx-auto px-4 py-6 grid grid-cols-1 lg:grid-cols-[220px_1fr] gap-6">
+        <nav className="space-y-5">
+          {sections.map((section) => (
+            <div key={section.label} className="space-y-1">
+              <p className="px-3 text-[10px] font-semibold uppercase tracking-wider text-slate-400">
+                {section.label}
+              </p>
+              {section.items.map((t) => (
+                <button
+                  key={t.id}
+                  onClick={() => setTab(t.id)}
+                  className={`w-full text-left text-sm font-medium px-3 py-2 rounded-md flex items-center gap-2 transition-colors ${
+                    tab === t.id ? "bg-blue-600 text-white" : "text-slate-700 hover:bg-slate-100"
+                  }`}
+                >
+                  <t.icon className="w-4 h-4" /> {t.label}
+                </button>
+              ))}
+            </div>
           ))}
         </nav>
 
