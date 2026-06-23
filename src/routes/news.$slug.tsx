@@ -14,7 +14,7 @@ const fetchArticleMeta = createServerFn({ method: "GET" })
     );
     const { data: row } = await client
       .from("news_articles")
-      .select("title, excerpt, cover_image, published_at, author")
+      .select("title, excerpt, cover_image, published_at")
       .eq("slug", data.slug)
       .eq("status", "published")
       .maybeSingle();
@@ -23,9 +23,9 @@ const fetchArticleMeta = createServerFn({ method: "GET" })
       excerpt: string | null;
       cover_image: string | null;
       published_at: string | null;
-      author: string | null;
     } | null) ?? null;
   });
+
 
 const FALLBACK_TITLE = "Dispatch — MDF News";
 const FALLBACK_DESC = "Field dispatch from the Manyang Disability Foundation.";
