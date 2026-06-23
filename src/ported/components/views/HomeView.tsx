@@ -1,7 +1,17 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
-import { Heart, ArrowRight } from "lucide-react";
+import { Heart, ArrowRight, Download, PlayCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { toEmbedUrl } from "../../lib/videoEmbed";
+
+interface InsightContent {
+  title?: string;
+  body?: string;
+  cover?: string;
+  brochureUrl?: string;
+  brochureName?: string;
+  videoUrl?: string;
+}
 
 interface NewsRow {
   id: string;
