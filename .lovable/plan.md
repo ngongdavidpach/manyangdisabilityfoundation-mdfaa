@@ -1,49 +1,48 @@
 ## Goal
 
-Add an admin-only screen to manage **staff login accounts** (the people who can sign in to `/admin`) and grant or revoke the `admin` role. This is distinct from the existing **Staff** tab, which manages the public About-page roster (`staff_members` table) and is unchanged.
+Make the content that admins manage in `/admin` actually appear on the public website. Today, several admin sections write to the right tables but the public views ignore them (or no public surface exists).
 
-## What the new screen does
+## Current gap
 
-In the admin dashboard, add a new tab **"Staff Accounts"** under the **People** group with three capabilities:
+| Admin tool | Writes to | Public surface today |
+|---|---|---|
+| Page Content editor | `page_settings` | Already wired through `usePageSettings` (RLS gates on `published=true`). OK. |
+| Media Library | `media_assets` | Not displayed. Gallery reads `page_settings.gallery.images` instead. |
+| News | `news_articles` (status/published_at) | Not displayed. NewsView reads `page_settings.news.articles`. |
+| Events | `events` (status, starts_at…) | Not displayed. NewsView reads `page_settings.news.events`. |
+| Foundation Insight | `page_settings.home.insight` | Saved but never rendered on `/` or anywhere public. |
 
-1. **List accounts** — show every auth user with: full name (from `profiles`), email, current role (`admin` / `member`), created date, last sign-in.
-2. **Toggle admin** — switch the `admin` role on/off per user (writes to `public.user_roles`). Self-demotion is blocked client-side with a confirmation, and the server prevents removing the last admin.
-3. **Invite a new staff account** — form with email + full name + "Make admin" checkbox. Uses Supabase Auth Admin `inviteUserByEmail`, then optionally inserts the admin role.
+RLS on `news_articles`, `events`, `media_assets`, `page_settings` already allows anon SELECT for published rows, so no schema/policy changes are needed.
 
-No schema changes — `user_roles`, `profiles`, and `app_role` enum already exist with the right policies.
+## Changes (frontend only)
 
-## Server functions (admin-gated)
+1. **News — public list & detail from `news_articles`**
+   - `NewsView`: fetch from `news_articles` where `status='published'` ordered by `published_at desc`; map to the existing `NewsArticle` shape (`id=slug`, `title`, `summary=excerpt`, `content=body_md`, `image=cover_image`, `date=published_at`, derive `readTime` from word count, default `category='Dispatch'`, `author='MDF Team'`). Keep `page_settings.news.articles` as a fallback only if the table is empty.
+   - `/news/$slug` already passes `slug` as `articleId`; switch lookup to match the slug field.
 
-All new functions live in `src/lib/staffAccounts.functions.ts`, use `requireSupabaseAuth`, and verify `has_role(userId, 'admin')` before doing anything. The service-role client (`supabaseAdmin`) is loaded inside each handler via `await import(...)` so it never leaks into the client bundle.
+2. **Events — public list from `events`**
+   - `NewsView` events tab: fetch from `events` where `status='published'`; split into upcoming/past by `starts_at` vs `now()`; map to `FoundationEvent` (date/time formatted from `starts_at`, `image=cover_image`, `category='Event'`). RSVP wiring stays as-is (`eventExternalId = slug`).
 
-- `listStaffAccounts()` → uses `supabaseAdmin.auth.admin.listUsers()`, then joins with `profiles.full_name` and `user_roles.role`. Returns `{ id, email, fullName, roles: string[], createdAt, lastSignInAt }[]`.
-- `setUserAdmin({ userId, isAdmin })` → inserts or deletes the `(user_id, 'admin')` row in `user_roles`. Refuses if it would remove the final admin.
-- `inviteStaffAccount({ email, fullName, makeAdmin })` → `supabaseAdmin.auth.admin.inviteUserByEmail(email, { data: { full_name } })`, then optionally inserts admin role for the new user id.
+3. **Gallery — public grid from `media_assets`**
+   - `GalleryView`: fetch from `media_assets` ordered by `created_at desc`; map to `GalleryImage` (`id`, `url`, `title=alt || 'Field photo'`, `category` derived from first known tag in `mobility|medical|education|livelihood` else `mobility`, `date=created_at`, `description=alt`). Fallback to `page_settings.gallery.images` only when the table is empty so existing manual entries keep working.
 
-Every function: verify caller is admin first; on failure throw with a clean message (no raw provider errors).
+4. **Foundation Insight — render on `/`**
+   - `HomeView`: read `home.insight` and `home.showInsight` (already saved by `FoundationInsightManager`). When `showInsight && (insight.title || insight.body || insight.brochureUrl || insight.videoUrl)`, render a new "Foundation Insight" section with the cover image, title, body, optional embedded video (reuse `videoEmbed.ts`), and a "Download brochure" link.
 
-## UI
-
-New file `src/ported/components/admin/StaffAccountsManager.tsx`:
-- Table of accounts: name, email, role badge, last sign-in, an admin toggle, and a "Remove admin" / "Make admin" action.
-- "Invite staff" button opens a small inline form (email, full name, "Make admin" checkbox).
-- Toast/inline feedback for success and errors.
-- Disables the toggle on the currently-signed-in user's row when they are the only admin.
-
-Wire-up in `src/ported/components/views/AdminDashboardView.tsx`:
-- Add `"staff-accounts"` to the `Tab` union.
-- Add an entry under the **People** section (label: "Staff Accounts", icon: `ShieldCheck`).
-- Render `<StaffAccountsManager />` when active.
+5. **Page content** — no code change required; verify each admin-managed page (`home, about, programs, gallery, news, events, get-involved, donate, request, footer, navigation, site, foundation`) is rendered via `usePageSettings` and that the public view degrades gracefully when `published=false` (anon read returns no row → fallback content already in views). Add a `published` check in `usePageSettings` only if we want unpublished drafts to fully hide — current behavior is acceptable since RLS already enforces it.
 
 ## Out of scope
 
-- No changes to the existing `Staff` tab (`staff_members`).
-- No new roles beyond `admin` / `member`.
-- No password reset / account deletion in this pass (can add later).
-- No bulk import.
+- No schema, RLS, or policy changes.
+- No new admin features; existing managers are untouched.
+- No SEO/OG changes for `/news/$slug` beyond what's already there.
+- Pagination / search on news, gallery, events — single-page listings for now.
 
-## Files touched
+## Files to edit
 
-- New `src/lib/staffAccounts.functions.ts`
-- New `src/ported/components/admin/StaffAccountsManager.tsx`
-- Edit `src/ported/components/views/AdminDashboardView.tsx` (one new tab in the People group)
+- `src/ported/components/views/NewsView.tsx` — fetch news + events from tables.
+- `src/ported/components/views/GalleryView.tsx` — fetch media from `media_assets`.
+- `src/ported/components/views/HomeView.tsx` — render Foundation Insight section.
+- (Possibly) `src/ported/lib/videoEmbed.ts` — reused, no edit expected.
+
+No new files, no migrations.
