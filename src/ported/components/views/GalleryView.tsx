@@ -1,12 +1,20 @@
 import { useNavigate, Link } from "@tanstack/react-router";
-import React, { useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { MapPin, Calendar, X, Heart, Maximize2 } from "lucide-react";
 import { type GalleryImage } from "../../data/foundationData";
 import { usePageSettings } from "../../hooks/usePageSettings";
+import { supabase } from "@/integrations/supabase/client";
 
 interface GalleryContent {
   images?: GalleryImage[];
 }
+
+const KNOWN_CATEGORIES: GalleryImage["category"][] = [
+  "mobility",
+  "medical",
+  "education",
+  "livelihood",
+];
 
 export const GalleryView: React.FC = () => {
   const navigate = useNavigate();
@@ -14,7 +22,43 @@ export const GalleryView: React.FC = () => {
   const [selectedImage, setSelectedImage] = useState<GalleryImage | null>(null);
 
   const { content: galleryContent } = usePageSettings<GalleryContent>("gallery", {});
-  const images = galleryContent?.images || [];
+  const [dbImages, setDbImages] = useState<GalleryImage[] | null>(null);
+
+  useEffect(() => {
+    supabase
+      .from("media_assets")
+      .select("id, url, alt, tags, created_at")
+      .order("created_at", { ascending: false })
+      .then(({ data }) => {
+        const rows = (data || []).map((m): GalleryImage => {
+          const tags = (m.tags as string[]) || [];
+          const cat =
+            (KNOWN_CATEGORIES.find((c) => tags.includes(c)) as GalleryImage["category"]) ||
+            "mobility";
+          const dateStr = m.created_at
+            ? new Date(m.created_at as string).toLocaleDateString(undefined, {
+                year: "numeric",
+                month: "short",
+              })
+            : "";
+          return {
+            id: m.id as string,
+            title: (m.alt as string) || "Field photo",
+            location: "",
+            category: cat,
+            url: m.url as string,
+            date: dateStr,
+            description: (m.alt as string) || "",
+          };
+        });
+        setDbImages(rows);
+      });
+  }, []);
+
+  const images = useMemo(
+    () => (dbImages && dbImages.length > 0 ? dbImages : galleryContent?.images || []),
+    [dbImages, galleryContent],
+  );
 
   const filteredImages =
     activeCategory === "all" ? images : images.filter((img) => img.category === activeCategory);

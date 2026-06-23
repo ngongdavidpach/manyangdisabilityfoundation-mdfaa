@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import {
@@ -18,6 +18,7 @@ import {
 import { type NewsArticle, type FoundationEvent } from "../../data/foundationData";
 import { submitEventRsvp } from "@/lib/intake.functions";
 import { usePageSettings } from "../../hooks/usePageSettings";
+import { supabase } from "@/integrations/supabase/client";
 
 interface NewsContent {
   articles?: NewsArticle[];
@@ -28,6 +29,34 @@ interface NewsViewProps {
   articleId?: string;
 }
 
+function estimateReadTime(text: string | null | undefined): string {
+  const words = (text || "").trim().split(/\s+/).filter(Boolean).length;
+  const mins = Math.max(1, Math.round(words / 200));
+  return `${mins} min read`;
+}
+
+function formatDate(iso: string | null | undefined): string {
+  if (!iso) return "";
+  try {
+    return new Date(iso).toLocaleDateString(undefined, {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    });
+  } catch {
+    return "";
+  }
+}
+
+function formatTime(iso: string | null | undefined): string {
+  if (!iso) return "";
+  try {
+    return new Date(iso).toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" });
+  } catch {
+    return "";
+  }
+}
+
 export const NewsView: React.FC<NewsViewProps> = ({ articleId }) => {
   const navigate = useNavigate();
   const [copied, setCopied] = useState(false);
@@ -35,8 +64,64 @@ export const NewsView: React.FC<NewsViewProps> = ({ articleId }) => {
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
 
   const { content: newsContent } = usePageSettings<NewsContent>("news", {});
-  const articles = newsContent?.articles || [];
-  const events = newsContent?.events || [];
+  const [dbArticles, setDbArticles] = useState<NewsArticle[] | null>(null);
+  const [dbEvents, setDbEvents] = useState<FoundationEvent[] | null>(null);
+
+  useEffect(() => {
+    supabase
+      .from("news_articles")
+      .select("slug, title, excerpt, body_md, cover_image, published_at")
+      .eq("status", "published")
+      .order("published_at", { ascending: false })
+      .then(({ data }) => {
+        const rows = (data || []).map(
+          (r): NewsArticle => ({
+            id: r.slug,
+            title: r.title,
+            summary: r.excerpt || "",
+            content: r.body_md || "",
+            date: formatDate(r.published_at),
+            author: "MDF Team",
+            category: "Dispatch",
+            image: r.cover_image || "",
+            readTime: estimateReadTime(r.body_md),
+          }),
+        );
+        setDbArticles(rows);
+      });
+    supabase
+      .from("events")
+      .select("slug, title, description, cover_image, starts_at, ends_at, location")
+      .eq("status", "published")
+      .order("starts_at", { ascending: false })
+      .then(({ data }) => {
+        const now = Date.now();
+        const rows = (data || []).map((r): FoundationEvent => {
+          const startMs = r.starts_at ? new Date(r.starts_at).getTime() : 0;
+          return {
+            id: r.slug,
+            title: r.title,
+            date: formatDate(r.starts_at),
+            time: formatTime(r.starts_at),
+            location: r.location || "",
+            type: startMs >= now ? "upcoming" : "past",
+            category: "Event",
+            description: r.description || "",
+            image: r.cover_image || "",
+          };
+        });
+        setDbEvents(rows);
+      });
+  }, []);
+
+  const articles = useMemo(
+    () => (dbArticles && dbArticles.length > 0 ? dbArticles : newsContent?.articles || []),
+    [dbArticles, newsContent],
+  );
+  const events = useMemo(
+    () => (dbEvents && dbEvents.length > 0 ? dbEvents : newsContent?.events || []),
+    [dbEvents, newsContent],
+  );
 
   // Event RSVP Simulator State
   const [rsvpEvent, setRsvpEvent] = useState<FoundationEvent | null>(null);
@@ -49,7 +134,7 @@ export const NewsView: React.FC<NewsViewProps> = ({ articleId }) => {
   const submitEventRsvpFn = useServerFn(submitEventRsvp);
 
   const isArticleView = !!articleId;
-  const currentArticle = articleId ? articles.find((a) => a.id === articleId) : null;
+  const currentArticle = articleId ? articles.find((a) => String(a.id) === articleId) : null;
 
   const handleShare = () => {
     setCopied(true);
