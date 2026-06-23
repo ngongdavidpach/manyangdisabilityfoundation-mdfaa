@@ -210,9 +210,10 @@ export const HomeView = () => {
                         ? new Date(article.published_at).toLocaleDateString()
                         : ""}
                     </span>
-                    <h2 className="font-bold text-slate-900 text-sm group-hover:text-blue-600 transition-colors line-clamp-2">
+                    <h3 className="font-bold text-slate-900 text-sm group-hover:text-blue-600 transition-colors line-clamp-2">
                       {article.title}
-                    </h2>
+                    </h3>
+
                     {article.excerpt && (
                       <p className="text-xs text-slate-600 mt-2 line-clamp-2">{article.excerpt}</p>
                     )}
