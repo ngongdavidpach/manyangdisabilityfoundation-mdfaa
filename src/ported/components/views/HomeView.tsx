@@ -26,6 +26,8 @@ export const HomeView = () => {
   const navigate = useNavigate();
   const [articles, setArticles] = useState<NewsRow[]>([]);
   const [loading, setLoading] = useState(true);
+  const [insight, setInsight] = useState<InsightContent | null>(null);
+  const [showInsight, setShowInsight] = useState(false);
 
   useEffect(() => {
     supabase
@@ -38,10 +40,93 @@ export const HomeView = () => {
         setArticles((data as NewsRow[]) || []);
         setLoading(false);
       });
+    supabase
+      .from("page_settings")
+      .select("content")
+      .eq("page_key", "home")
+      .maybeSingle()
+      .then(({ data }) => {
+        const c = (data?.content as any) || {};
+        setInsight((c.insight as InsightContent) || null);
+        setShowInsight(!!c.showInsight);
+      });
   }, []);
+
+  const insightEmbed = insight?.videoUrl ? toEmbedUrl(insight.videoUrl) : null;
+  const hasInsight =
+    showInsight &&
+    !!insight &&
+    !!(insight.title || insight.body || insight.brochureUrl || insight.videoUrl || insight.cover);
 
   return (
     <div>
+      {/* Foundation Insight */}
+      {hasInsight && (
+        <section className="bg-gradient-to-b from-slate-50 to-white border-b border-slate-200">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-center">
+              <div className="space-y-5">
+                <span className="bg-amber-100 text-amber-900 text-[11px] font-bold px-2.5 py-1 rounded-md uppercase tracking-wider inline-block">
+                  Foundation Insight
+                </span>
+                {insight?.title && (
+                  <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">
+                    {insight.title}
+                  </h2>
+                )}
+                {insight?.body && (
+                  <p className="text-sm sm:text-base text-slate-600 leading-relaxed whitespace-pre-line">
+                    {insight.body}
+                  </p>
+                )}
+                <div className="flex flex-wrap gap-3 pt-2">
+                  {insight?.brochureUrl && (
+                    <a
+                      href={insight.brochureUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="bg-blue-600 hover:bg-blue-700 text-white font-bold px-5 py-2.5 rounded-lg text-xs inline-flex items-center gap-2 transition-colors"
+                    >
+                      <Download className="w-4 h-4" />
+                      <span>{insight.brochureName || "Download brochure"}</span>
+                    </a>
+                  )}
+                  {insight?.videoUrl && !insightEmbed && (
+                    <a
+                      href={insight.videoUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="bg-slate-900 hover:bg-slate-800 text-white font-bold px-5 py-2.5 rounded-lg text-xs inline-flex items-center gap-2 transition-colors"
+                    >
+                      <PlayCircle className="w-4 h-4" />
+                      <span>Watch video</span>
+                    </a>
+                  )}
+                </div>
+              </div>
+              <div className="rounded-2xl overflow-hidden bg-slate-100 shadow-sm aspect-video">
+                {insightEmbed ? (
+                  <iframe
+                    src={insightEmbed}
+                    title={insight?.title || "Foundation Insight"}
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                    className="w-full h-full"
+                  />
+                ) : insight?.cover ? (
+                  <img
+                    src={insight.cover}
+                    alt={insight.title || "Foundation Insight"}
+                    className="w-full h-full object-cover"
+                  />
+                ) : null}
+              </div>
+            </div>
+          </div>
+        </section>
+      )}
+
+
       {/* Latest News & Updates */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <div className="flex justify-between items-baseline mb-8">
