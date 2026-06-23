@@ -162,12 +162,13 @@ export const HomeView = () => {
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <div className="flex justify-between items-baseline mb-8">
           <div>
-            <h2 className="text-xs font-bold uppercase tracking-widest text-blue-600">
+            <span className="text-xs font-bold uppercase tracking-widest text-blue-600 block">
               Foundation Dispatches
-            </h2>
-            <p className="text-2xl font-bold text-slate-900 tracking-tight mt-1">
+            </span>
+            <h2 className="text-2xl font-bold text-slate-900 tracking-tight mt-1">
               Recent News & Field Reports
-            </p>
+            </h2>
+
           </div>
           <button
             onClick={() => navigate({ to: "/news" })}
