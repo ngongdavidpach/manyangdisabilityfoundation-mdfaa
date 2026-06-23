@@ -1,68 +1,49 @@
 ## Goal
 
-1. Make sure only users with the `admin` role can reach `/admin` and its widgets (frontend gate + backend RLS check).
-2. Reorganize the admin dashboard's 14 flat tabs into clear, grouped sections so it's easier to navigate.
+Add an admin-only screen to manage **staff login accounts** (the people who can sign in to `/admin`) and grant or revoke the `admin` role. This is distinct from the existing **Staff** tab, which manages the public About-page roster (`staff_members` table) and is unchanged.
 
-## 1. Role-based authorization for /admin
+## What the new screen does
 
-The route is already gated client-side (`hasRole(["admin"])` in `src/routes/admin.tsx`) via `AuthContext`, which reads `public.user_roles`. I'll harden it:
+In the admin dashboard, add a new tab **"Staff Accounts"** under the **People** group with three capabilities:
 
-- **Frontend gate (already correct, light cleanup)** — keep the three states in `src/routes/admin.tsx`: loading → `StaffLoginView` (unauthenticated) → "Access Restricted" panel (signed in, not admin) → `AdminDashboard`.
-- **Backend gate (verify, don't rewrite)** — confirm each admin-only table used by the managers (media_assets, news_articles, events, staff_members, contacts, donations, expenses, page_settings, navigation, foundation info, insight) has RLS policies that require `public.has_role(auth.uid(), 'admin')` for INSERT/UPDATE/DELETE. If any table currently allows writes to plain `authenticated` users, add an admin-only policy in a single migration. Read-only public data (e.g. published news/events) stays readable by `anon`.
-- No new tables. No new auth providers. The "first signup becomes admin" trigger stays as-is unless you tell me otherwise.
+1. **List accounts** — show every auth user with: full name (from `profiles`), email, current role (`admin` / `member`), created date, last sign-in.
+2. **Toggle admin** — switch the `admin` role on/off per user (writes to `public.user_roles`). Self-demotion is blocked client-side with a confirmation, and the server prevents removing the last admin.
+3. **Invite a new staff account** — form with email + full name + "Make admin" checkbox. Uses Supabase Auth Admin `inviteUserByEmail`, then optionally inserts the admin role.
 
-If the linter finds gaps, the migration will add policies like:
-```sql
-CREATE POLICY "Admins manage X" ON public.<table>
-FOR ALL TO authenticated
-USING (public.has_role(auth.uid(), 'admin'))
-WITH CHECK (public.has_role(auth.uid(), 'admin'));
-```
+No schema changes — `user_roles`, `profiles`, and `app_role` enum already exist with the right policies.
 
-## 2. Reorganize the dashboard
+## Server functions (admin-gated)
 
-Today the sidebar in `AdminDashboardView.tsx` is one flat list of 14 items. I'll group them into labeled sections with small section headers in the sidebar — no behavior change, just structure:
+All new functions live in `src/lib/staffAccounts.functions.ts`, use `requireSupabaseAuth`, and verify `has_role(userId, 'admin')` before doing anything. The service-role client (`supabaseAdmin`) is loaded inside each handler via `await import(...)` so it never leaks into the client bundle.
 
-```
-Overview
-  • Overview
+- `listStaffAccounts()` → uses `supabaseAdmin.auth.admin.listUsers()`, then joins with `profiles.full_name` and `user_roles.role`. Returns `{ id, email, fullName, roles: string[], createdAt, lastSignInAt }[]`.
+- `setUserAdmin({ userId, isAdmin })` → inserts or deletes the `(user_id, 'admin')` row in `user_roles`. Refuses if it would remove the final admin.
+- `inviteStaffAccount({ email, fullName, makeAdmin })` → `supabaseAdmin.auth.admin.inviteUserByEmail(email, { data: { full_name } })`, then optionally inserts admin role for the new user id.
 
-People
-  • Contacts
-  • Pipeline
-  • Staff
+Every function: verify caller is admin first; on failure throw with a clean message (no raw provider errors).
 
-Finance
-  • Donations
-  • Expenses
-  • Reports
+## UI
 
-Content
-  • Page Content
-  • Media Library
-  • News
-  • Events
-  • Foundation Insight
+New file `src/ported/components/admin/StaffAccountsManager.tsx`:
+- Table of accounts: name, email, role badge, last sign-in, an admin toggle, and a "Remove admin" / "Make admin" action.
+- "Invite staff" button opens a small inline form (email, full name, "Make admin" checkbox).
+- Toast/inline feedback for success and errors.
+- Disables the toggle on the currently-signed-in user's row when they are the only admin.
 
-System
-  • Foundation Info
-  • Settings (navigation pages + site-wide pointers)
-```
-
-Implementation notes:
-- Replace the flat `tabs` array with a `sections` array of `{ label, items: Tab[] }`.
-- Render each section with a muted uppercase header above its items; keep the existing active-tab styling.
-- Keep all existing manager components and the overview widgets unchanged.
-- Mobile: sidebar already stacks above main on `lg:` breakpoint — sections render the same way; no new responsive work.
+Wire-up in `src/ported/components/views/AdminDashboardView.tsx`:
+- Add `"staff-accounts"` to the `Tab` union.
+- Add an entry under the **People** section (label: "Staff Accounts", icon: `ShieldCheck`).
+- Render `<StaffAccountsManager />` when active.
 
 ## Out of scope
 
-- No redesign of individual manager screens.
+- No changes to the existing `Staff` tab (`staff_members`).
 - No new roles beyond `admin` / `member`.
-- No changes to `StaffLoginView` or `AuthContext` API.
+- No password reset / account deletion in this pass (can add later).
+- No bulk import.
 
 ## Files touched
 
-- `src/routes/admin.tsx` — minor (keep gate, no functional change unless cleanup needed).
-- `src/ported/components/views/AdminDashboardView.tsx` — sidebar restructured into sections.
-- Possibly one Supabase migration if the linter shows a table missing an admin-only write policy.
+- New `src/lib/staffAccounts.functions.ts`
+- New `src/ported/components/admin/StaffAccountsManager.tsx`
+- Edit `src/ported/components/views/AdminDashboardView.tsx` (one new tab in the People group)

@@ -13,6 +13,7 @@ import {
   Wallet,
   BarChart3,
   Workflow,
+  ShieldCheck,
 } from "lucide-react";
 import { useNavigate, Link } from "@tanstack/react-router";
 import { useAuth } from "../../contexts/AuthContext";
@@ -30,6 +31,7 @@ import { DonationsManager } from "../admin/DonationsManager";
 import { ExpensesManager } from "../admin/ExpensesManager";
 import { FinanceReports } from "../admin/FinanceReports";
 import { FoundationInfoEditor } from "../admin/FoundationInfoEditor";
+import { StaffAccountsManager } from "../admin/StaffAccountsManager";
 
 type Tab =
   | "overview"
@@ -40,6 +42,7 @@ type Tab =
   | "news"
   | "events"
   | "staff"
+  | "staff-accounts"
   | "settings"
   | "contacts"
   | "pipeline"
@@ -82,6 +85,7 @@ export const AdminDashboard: React.FC = () => {
         { id: "contacts", label: "Contacts", icon: Users },
         { id: "pipeline", label: "Pipeline", icon: Workflow },
         { id: "staff", label: "Staff", icon: Users },
+        { id: "staff-accounts", label: "Staff Accounts", icon: ShieldCheck },
       ],
     },
     {
@@ -201,6 +205,7 @@ export const AdminDashboard: React.FC = () => {
           {tab === "news" && <NewsManager />}
           {tab === "events" && <EventsManager />}
           {tab === "staff" && <StaffManager />}
+          {tab === "staff-accounts" && <StaffAccountsManager />}
           {tab === "settings" && (
             <div className="space-y-4">
               <NavigationPagesEditor />
