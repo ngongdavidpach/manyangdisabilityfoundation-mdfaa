@@ -71,7 +71,7 @@ export const StaffLoginView: React.FC = () => {
           <div>
             <label className="block text-xs font-bold text-slate-700 mb-1.5">Email Address</label>
             <div className="relative">
-              <span className="absolute left-3 top-2.5 text-slate-400">
+              <span className="absolute left-3 top-2.5 text-slate-500">
                 <Mail className="w-4 h-4" />
               </span>
               <input
@@ -88,7 +88,7 @@ export const StaffLoginView: React.FC = () => {
           <div>
             <label className="block text-xs font-bold text-slate-700 mb-1.5">Password</label>
             <div className="relative">
-              <span className="absolute left-3 top-2.5 text-slate-400">
+              <span className="absolute left-3 top-2.5 text-slate-500">
                 <Lock className="w-4 h-4" />
               </span>
               <input
@@ -102,7 +102,7 @@ export const StaffLoginView: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-2.5 text-slate-400 hover:text-slate-700"
+                className="absolute right-3 top-2.5 text-slate-500 hover:text-slate-700"
                 aria-label="Toggle password visibility"
               >
                 {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
@@ -144,7 +144,7 @@ export const StaffLoginView: React.FC = () => {
               <span className="w-full border-t border-slate-200" />
             </div>
             <div className="relative flex justify-center text-[10px] uppercase tracking-wider">
-              <span className="bg-white px-2 text-slate-400">or continue with</span>
+              <span className="bg-white px-2 text-slate-500">or continue with</span>
             </div>
           </div>
 

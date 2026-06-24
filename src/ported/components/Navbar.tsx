@@ -151,7 +151,7 @@ export const Navbar: React.FC = () => {
                       : "text-slate-600 hover:text-blue-600 hover:bg-slate-50"
                   }`}
                 >
-                  <Icon className={`w-4 h-4 ${isActive ? "text-blue-600" : "text-slate-400"}`} />
+                  <Icon className={`w-4 h-4 ${isActive ? "text-blue-600" : "text-slate-500"}`} />
                   <span>{link.label}</span>
                 </button>
               );
@@ -292,7 +292,7 @@ export const Navbar: React.FC = () => {
                       : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
                   }`}
                 >
-                  <Icon className={`w-5 h-5 ${isActive ? "text-blue-600" : "text-slate-400"}`} />
+                  <Icon className={`w-5 h-5 ${isActive ? "text-blue-600" : "text-slate-500"}`} />
                   <span>{link.label}</span>
                 </button>
               );

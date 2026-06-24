@@ -173,7 +173,7 @@ export const DonateView: React.FC = () => {
 
           <div className="p-6 sm:p-8 space-y-6">
             <div className="text-center pb-6 border-b border-slate-200">
-              <span className="text-xs text-slate-400 uppercase tracking-widest block font-medium">
+              <span className="text-xs text-slate-500 uppercase tracking-widest block font-medium">
                 Pledged Amount
               </span>
               <span className="text-4xl sm:text-5xl font-extrabold text-slate-900 block mt-1">
@@ -310,7 +310,7 @@ export const DonateView: React.FC = () => {
                 Or Enter Custom Amount ($ USD)
               </label>
               <div className="relative max-w-xs">
-                <span className="absolute left-3 top-2.5 text-sm font-bold text-slate-400">$</span>
+                <span className="absolute left-3 top-2.5 text-sm font-bold text-slate-500">$</span>
                 <input
                   type="number"
                   value={customAmount}
@@ -343,7 +343,7 @@ export const DonateView: React.FC = () => {
                       }`}
                     >
                       <Icon
-                        className={`w-5 h-5 ${isActive ? "text-amber-600" : "text-slate-400"}`}
+                        className={`w-5 h-5 ${isActive ? "text-amber-600" : "text-slate-500"}`}
                       />
                       <span className="text-xs">{c.label}</span>
                     </button>
@@ -472,7 +472,7 @@ export const DonateView: React.FC = () => {
                 </button>
               </div>
 
-              <div className="flex items-center justify-center gap-4 text-[11px] text-slate-400 pt-2 border-t border-slate-100">
+              <div className="flex items-center justify-center gap-4 text-[11px] text-slate-500 pt-2 border-t border-slate-100">
                 <span className="flex items-center gap-1">
                   <ShieldCheck className="w-3.5 h-3.5 text-emerald-500" /> No card data collected
                 </span>
@@ -489,10 +489,10 @@ export const DonateView: React.FC = () => {
                 Pledge Summary
               </span>
               <div>
-                <span className="text-xs text-slate-400 block">Your Pledge:</span>
+                <span className="text-xs text-slate-500 block">Your Pledge:</span>
                 <span className="text-3xl font-extrabold text-white block">
                   ${amount}.00{" "}
-                  <span className="text-xs font-normal text-slate-400">
+                  <span className="text-xs font-normal text-slate-500">
                     {frequency === "monthly" ? "/ month" : ""}
                   </span>
                 </span>
