@@ -10,7 +10,7 @@ export const Route = createFileRoute("/programs")({
       path: "/programs",
       defaultTitle: "Programs — Manyang Disability Foundation",
       defaultDescription:
-        "Mobility aids, surgical rehab, inclusive education, livelihood micro-grants, and advocacy.",
+        "Mobility aids, surgical assistance, inclusive education, and livelihood micro-grants.",
       seo: loaderData,
     });
     return {
@@ -23,7 +23,7 @@ export const Route = createFileRoute("/programs")({
             "@type": "CollectionPage",
             name: "Programs — Manyang Disability Foundation",
             description:
-              "Mobility aids, surgical rehabilitation, inclusive education, livelihood micro-grants, and advocacy programs run by the Manyang Disability Foundation.",
+              "Mobility aids, surgical assistance, inclusive education,and livelihood micro-grants programs run by the Manyang Disability Foundation.",
             url: "https://manyangdisabilityfoundation.org/programs",
             isPartOf: {
               "@type": "WebSite",
@@ -32,10 +32,10 @@ export const Route = createFileRoute("/programs")({
             },
             about: [
               { "@type": "Thing", name: "Mobility aids" },
-              { "@type": "Thing", name: "Surgical rehabilitation" },
+              { "@type": "Thing", name: "surgical assistance" },
               { "@type": "Thing", name: "Inclusive education" },
               { "@type": "Thing", name: "Livelihood micro-grants" },
-              { "@type": "Thing", name: "Disability advocacy" },
+            
             ],
           }),
         },
