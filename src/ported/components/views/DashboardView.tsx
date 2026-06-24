@@ -254,7 +254,7 @@ export const DashboardView: React.FC = () => {
           <div className="bg-white p-4 rounded-xl border border-slate-200">
             <div className="flex items-center justify-between mb-2">
               <FileText className="w-5 h-5 text-blue-600" />
-              <span className="text-[10px] font-bold text-slate-400 uppercase">Applications</span>
+              <span className="text-[10px] font-bold text-slate-500 uppercase">Applications</span>
             </div>
             <span className="text-2xl font-extrabold text-slate-900 block">
               {applications.length}
@@ -266,7 +266,7 @@ export const DashboardView: React.FC = () => {
           <div className="bg-white p-4 rounded-xl border border-slate-200">
             <div className="flex items-center justify-between mb-2">
               <TrendingUp className="w-5 h-5 text-emerald-600" />
-              <span className="text-[10px] font-bold text-slate-400 uppercase">Completed</span>
+              <span className="text-[10px] font-bold text-slate-500 uppercase">Completed</span>
             </div>
             <span className="text-2xl font-extrabold text-slate-900 block">
               {
@@ -279,7 +279,7 @@ export const DashboardView: React.FC = () => {
           <div className="bg-white p-4 rounded-xl border border-slate-200">
             <div className="flex items-center justify-between mb-2">
               <Heart className="w-5 h-5 text-amber-600" />
-              <span className="text-[10px] font-bold text-slate-400 uppercase">Total Giving</span>
+              <span className="text-[10px] font-bold text-slate-500 uppercase">Total Giving</span>
             </div>
             <span className="text-2xl font-extrabold text-slate-900 block">${totalDonated}</span>
             <span className="text-[10px] text-slate-500 font-semibold">
@@ -289,7 +289,7 @@ export const DashboardView: React.FC = () => {
           <div className="bg-white p-4 rounded-xl border border-slate-200">
             <div className="flex items-center justify-between mb-2">
               <Award className="w-5 h-5 text-purple-600" />
-              <span className="text-[10px] font-bold text-slate-400 uppercase">Impact Score</span>
+              <span className="text-[10px] font-bold text-slate-500 uppercase">Impact Score</span>
             </div>
             <span className="text-2xl font-extrabold text-slate-900 block">
               {Math.min(100, applications.length * 10 + donations.length * 5)}
@@ -335,7 +335,7 @@ export const DashboardView: React.FC = () => {
                 <h3 className="font-bold text-base text-slate-900 mb-3">Recent Activity</h3>
                 {applications.length === 0 && donations.length === 0 ? (
                   <div className="text-center py-12 space-y-3">
-                    <div className="w-14 h-14 rounded-full bg-slate-100 text-slate-400 flex items-center justify-center mx-auto">
+                    <div className="w-14 h-14 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center mx-auto">
                       <TrendingUp className="w-6 h-6" />
                     </div>
                     <p className="text-sm text-slate-500">
@@ -441,7 +441,7 @@ export const DashboardView: React.FC = () => {
 
             {applications.length === 0 ? (
               <div className="text-center py-16 space-y-3">
-                <div className="w-14 h-14 rounded-full bg-slate-100 text-slate-400 flex items-center justify-center mx-auto">
+                <div className="w-14 h-14 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center mx-auto">
                   <FileText className="w-6 h-6" />
                 </div>
                 <p className="text-sm text-slate-500">No applications submitted yet.</p>
@@ -490,7 +490,7 @@ export const DashboardView: React.FC = () => {
 
             {donations.length === 0 ? (
               <div className="text-center py-16 space-y-3">
-                <div className="w-14 h-14 rounded-full bg-slate-100 text-slate-400 flex items-center justify-center mx-auto">
+                <div className="w-14 h-14 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center mx-auto">
                   <Heart className="w-6 h-6" />
                 </div>
                 <p className="text-sm text-slate-500">
@@ -522,7 +522,7 @@ export const DashboardView: React.FC = () => {
                       </p>
                     </div>
                     <div className="text-right">
-                      <span className="text-[10px] font-mono text-slate-400 block">
+                      <span className="text-[10px] font-mono text-slate-500 block">
                         {don.referenceCode}
                       </span>
                       <button className="text-[10px] text-blue-600 hover:underline font-bold mt-1 flex items-center gap-1 ml-auto">
@@ -591,7 +591,7 @@ export const DashboardView: React.FC = () => {
                     <div className="flex items-center gap-3">
                       <Mail className="w-4 h-4 text-blue-600" />
                       <div>
-                        <span className="text-[10px] text-slate-400 uppercase font-bold block">
+                        <span className="text-[10px] text-slate-500 uppercase font-bold block">
                           Email
                         </span>
                         <span className="text-xs font-medium text-slate-900">{user.email}</span>
@@ -602,7 +602,7 @@ export const DashboardView: React.FC = () => {
                   <div className="flex items-center gap-3 p-3 rounded-lg bg-slate-50 border border-slate-100">
                     <Phone className="w-4 h-4 text-blue-600" />
                     <div>
-                      <span className="text-[10px] text-slate-400 uppercase font-bold block">
+                      <span className="text-[10px] text-slate-500 uppercase font-bold block">
                         Phone
                       </span>
                       <span className="text-xs font-medium text-slate-900">
@@ -613,7 +613,7 @@ export const DashboardView: React.FC = () => {
                   <div className="flex items-center gap-3 p-3 rounded-lg bg-slate-50 border border-slate-100">
                     <MapPin className="w-4 h-4 text-blue-600" />
                     <div>
-                      <span className="text-[10px] text-slate-400 uppercase font-bold block">
+                      <span className="text-[10px] text-slate-500 uppercase font-bold block">
                         Country
                       </span>
                       <span className="text-xs font-medium text-slate-900">
@@ -624,7 +624,7 @@ export const DashboardView: React.FC = () => {
                   <div className="flex items-center gap-3 p-3 rounded-lg bg-slate-50 border border-slate-100">
                     <ShieldCheck className="w-4 h-4 text-blue-600" />
                     <div>
-                      <span className="text-[10px] text-slate-400 uppercase font-bold block">
+                      <span className="text-[10px] text-slate-500 uppercase font-bold block">
                         Role Clearance
                       </span>
                       <span
@@ -769,7 +769,7 @@ export const DashboardView: React.FC = () => {
                 onChange={(e) => updateSettings({ recentActivityLimit: Number(e.target.value) })}
                 className="w-full accent-blue-600"
               />
-              <div className="flex justify-between text-[10px] text-slate-400 font-bold">
+              <div className="flex justify-between text-[10px] text-slate-500 font-bold">
                 <span>3</span>
                 <span>15</span>
               </div>

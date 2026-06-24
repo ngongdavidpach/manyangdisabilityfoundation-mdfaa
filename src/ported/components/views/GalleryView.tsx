@@ -159,13 +159,13 @@ export const GalleryView: React.FC = () => {
                     {img.title}
                   </h3>
 
-                  <div className="flex items-center gap-3 text-[11px] text-slate-400">
+                  <div className="flex items-center gap-3 text-[11px] text-slate-500">
                     <span className="flex items-center gap-1">
                       <MapPin className="w-3 h-3 text-blue-500" /> {img.location}
                     </span>
                     <span>•</span>
                     <span className="flex items-center gap-1">
-                      <Calendar className="w-3 h-3 text-slate-400" /> {img.date}
+                      <Calendar className="w-3 h-3 text-slate-500" /> {img.date}
                     </span>
                   </div>
 
@@ -225,7 +225,7 @@ export const GalleryView: React.FC = () => {
                   <button
                     onClick={() => setSelectedImage(null)}
                     aria-label="Close image preview"
-                    className="hidden md:block text-slate-400 hover:text-slate-900 transition-colors"
+                    className="hidden md:block text-slate-500 hover:text-slate-900 transition-colors"
                   >
                     <X className="w-5 h-5" />
                   </button>
@@ -241,7 +241,7 @@ export const GalleryView: React.FC = () => {
                     <span className="font-medium text-slate-800">{selectedImage.location}</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <Calendar className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                    <Calendar className="w-3.5 h-3.5 text-slate-500 shrink-0" />
                     <span>Captured in {selectedImage.date}</span>
                   </div>
                 </div>

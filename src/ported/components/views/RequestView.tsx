@@ -208,7 +208,7 @@ export const RequestView: React.FC = () => {
             <div className="text-lg sm:text-xl font-mono font-bold text-blue-700 bg-white py-2 px-4 rounded border border-slate-200 select-all">
               {trackingCode}
             </div>
-            <p className="text-[11px] text-slate-400">
+            <p className="text-[11px] text-slate-500">
               Please save or write down this reference ID to track your application status.
             </p>
           </div>
@@ -661,7 +661,7 @@ export const RequestView: React.FC = () => {
                   {errors.story && (
                     <span className="text-red-500 text-[10px] mt-0.5 block">{errors.story}</span>
                   )}
-                  <span className="text-[10px] text-slate-400 block text-right mt-1">
+                  <span className="text-[10px] text-slate-500 block text-right mt-1">
                     {formData.story.length} characters
                   </span>
                 </div>
