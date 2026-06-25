@@ -21,8 +21,10 @@ import { Route as AdminRouteImport } from './routes/admin'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as NewsSlugRouteImport } from './routes/news.$slug'
+import { Route as GuidesMobilityAidGrantsRouteImport } from './routes/guides.mobility-aid-grants'
 import { Route as GuidesFreeMedicalEquipmentRouteImport } from './routes/guides.free-medical-equipment'
 import { Route as GuidesDonateSuppliesRouteImport } from './routes/guides.donate-supplies'
+import { Route as FaqDonationsRouteImport } from './routes/faq.donations'
 import { Route as LovableEmailQueueProcessRouteImport } from './routes/lovable/email/queue/process'
 import { Route as LovableEmailAuthWebhookRouteImport } from './routes/lovable/email/auth/webhook'
 import { Route as LovableEmailAuthPreviewRouteImport } from './routes/lovable/email/auth/preview'
@@ -87,6 +89,11 @@ const NewsSlugRoute = NewsSlugRouteImport.update({
   path: '/$slug',
   getParentRoute: () => NewsRoute,
 } as any)
+const GuidesMobilityAidGrantsRoute = GuidesMobilityAidGrantsRouteImport.update({
+  id: '/guides/mobility-aid-grants',
+  path: '/guides/mobility-aid-grants',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const GuidesFreeMedicalEquipmentRoute =
   GuidesFreeMedicalEquipmentRouteImport.update({
     id: '/guides/free-medical-equipment',
@@ -96,6 +103,11 @@ const GuidesFreeMedicalEquipmentRoute =
 const GuidesDonateSuppliesRoute = GuidesDonateSuppliesRouteImport.update({
   id: '/guides/donate-supplies',
   path: '/guides/donate-supplies',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FaqDonationsRoute = FaqDonationsRouteImport.update({
+  id: '/faq/donations',
+  path: '/faq/donations',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LovableEmailQueueProcessRoute =
@@ -127,8 +139,10 @@ export interface FileRoutesByFullPath {
   '/programs': typeof ProgramsRoute
   '/request': typeof RequestRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/faq/donations': typeof FaqDonationsRoute
   '/guides/donate-supplies': typeof GuidesDonateSuppliesRoute
   '/guides/free-medical-equipment': typeof GuidesFreeMedicalEquipmentRoute
+  '/guides/mobility-aid-grants': typeof GuidesMobilityAidGrantsRoute
   '/news/$slug': typeof NewsSlugRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
@@ -146,8 +160,10 @@ export interface FileRoutesByTo {
   '/programs': typeof ProgramsRoute
   '/request': typeof RequestRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/faq/donations': typeof FaqDonationsRoute
   '/guides/donate-supplies': typeof GuidesDonateSuppliesRoute
   '/guides/free-medical-equipment': typeof GuidesFreeMedicalEquipmentRoute
+  '/guides/mobility-aid-grants': typeof GuidesMobilityAidGrantsRoute
   '/news/$slug': typeof NewsSlugRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
@@ -166,8 +182,10 @@ export interface FileRoutesById {
   '/programs': typeof ProgramsRoute
   '/request': typeof RequestRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/faq/donations': typeof FaqDonationsRoute
   '/guides/donate-supplies': typeof GuidesDonateSuppliesRoute
   '/guides/free-medical-equipment': typeof GuidesFreeMedicalEquipmentRoute
+  '/guides/mobility-aid-grants': typeof GuidesMobilityAidGrantsRoute
   '/news/$slug': typeof NewsSlugRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
@@ -187,8 +205,10 @@ export interface FileRouteTypes {
     | '/programs'
     | '/request'
     | '/sitemap.xml'
+    | '/faq/donations'
     | '/guides/donate-supplies'
     | '/guides/free-medical-equipment'
+    | '/guides/mobility-aid-grants'
     | '/news/$slug'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
@@ -206,8 +226,10 @@ export interface FileRouteTypes {
     | '/programs'
     | '/request'
     | '/sitemap.xml'
+    | '/faq/donations'
     | '/guides/donate-supplies'
     | '/guides/free-medical-equipment'
+    | '/guides/mobility-aid-grants'
     | '/news/$slug'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
@@ -225,8 +247,10 @@ export interface FileRouteTypes {
     | '/programs'
     | '/request'
     | '/sitemap.xml'
+    | '/faq/donations'
     | '/guides/donate-supplies'
     | '/guides/free-medical-equipment'
+    | '/guides/mobility-aid-grants'
     | '/news/$slug'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
@@ -245,8 +269,10 @@ export interface RootRouteChildren {
   ProgramsRoute: typeof ProgramsRoute
   RequestRoute: typeof RequestRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
+  FaqDonationsRoute: typeof FaqDonationsRoute
   GuidesDonateSuppliesRoute: typeof GuidesDonateSuppliesRoute
   GuidesFreeMedicalEquipmentRoute: typeof GuidesFreeMedicalEquipmentRoute
+  GuidesMobilityAidGrantsRoute: typeof GuidesMobilityAidGrantsRoute
   LovableEmailAuthPreviewRoute: typeof LovableEmailAuthPreviewRoute
   LovableEmailAuthWebhookRoute: typeof LovableEmailAuthWebhookRoute
   LovableEmailQueueProcessRoute: typeof LovableEmailQueueProcessRoute
@@ -338,6 +364,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof NewsSlugRouteImport
       parentRoute: typeof NewsRoute
     }
+    '/guides/mobility-aid-grants': {
+      id: '/guides/mobility-aid-grants'
+      path: '/guides/mobility-aid-grants'
+      fullPath: '/guides/mobility-aid-grants'
+      preLoaderRoute: typeof GuidesMobilityAidGrantsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/guides/free-medical-equipment': {
       id: '/guides/free-medical-equipment'
       path: '/guides/free-medical-equipment'
@@ -350,6 +383,13 @@ declare module '@tanstack/react-router' {
       path: '/guides/donate-supplies'
       fullPath: '/guides/donate-supplies'
       preLoaderRoute: typeof GuidesDonateSuppliesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/faq/donations': {
+      id: '/faq/donations'
+      path: '/faq/donations'
+      fullPath: '/faq/donations'
+      preLoaderRoute: typeof FaqDonationsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/lovable/email/queue/process': {
@@ -398,8 +438,10 @@ const rootRouteChildren: RootRouteChildren = {
   ProgramsRoute: ProgramsRoute,
   RequestRoute: RequestRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
+  FaqDonationsRoute: FaqDonationsRoute,
   GuidesDonateSuppliesRoute: GuidesDonateSuppliesRoute,
   GuidesFreeMedicalEquipmentRoute: GuidesFreeMedicalEquipmentRoute,
+  GuidesMobilityAidGrantsRoute: GuidesMobilityAidGrantsRoute,
   LovableEmailAuthPreviewRoute: LovableEmailAuthPreviewRoute,
   LovableEmailAuthWebhookRoute: LovableEmailAuthWebhookRoute,
   LovableEmailQueueProcessRoute: LovableEmailQueueProcessRoute,
