@@ -129,6 +129,25 @@ function DonateSuppliesGuide() {
         .
       </p>
 
+      <h2 className="text-2xl font-bold text-slate-900 mt-10 mb-3">Related resources</h2>
+      <ul className="list-disc pl-6 space-y-1 text-slate-700">
+        <li>
+          <Link to="/guides/mobility-aid-grants" className="text-blue-700 underline">
+            Mobility aid grants — eligibility & how to apply
+          </Link>
+        </li>
+        <li>
+          <Link to="/guides/free-medical-equipment" className="text-blue-700 underline">
+            How to access free mobility aids & medical equipment
+          </Link>
+        </li>
+        <li>
+          <Link to="/faq/donations" className="text-blue-700 underline">
+            Donation FAQ
+          </Link>
+        </li>
+      </ul>
+
       <div className="mt-12 p-6 bg-blue-50 rounded-xl border border-blue-100">
         <p className="text-slate-800 font-semibold mb-2">Contact our supplies team</p>
         <p className="text-slate-700 text-sm">

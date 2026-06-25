@@ -213,6 +213,18 @@ function FreeEquipmentGuide() {
           — to help us keep our equipment pool stocked.
         </li>
         <li>
+          <Link to="/guides/mobility-aid-grants" className="text-blue-700 underline">
+            Apply for a mobility aid grant
+          </Link>{" "}
+          — eligibility, documents, and process.
+        </li>
+        <li>
+          <Link to="/faq/donations" className="text-blue-700 underline">
+            Donation FAQ
+          </Link>{" "}
+          — for supporters who want to fund equipment.
+        </li>
+        <li>
           <Link to="/get-involved" className="text-blue-700 underline">
             Volunteer or partner
           </Link>{" "}

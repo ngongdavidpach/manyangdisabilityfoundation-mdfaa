@@ -552,6 +552,43 @@ export const DonateView: React.FC = () => {
                 </div>
               </div>
             </div>
+
+            <div className="bg-white p-6 rounded-xl border border-slate-200 space-y-3">
+              <h4 className="text-xs font-bold uppercase tracking-wider text-slate-900">
+                Related Resources
+              </h4>
+              <ul className="space-y-2 text-xs">
+                <li>
+                  <a href="/faq/donations" className="text-blue-700 hover:underline font-medium">
+                    Donation FAQ — common questions answered
+                  </a>
+                </li>
+                <li>
+                  <a
+                    href="/guides/mobility-aid-grants"
+                    className="text-blue-700 hover:underline font-medium"
+                  >
+                    Mobility aid grants: eligibility & how to apply
+                  </a>
+                </li>
+                <li>
+                  <a
+                    href="/guides/donate-supplies"
+                    className="text-blue-700 hover:underline font-medium"
+                  >
+                    Where to donate used medical equipment
+                  </a>
+                </li>
+                <li>
+                  <a
+                    href="/guides/free-medical-equipment"
+                    className="text-blue-700 hover:underline font-medium"
+                  >
+                    Free medical equipment resources
+                  </a>
+                </li>
+              </ul>
+            </div>
           </div>
         </div>
       )}
