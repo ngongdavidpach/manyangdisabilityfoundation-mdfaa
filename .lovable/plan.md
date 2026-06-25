@@ -1,48 +1,33 @@
-## Goal
+# Plan: Donation FAQ, Mobility Aid Grants guide, internal linking, publish & rescan
 
-Make the content that admins manage in `/admin` actually appear on the public website. Today, several admin sections write to the right tables but the public views ignore them (or no public surface exists).
+## 1. New route: `/guides/mobility-aid-grants`
+Create `src/routes/guides.mobility-aid-grants.tsx` modeled on the existing guide routes.
+- Full `head()` with title, description, og:*, twitter:*, canonical, and Article + FAQPage JSON-LD.
+- Content sections: Intro, What counts as a mobility aid grant, Who is eligible, How to apply (step-by-step), Required documents, Timeline, FAQs (8–10 Q&As), CTA to `/request` and `/donate`.
+- Internal links to `/guides/free-medical-equipment`, `/guides/donate-supplies`, `/faq/donations`, `/programs`, `/request`, `/donate`.
 
-## Current gap
+## 2. New route: `/faq/donations` (Donation FAQ)
+Create `src/routes/faq.donations.tsx`.
+- Full `head()` with title/description/og/twitter/canonical and FAQPage JSON-LD.
+- Accordion-style Q&A covering: tax deductibility, what items are accepted, monetary vs in-kind, recurring donations, refund policy, anonymity, receipts, international donations, where the money goes, how to volunteer instead.
+- Internal links back to `/donate`, `/guides/donate-supplies`, `/guides/mobility-aid-grants`, `/programs`, `/about`.
 
-| Admin tool | Writes to | Public surface today |
-|---|---|---|
-| Page Content editor | `page_settings` | Already wired through `usePageSettings` (RLS gates on `published=true`). OK. |
-| Media Library | `media_assets` | Not displayed. Gallery reads `page_settings.gallery.images` instead. |
-| News | `news_articles` (status/published_at) | Not displayed. NewsView reads `page_settings.news.articles`. |
-| Events | `events` (status, starts_at…) | Not displayed. NewsView reads `page_settings.news.events`. |
-| Foundation Insight | `page_settings.home.insight` | Saved but never rendered on `/` or anywhere public. |
+## 3. Internal linking updates
+- **`src/ported/components/views/DonateView.tsx`** — add a "Learn more" / "Related resources" section linking to the three guides and the new FAQ.
+- **`src/routes/guides.donate-supplies.tsx`** and **`src/routes/guides.free-medical-equipment.tsx`** — add cross-links to the new mobility aid guide and donation FAQ.
+- **`src/ported/components/Footer.tsx`** — add a "Resources" column linking to all guides + FAQ (verify Footer exists; add if applicable).
 
-RLS on `news_articles`, `events`, `media_assets`, `page_settings` already allows anon SELECT for published rows, so no schema/policy changes are needed.
+## 4. Sitemap
+Update `src/routes/sitemap[.]xml.ts` to add `/guides/mobility-aid-grants` and `/faq/donations`.
 
-## Changes (frontend only)
+## 5. Publish
+After edits land, call `preview_ui--publish` (website info already relevant from prior turns) to deploy frontend changes.
 
-1. **News — public list & detail from `news_articles`**
-   - `NewsView`: fetch from `news_articles` where `status='published'` ordered by `published_at desc`; map to the existing `NewsArticle` shape (`id=slug`, `title`, `summary=excerpt`, `content=body_md`, `image=cover_image`, `date=published_at`, derive `readTime` from word count, default `category='Dispatch'`, `author='MDF Team'`). Keep `page_settings.news.articles` as a fallback only if the table is empty.
-   - `/news/$slug` already passes `slug` as `articleId`; switch lookup to match the slug field.
+## 6. Re-run scans
+- Trigger Lighthouse + Semrush via `seo_chat--trigger_scan` (single SEO review covers both) and direct user to the SEO panel for results.
+- Mark the Semrush "Add a guide on mobility aid grants" finding as fixed after the guide is live.
 
-2. **Events — public list from `events`**
-   - `NewsView` events tab: fetch from `events` where `status='published'`; split into upcoming/past by `starts_at` vs `now()`; map to `FoundationEvent` (date/time formatted from `starts_at`, `image=cover_image`, `category='Event'`). RSVP wiring stays as-is (`eventExternalId = slug`).
-
-3. **Gallery — public grid from `media_assets`**
-   - `GalleryView`: fetch from `media_assets` ordered by `created_at desc`; map to `GalleryImage` (`id`, `url`, `title=alt || 'Field photo'`, `category` derived from first known tag in `mobility|medical|education|livelihood` else `mobility`, `date=created_at`, `description=alt`). Fallback to `page_settings.gallery.images` only when the table is empty so existing manual entries keep working.
-
-4. **Foundation Insight — render on `/`**
-   - `HomeView`: read `home.insight` and `home.showInsight` (already saved by `FoundationInsightManager`). When `showInsight && (insight.title || insight.body || insight.brochureUrl || insight.videoUrl)`, render a new "Foundation Insight" section with the cover image, title, body, optional embedded video (reuse `videoEmbed.ts`), and a "Download brochure" link.
-
-5. **Page content** — no code change required; verify each admin-managed page (`home, about, programs, gallery, news, events, get-involved, donate, request, footer, navigation, site, foundation`) is rendered via `usePageSettings` and that the public view degrades gracefully when `published=false` (anon read returns no row → fallback content already in views). Add a `published` check in `usePageSettings` only if we want unpublished drafts to fully hide — current behavior is acceptable since RLS already enforces it.
-
-## Out of scope
-
-- No schema, RLS, or policy changes.
-- No new admin features; existing managers are untouched.
-- No SEO/OG changes for `/news/$slug` beyond what's already there.
-- Pagination / search on news, gallery, events — single-page listings for now.
-
-## Files to edit
-
-- `src/ported/components/views/NewsView.tsx` — fetch news + events from tables.
-- `src/ported/components/views/GalleryView.tsx` — fetch media from `media_assets`.
-- `src/ported/components/views/HomeView.tsx` — render Foundation Insight section.
-- (Possibly) `src/ported/lib/videoEmbed.ts` — reused, no edit expected.
-
-No new files, no migrations.
+## Technical notes
+- Guides use plain Tailwind sections with semantic `<h1>`/`<h2>`/`<h3>` and a single H1 per page.
+- FAQPage JSON-LD must mirror the visible Q&A text exactly.
+- Nav (`navItems.ts`) is admin-flag-driven, so guides/FAQ stay out of the top nav — surfaced via Footer + in-page links instead. Confirm if you'd prefer a top-nav "Resources" dropdown instead.
