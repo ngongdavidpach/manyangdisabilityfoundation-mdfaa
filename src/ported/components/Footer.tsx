@@ -230,15 +230,29 @@ export const Footer: React.FC = () => {
 
           <div className="space-y-4">
             <h4 className="text-sm font-semibold uppercase tracking-wider text-white">
-              Impact Pillars
+              Resources
             </h4>
             <ul className="space-y-2.5 text-sm text-slate-400">
-              <li>Mobility & Wheelchairs</li>
-              <li>Surgical & Physical Rehab</li>
-              <li>Inclusive Education</li>
-              <li>Livelihood Micro-grants</li>
-              <li>Policy Advocacy</li>
-              <li>Emergency Aid Repairs</li>
+              <li>
+                <Link to="/guides/mobility-aid-grants" className="hover:text-white transition-colors">
+                  Mobility Aid Grants
+                </Link>
+              </li>
+              <li>
+                <Link to="/guides/free-medical-equipment" className="hover:text-white transition-colors">
+                  Free Medical Equipment
+                </Link>
+              </li>
+              <li>
+                <Link to="/guides/donate-supplies" className="hover:text-white transition-colors">
+                  Donate Used Supplies
+                </Link>
+              </li>
+              <li>
+                <Link to="/faq/donations" className="hover:text-white transition-colors">
+                  Donation FAQ
+                </Link>
+              </li>
             </ul>
           </div>
 
