@@ -1,33 +1,47 @@
-# Plan: Donation FAQ, Mobility Aid Grants guide, internal linking, publish & rescan
 
-## 1. New route: `/guides/mobility-aid-grants`
-Create `src/routes/guides.mobility-aid-grants.tsx` modeled on the existing guide routes.
-- Full `head()` with title, description, og:*, twitter:*, canonical, and Article + FAQPage JSON-LD.
-- Content sections: Intro, What counts as a mobility aid grant, Who is eligible, How to apply (step-by-step), Required documents, Timeline, FAQs (8–10 Q&As), CTA to `/request` and `/donate`.
-- Internal links to `/guides/free-medical-equipment`, `/guides/donate-supplies`, `/faq/donations`, `/programs`, `/request`, `/donate`.
+## Goal
 
-## 2. New route: `/faq/donations` (Donation FAQ)
-Create `src/routes/faq.donations.tsx`.
-- Full `head()` with title/description/og/twitter/canonical and FAQPage JSON-LD.
-- Accordion-style Q&A covering: tax deductibility, what items are accepted, monetary vs in-kind, recurring donations, refund policy, anonymity, receipts, international donations, where the money goes, how to volunteer instead.
-- Internal links back to `/donate`, `/guides/donate-supplies`, `/guides/mobility-aid-grants`, `/programs`, `/about`.
+Make the public News/Events sections and the Programs page show real content, then redeploy.
 
-## 3. Internal linking updates
-- **`src/ported/components/views/DonateView.tsx`** — add a "Learn more" / "Related resources" section linking to the three guides and the new FAQ.
-- **`src/routes/guides.donate-supplies.tsx`** and **`src/routes/guides.free-medical-equipment.tsx`** — add cross-links to the new mobility aid guide and donation FAQ.
-- **`src/ported/components/Footer.tsx`** — add a "Resources" column linking to all guides + FAQ (verify Footer exists; add if applicable).
+## What's broken now
 
-## 4. Sitemap
-Update `src/routes/sitemap[.]xml.ts` to add `/guides/mobility-aid-grants` and `/faq/donations`.
+- **News** — One article ("Fundraising for surgery") exists but is `draft`, so `/news` and the homepage "Recent News & Field Reports" section show nothing.
+- **Events** — The `events` table is empty, so the "News & Foundation Events" tab is empty.
+- **Programs** — The `programs` page_settings row only has a heading/intro. There are no `programs[]`, `successStories[]`, or `crossCutting` entries, so `/programs` renders a header followed by an empty grid.
 
-## 5. Publish
-After edits land, call `preview_ui--publish` (website info already relevant from prior turns) to deploy frontend changes.
+## Changes
 
-## 6. Re-run scans
-- Trigger Lighthouse + Semrush via `seo_chat--trigger_scan` (single SEO review covers both) and direct user to the SEO panel for results.
-- Mark the Semrush "Add a guide on mobility aid grants" finding as fixed after the guide is live.
+### 1. Publish the existing news article (DB migration)
+- Update `news_articles` row "Fundraising for surgery": `status='published'`, `published_at=now()`, and fix the slug from `"fundraise with us"` to `"fundraising-for-surgery"` (URL-safe).
+- Tidy excerpt/body if currently empty so the card has something to show. Keep the existing cover image.
 
-## Technical notes
-- Guides use plain Tailwind sections with semantic `<h1>`/`<h2>`/`<h3>` and a single H1 per page.
-- FAQPage JSON-LD must mirror the visible Q&A text exactly.
-- Nav (`navItems.ts`) is admin-flag-driven, so guides/FAQ stay out of the top nav — surfaced via Footer + in-page links instead. Confirm if you'd prefer a top-nav "Resources" dropdown instead.
+### 2. Seed three real events (DB migration)
+Insert three `events` rows with `status='published'`:
+- **Mobility Aid Distribution Day** — upcoming, Juba, South Sudan.
+- **Community Health Screening Camp** — upcoming, Kakuma, Kenya.
+- **Inclusive Education Roundtable** — past, Kampala, Uganda.
+
+Each gets a slug, description, location, starts_at/ends_at, and (where available) a cover_image URL from the existing `site-images` bucket placeholders.
+
+### 3. Fill out the Programs page (DB migration)
+Update `page_settings` where `page_key='programs'` to extend `content` with:
+- **`programs`** (5 entries matching the existing category enum):
+  - Mobility & Assistive Devices (`mobility`, icon `Wheelchair`)
+  - Healthcare Access & Surgeries (`healthcare`, icon `HeartPulse`)
+  - Inclusive Education & Scholarships (`education`, icon `GraduationCap`)
+  - Livelihood & Vocational Training (`livelihood`, icon `Briefcase`)
+  - Disability Rights & Advocacy (`advocacy`, icon `Scale`)
+  Each program gets title, shortDescription, fullDescription, impactStats, and image (reuse foundation-themed placeholders already in the bucket / Unsplash CDN).
+- **`successStories`** (3 entries): one mobility, one healthcare, one education beneficiary, each with name, age, location, story, quote, image, aidType, date.
+- **`crossCutting`**: title "Cross-Cutting Initiatives", subtitle, body about gender inclusion + climate resilience, 4 highlights, ctaText "Partner with us", ctaLink "/get-involved".
+
+No schema changes — only a JSON patch on the existing row.
+
+### 4. Republish the site
+After the three migrations land, call `preview_ui--publish` so the live URL serves the new content. Existing SEO/OG metadata on `/news`, `/programs`, and `/events` is already in place from prior work, so no head() edits are needed.
+
+## Out of scope
+
+- No code changes to `ProgramsView`, `NewsView`, or `HomeView` — they already read from the right sources; only the data is missing.
+- No new tables, RLS, or auth changes.
+- No new images uploaded; we reuse existing placeholder URLs and Unsplash photos.
