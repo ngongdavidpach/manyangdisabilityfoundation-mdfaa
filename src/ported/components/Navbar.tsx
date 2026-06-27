@@ -317,23 +317,8 @@ export const Navbar: React.FC = () => {
                       <span>Admin Dashboard</span>
                     </button>
                   )}
-                  <button
-                    onClick={handleSignOut}
-                    className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-slate-600 hover:bg-slate-50 font-medium"
-                  >
-                    <LogOut className="w-5 h-5" />
-                    <span>Sign Out</span>
-                  </button>
                 </div>
-              ) : (
-                <button
-                  onClick={handleSignOut}
-                  className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-slate-600 hover:bg-slate-50 font-medium"
-                >
-                  <LogOut className="w-5 h-5" />
-                  <span>Sign Out</span>
-                </button>
-              )}
+              ) : null}
             </div>
           </div>
         </div>
