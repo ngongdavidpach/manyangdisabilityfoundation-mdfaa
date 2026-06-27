@@ -221,14 +221,6 @@ export const Navbar: React.FC = () => {
                             <LayoutDashboard className="w-4 h-4" /> Admin Dashboard
                           </button>
                         )}
-                       </div>
-                     </div>
-                   </>
-                 )}
-               </div>
-             ) : null}
-           </div>
-PLACEHOLDER_REMOVE
                       </div>
                     </div>
                   </>
@@ -236,6 +228,7 @@ PLACEHOLDER_REMOVE
               </div>
             ) : null}
           </div>
+
 
           <div className="flex items-center gap-2 sm:hidden">
             <Link
