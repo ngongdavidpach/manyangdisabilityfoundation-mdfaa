@@ -364,7 +364,7 @@ export const NewsView: React.FC<NewsViewProps> = ({ articleId }) => {
                     url: "https://manyangdisabilityfoundation.org",
                   },
                 })),
-            ),
+            ).replace(/<\/(script)/gi, "<\\/$1").replace(/<!--/g, "<\\!--"),
           }}
         />
       )}
