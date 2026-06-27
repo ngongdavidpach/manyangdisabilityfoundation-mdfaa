@@ -26,6 +26,7 @@ export const Route = createFileRoute("/sitemap.xml")({
           { path: "/guides/donate-supplies", changefreq: "monthly", priority: "0.7" },
           { path: "/guides/mobility-aid-grants", changefreq: "monthly", priority: "0.7" },
           { path: "/faq/donations", changefreq: "monthly", priority: "0.7" },
+          { path: "/news/archive", changefreq: "weekly", priority: "0.6" },
         ];
 
         // News articles

@@ -13,7 +13,7 @@ import {
   Newspaper,
   Home,
   Image as GalleryIcon,
-  LogOut,
+  
   LayoutDashboard,
 } from "lucide-react";
 import { useFoundationInfo } from "../hooks/useFoundationInfo";
@@ -82,12 +82,8 @@ export const Navbar: React.FC = () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  const handleSignOut = async () => {
-    await logout();
-    navigate({ to: "/" });
-    setUserMenuOpen(false);
-    setMobileMenuOpen(false);
-  };
+  // Sign-out is intentionally available only from the user dashboard, not the navbar dropdown.
+  void logout;
 
   const isLinkActive = (link: { id: string; to: string }) => {
     if (link.id === "news") return pathname === "/news" || pathname.startsWith("/news/");
@@ -221,13 +217,6 @@ export const Navbar: React.FC = () => {
                             <LayoutDashboard className="w-4 h-4" /> Admin Dashboard
                           </button>
                         )}
-                        <div className="my-1 border-t border-slate-100" />
-                        <button
-                          onClick={handleSignOut}
-                          className="w-full flex items-center gap-2.5 px-3 py-2 text-xs text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                        >
-                          <LogOut className="w-4 h-4" /> Sign Out
-                        </button>
                       </div>
                     </div>
                   </>
@@ -235,6 +224,7 @@ export const Navbar: React.FC = () => {
               </div>
             ) : null}
           </div>
+
 
           <div className="flex items-center gap-2 sm:hidden">
             <Link
@@ -323,23 +313,8 @@ export const Navbar: React.FC = () => {
                       <span>Admin Dashboard</span>
                     </button>
                   )}
-                  <button
-                    onClick={handleSignOut}
-                    className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-slate-600 hover:bg-slate-50 font-medium"
-                  >
-                    <LogOut className="w-5 h-5" />
-                    <span>Sign Out</span>
-                  </button>
                 </div>
-              ) : (
-                <button
-                  onClick={handleSignOut}
-                  className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-slate-600 hover:bg-slate-50 font-medium"
-                >
-                  <LogOut className="w-5 h-5" />
-                  <span>Sign Out</span>
-                </button>
-              )}
+              ) : null}
             </div>
           </div>
         </div>

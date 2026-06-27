@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
+import { Route as RssDotxmlRouteImport } from './routes/rss[.]xml'
 import { Route as RequestRouteImport } from './routes/request'
 import { Route as ProgramsRouteImport } from './routes/programs'
 import { Route as NewsRouteImport } from './routes/news'
@@ -20,6 +21,8 @@ import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ProgramsRssDotxmlRouteImport } from './routes/programs.rss[.]xml'
+import { Route as NewsArchiveRouteImport } from './routes/news.archive'
 import { Route as NewsSlugRouteImport } from './routes/news.$slug'
 import { Route as GuidesMobilityAidGrantsRouteImport } from './routes/guides.mobility-aid-grants'
 import { Route as GuidesFreeMedicalEquipmentRouteImport } from './routes/guides.free-medical-equipment'
@@ -32,6 +35,11 @@ import { Route as LovableEmailAuthPreviewRouteImport } from './routes/lovable/em
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   id: '/sitemap.xml',
   path: '/sitemap.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RssDotxmlRoute = RssDotxmlRouteImport.update({
+  id: '/rss.xml',
+  path: '/rss.xml',
   getParentRoute: () => rootRouteImport,
 } as any)
 const RequestRoute = RequestRouteImport.update({
@@ -83,6 +91,16 @@ const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
+} as any)
+const ProgramsRssDotxmlRoute = ProgramsRssDotxmlRouteImport.update({
+  id: '/rss.xml',
+  path: '/rss.xml',
+  getParentRoute: () => ProgramsRoute,
+} as any)
+const NewsArchiveRoute = NewsArchiveRouteImport.update({
+  id: '/archive',
+  path: '/archive',
+  getParentRoute: () => NewsRoute,
 } as any)
 const NewsSlugRoute = NewsSlugRouteImport.update({
   id: '/$slug',
@@ -136,14 +154,17 @@ export interface FileRoutesByFullPath {
   '/gallery': typeof GalleryRoute
   '/get-involved': typeof GetInvolvedRoute
   '/news': typeof NewsRouteWithChildren
-  '/programs': typeof ProgramsRoute
+  '/programs': typeof ProgramsRouteWithChildren
   '/request': typeof RequestRoute
+  '/rss.xml': typeof RssDotxmlRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/faq/donations': typeof FaqDonationsRoute
   '/guides/donate-supplies': typeof GuidesDonateSuppliesRoute
   '/guides/free-medical-equipment': typeof GuidesFreeMedicalEquipmentRoute
   '/guides/mobility-aid-grants': typeof GuidesMobilityAidGrantsRoute
   '/news/$slug': typeof NewsSlugRoute
+  '/news/archive': typeof NewsArchiveRoute
+  '/programs/rss.xml': typeof ProgramsRssDotxmlRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
@@ -157,14 +178,17 @@ export interface FileRoutesByTo {
   '/gallery': typeof GalleryRoute
   '/get-involved': typeof GetInvolvedRoute
   '/news': typeof NewsRouteWithChildren
-  '/programs': typeof ProgramsRoute
+  '/programs': typeof ProgramsRouteWithChildren
   '/request': typeof RequestRoute
+  '/rss.xml': typeof RssDotxmlRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/faq/donations': typeof FaqDonationsRoute
   '/guides/donate-supplies': typeof GuidesDonateSuppliesRoute
   '/guides/free-medical-equipment': typeof GuidesFreeMedicalEquipmentRoute
   '/guides/mobility-aid-grants': typeof GuidesMobilityAidGrantsRoute
   '/news/$slug': typeof NewsSlugRoute
+  '/news/archive': typeof NewsArchiveRoute
+  '/programs/rss.xml': typeof ProgramsRssDotxmlRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
@@ -179,14 +203,17 @@ export interface FileRoutesById {
   '/gallery': typeof GalleryRoute
   '/get-involved': typeof GetInvolvedRoute
   '/news': typeof NewsRouteWithChildren
-  '/programs': typeof ProgramsRoute
+  '/programs': typeof ProgramsRouteWithChildren
   '/request': typeof RequestRoute
+  '/rss.xml': typeof RssDotxmlRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/faq/donations': typeof FaqDonationsRoute
   '/guides/donate-supplies': typeof GuidesDonateSuppliesRoute
   '/guides/free-medical-equipment': typeof GuidesFreeMedicalEquipmentRoute
   '/guides/mobility-aid-grants': typeof GuidesMobilityAidGrantsRoute
   '/news/$slug': typeof NewsSlugRoute
+  '/news/archive': typeof NewsArchiveRoute
+  '/programs/rss.xml': typeof ProgramsRssDotxmlRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
@@ -204,12 +231,15 @@ export interface FileRouteTypes {
     | '/news'
     | '/programs'
     | '/request'
+    | '/rss.xml'
     | '/sitemap.xml'
     | '/faq/donations'
     | '/guides/donate-supplies'
     | '/guides/free-medical-equipment'
     | '/guides/mobility-aid-grants'
     | '/news/$slug'
+    | '/news/archive'
+    | '/programs/rss.xml'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
     | '/lovable/email/queue/process'
@@ -225,12 +255,15 @@ export interface FileRouteTypes {
     | '/news'
     | '/programs'
     | '/request'
+    | '/rss.xml'
     | '/sitemap.xml'
     | '/faq/donations'
     | '/guides/donate-supplies'
     | '/guides/free-medical-equipment'
     | '/guides/mobility-aid-grants'
     | '/news/$slug'
+    | '/news/archive'
+    | '/programs/rss.xml'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
     | '/lovable/email/queue/process'
@@ -246,12 +279,15 @@ export interface FileRouteTypes {
     | '/news'
     | '/programs'
     | '/request'
+    | '/rss.xml'
     | '/sitemap.xml'
     | '/faq/donations'
     | '/guides/donate-supplies'
     | '/guides/free-medical-equipment'
     | '/guides/mobility-aid-grants'
     | '/news/$slug'
+    | '/news/archive'
+    | '/programs/rss.xml'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
     | '/lovable/email/queue/process'
@@ -266,8 +302,9 @@ export interface RootRouteChildren {
   GalleryRoute: typeof GalleryRoute
   GetInvolvedRoute: typeof GetInvolvedRoute
   NewsRoute: typeof NewsRouteWithChildren
-  ProgramsRoute: typeof ProgramsRoute
+  ProgramsRoute: typeof ProgramsRouteWithChildren
   RequestRoute: typeof RequestRoute
+  RssDotxmlRoute: typeof RssDotxmlRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   FaqDonationsRoute: typeof FaqDonationsRoute
   GuidesDonateSuppliesRoute: typeof GuidesDonateSuppliesRoute
@@ -285,6 +322,13 @@ declare module '@tanstack/react-router' {
       path: '/sitemap.xml'
       fullPath: '/sitemap.xml'
       preLoaderRoute: typeof SitemapDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/rss.xml': {
+      id: '/rss.xml'
+      path: '/rss.xml'
+      fullPath: '/rss.xml'
+      preLoaderRoute: typeof RssDotxmlRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/request': {
@@ -357,6 +401,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/programs/rss.xml': {
+      id: '/programs/rss.xml'
+      path: '/rss.xml'
+      fullPath: '/programs/rss.xml'
+      preLoaderRoute: typeof ProgramsRssDotxmlRouteImport
+      parentRoute: typeof ProgramsRoute
+    }
+    '/news/archive': {
+      id: '/news/archive'
+      path: '/archive'
+      fullPath: '/news/archive'
+      preLoaderRoute: typeof NewsArchiveRouteImport
+      parentRoute: typeof NewsRoute
+    }
     '/news/$slug': {
       id: '/news/$slug'
       path: '/$slug'
@@ -418,13 +476,27 @@ declare module '@tanstack/react-router' {
 
 interface NewsRouteChildren {
   NewsSlugRoute: typeof NewsSlugRoute
+  NewsArchiveRoute: typeof NewsArchiveRoute
 }
 
 const NewsRouteChildren: NewsRouteChildren = {
   NewsSlugRoute: NewsSlugRoute,
+  NewsArchiveRoute: NewsArchiveRoute,
 }
 
 const NewsRouteWithChildren = NewsRoute._addFileChildren(NewsRouteChildren)
+
+interface ProgramsRouteChildren {
+  ProgramsRssDotxmlRoute: typeof ProgramsRssDotxmlRoute
+}
+
+const ProgramsRouteChildren: ProgramsRouteChildren = {
+  ProgramsRssDotxmlRoute: ProgramsRssDotxmlRoute,
+}
+
+const ProgramsRouteWithChildren = ProgramsRoute._addFileChildren(
+  ProgramsRouteChildren,
+)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
@@ -435,8 +507,9 @@ const rootRouteChildren: RootRouteChildren = {
   GalleryRoute: GalleryRoute,
   GetInvolvedRoute: GetInvolvedRoute,
   NewsRoute: NewsRouteWithChildren,
-  ProgramsRoute: ProgramsRoute,
+  ProgramsRoute: ProgramsRouteWithChildren,
   RequestRoute: RequestRoute,
+  RssDotxmlRoute: RssDotxmlRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   FaqDonationsRoute: FaqDonationsRoute,
   GuidesDonateSuppliesRoute: GuidesDonateSuppliesRoute,
@@ -449,13 +522,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
