@@ -3,7 +3,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useState } from "react";
 import { z } from "zod";
-import { zodValidator, fallback } from "@tanstack/zod-adapter";
+
 import {
   Pagination,
   PaginationContent,
@@ -71,13 +71,15 @@ const fetchArchive = createServerFn({ method: "GET" })
     };
   });
 
-const archiveSearchSchema = z.object({
-  page: fallback(z.number().int().min(1), 1).default(1),
-  year: fallback(z.string(), "all").default("all"),
-});
+type ArchiveSearch = { page: number; year: string };
 
 export const Route = createFileRoute("/news/archive")({
-  validateSearch: zodValidator(archiveSearchSchema),
+  validateSearch: (search: Record<string, unknown>): ArchiveSearch => {
+    const rawPage = Number(search.page);
+    const page = Number.isFinite(rawPage) && rawPage >= 1 ? Math.floor(rawPage) : 1;
+    const year = typeof search.year === "string" && search.year.length > 0 ? search.year : "all";
+    return { page, year };
+  },
   head: () => ({
     meta: [
       { title: "News Archive — Manyang Disability Foundation" },

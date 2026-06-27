@@ -12,7 +12,7 @@ function esc(s: string | null | undefined): string {
     .replace(/'/g, "&apos;");
 }
 
-export const Route = createFileRoute("/programs.rss.xml")({
+export const Route = createFileRoute("/programs/rss.xml")({
   server: {
     handlers: {
       GET: async () => {
