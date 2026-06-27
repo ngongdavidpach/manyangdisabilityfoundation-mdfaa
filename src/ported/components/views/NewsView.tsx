@@ -321,7 +321,53 @@ export const NewsView: React.FC<NewsViewProps> = ({ articleId }) => {
           Stay fully updated on our ground-level outreach programs, field-distribution schedules,
           and continuous humanitarian initiatives.
         </p>
+        <div className="flex flex-wrap justify-center gap-3 pt-2 text-xs font-semibold">
+          <a
+            href="/news/archive"
+            className="text-blue-700 hover:text-blue-900 hover:underline"
+          >
+            Browse full archive →
+          </a>
+          <a
+            href="/rss.xml"
+            className="text-blue-700 hover:text-blue-900 hover:underline"
+          >
+            Subscribe via RSS
+          </a>
+        </div>
       </div>
+
+      {/* Event structured data for upcoming events */}
+      {events.filter((e) => e.type === "upcoming").length > 0 && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(
+              events
+                .filter((e) => e.type === "upcoming")
+                .map((e) => ({
+                  "@context": "https://schema.org",
+                  "@type": "Event",
+                  name: e.title,
+                  startDate: e.date,
+                  location: {
+                    "@type": "Place",
+                    name: e.location || "Manyang Disability Foundation",
+                  },
+                  description: e.description,
+                  image: e.image || undefined,
+                  eventStatus: "https://schema.org/EventScheduled",
+                  eventAttendanceMode: "https://schema.org/OfflineEventAttendanceMode",
+                  organizer: {
+                    "@type": "Organization",
+                    name: "Manyang Disability Foundation",
+                    url: "https://manyangdisabilityfoundation.org",
+                  },
+                })),
+            ),
+          }}
+        />
+      )}
 
       {/* Main Mode Switches */}
       <div className="flex justify-center">
