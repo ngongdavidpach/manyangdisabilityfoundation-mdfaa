@@ -98,6 +98,33 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { rel: "icon", type: "image/png", href: "/images/logo.png" },
       { rel: "apple-touch-icon", href: "/images/logo.png" },
       { rel: "manifest", href: "/manifest.webmanifest" },
+      {
+        rel: "alternate",
+        type: "application/rss+xml",
+        title: "MDF — News & Events",
+        href: "https://manyangdisabilityfoundation.org/rss.xml",
+      },
+      {
+        rel: "alternate",
+        type: "application/rss+xml",
+        title: "MDF — Programs",
+        href: "https://manyangdisabilityfoundation.org/programs.rss.xml",
+      },
+    ],
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "Organization",
+          name: "Manyang Disability Foundation",
+          url: "https://manyangdisabilityfoundation.org/",
+          logo: "https://manyangdisabilityfoundation.org/images/logo.png",
+          description:
+            "Manyang Disability Foundation supports persons with disabilities through mobility aids, healthcare access, inclusive education, and sustainable livelihoods.",
+          sameAs: ["https://manyangdisabilityfoundation.lovable.app"],
+        }),
+      },
     ],
   }),
   shellComponent: RootShell,
