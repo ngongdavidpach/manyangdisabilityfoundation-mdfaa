@@ -13,7 +13,7 @@ import {
   Newspaper,
   Home,
   Image as GalleryIcon,
-  LogOut,
+  
   LayoutDashboard,
 } from "lucide-react";
 import { useFoundationInfo } from "../hooks/useFoundationInfo";
@@ -82,12 +82,8 @@ export const Navbar: React.FC = () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  const handleSignOut = async () => {
-    await logout();
-    navigate({ to: "/" });
-    setUserMenuOpen(false);
-    setMobileMenuOpen(false);
-  };
+  // Sign-out is intentionally available only from the user dashboard, not the navbar dropdown.
+  void logout;
 
   const isLinkActive = (link: { id: string; to: string }) => {
     if (link.id === "news") return pathname === "/news" || pathname.startsWith("/news/");
