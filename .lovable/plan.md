@@ -1,47 +1,36 @@
+## Scope
 
-## Goal
+Four changes across navigation, content syndication, SEO, and a new archive page.
 
-Make the public News/Events sections and the Programs page show real content, then redeploy.
+### 1. Remove "Sign Out" from dropdown menu
+- In `src/ported/components/Navbar.tsx`, remove the "Sign Out" button from the desktop user dropdown and the mobile menu. Keep the `logout()` logic available elsewhere (Dashboard) so users can still sign out — only the navbar entry is removed.
 
-## What's broken now
+### 2. RSS feeds
+Create two new TanStack server routes that return XML:
+- `src/routes/rss[.]xml.ts` → News & Events feed. Pulls latest 20 `news_articles` (published) + upcoming `events` from Supabase using a publishable-key server client, outputs RSS 2.0 with `<channel>` metadata, `<item>` entries (title, link, description, pubDate, guid).
+- `src/routes/programs.rss[.]xml.ts` → Programs updates feed. Pulls from `page_settings` (page_key='programs') content list and any programs-related news.
+- Add `<link rel="alternate" type="application/rss+xml">` tags in `__root.tsx` head (or per-route) so feed readers auto-discover.
+- Add the feed URLs to `sitemap[.]xml.ts`.
 
-- **News** — One article ("Fundraising for surgery") exists but is `draft`, so `/news` and the homepage "Recent News & Field Reports" section show nothing.
-- **Events** — The `events` table is empty, so the "News & Foundation Events" tab is empty.
-- **Programs** — The `programs` page_settings row only has a heading/intro. There are no `programs[]`, `successStories[]`, or `crossCutting` entries, so `/programs` renders a header followed by an empty grid.
+### 3. Schema.org structured data
+- **Organization**: already present on `/about`. Promote to site-wide by adding it to `__root.tsx` head scripts (with logo, sameAs social links from `useFoundationInfo`). Remove duplicate from `/about`.
+- **NewsArticle**: already present on `/news/$slug.tsx` — verify completeness (headline, datePublished, author, image, publisher). Add missing fields if any.
+- **Event**: add `Event` JSON-LD to `NewsView.tsx` (events section) and to any event detail rendering. Loop over events in the route loader and emit one `Event` per upcoming event with `name`, `startDate`, `location`, `description`, `eventStatus`, `eventAttendanceMode`.
 
-## Changes
+### 4. News & Field Reports archive page
+- New route `src/routes/news.archive.tsx` at `/news/archive`.
+- Server loader fetches all published `news_articles` with `category`, `published_at`, paginated via search params (`?page=1&category=field-report`).
+- Use TanStack search params with Zod validation (`page`, `category`).
+- UI: filter chips (All + distinct categories from DB), paginated list (10 per page) using the existing `Pagination` component, article cards linking to `/news/$slug`.
+- Add a prominent "View archive" link on `NewsView.tsx`.
+- Add `/news/archive` to sitemap and to RSS channel `<link>`.
 
-### 1. Publish the existing news article (DB migration)
-- Update `news_articles` row "Fundraising for surgery": `status='published'`, `published_at=now()`, and fix the slug from `"fundraise with us"` to `"fundraising-for-surgery"` (URL-safe).
-- Tidy excerpt/body if currently empty so the card has something to show. Keep the existing cover image.
+### Technical notes
+- RSS routes use `createFileRoute` with `server.handlers.GET`, return `new Response(xml, { headers: { "Content-Type": "application/rss+xml; charset=utf-8" } })`. Read DB via a server publishable client (`SUPABASE_URL` + `SUPABASE_PUBLISHABLE_KEY`) — narrow `TO anon` SELECT policies already exist on `news_articles` and `events` for published rows.
+- Escape XML entities in titles/descriptions.
+- Archive page uses `validateSearch` with `fallback()` from `@tanstack/zod-adapter`, fetches via TanStack Query `useSuspenseQuery` with `loaderDeps` on `{ page, category }`.
+- No DB migrations needed.
 
-### 2. Seed three real events (DB migration)
-Insert three `events` rows with `status='published'`:
-- **Mobility Aid Distribution Day** — upcoming, Juba, South Sudan.
-- **Community Health Screening Camp** — upcoming, Kakuma, Kenya.
-- **Inclusive Education Roundtable** — past, Kampala, Uganda.
-
-Each gets a slug, description, location, starts_at/ends_at, and (where available) a cover_image URL from the existing `site-images` bucket placeholders.
-
-### 3. Fill out the Programs page (DB migration)
-Update `page_settings` where `page_key='programs'` to extend `content` with:
-- **`programs`** (5 entries matching the existing category enum):
-  - Mobility & Assistive Devices (`mobility`, icon `Wheelchair`)
-  - Healthcare Access & Surgeries (`healthcare`, icon `HeartPulse`)
-  - Inclusive Education & Scholarships (`education`, icon `GraduationCap`)
-  - Livelihood & Vocational Training (`livelihood`, icon `Briefcase`)
-  - Disability Rights & Advocacy (`advocacy`, icon `Scale`)
-  Each program gets title, shortDescription, fullDescription, impactStats, and image (reuse foundation-themed placeholders already in the bucket / Unsplash CDN).
-- **`successStories`** (3 entries): one mobility, one healthcare, one education beneficiary, each with name, age, location, story, quote, image, aidType, date.
-- **`crossCutting`**: title "Cross-Cutting Initiatives", subtitle, body about gender inclusion + climate resilience, 4 highlights, ctaText "Partner with us", ctaLink "/get-involved".
-
-No schema changes — only a JSON patch on the existing row.
-
-### 4. Republish the site
-After the three migrations land, call `preview_ui--publish` so the live URL serves the new content. Existing SEO/OG metadata on `/news`, `/programs`, and `/events` is already in place from prior work, so no head() edits are needed.
-
-## Out of scope
-
-- No code changes to `ProgramsView`, `NewsView`, or `HomeView` — they already read from the right sources; only the data is missing.
-- No new tables, RLS, or auth changes.
-- No new images uploaded; we reuse existing placeholder URLs and Unsplash photos.
+### Out of scope
+- Email/push notifications for new content (RSS only).
+- Per-category RSS feeds (single combined news feed + single programs feed).
