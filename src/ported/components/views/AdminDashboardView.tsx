@@ -84,7 +84,7 @@ export const AdminDashboard: React.FC = () => {
     );
     supabase
       .from("news_articles")
-      .select("id,title,published,published_at")
+      .select("id,title,published_at")
       .order("published_at", { ascending: false, nullsFirst: false })
       .limit(7)
       .then(({ data }) => setRecent((data as RecentArticle[]) || []));
