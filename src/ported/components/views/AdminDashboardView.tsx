@@ -311,7 +311,7 @@ export const AdminDashboard: React.FC = () => {
                   type="text"
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
-                  placeholder="Search"
+                  placeholder={tab === "overview" ? "Search news articles" : "Search"}
                   className="flex-1 min-w-0 rounded-l-full border border-gray-200 px-4 py-2 text-sm outline-none bg-gray-50"
                 />
                 <button className="rounded-r-full bg-violet-700 px-4 flex items-center justify-center shrink-0">
