@@ -212,7 +212,7 @@ export const AdminDashboard: React.FC = () => {
       case "gallery":
         return <GalleryManager />;
       case "news":
-        return <NewsManager />;
+        return <NewsManager focusArticleId={focusArticleId} />;
       case "events":
         return <EventsManager />;
       case "staff":
