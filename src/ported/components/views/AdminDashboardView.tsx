@@ -56,8 +56,12 @@ type Tab =
 type RecentArticle = {
   id: string;
   title: string;
+  slug: string | null;
+  status: string | null;
   published_at: string | null;
 };
+
+const PAGE_SIZE = 7;
 
 export const AdminDashboard: React.FC = () => {
   const navigate = useNavigate();
@@ -66,7 +70,21 @@ export const AdminDashboard: React.FC = () => {
   const [tab, setTab] = useState<Tab>("overview");
   const [counts, setCounts] = useState({ media: 0, news: 0, events: 0, staff: 0 });
   const [recent, setRecent] = useState<RecentArticle[]>([]);
+  const [total, setTotal] = useState(0);
+  const [page, setPage] = useState(1);
   const [query, setQuery] = useState("");
+  const [debounced, setDebounced] = useState("");
+  const [busyId, setBusyId] = useState<string | null>(null);
+  const [focusArticleId, setFocusArticleId] = useState<string | null>(null);
+  const [reloadKey, setReloadKey] = useState(0);
+
+  useEffect(() => {
+    const t = setTimeout(() => {
+      setDebounced(query.trim());
+      setPage(1);
+    }, 300);
+    return () => clearTimeout(t);
+  }, [query]);
 
   useEffect(() => {
     Promise.all([
@@ -82,13 +100,49 @@ export const AdminDashboard: React.FC = () => {
         staff: s.count || 0,
       }),
     );
-    supabase
+  }, [reloadKey]);
+
+  useEffect(() => {
+    const from = (page - 1) * PAGE_SIZE;
+    const to = from + PAGE_SIZE - 1;
+    let q = supabase
       .from("news_articles")
-      .select("id,title,published_at")
+      .select("id,title,slug,status,published_at", { count: "exact" })
       .order("published_at", { ascending: false, nullsFirst: false })
-      .limit(7)
-      .then(({ data }) => setRecent((data as RecentArticle[]) || []));
+      .order("created_at", { ascending: false })
+      .range(from, to);
+    if (debounced) q = q.ilike("title", `%${debounced}%`);
+    q.then(({ data, count }) => {
+      setRecent((data as RecentArticle[]) || []);
+      setTotal(count || 0);
+    });
+  }, [debounced, page, reloadKey]);
+
+  const togglePublish = async (a: RecentArticle) => {
+    setBusyId(a.id);
+    const isPub = a.status === "published";
+    const payload: { status: string; published_at?: string } = {
+      status: isPub ? "draft" : "published",
+    };
+    if (!isPub && !a.published_at) payload.published_at = new Date().toISOString();
+    const { error } = await supabase.from("news_articles").update(payload).eq("id", a.id);
+    setBusyId(null);
+    if (error) {
+      alert(error.message);
+      return;
+    }
+    setReloadKey((k) => k + 1);
+  };
+
+  const openEdit = (a: RecentArticle) => {
+    setFocusArticleId(a.id);
+    setTab("news");
+  };
+
+  useEffect(() => {
+    if (tab !== "news") setFocusArticleId(null);
   }, [tab]);
+
 
   const sections: { label: string; items: { id: Tab; label: string; icon: any }[] }[] = [
     { label: "Overview", items: [{ id: "overview", label: "Dashboard", icon: LayoutDashboard }] },
