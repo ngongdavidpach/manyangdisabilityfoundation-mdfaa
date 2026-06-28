@@ -24,7 +24,7 @@ const empty = (): Partial<News> => ({
   status: "draft",
 });
 
-export const NewsManager: React.FC = () => {
+export const NewsManager: React.FC<{ focusArticleId?: string | null }> = ({ focusArticleId }) => {
   const [items, setItems] = useState<News[]>([]);
   const [editing, setEditing] = useState<Partial<News> | null>(null);
 
@@ -38,6 +38,11 @@ export const NewsManager: React.FC = () => {
   useEffect(() => {
     load();
   }, []);
+  useEffect(() => {
+    if (!focusArticleId) return;
+    const match = items.find((i) => i.id === focusArticleId);
+    if (match) setEditing(match);
+  }, [focusArticleId, items]);
 
   const save = async () => {
     if (!editing?.title || !editing?.slug) return alert("Title and slug are required");
