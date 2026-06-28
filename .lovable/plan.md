@@ -1,36 +1,36 @@
-## Scope
+## Goal
 
-Four changes across navigation, content syndication, SEO, and a new archive page.
+Rework `src/ported/components/views/AdminDashboardView.tsx` to use the visual structure from the uploaded `AdminDashboard.jsx` reference, while keeping all existing MDF functionality (tabs, managers, role gate, live Supabase counts).
 
-### 1. Remove "Sign Out" from dropdown menu
-- In `src/ported/components/Navbar.tsx`, remove the "Sign Out" button from the desktop user dropdown and the mobile menu. Keep the `logout()` logic available elsewhere (Dashboard) so users can still sign out — only the navbar entry is removed.
+## Layout changes
 
-### 2. RSS feeds
-Create two new TanStack server routes that return XML:
-- `src/routes/rss[.]xml.ts` → News & Events feed. Pulls latest 20 `news_articles` (published) + upcoming `events` from Supabase using a publishable-key server client, outputs RSS 2.0 with `<channel>` metadata, `<item>` entries (title, link, description, pubDate, guid).
-- `src/routes/programs.rss[.]xml.ts` → Programs updates feed. Pulls from `page_settings` (page_key='programs') content list and any programs-related news.
-- Add `<link rel="alternate" type="application/rss+xml">` tags in `__root.tsx` head (or per-route) so feed readers auto-discover.
-- Add the feed URLs to `sitemap[.]xml.ts`.
+```
+┌─────────────────────────────────────────────────────┐
+│ Sidebar (w-56)  │  Top bar: search + bell + avatar  │
+│  - Brand        ├───────────────────────────────────┤
+│  - Nav groups   │  4 violet stat cards (grid-4)     │
+│  - Sign out     │                                   │
+│                 │  Active tab panel in white card   │
+│                 │  (Overview → table of latest news)│
+├─────────────────┴───────────────────────────────────┤
+│ Black footer with violet "ADMIN PANEL" bar          │
+└─────────────────────────────────────────────────────┘
+```
 
-### 3. Schema.org structured data
-- **Organization**: already present on `/about`. Promote to site-wide by adding it to `__root.tsx` head scripts (with logo, sameAs social links from `useFoundationInfo`). Remove duplicate from `/about`.
-- **NewsArticle**: already present on `/news/$slug.tsx` — verify completeness (headline, datePublished, author, image, publisher). Add missing fields if any.
-- **Event**: add `Event` JSON-LD to `NewsView.tsx` (events section) and to any event detail rendering. Loop over events in the route loader and emit one `Event` per upcoming event with `name`, `startDate`, `location`, `description`, `eventStatus`, `eventAttendanceMode`.
+## Implementation
 
-### 4. News & Field Reports archive page
-- New route `src/routes/news.archive.tsx` at `/news/archive`.
-- Server loader fetches all published `news_articles` with `category`, `published_at`, paginated via search params (`?page=1&category=field-report`).
-- Use TanStack search params with Zod validation (`page`, `category`).
-- UI: filter chips (All + distinct categories from DB), paginated list (10 per page) using the existing `Pagination` component, article cards linking to `/news/$slug`.
-- Add a prominent "View archive" link on `NewsView.tsx`.
-- Add `/news/archive` to sitemap and to RSS channel `<link>`.
+Edit only `src/ported/components/views/AdminDashboardView.tsx`:
 
-### Technical notes
-- RSS routes use `createFileRoute` with `server.handlers.GET`, return `new Response(xml, { headers: { "Content-Type": "application/rss+xml; charset=utf-8" } })`. Read DB via a server publishable client (`SUPABASE_URL` + `SUPABASE_PUBLISHABLE_KEY`) — narrow `TO anon` SELECT policies already exist on `news_articles` and `events` for published rows.
-- Escape XML entities in titles/descriptions.
-- Archive page uses `validateSearch` with `fallback()` from `@tanstack/zod-adapter`, fetches via TanStack Query `useSuspenseQuery` with `loaderDeps` on `{ page, category }`.
-- No DB migrations needed.
+1. **Shell**: outer `min-h-screen bg-white flex flex-col`, inner `flex flex-1` with sidebar + main column (`bg-indigo-50`).
+2. **Sidebar (w-56, white, border-r)**: keep existing grouped sections (Overview / People / Finance / Content / System), restyle buttons — active = `bg-violet-100 text-violet-700`, inactive = `text-gray-700 hover:bg-gray-50`, rounded-lg, icon + label. Brand row with MDF logo + "MDF Admin". Sign-out button pinned at bottom.
+3. **Top bar**: white, border-b, centered search input with violet rounded-r button, bell icon, avatar circle (`bg-violet-200`) with user initial; keep the existing "Admin" badge next to the avatar.
+4. **Stat cards**: 4 violet (`bg-violet-700`) rounded-2xl cards showing live counts (Media, News, Events, Staff) with icon bubble — click still switches tab.
+5. **Active panel**: white `rounded-2xl shadow-sm p-6` wrapper. Overview renders a "Recent Articles" style table fed by latest `news_articles` (id/title, views placeholder or published date, comments count if available, Published/Draft badge). All other tabs render their existing manager component inside the same white card.
+6. **Footer**: black bar with inner violet pill reading "ADMIN PANEL".
+7. **Mobile**: sidebar collapses to a top horizontal scroll nav under `lg:hidden`, main content stacks; keep existing responsive grid for stat cards (`grid-cols-2 md:grid-cols-4`).
 
-### Out of scope
-- Email/push notifications for new content (RSS only).
-- Per-category RSS feeds (single combined news feed + single programs feed).
+## Out of scope
+
+- No changes to managers, RLS, routes, or auth.
+- No new dependencies; uses existing lucide-react icons and Tailwind classes.
+- Reference's hardcoded GeeksForGeeks branding/sample articles replaced with MDF data.

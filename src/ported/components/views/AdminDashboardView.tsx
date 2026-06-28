@@ -14,8 +14,11 @@ import {
   BarChart3,
   Workflow,
   ShieldCheck,
+  Search,
+  Bell,
+  User as UserIcon,
 } from "lucide-react";
-import { useNavigate, Link } from "@tanstack/react-router";
+import { useNavigate } from "@tanstack/react-router";
 import { useAuth } from "../../contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { GalleryManager } from "../admin/GalleryManager";
@@ -50,13 +53,21 @@ type Tab =
   | "expenses"
   | "reports";
 
+type RecentArticle = {
+  id: string;
+  title: string;
+  published: boolean;
+  published_at: string | null;
+};
+
 export const AdminDashboard: React.FC = () => {
   const navigate = useNavigate();
   const { user, logout } = useAuth();
-  const onLogout = logout;
 
   const [tab, setTab] = useState<Tab>("overview");
   const [counts, setCounts] = useState({ media: 0, news: 0, events: 0, staff: 0 });
+  const [recent, setRecent] = useState<RecentArticle[]>([]);
+  const [query, setQuery] = useState("");
 
   useEffect(() => {
     Promise.all([
@@ -72,13 +83,16 @@ export const AdminDashboard: React.FC = () => {
         staff: s.count || 0,
       }),
     );
+    supabase
+      .from("news_articles")
+      .select("id,title,published,published_at")
+      .order("published_at", { ascending: false, nullsFirst: false })
+      .limit(7)
+      .then(({ data }) => setRecent((data as RecentArticle[]) || []));
   }, [tab]);
 
   const sections: { label: string; items: { id: Tab; label: string; icon: any }[] }[] = [
-    {
-      label: "Overview",
-      items: [{ id: "overview", label: "Overview", icon: LayoutDashboard }],
-    },
+    { label: "Overview", items: [{ id: "overview", label: "Dashboard", icon: LayoutDashboard }] },
     {
       label: "People",
       items: [
@@ -115,121 +129,242 @@ export const AdminDashboard: React.FC = () => {
     },
   ];
 
-  return (
-    <div className="min-h-screen bg-slate-50">
-      <header className="bg-white border-b border-slate-200 sticky top-0 z-10">
-        <div className="max-w-7xl mx-auto px-4 py-3 flex items-center gap-4">
-          <button onClick={() => navigate({ to: "/" })} className="flex items-center gap-2">
-            <img src="/images/logo.png" alt="" className="w-8 h-8" />
-            <span className="font-bold text-slate-900">MDF Admin</span>
-          </button>
-          <div className="ml-auto flex items-center gap-3">
-            <span className="text-sm text-slate-600 hidden sm:block">
-              {user?.fullName || user?.email}
-            </span>
-            <span className="hidden sm:inline-flex items-center gap-1 text-[10px] font-semibold uppercase tracking-wider text-blue-700 bg-blue-50 border border-blue-200 px-2 py-0.5 rounded-full">
-              Admin
-            </span>
-            <button
-              onClick={onLogout}
-              className="text-sm text-slate-600 hover:text-rose-600 flex items-center gap-1"
-            >
-              <LogOut className="w-4 h-4" /> Sign out
-            </button>
-          </div>
-        </div>
-      </header>
+  const stats = [
+    { label: "Media Assets", value: counts.media, icon: ImageIcon, tab: "gallery" as Tab },
+    { label: "News Articles", value: counts.news, icon: Newspaper, tab: "news" as Tab },
+    { label: "Events", value: counts.events, icon: Calendar, tab: "events" as Tab },
+    { label: "Staff", value: counts.staff, icon: Users, tab: "staff" as Tab },
+  ];
 
-      <div className="max-w-7xl mx-auto px-4 py-6 grid grid-cols-1 lg:grid-cols-[220px_1fr] gap-6">
-        <nav className="space-y-5">
-          {sections.map((section) => (
-            <div key={section.label} className="space-y-1">
-              <p className="px-3 text-[10px] font-semibold uppercase tracking-wider text-slate-400">
-                {section.label}
+  const initial = (user?.fullName || user?.email || "A").charAt(0).toUpperCase();
+
+  const renderTab = () => {
+    switch (tab) {
+      case "contacts":
+        return <ContactsManager />;
+      case "pipeline":
+        return <PipelineView />;
+      case "donations":
+        return <DonationsManager />;
+      case "expenses":
+        return <ExpensesManager />;
+      case "reports":
+        return <FinanceReports />;
+      case "pages":
+        return <PageSettingsEditor />;
+      case "foundation":
+        return <FoundationInfoEditor />;
+      case "insight":
+        return <FoundationInsightManager />;
+      case "gallery":
+        return <GalleryManager />;
+      case "news":
+        return <NewsManager />;
+      case "events":
+        return <EventsManager />;
+      case "staff":
+        return <StaffManager />;
+      case "staff-accounts":
+        return <StaffAccountsManager />;
+      case "settings":
+        return (
+          <div className="space-y-4">
+            <NavigationPagesEditor />
+            <div className="bg-white rounded-2xl border border-gray-100 p-5 space-y-3">
+              <h3 className="text-lg font-bold text-gray-800">Other settings</h3>
+              <p className="text-sm text-gray-600">
+                Site-wide settings are managed under{" "}
+                <button onClick={() => setTab("pages")} className="text-violet-700 underline">
+                  Page Content → Site / Security
+                </button>
+                .
               </p>
-              {section.items.map((t) => (
+              <p className="text-sm text-gray-600">
+                Social media URLs and contact info live under{" "}
+                <button onClick={() => setTab("pages")} className="text-violet-700 underline">
+                  Page Content → Footer &amp; Contact
+                </button>
+                .
+              </p>
+            </div>
+          </div>
+        );
+      default:
+        return null;
+    }
+  };
+
+  return (
+    <div className="w-full min-h-screen bg-white flex flex-col font-sans">
+      <div className="flex flex-1 flex-col lg:flex-row">
+        {/* Sidebar */}
+        <aside className="w-full lg:w-56 bg-white border-b lg:border-b-0 lg:border-r border-gray-100 flex flex-col">
+          <button
+            onClick={() => navigate({ to: "/" })}
+            className="flex items-center gap-2 px-5 py-5"
+          >
+            <img src="/images/logo.png" alt="MDF" className="w-8 h-8" />
+            <span className="text-lg font-bold">
+              <span className="text-violet-700">MDF</span>
+              <span className="text-gray-800"> Admin</span>
+            </span>
+          </button>
+          <nav className="flex-1 px-3 pb-3 space-y-4 overflow-x-auto">
+            {sections.map((section) => (
+              <div key={section.label} className="space-y-1">
+                <p className="px-3 text-[10px] font-semibold uppercase tracking-wider text-gray-400">
+                  {section.label}
+                </p>
+                {section.items.map(({ id, label, icon: Icon }) => {
+                  const isActive = tab === id;
+                  return (
+                    <button
+                      key={id}
+                      onClick={() => setTab(id)}
+                      className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
+                        isActive
+                          ? "bg-violet-100 text-violet-700"
+                          : "text-gray-700 hover:bg-gray-50"
+                      }`}
+                    >
+                      <Icon className="w-[18px] h-[18px]" />
+                      {label}
+                    </button>
+                  );
+                })}
+              </div>
+            ))}
+            <button
+              onClick={logout}
+              className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-gray-700 hover:bg-rose-50 hover:text-rose-600 transition-colors"
+            >
+              <LogOut className="w-[18px] h-[18px]" /> Sign out
+            </button>
+          </nav>
+        </aside>
+
+        {/* Main */}
+        <div className="flex-1 flex flex-col bg-indigo-50 min-w-0">
+          {/* Top bar */}
+          <header className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-4 px-4 sm:px-8 py-4 bg-white border-b border-gray-100">
+            <div className="min-w-0 flex justify-center">
+              <div className="flex w-full max-w-md">
+                <input
+                  type="text"
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                  placeholder="Search"
+                  className="flex-1 min-w-0 rounded-l-full border border-gray-200 px-4 py-2 text-sm outline-none bg-gray-50"
+                />
+                <button className="rounded-r-full bg-violet-700 px-4 flex items-center justify-center shrink-0">
+                  <Search className="w-4 h-4 text-white" />
+                </button>
+              </div>
+            </div>
+            <div className="flex items-center gap-3 sm:gap-5 shrink-0">
+              <span className="hidden sm:inline-flex items-center gap-1 text-[10px] font-semibold uppercase tracking-wider text-violet-700 bg-violet-50 border border-violet-200 px-2 py-0.5 rounded-full">
+                Admin
+              </span>
+              <Bell className="w-5 h-5 text-gray-600" />
+              <div className="w-9 h-9 rounded-full bg-violet-200 flex items-center justify-center text-violet-700 font-bold text-sm">
+                {initial || <UserIcon className="w-5 h-5" />}
+              </div>
+            </div>
+          </header>
+
+          {/* Content */}
+          <main className="flex-1 px-4 sm:px-8 py-6 space-y-6">
+            {/* Stat cards */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-5">
+              {stats.map(({ label, value, icon: Icon, tab: t }) => (
                 <button
-                  key={t.id}
-                  onClick={() => setTab(t.id)}
-                  className={`w-full text-left text-sm font-medium px-3 py-2 rounded-md flex items-center gap-2 transition-colors ${
-                    tab === t.id ? "bg-blue-600 text-white" : "text-slate-700 hover:bg-slate-100"
-                  }`}
+                  key={label}
+                  onClick={() => setTab(t)}
+                  className="bg-violet-700 hover:bg-violet-800 rounded-2xl p-5 flex items-center justify-between shadow-sm text-left transition-colors"
                 >
-                  <t.icon className="w-4 h-4" /> {t.label}
+                  <div className="min-w-0">
+                    <div className="text-white text-2xl font-bold">{value}</div>
+                    <div className="text-violet-200 text-xs mt-1 truncate">{label}</div>
+                  </div>
+                  <div className="w-10 h-10 rounded-full bg-violet-600/60 flex items-center justify-center shrink-0">
+                    <Icon className="w-5 h-5 text-white" />
+                  </div>
                 </button>
               ))}
             </div>
-          ))}
-        </nav>
 
-        <main>
-          {tab === "overview" && (
-            <div className="space-y-4">
-              <h2 className="text-2xl font-bold text-slate-900">
-                Welcome back, {user?.fullName?.split(" ")[0] || "Admin"}
-              </h2>
-              <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-                {[
-                  { label: "Media", n: counts.media, tab: "gallery" as Tab },
-                  { label: "News", n: counts.news, tab: "news" as Tab },
-                  { label: "Events", n: counts.events, tab: "events" as Tab },
-                  { label: "Staff", n: counts.staff, tab: "staff" as Tab },
-                ].map((c) => (
-                  <button
-                    key={c.label}
-                    onClick={() => setTab(c.tab)}
-                    className="bg-white border rounded-lg p-4 text-left hover:border-blue-400 transition-colors"
-                  >
-                    <p className="text-3xl font-bold text-slate-900">{c.n}</p>
-                    <p className="text-xs text-slate-500 uppercase tracking-wider mt-1">
-                      {c.label}
-                    </p>
-                  </button>
-                ))}
-              </div>
-              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 text-sm text-blue-900">
-                Tip: The first signed-up user is automatically made admin. To grant admin to others,
-                edit the user_roles table from the backend dashboard.
-              </div>
+            {/* Active panel */}
+            <div className="bg-white rounded-2xl shadow-sm p-4 sm:p-6">
+              {tab === "overview" ? (
+                <>
+                  <div className="flex items-center justify-between mb-4 pb-3 border-b border-gray-100 gap-3">
+                    <h2 className="text-violet-700 font-semibold text-lg truncate">
+                      Recent Articles
+                    </h2>
+                    <button
+                      onClick={() => setTab("news")}
+                      className="bg-violet-700 hover:bg-violet-800 text-white text-sm font-medium px-4 py-1.5 rounded-md shrink-0"
+                    >
+                      View All
+                    </button>
+                  </div>
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-sm">
+                      <thead>
+                        <tr className="text-left text-gray-700">
+                          <th className="font-semibold pb-2">Article</th>
+                          <th className="font-semibold pb-2">Published</th>
+                          <th className="font-semibold pb-2">Status</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {recent.length === 0 ? (
+                          <tr>
+                            <td colSpan={3} className="py-6 text-center text-gray-500">
+                              No articles yet.
+                            </td>
+                          </tr>
+                        ) : (
+                          recent.map((a) => (
+                            <tr key={a.id} className="border-t border-gray-50">
+                              <td className="py-2.5 text-gray-800 truncate max-w-[260px]">
+                                {a.title}
+                              </td>
+                              <td className="py-2.5 text-gray-600">
+                                {a.published_at
+                                  ? new Date(a.published_at).toLocaleDateString()
+                                  : "—"}
+                              </td>
+                              <td className="py-2.5">
+                                <span
+                                  className={`text-white text-xs font-medium px-3 py-1 rounded-full ${
+                                    a.published ? "bg-green-500" : "bg-gray-400"
+                                  }`}
+                                >
+                                  {a.published ? "Published" : "Draft"}
+                                </span>
+                              </td>
+                            </tr>
+                          ))
+                        )}
+                      </tbody>
+                    </table>
+                  </div>
+                </>
+              ) : (
+                renderTab()
+              )}
             </div>
-          )}
-          {tab === "contacts" && <ContactsManager />}
-          {tab === "pipeline" && <PipelineView />}
-          {tab === "donations" && <DonationsManager />}
-          {tab === "expenses" && <ExpensesManager />}
-          {tab === "reports" && <FinanceReports />}
-          {tab === "pages" && <PageSettingsEditor />}
-          {tab === "foundation" && <FoundationInfoEditor />}
-          {tab === "insight" && <FoundationInsightManager />}
-          {tab === "gallery" && <GalleryManager />}
-          {tab === "news" && <NewsManager />}
-          {tab === "events" && <EventsManager />}
-          {tab === "staff" && <StaffManager />}
-          {tab === "staff-accounts" && <StaffAccountsManager />}
-          {tab === "settings" && (
-            <div className="space-y-4">
-              <NavigationPagesEditor />
-              <div className="bg-white rounded-lg border p-5 space-y-3">
-                <h3 className="text-lg font-bold">Other settings</h3>
-                <p className="text-sm text-slate-600">
-                  Site-wide settings are managed under{" "}
-                  <button onClick={() => setTab("pages")} className="text-blue-600 underline">
-                    Page Content → Site / Security
-                  </button>
-                  , including site name and tagline.
-                </p>
-                <p className="text-sm text-slate-600">
-                  Social media URLs and contact info live under{" "}
-                  <button onClick={() => setTab("pages")} className="text-blue-600 underline">
-                    Page Content → Footer &amp; Contact
-                  </button>
-                  .
-                </p>
-              </div>
-            </div>
-          )}
-        </main>
+          </main>
+        </div>
       </div>
+
+      {/* Footer */}
+      <footer className="bg-black px-6 py-3 flex justify-center">
+        <div className="bg-violet-700 w-full max-w-5xl rounded-md py-2 flex justify-center">
+          <span className="text-white font-bold tracking-wide">ADMIN PANEL</span>
+        </div>
+      </footer>
     </div>
   );
 };
