@@ -17,6 +17,11 @@ import {
   Search,
   Bell,
   User as UserIcon,
+  Eye,
+  Edit3,
+  EyeOff,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 import { useNavigate } from "@tanstack/react-router";
 import { useAuth } from "../../contexts/AuthContext";
