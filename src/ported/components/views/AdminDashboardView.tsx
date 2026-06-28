@@ -373,41 +373,109 @@ export const AdminDashboard: React.FC = () => {
                           <th className="font-semibold pb-2">Article</th>
                           <th className="font-semibold pb-2">Published</th>
                           <th className="font-semibold pb-2">Status</th>
+                          <th className="font-semibold pb-2 text-right">Actions</th>
                         </tr>
                       </thead>
                       <tbody>
                         {recent.length === 0 ? (
                           <tr>
-                            <td colSpan={3} className="py-6 text-center text-gray-500">
-                              No articles yet.
+                            <td colSpan={4} className="py-6 text-center text-gray-500">
+                              {debounced ? `No articles match "${debounced}".` : "No articles yet."}
                             </td>
                           </tr>
                         ) : (
-                          recent.map((a) => (
-                            <tr key={a.id} className="border-t border-gray-50">
-                              <td className="py-2.5 text-gray-800 truncate max-w-[260px]">
-                                {a.title}
-                              </td>
-                              <td className="py-2.5 text-gray-600">
-                                {a.published_at
-                                  ? new Date(a.published_at).toLocaleDateString()
-                                  : "—"}
-                              </td>
-                              <td className="py-2.5">
-                                <span
-                                  className={`text-white text-xs font-medium px-3 py-1 rounded-full ${
-                                    a.published_at ? "bg-green-500" : "bg-gray-400"
-                                  }`}
-                                >
-                                  {a.published_at ? "Published" : "Draft"}
-                                </span>
-                              </td>
-                            </tr>
-                          ))
+                          recent.map((a) => {
+                            const isPub = a.status === "published";
+                            return (
+                              <tr key={a.id} className="border-t border-gray-50">
+                                <td className="py-2.5 text-gray-800 truncate max-w-[260px]">
+                                  {a.title}
+                                </td>
+                                <td className="py-2.5 text-gray-600">
+                                  {a.published_at
+                                    ? new Date(a.published_at).toLocaleDateString()
+                                    : "—"}
+                                </td>
+                                <td className="py-2.5">
+                                  <span
+                                    className={`text-white text-xs font-medium px-3 py-1 rounded-full ${
+                                      isPub ? "bg-green-500" : "bg-gray-400"
+                                    }`}
+                                  >
+                                    {isPub ? "Published" : "Draft"}
+                                  </span>
+                                </td>
+                                <td className="py-2.5">
+                                  <div className="flex items-center justify-end gap-1">
+                                    <a
+                                      href={a.slug ? `/news/${a.slug}` : undefined}
+                                      target="_blank"
+                                      rel="noreferrer"
+                                      aria-disabled={!a.slug}
+                                      title="View"
+                                      className={`p-1.5 rounded hover:bg-gray-100 text-gray-600 ${
+                                        a.slug ? "" : "pointer-events-none opacity-40"
+                                      }`}
+                                    >
+                                      <Eye className="w-4 h-4" />
+                                    </a>
+                                    <button
+                                      onClick={() => openEdit(a)}
+                                      title="Edit"
+                                      className="p-1.5 rounded hover:bg-gray-100 text-gray-600"
+                                    >
+                                      <Edit3 className="w-4 h-4" />
+                                    </button>
+                                    <button
+                                      onClick={() => togglePublish(a)}
+                                      disabled={busyId === a.id}
+                                      title={isPub ? "Unpublish" : "Publish"}
+                                      className={`p-1.5 rounded hover:bg-gray-100 disabled:opacity-50 ${
+                                        isPub ? "text-amber-600" : "text-green-600"
+                                      }`}
+                                    >
+                                      {isPub ? (
+                                        <EyeOff className="w-4 h-4" />
+                                      ) : (
+                                        <Eye className="w-4 h-4" />
+                                      )}
+                                    </button>
+                                  </div>
+                                </td>
+                              </tr>
+                            );
+                          })
                         )}
                       </tbody>
                     </table>
                   </div>
+                  {total > 0 && (
+                    <div className="flex items-center justify-between pt-4 mt-2 border-t border-gray-100 text-xs text-gray-600">
+                      <span>
+                        Showing {(page - 1) * PAGE_SIZE + 1}–
+                        {Math.min(page * PAGE_SIZE, total)} of {total}
+                      </span>
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => setPage((p) => Math.max(1, p - 1))}
+                          disabled={page === 1}
+                          className="p-1 rounded border border-gray-200 disabled:opacity-40"
+                        >
+                          <ChevronLeft className="w-4 h-4" />
+                        </button>
+                        <span>
+                          Page {page} / {Math.max(1, Math.ceil(total / PAGE_SIZE))}
+                        </span>
+                        <button
+                          onClick={() => setPage((p) => p + 1)}
+                          disabled={page * PAGE_SIZE >= total}
+                          className="p-1 rounded border border-gray-200 disabled:opacity-40"
+                        >
+                          <ChevronRight className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
+                  )}
                 </>
               ) : (
                 renderTab()
