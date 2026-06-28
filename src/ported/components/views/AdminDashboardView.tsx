@@ -337,10 +337,10 @@ export const AdminDashboard: React.FC = () => {
                               <td className="py-2.5">
                                 <span
                                   className={`text-white text-xs font-medium px-3 py-1 rounded-full ${
-                                    a.published ? "bg-green-500" : "bg-gray-400"
+                                    a.published_at ? "bg-green-500" : "bg-gray-400"
                                   }`}
                                 >
-                                  {a.published ? "Published" : "Draft"}
+                                  {a.published_at ? "Published" : "Draft"}
                                 </span>
                               </td>
                             </tr>
