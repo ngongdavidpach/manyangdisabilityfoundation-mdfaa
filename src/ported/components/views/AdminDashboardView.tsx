@@ -56,7 +56,6 @@ type Tab =
 type RecentArticle = {
   id: string;
   title: string;
-  published: boolean;
   published_at: string | null;
 };
 
