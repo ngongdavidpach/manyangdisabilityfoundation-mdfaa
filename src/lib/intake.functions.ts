@@ -244,3 +244,121 @@ export const submitContactMessage = createServerFn({ method: "POST" })
     }
     return { ok: true };
   });
+
+// ---------- coordinator_registrations (East Africa) ----------
+const EAST_AFRICA = [
+  "Kenya",
+  "Uganda",
+  "Tanzania",
+  "Rwanda",
+  "Burundi",
+  "South Sudan",
+  "Ethiopia",
+  "Somalia",
+  "DR Congo",
+] as const;
+
+const coordinatorSchema = z.object({
+  fullName: str(120).min(1),
+  email: z.string().trim().max(255).email(),
+  phone: optStr(40),
+  country: z.enum(EAST_AFRICA),
+  region: optStr(120),
+  organisation: optStr(160),
+  roleTitle: optStr(120),
+  yearsExperience: z
+    .union([z.string(), z.number()])
+    .transform((v) => (v === "" || v == null ? null : Number(v)))
+    .pipe(z.number().int().min(0).max(80).nullable()),
+  languages: optStr(200),
+  aidTypes: z.array(z.string().trim().max(40)).max(10).default([]),
+  estimatedBeneficiaries: z
+    .union([z.string(), z.number()])
+    .transform((v) => (v === "" || v == null ? null : Number(v)))
+    .pipe(z.number().int().min(0).max(1_000_000).nullable()),
+  notes: optStr(2000),
+});
+
+export const submitCoordinatorRegistration = createServerFn({ method: "POST" })
+  .validator((data: z.input<typeof coordinatorSchema>) => coordinatorSchema.parse(data))
+  .handler(async ({ data }) => {
+    await enforceRateLimit({ bucket: "coordinator-reg", max: 5, windowSeconds: 3600 });
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { error } = await supabaseAdmin.from("coordinator_registrations").insert({
+      full_name: data.fullName,
+      email: data.email,
+      phone: data.phone,
+      country: data.country,
+      region: data.region,
+      organisation: data.organisation,
+      role_title: data.roleTitle,
+      years_experience: data.yearsExperience,
+      languages: data.languages,
+      aid_types: data.aidTypes,
+      estimated_beneficiaries: data.estimatedBeneficiaries,
+      notes: data.notes,
+    });
+    if (error) {
+      console.error("[submitCoordinatorRegistration]", error);
+      throw new Error("Unable to submit your registration. Please try again later.");
+    }
+    return { ok: true };
+  });
+
+// ---------- fundraiser_registrations (AU) ----------
+const AU_STATES = ["NSW", "VIC", "QLD", "WA", "SA", "TAS", "ACT", "NT"] as const;
+
+const fundraiserSchema = z.object({
+  fullName: str(120).min(1),
+  email: z.string().trim().max(255).email(),
+  phone: optStr(40),
+  state: z.enum(AU_STATES),
+  city: optStr(120),
+  postcode: optStr(10),
+  eventType: optStr(60),
+  eventDate: z
+    .string()
+    .trim()
+    .max(20)
+    .optional()
+    .nullable()
+    .transform((v) => (v ? v : null)),
+  expectedParticipants: z
+    .union([z.string(), z.number()])
+    .transform((v) => (v === "" || v == null ? null : Number(v)))
+    .pipe(z.number().int().min(0).max(1_000_000).nullable()),
+  fundraisingGoal: z
+    .union([z.string(), z.number()])
+    .transform((v) => (v === "" || v == null ? null : Number(v)))
+    .pipe(z.number().min(0).max(10_000_000).nullable()),
+  priorExperience: optStr(1000),
+  message: optStr(2000),
+});
+
+export const submitFundraiserRegistration = createServerFn({ method: "POST" })
+  .validator((data: z.input<typeof fundraiserSchema>) => fundraiserSchema.parse(data))
+  .handler(async ({ data }) => {
+    await enforceRateLimit({ bucket: "fundraiser-reg", max: 5, windowSeconds: 3600 });
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { error } = await supabaseAdmin.from("fundraiser_registrations").insert({
+      full_name: data.fullName,
+      email: data.email,
+      phone: data.phone,
+      state: data.state,
+      city: data.city,
+      postcode: data.postcode,
+      event_type: data.eventType,
+      event_date: data.eventDate,
+      expected_participants: data.expectedParticipants,
+      fundraising_goal_cents:
+        data.fundraisingGoal != null ? Math.round(data.fundraisingGoal * 100) : null,
+      prior_experience: data.priorExperience,
+      message: data.message,
+    });
+    if (error) {
+      console.error("[submitFundraiserRegistration]", error);
+      throw new Error("Unable to submit your registration. Please try again later.");
+    }
+    return { ok: true };
+  });
+
