@@ -1,41 +1,50 @@
-## Goal
-Make the Overview "Recent Articles" table fully functional: real data with correct status, per-row actions (View / Edit / Publish-Unpublish), and server-backed search + pagination.
+## Footer compliance additions
 
-## Changes (single file: `src/ported/components/views/AdminDashboardView.tsx`)
+**ABN line**
+- Add a new line in `Footer.tsx` (above or beside the copyright): "ABN 75 986 228 179" as a link to `https://abr.business.gov.au/ABN/View?id=75986228179` (opens in new tab, `rel="noopener noreferrer"`).
+- Format the ABN with standard spacing (XX XXX XXX XXX).
 
-### 1. Data fetching
-- Select `id, title, slug, status, published_at` from `news_articles`.
-- Treat an article as **Published** when `status = 'published'` (and `published_at <= now()`), otherwise **Draft**. Render `published_at` date when present, else "—".
-- Replace the single `useEffect` fetch with a query that takes `search`, `page`, and `pageSize` (default 7) and refetches when they change.
-- Use server-side filtering via `.ilike('title', %q%)` and `.range(from, to)` with `{ count: 'exact' }` to get total rows for pagination.
-- Order by `coalesce(published_at, created_at) desc` (using `.order('published_at', { ascending: false, nullsFirst: false })` then secondary `created_at`).
+**ACNC Charity Tick**
+- Add the official ACNC Registered Charity Tick image to the footer, linked to the charity's ACNC public profile.
+- Place in the "Headquarters" column or as a dedicated "Compliance" mini-block beside the logo.
+- Source the official tick from ACNC (`https://www.acnc.gov.au/.../charity-tick`). I'll save it to `public/images/acnc-charity-tick.png` and reference statically.
 
-### 2. Search wiring
-- Reuse the existing top-bar search input. Debounce 300ms; reset to page 1 on new query.
-- Search only filters the Recent Articles table while on the Overview tab (other tabs unaffected). Add a subtle hint under the input on Overview: "Searching news articles".
+## CSR sponsorship downloads
 
-### 3. Per-row actions
-Add an "Actions" column with three icon buttons:
-- **View** → opens `/news/{slug}` in a new tab (disabled if no slug).
-- **Edit** → switches to the News tab and passes the article id so `NewsManager` opens it. Implementation: lift `tab` + a new `focusArticleId` state; pass `focusArticleId` as a prop to `NewsManager` (small additive prop; NewsManager will auto-select that row if provided, otherwise behave as today).
-- **Publish / Unpublish** → toggles `status` between `published` and `draft`; sets `published_at = now()` when publishing, leaves prior value when unpublishing. Optimistic UI update + refetch on completion. Errors show a toast/inline message.
+New route `/csr-sponsorship` (linked from Footer "Resources" and from `DonateView`) containing:
+- Overview of the CSR partnership program.
+- **Downloadable prospectus** (PDF) — button linking to `/downloads/mdf-csr-prospectus.pdf`.
+- **Sponsorship tier list** (PDF) — button linking to `/downloads/mdf-sponsorship-tiers.pdf`.
+- Inline tier table (Bronze / Silver / Gold / Platinum) summarising contribution levels and benefits for equipment-shipment sponsorships, so the page is useful even before clicking the PDF.
+- "Contact partnerships" CTA wired to the existing `submitPartnerInquiry` server function.
 
-### 4. Pagination
-- Footer row below table: "Showing X–Y of N" on the left; Prev / page indicator / Next on the right.
-- Disable Prev on page 1, Next when `to >= total - 1`.
-- Keep page size at 7 to match current layout.
+PDF generation: I'll generate both PDFs from structured content (using the docx/pdf skill or a simple HTML→PDF) and commit them to `public/downloads/`. Content will be branded with foundation info from `useFoundationInfo`.
 
-### 5. Status badge
-- Green "Published" when `status === 'published'`.
-- Gray "Draft" otherwise.
-- Stop using `published_at` alone as the status signal.
+## Separate registration portals
 
-## Out of scope
-- No schema migrations (status + published_at already exist).
-- No changes to NewsManager beyond accepting an optional `focusArticleId` prop used to scroll/select the matching row.
-- No changes to other tabs or auth.
+Two new public intake routes, each with its own form, Zod schema, rate limit, and server function — kept distinct from the existing `/request` (individual aid) and `/get-involved` (general volunteer) flows.
 
-## Technical notes
-- All queries continue to use the RLS-authenticated `supabase` browser client; admin RLS already permits read/update on `news_articles`.
-- Update uses `.update({ status, published_at }).eq('id', id)`.
-- Keep counts query (media/news/events/staff) as-is.
+**1. `/portal/coordinators` — East Africa local coordinators**
+- Fields: full name, email, phone, country (restricted to East Africa: Kenya, Uganda, Tanzania, Rwanda, Burundi, South Sudan, Ethiopia, Somalia, DRC), region/city, organisation (optional), role/title, years of community work, languages spoken, types of aid requested (multi-select: wheelchairs, prosthetics, mobility aids, rehab supplies, other), estimated beneficiaries, notes.
+- New table `coordinator_registrations` with admin-only read, server-function-only insert (matches existing intake pattern in `intake.functions.ts`).
+- New `submitCoordinatorRegistration` server function (validation + rate limit + `supabaseAdmin` insert).
+- Admin manager (`CoordinatorsManager.tsx`) added to Admin Dashboard sidebar under "People".
+
+**2. `/portal/fundraisers` — Australian volunteer fundraisers**
+- Fields: full name, email, phone, state (NSW/VIC/QLD/WA/SA/TAS/ACT/NT), city/suburb, postcode, event type (run/walk, gala, workplace giving, school drive, other), proposed event date, expected participants, fundraising goal (AUD), prior experience, message.
+- New table `fundraiser_registrations` with same RLS pattern.
+- New `submitFundraiserRegistration` server function.
+- Admin manager (`FundraisersManager.tsx`) added to Admin Dashboard.
+
+Both portals are linked from the Footer "Get Involved" section and from `GetInvolvedView`. They are public (no login required); security is enforced via server-side validation, rate limiting, and admin-only read policies — matching the existing intake architecture noted in @security-memory.
+
+## Technical summary
+
+- Files added: `src/routes/csr-sponsorship.tsx`, `src/routes/portal.coordinators.tsx`, `src/routes/portal.fundraisers.tsx`, `src/ported/components/views/CsrSponsorshipView.tsx`, `src/ported/components/views/CoordinatorPortalView.tsx`, `src/ported/components/views/FundraiserPortalView.tsx`, `src/ported/components/admin/CoordinatorsManager.tsx`, `src/ported/components/admin/FundraisersManager.tsx`, `public/images/acnc-charity-tick.png`, `public/downloads/mdf-csr-prospectus.pdf`, `public/downloads/mdf-sponsorship-tiers.pdf`.
+- Files modified: `src/ported/components/Footer.tsx` (ABN link, ACNC tick, new resource links), `src/lib/intake.functions.ts` (two new server functions), `src/ported/components/views/AdminDashboardView.tsx` (two new manager tabs), `src/ported/components/views/DonateView.tsx` and `GetInvolvedView.tsx` (cross-links), `src/routes/sitemap[.]xml.ts` (new public routes).
+- Migration: create `coordinator_registrations` and `fundraiser_registrations` with GRANTs to `service_role` only, RLS enabled, admin-only SELECT policy via `has_role(auth.uid(), 'admin')`. No anon/authenticated grants — writes go through server functions using `supabaseAdmin`.
+
+## Questions before I build
+
+1. **ACNC registration**: Is the foundation already registered with the ACNC? If yes, please share the charity ABN/ACN profile URL so the tick links correctly. If not yet registered, I'll add the tick image as a placeholder linking to a generic ACNC info page — say the word and I'll wire it up that way.
+2. **PDF content**: Should I draft the prospectus and tier-list PDFs from scratch (using existing site copy + standard CSR tiers like Bronze $5k / Silver $15k / Gold $50k / Platinum $150k+), or do you have draft text/figures you want included?
