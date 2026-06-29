@@ -234,18 +234,23 @@ export const Footer: React.FC = () => {
             </h4>
             <ul className="space-y-2.5 text-sm text-slate-400">
               <li>
+                <Link to="/csr-sponsorship" className="hover:text-white transition-colors">
+                  CSR Sponsorship
+                </Link>
+              </li>
+              <li>
+                <Link to="/portal/coordinators" className="hover:text-white transition-colors">
+                  Coordinator Portal (East Africa)
+                </Link>
+              </li>
+              <li>
+                <Link to="/portal/fundraisers" className="hover:text-white transition-colors">
+                  Fundraiser Sign-up (AU)
+                </Link>
+              </li>
+              <li>
                 <Link to="/guides/mobility-aid-grants" className="hover:text-white transition-colors">
                   Mobility Aid Grants
-                </Link>
-              </li>
-              <li>
-                <Link to="/guides/free-medical-equipment" className="hover:text-white transition-colors">
-                  Free Medical Equipment
-                </Link>
-              </li>
-              <li>
-                <Link to="/guides/donate-supplies" className="hover:text-white transition-colors">
-                  Donate Used Supplies
                 </Link>
               </li>
               <li>
@@ -255,6 +260,7 @@ export const Footer: React.FC = () => {
               </li>
             </ul>
           </div>
+
 
           <div className="space-y-4">
             <h4 className="text-sm font-semibold uppercase tracking-wider text-white">
