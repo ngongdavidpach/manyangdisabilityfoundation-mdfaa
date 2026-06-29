@@ -18,10 +18,13 @@ import { Route as GetInvolvedRouteImport } from './routes/get-involved'
 import { Route as GalleryRouteImport } from './routes/gallery'
 import { Route as DonateRouteImport } from './routes/donate'
 import { Route as DashboardRouteImport } from './routes/dashboard'
+import { Route as CsrSponsorshipRouteImport } from './routes/csr-sponsorship'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ProgramsRssDotxmlRouteImport } from './routes/programs.rss[.]xml'
+import { Route as PortalFundraisersRouteImport } from './routes/portal.fundraisers'
+import { Route as PortalCoordinatorsRouteImport } from './routes/portal.coordinators'
 import { Route as NewsArchiveRouteImport } from './routes/news.archive'
 import { Route as NewsSlugRouteImport } from './routes/news.$slug'
 import { Route as GuidesMobilityAidGrantsRouteImport } from './routes/guides.mobility-aid-grants'
@@ -77,6 +80,11 @@ const DashboardRoute = DashboardRouteImport.update({
   path: '/dashboard',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CsrSponsorshipRoute = CsrSponsorshipRouteImport.update({
+  id: '/csr-sponsorship',
+  path: '/csr-sponsorship',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AdminRoute = AdminRouteImport.update({
   id: '/admin',
   path: '/admin',
@@ -96,6 +104,16 @@ const ProgramsRssDotxmlRoute = ProgramsRssDotxmlRouteImport.update({
   id: '/rss.xml',
   path: '/rss.xml',
   getParentRoute: () => ProgramsRoute,
+} as any)
+const PortalFundraisersRoute = PortalFundraisersRouteImport.update({
+  id: '/portal/fundraisers',
+  path: '/portal/fundraisers',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PortalCoordinatorsRoute = PortalCoordinatorsRouteImport.update({
+  id: '/portal/coordinators',
+  path: '/portal/coordinators',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const NewsArchiveRoute = NewsArchiveRouteImport.update({
   id: '/archive',
@@ -149,6 +167,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/admin': typeof AdminRoute
+  '/csr-sponsorship': typeof CsrSponsorshipRoute
   '/dashboard': typeof DashboardRoute
   '/donate': typeof DonateRoute
   '/gallery': typeof GalleryRoute
@@ -164,6 +183,8 @@ export interface FileRoutesByFullPath {
   '/guides/mobility-aid-grants': typeof GuidesMobilityAidGrantsRoute
   '/news/$slug': typeof NewsSlugRoute
   '/news/archive': typeof NewsArchiveRoute
+  '/portal/coordinators': typeof PortalCoordinatorsRoute
+  '/portal/fundraisers': typeof PortalFundraisersRoute
   '/programs/rss.xml': typeof ProgramsRssDotxmlRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
@@ -173,6 +194,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/admin': typeof AdminRoute
+  '/csr-sponsorship': typeof CsrSponsorshipRoute
   '/dashboard': typeof DashboardRoute
   '/donate': typeof DonateRoute
   '/gallery': typeof GalleryRoute
@@ -188,6 +210,8 @@ export interface FileRoutesByTo {
   '/guides/mobility-aid-grants': typeof GuidesMobilityAidGrantsRoute
   '/news/$slug': typeof NewsSlugRoute
   '/news/archive': typeof NewsArchiveRoute
+  '/portal/coordinators': typeof PortalCoordinatorsRoute
+  '/portal/fundraisers': typeof PortalFundraisersRoute
   '/programs/rss.xml': typeof ProgramsRssDotxmlRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
@@ -198,6 +222,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/admin': typeof AdminRoute
+  '/csr-sponsorship': typeof CsrSponsorshipRoute
   '/dashboard': typeof DashboardRoute
   '/donate': typeof DonateRoute
   '/gallery': typeof GalleryRoute
@@ -213,6 +238,8 @@ export interface FileRoutesById {
   '/guides/mobility-aid-grants': typeof GuidesMobilityAidGrantsRoute
   '/news/$slug': typeof NewsSlugRoute
   '/news/archive': typeof NewsArchiveRoute
+  '/portal/coordinators': typeof PortalCoordinatorsRoute
+  '/portal/fundraisers': typeof PortalFundraisersRoute
   '/programs/rss.xml': typeof ProgramsRssDotxmlRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
@@ -224,6 +251,7 @@ export interface FileRouteTypes {
     | '/'
     | '/about'
     | '/admin'
+    | '/csr-sponsorship'
     | '/dashboard'
     | '/donate'
     | '/gallery'
@@ -239,6 +267,8 @@ export interface FileRouteTypes {
     | '/guides/mobility-aid-grants'
     | '/news/$slug'
     | '/news/archive'
+    | '/portal/coordinators'
+    | '/portal/fundraisers'
     | '/programs/rss.xml'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
@@ -248,6 +278,7 @@ export interface FileRouteTypes {
     | '/'
     | '/about'
     | '/admin'
+    | '/csr-sponsorship'
     | '/dashboard'
     | '/donate'
     | '/gallery'
@@ -263,6 +294,8 @@ export interface FileRouteTypes {
     | '/guides/mobility-aid-grants'
     | '/news/$slug'
     | '/news/archive'
+    | '/portal/coordinators'
+    | '/portal/fundraisers'
     | '/programs/rss.xml'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
@@ -272,6 +305,7 @@ export interface FileRouteTypes {
     | '/'
     | '/about'
     | '/admin'
+    | '/csr-sponsorship'
     | '/dashboard'
     | '/donate'
     | '/gallery'
@@ -287,6 +321,8 @@ export interface FileRouteTypes {
     | '/guides/mobility-aid-grants'
     | '/news/$slug'
     | '/news/archive'
+    | '/portal/coordinators'
+    | '/portal/fundraisers'
     | '/programs/rss.xml'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
@@ -297,6 +333,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AboutRoute: typeof AboutRoute
   AdminRoute: typeof AdminRoute
+  CsrSponsorshipRoute: typeof CsrSponsorshipRoute
   DashboardRoute: typeof DashboardRoute
   DonateRoute: typeof DonateRoute
   GalleryRoute: typeof GalleryRoute
@@ -310,6 +347,8 @@ export interface RootRouteChildren {
   GuidesDonateSuppliesRoute: typeof GuidesDonateSuppliesRoute
   GuidesFreeMedicalEquipmentRoute: typeof GuidesFreeMedicalEquipmentRoute
   GuidesMobilityAidGrantsRoute: typeof GuidesMobilityAidGrantsRoute
+  PortalCoordinatorsRoute: typeof PortalCoordinatorsRoute
+  PortalFundraisersRoute: typeof PortalFundraisersRoute
   LovableEmailAuthPreviewRoute: typeof LovableEmailAuthPreviewRoute
   LovableEmailAuthWebhookRoute: typeof LovableEmailAuthWebhookRoute
   LovableEmailQueueProcessRoute: typeof LovableEmailQueueProcessRoute
@@ -380,6 +419,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/csr-sponsorship': {
+      id: '/csr-sponsorship'
+      path: '/csr-sponsorship'
+      fullPath: '/csr-sponsorship'
+      preLoaderRoute: typeof CsrSponsorshipRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/admin': {
       id: '/admin'
       path: '/admin'
@@ -407,6 +453,20 @@ declare module '@tanstack/react-router' {
       fullPath: '/programs/rss.xml'
       preLoaderRoute: typeof ProgramsRssDotxmlRouteImport
       parentRoute: typeof ProgramsRoute
+    }
+    '/portal/fundraisers': {
+      id: '/portal/fundraisers'
+      path: '/portal/fundraisers'
+      fullPath: '/portal/fundraisers'
+      preLoaderRoute: typeof PortalFundraisersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/portal/coordinators': {
+      id: '/portal/coordinators'
+      path: '/portal/coordinators'
+      fullPath: '/portal/coordinators'
+      preLoaderRoute: typeof PortalCoordinatorsRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/news/archive': {
       id: '/news/archive'
@@ -502,6 +562,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
   AdminRoute: AdminRoute,
+  CsrSponsorshipRoute: CsrSponsorshipRoute,
   DashboardRoute: DashboardRoute,
   DonateRoute: DonateRoute,
   GalleryRoute: GalleryRoute,
@@ -515,6 +576,8 @@ const rootRouteChildren: RootRouteChildren = {
   GuidesDonateSuppliesRoute: GuidesDonateSuppliesRoute,
   GuidesFreeMedicalEquipmentRoute: GuidesFreeMedicalEquipmentRoute,
   GuidesMobilityAidGrantsRoute: GuidesMobilityAidGrantsRoute,
+  PortalCoordinatorsRoute: PortalCoordinatorsRoute,
+  PortalFundraisersRoute: PortalFundraisersRoute,
   LovableEmailAuthPreviewRoute: LovableEmailAuthPreviewRoute,
   LovableEmailAuthWebhookRoute: LovableEmailAuthWebhookRoute,
   LovableEmailQueueProcessRoute: LovableEmailQueueProcessRoute,
