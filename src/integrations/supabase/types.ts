@@ -255,6 +255,63 @@ export type Database = {
         }
         Relationships: []
       }
+      coordinator_registrations: {
+        Row: {
+          aid_types: string[] | null
+          country: string
+          created_at: string
+          email: string
+          estimated_beneficiaries: number | null
+          full_name: string
+          id: string
+          languages: string | null
+          notes: string | null
+          organisation: string | null
+          phone: string | null
+          region: string | null
+          role_title: string | null
+          status: string
+          updated_at: string
+          years_experience: number | null
+        }
+        Insert: {
+          aid_types?: string[] | null
+          country: string
+          created_at?: string
+          email: string
+          estimated_beneficiaries?: number | null
+          full_name: string
+          id?: string
+          languages?: string | null
+          notes?: string | null
+          organisation?: string | null
+          phone?: string | null
+          region?: string | null
+          role_title?: string | null
+          status?: string
+          updated_at?: string
+          years_experience?: number | null
+        }
+        Update: {
+          aid_types?: string[] | null
+          country?: string
+          created_at?: string
+          email?: string
+          estimated_beneficiaries?: number | null
+          full_name?: string
+          id?: string
+          languages?: string | null
+          notes?: string | null
+          organisation?: string | null
+          phone?: string | null
+          region?: string | null
+          role_title?: string | null
+          status?: string
+          updated_at?: string
+          years_experience?: number | null
+        }
+        Relationships: []
+      }
       donation_intents: {
         Row: {
           amount_cents: number
@@ -644,6 +701,63 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      fundraiser_registrations: {
+        Row: {
+          city: string | null
+          created_at: string
+          email: string
+          event_date: string | null
+          event_type: string | null
+          expected_participants: number | null
+          full_name: string
+          fundraising_goal_cents: number | null
+          id: string
+          message: string | null
+          phone: string | null
+          postcode: string | null
+          prior_experience: string | null
+          state: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          city?: string | null
+          created_at?: string
+          email: string
+          event_date?: string | null
+          event_type?: string | null
+          expected_participants?: number | null
+          full_name: string
+          fundraising_goal_cents?: number | null
+          id?: string
+          message?: string | null
+          phone?: string | null
+          postcode?: string | null
+          prior_experience?: string | null
+          state: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          city?: string | null
+          created_at?: string
+          email?: string
+          event_date?: string | null
+          event_type?: string | null
+          expected_participants?: number | null
+          full_name?: string
+          fundraising_goal_cents?: number | null
+          id?: string
+          message?: string | null
+          phone?: string | null
+          postcode?: string | null
+          prior_experience?: string | null
+          state?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
       }
       media_assets: {
         Row: {

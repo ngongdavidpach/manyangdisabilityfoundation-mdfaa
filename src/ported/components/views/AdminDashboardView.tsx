@@ -40,6 +40,8 @@ import { ExpensesManager } from "../admin/ExpensesManager";
 import { FinanceReports } from "../admin/FinanceReports";
 import { FoundationInfoEditor } from "../admin/FoundationInfoEditor";
 import { StaffAccountsManager } from "../admin/StaffAccountsManager";
+import { CoordinatorsManager } from "../admin/CoordinatorsManager";
+import { FundraisersManager } from "../admin/FundraisersManager";
 
 type Tab =
   | "overview"
@@ -51,6 +53,8 @@ type Tab =
   | "events"
   | "staff"
   | "staff-accounts"
+  | "coordinators"
+  | "fundraisers"
   | "settings"
   | "contacts"
   | "pipeline"
@@ -156,6 +160,8 @@ export const AdminDashboard: React.FC = () => {
       items: [
         { id: "contacts", label: "Contacts", icon: Users },
         { id: "pipeline", label: "Pipeline", icon: Workflow },
+        { id: "coordinators", label: "Coordinators (EA)", icon: ShieldCheck },
+        { id: "fundraisers", label: "Fundraisers (AU)", icon: HeartHandshake },
         { id: "staff", label: "Staff", icon: Users },
         { id: "staff-accounts", label: "Staff Accounts", icon: ShieldCheck },
       ],
@@ -224,6 +230,10 @@ export const AdminDashboard: React.FC = () => {
         return <StaffManager />;
       case "staff-accounts":
         return <StaffAccountsManager />;
+      case "coordinators":
+        return <CoordinatorsManager />;
+      case "fundraisers":
+        return <FundraisersManager />;
       case "settings":
         return (
           <div className="space-y-4">

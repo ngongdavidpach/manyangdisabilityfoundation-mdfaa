@@ -234,18 +234,23 @@ export const Footer: React.FC = () => {
             </h4>
             <ul className="space-y-2.5 text-sm text-slate-400">
               <li>
+                <Link to="/csr-sponsorship" className="hover:text-white transition-colors">
+                  CSR Sponsorship
+                </Link>
+              </li>
+              <li>
+                <Link to="/portal/coordinators" className="hover:text-white transition-colors">
+                  Coordinator Portal (East Africa)
+                </Link>
+              </li>
+              <li>
+                <Link to="/portal/fundraisers" className="hover:text-white transition-colors">
+                  Fundraiser Sign-up (AU)
+                </Link>
+              </li>
+              <li>
                 <Link to="/guides/mobility-aid-grants" className="hover:text-white transition-colors">
                   Mobility Aid Grants
-                </Link>
-              </li>
-              <li>
-                <Link to="/guides/free-medical-equipment" className="hover:text-white transition-colors">
-                  Free Medical Equipment
-                </Link>
-              </li>
-              <li>
-                <Link to="/guides/donate-supplies" className="hover:text-white transition-colors">
-                  Donate Used Supplies
                 </Link>
               </li>
               <li>
@@ -255,6 +260,7 @@ export const Footer: React.FC = () => {
               </li>
             </ul>
           </div>
+
 
           <div className="space-y-4">
             <h4 className="text-sm font-semibold uppercase tracking-wider text-white">
@@ -314,23 +320,55 @@ export const Footer: React.FC = () => {
         </div>
       </div>
 
-      <div className="bg-slate-950 py-6 text-xs text-slate-500 select-none">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row justify-between items-center gap-4 text-center sm:text-left">
-          <p className="cursor-default">
-            © {new Date().getFullYear()} Manyang Disability Foundation. All rights reserved.
-          </p>
-          <div className="flex items-center gap-4">
-            <button onClick={() => handleLink("about")} className="hover:text-slate-400">
+      <div className="bg-slate-950 py-8 text-xs text-slate-500">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-[1fr_auto] gap-6 items-center">
+          <div className="flex flex-col sm:flex-row items-center gap-5 text-center sm:text-left">
+            <a
+              href="https://www.acnc.gov.au/charity"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="ACNC Registered Charity — verify on the ACNC Charity Register"
+              className="shrink-0"
+            >
+              <img
+                src="/images/acnc-charity-tick.png"
+                alt="ACNC Registered Charity Tick"
+                width={64}
+                height={64}
+                loading="lazy"
+                className="w-16 h-16"
+              />
+            </a>
+            <div className="space-y-1">
+              <p className="text-slate-300">
+                <span className="font-semibold text-slate-200">ABN</span>{" "}
+                <a
+                  href="https://abr.business.gov.au/ABN/View?id=75986228179"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="underline hover:text-white"
+                >
+                  75 986 228 179
+                </a>{" "}
+                · verified on the Australian Business Register
+              </p>
+              <p className="cursor-default">
+                © {new Date().getFullYear()} Manyang Disability Foundation. All rights reserved.
+              </p>
+            </div>
+          </div>
+          <div className="flex items-center justify-center md:justify-end gap-4">
+            <button onClick={() => handleLink("about")} className="hover:text-slate-300">
               Privacy
             </button>
             <span>•</span>
-            <button onClick={() => handleLink("about")} className="hover:text-slate-400">
+            <button onClick={() => handleLink("about")} className="hover:text-slate-300">
               Governance
             </button>
-            <span>•</span>
           </div>
         </div>
       </div>
+
     </footer>
   );
 };
