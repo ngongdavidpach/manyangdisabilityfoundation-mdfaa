@@ -1,7 +1,8 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { CheckCircle2, ShieldCheck } from "lucide-react";
 import { submitFundraiserRegistration } from "@/lib/intake.functions";
+import { supabase } from "@/integrations/supabase/client";
 
 const STATES = ["NSW", "VIC", "QLD", "WA", "SA", "TAS", "ACT", "NT"];
 const EVENT_TYPES = [
@@ -13,11 +14,19 @@ const EVENT_TYPES = [
   "Other",
 ];
 
+interface UpcomingEvent {
+  id: string;
+  title: string;
+  starts_at: string | null;
+  location: string | null;
+}
+
 export const FundraiserPortalView: React.FC = () => {
   const submit = useServerFn(submitFundraiserRegistration);
   const [busy, setBusy] = useState(false);
   const [done, setDone] = useState(false);
   const [err, setErr] = useState("");
+  const [events, setEvents] = useState<UpcomingEvent[]>([]);
   const [form, setForm] = useState({
     fullName: "",
     email: "",
@@ -27,20 +36,53 @@ export const FundraiserPortalView: React.FC = () => {
     postcode: "",
     eventType: "Run / walk",
     eventDate: "",
+    eventId: "",
     expectedParticipants: "",
     fundraisingGoal: "",
     priorExperience: "",
     message: "",
   });
 
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      const nowIso = new Date().toISOString();
+      const { data } = await supabase
+        .from("events")
+        .select("id, title, starts_at, location")
+        .eq("status", "published")
+        .gte("starts_at", nowIso)
+        .order("starts_at", { ascending: true })
+        .limit(20);
+      if (!cancelled && data) setEvents(data as unknown as UpcomingEvent[]);
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
   const upd = (k: string, v: any) => setForm((s) => ({ ...s, [k]: v }));
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErr("");
+    if (!/^\S+@\S+\.\S+$/.test(form.email)) {
+      setErr("Please enter a valid email address.");
+      return;
+    }
+    if (!form.fullName.trim()) {
+      setErr("Please enter your name.");
+      return;
+    }
     setBusy(true);
     try {
-      await submit({ data: { ...form, state: form.state as any } });
+      await submit({
+        data: {
+          ...form,
+          state: form.state as any,
+          eventId: form.eventId || null,
+        } as any,
+      });
       setDone(true);
     } catch (e: any) {
       setErr(e?.message || "Submission failed");

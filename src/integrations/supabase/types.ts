@@ -708,6 +708,7 @@ export type Database = {
           created_at: string
           email: string
           event_date: string | null
+          event_id: string | null
           event_type: string | null
           expected_participants: number | null
           full_name: string
@@ -726,6 +727,7 @@ export type Database = {
           created_at?: string
           email: string
           event_date?: string | null
+          event_id?: string | null
           event_type?: string | null
           expected_participants?: number | null
           full_name: string
@@ -744,6 +746,7 @@ export type Database = {
           created_at?: string
           email?: string
           event_date?: string | null
+          event_id?: string | null
           event_type?: string | null
           expected_participants?: number | null
           full_name?: string
@@ -757,7 +760,15 @@ export type Database = {
           status?: string
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "fundraiser_registrations_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       media_assets: {
         Row: {

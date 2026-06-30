@@ -1,0 +1,26 @@
+import type { ComponentType } from "react";
+
+import { template as coordinatorConfirmation } from "./coordinator-confirmation";
+import { template as coordinatorAdminNotification } from "./coordinator-admin-notification";
+import { template as coordinatorApproved } from "./coordinator-approved";
+import { template as fundraiserConfirmation } from "./fundraiser-confirmation";
+import { template as fundraiserAdminNotification } from "./fundraiser-admin-notification";
+import { template as fundraiserApproved } from "./fundraiser-approved";
+
+export interface TemplateEntry {
+  component: ComponentType<any>;
+  subject: string | ((data: Record<string, any>) => string);
+  displayName?: string;
+  previewData?: Record<string, any>;
+  /** Fixed recipient — overrides caller-provided recipientEmail when set. */
+  to?: string;
+}
+
+export const TEMPLATES: Record<string, TemplateEntry> = {
+  "coordinator-confirmation": coordinatorConfirmation,
+  "coordinator-admin-notification": coordinatorAdminNotification,
+  "coordinator-approved": coordinatorApproved,
+  "fundraiser-confirmation": fundraiserConfirmation,
+  "fundraiser-admin-notification": fundraiserAdminNotification,
+  "fundraiser-approved": fundraiserApproved,
+};
