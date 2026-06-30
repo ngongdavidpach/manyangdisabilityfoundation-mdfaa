@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from "react";
+import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
+import { reviewFundraiserRegistration } from "@/lib/intake.functions";
 
 type Row = {
   id: string;
@@ -11,6 +13,7 @@ type Row = {
   postcode: string | null;
   event_type: string | null;
   event_date: string | null;
+  event_id: string | null;
   expected_participants: number | null;
   fundraising_goal_cents: number | null;
   prior_experience: string | null;
@@ -22,6 +25,9 @@ type Row = {
 export const FundraisersManager: React.FC = () => {
   const [rows, setRows] = useState<Row[]>([]);
   const [loading, setLoading] = useState(true);
+  const [pending, setPending] = useState<string | null>(null);
+  const [eventTitles, setEventTitles] = useState<Record<string, string>>({});
+  const review = useServerFn(reviewFundraiserRegistration);
 
   const load = () => {
     setLoading(true);
@@ -29,8 +35,23 @@ export const FundraisersManager: React.FC = () => {
       .from("fundraiser_registrations")
       .select("*")
       .order("created_at", { ascending: false })
-      .then(({ data }) => {
-        setRows((data as Row[]) || []);
+      .then(async ({ data }) => {
+        const list = (data as unknown as Row[]) || [];
+        setRows(list);
+        const ids = Array.from(
+          new Set(list.map((r) => r.event_id).filter(Boolean) as string[]),
+        );
+        if (ids.length) {
+          const { data: evs } = await supabase
+            .from("events")
+            .select("id, title")
+            .in("id", ids);
+          const map: Record<string, string> = {};
+          (evs || []).forEach((e: any) => (map[e.id] = e.title));
+          setEventTitles(map);
+        } else {
+          setEventTitles({});
+        }
         setLoading(false);
       });
   };
@@ -39,6 +60,17 @@ export const FundraisersManager: React.FC = () => {
   const setStatus = async (id: string, status: string) => {
     await supabase.from("fundraiser_registrations").update({ status }).eq("id", id);
     load();
+  };
+  const decide = async (id: string, decision: "approve" | "decline") => {
+    setPending(id);
+    try {
+      await review({ data: { id, decision } });
+      load();
+    } catch (e: any) {
+      alert(e?.message || "Action failed");
+    } finally {
+      setPending(null);
+    }
   };
   const remove = async (id: string) => {
     if (!confirm("Delete this registration?")) return;
@@ -80,9 +112,14 @@ export const FundraisersManager: React.FC = () => {
                     {r.city ? `, ${r.city}` : ""}
                     {r.postcode ? ` ${r.postcode}` : ""}
                   </td>
-                  <td>
+                  <td className="max-w-[200px]">
                     {r.event_type || "—"}
                     <div className="text-xs text-slate-500">{r.event_date || ""}</div>
+                    {r.event_id && eventTitles[r.event_id] && (
+                      <div className="text-xs text-indigo-600 mt-0.5">
+                        ↳ {eventTitles[r.event_id]}
+                      </div>
+                    )}
                   </td>
                   <td>
                     {r.fundraising_goal_cents
@@ -101,11 +138,27 @@ export const FundraisersManager: React.FC = () => {
                     >
                       <option value="new">New</option>
                       <option value="contacted">Contacted</option>
+                      <option value="approved">Approved</option>
+                      <option value="declined">Declined</option>
                       <option value="active">Active</option>
                       <option value="closed">Closed</option>
                     </select>
                   </td>
-                  <td className="text-right">
+                  <td className="text-right whitespace-nowrap">
+                    <button
+                      onClick={() => decide(r.id, "approve")}
+                      disabled={pending === r.id || r.status === "approved"}
+                      className="text-emerald-700 text-xs hover:underline mr-3 disabled:opacity-40"
+                    >
+                      Approve
+                    </button>
+                    <button
+                      onClick={() => decide(r.id, "decline")}
+                      disabled={pending === r.id || r.status === "declined"}
+                      className="text-amber-700 text-xs hover:underline mr-3 disabled:opacity-40"
+                    >
+                      Decline
+                    </button>
                     <button
                       onClick={() => remove(r.id)}
                       className="text-rose-600 text-xs hover:underline"
