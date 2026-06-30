@@ -40,7 +40,6 @@ const Youtube = ({ className = "" }: { className?: string }) => (
 import { Link, useNavigate } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
 import { NAV_ITEM_DEFS, resolveNavOrder } from "../lib/navItems";
-import acncTickAsset from "@/assets/acnc-charity-tick.jpg.asset.json";
 
 const PATH_FOR: Record<string, string> = {
   home: "/",
@@ -332,7 +331,7 @@ export const Footer: React.FC = () => {
               className="shrink-0"
             >
               <img
-                src={acncTickAsset.url}
+                src="/images/acnc-charity-tick.png"
                 alt="ACNC Registered Charity Tick — Manyang Disability Foundation"
                 width={64}
                 height={64}
