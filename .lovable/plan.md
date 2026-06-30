@@ -1,50 +1,64 @@
-## Footer compliance additions
+# Compliance, CSR & Portal Hardening
 
-**ABN line**
-- Add a new line in `Footer.tsx` (above or beside the copyright): "ABN 75 986 228 179" as a link to `https://abr.business.gov.au/ABN/View?id=75986228179` (opens in new tab, `rel="noopener noreferrer"`).
-- Format the ABN with standard spacing (XX XXX XXX XXX).
+## 1. ACNC Charity Tick (Footer)
+- Register the uploaded `ACNC_Registered_Charity_Tick.JPG` via `lovable-assets` from `/mnt/user-uploads/` (avoids committing the binary).
+- Replace `public/images/acnc-charity-tick.png` reference in `Footer.tsx` with the CDN asset URL.
+- Keep the existing link to `acnc.gov.au/charity/...` and `alt="ACNC Registered Charity"`.
 
-**ACNC Charity Tick**
-- Add the official ACNC Registered Charity Tick image to the footer, linked to the charity's ACNC public profile.
-- Place in the "Headquarters" column or as a dedicated "Compliance" mini-block beside the logo.
-- Source the official tick from ACNC (`https://www.acnc.gov.au/.../charity-tick`). I'll save it to `public/images/acnc-charity-tick.png` and reference statically.
+## 2. CSR Prospectus & Tier List PDFs (/csr-sponsorship)
+- Regenerate `public/downloads/mdf-csr-prospectus.pdf` and `public/downloads/mdf-sponsorship-tiers.pdf` using a Python `reportlab` script so the content actually matches the on-page tiers (Bronze/Silver/Gold/Platinum), includes ABN 75 986 228 179, contact email, impact metrics, and benefits per tier.
+- Prospectus: cover, mission, programme impact, shipment logistics, tier summary, partnership process, contact.
+- Tier list: one-page table of the four tiers (range, impact, benefits).
+- Verify by rendering each PDF page to PNG and inspecting before finalising.
+- No code change needed on `CsrSponsorshipView.tsx`; existing download buttons already point at these paths.
 
-## CSR sponsorship downloads
+## 3. /portal/coordinators — Secure intake + email confirmation
+- Server fn `submitCoordinatorRegistration` already validates with Zod + rate limit. Extend it to:
+  - Send a confirmation email to the applicant using the existing app-email send route (`/lovable/email/transactional/send`) with a new template `coordinator-confirmation`.
+  - Send an admin notification to `partnerships@manyangdisabilityfoundation.org` via the same route with template `coordinator-admin-notification`.
+- Add the two React Email templates under `src/lib/email-templates/` and register them in `registry.ts`.
+- Confirm `CoordinatorPortalView` shows clear field-level validation errors (already wired); add a "we've emailed you a confirmation" line on the success screen.
 
-New route `/csr-sponsorship` (linked from Footer "Resources" and from `DonateView`) containing:
-- Overview of the CSR partnership program.
-- **Downloadable prospectus** (PDF) — button linking to `/downloads/mdf-csr-prospectus.pdf`.
-- **Sponsorship tier list** (PDF) — button linking to `/downloads/mdf-sponsorship-tiers.pdf`.
-- Inline tier table (Bronze / Silver / Gold / Platinum) summarising contribution levels and benefits for equipment-shipment sponsorships, so the page is useful even before clicking the PDF.
-- "Contact partnerships" CTA wired to the existing `submitPartnerInquiry` server function.
+## 4. /portal/fundraisers — Signup + confirmations + admin review
+- Reuse pattern from coordinators:
+  - Add `fundraiser-confirmation` + `fundraiser-admin-notification` templates.
+  - Extend `submitFundraiserRegistration` to enqueue both emails after insert.
+- `FundraiserPortalView` already has event-type selection; add a short list of upcoming foundation events from `events` table (public read) so volunteers can optionally pick an existing event to fundraise for, stored in a new `event_id` column on `fundraiser_registrations`.
+- Update success screen copy to confirm the email was sent.
 
-PDF generation: I'll generate both PDFs from structured content (using the docx/pdf skill or a simple HTML→PDF) and commit them to `public/downloads/`. Content will be branded with foundation info from `useFoundationInfo`.
+### Admin review actions
+- `FundraisersManager.tsx` (and `CoordinatorsManager.tsx`) currently support status + delete. Add:
+  - Row action **Approve** → sets status `approved` and sends `fundraiser-approved` / `coordinator-approved` email to applicant.
+  - Row action **Decline** → sets status `declined` (no email by default; admin can copy/paste).
+  - Row action **Email applicant** → opens `mailto:` with prefilled subject.
+- Approval emails go through the same app-email route using a new template each.
 
-## Separate registration portals
+## Database
+Single migration:
+- `ALTER TABLE public.fundraiser_registrations ADD COLUMN event_id uuid REFERENCES public.events(id) ON DELETE SET NULL;`
+- No new tables, no new policies (existing admin-only RLS still applies; inserts go through server fns with `supabaseAdmin`).
 
-Two new public intake routes, each with its own form, Zod schema, rate limit, and server function — kept distinct from the existing `/request` (individual aid) and `/get-involved` (general volunteer) flows.
+## Technical notes
+- All email sends use `idempotencyKey` = `${table}-${row.id}-${templateName}` to make retries safe.
+- Email templates follow existing brand styling (white `Body`, blue/amber accents matching `CsrSponsorshipView`).
+- PDFs generated with `reportlab` in `/tmp`, then moved into `public/downloads/`. QA images written to `/tmp` only.
+- ACNC asset served from Lovable CDN via `*.asset.json` import — no binary added to repo.
 
-**1. `/portal/coordinators` — East Africa local coordinators**
-- Fields: full name, email, phone, country (restricted to East Africa: Kenya, Uganda, Tanzania, Rwanda, Burundi, South Sudan, Ethiopia, Somalia, DRC), region/city, organisation (optional), role/title, years of community work, languages spoken, types of aid requested (multi-select: wheelchairs, prosthetics, mobility aids, rehab supplies, other), estimated beneficiaries, notes.
-- New table `coordinator_registrations` with admin-only read, server-function-only insert (matches existing intake pattern in `intake.functions.ts`).
-- New `submitCoordinatorRegistration` server function (validation + rate limit + `supabaseAdmin` insert).
-- Admin manager (`CoordinatorsManager.tsx`) added to Admin Dashboard sidebar under "People".
-
-**2. `/portal/fundraisers` — Australian volunteer fundraisers**
-- Fields: full name, email, phone, state (NSW/VIC/QLD/WA/SA/TAS/ACT/NT), city/suburb, postcode, event type (run/walk, gala, workplace giving, school drive, other), proposed event date, expected participants, fundraising goal (AUD), prior experience, message.
-- New table `fundraiser_registrations` with same RLS pattern.
-- New `submitFundraiserRegistration` server function.
-- Admin manager (`FundraisersManager.tsx`) added to Admin Dashboard.
-
-Both portals are linked from the Footer "Get Involved" section and from `GetInvolvedView`. They are public (no login required); security is enforced via server-side validation, rate limiting, and admin-only read policies — matching the existing intake architecture noted in @security-memory.
-
-## Technical summary
-
-- Files added: `src/routes/csr-sponsorship.tsx`, `src/routes/portal.coordinators.tsx`, `src/routes/portal.fundraisers.tsx`, `src/ported/components/views/CsrSponsorshipView.tsx`, `src/ported/components/views/CoordinatorPortalView.tsx`, `src/ported/components/views/FundraiserPortalView.tsx`, `src/ported/components/admin/CoordinatorsManager.tsx`, `src/ported/components/admin/FundraisersManager.tsx`, `public/images/acnc-charity-tick.png`, `public/downloads/mdf-csr-prospectus.pdf`, `public/downloads/mdf-sponsorship-tiers.pdf`.
-- Files modified: `src/ported/components/Footer.tsx` (ABN link, ACNC tick, new resource links), `src/lib/intake.functions.ts` (two new server functions), `src/ported/components/views/AdminDashboardView.tsx` (two new manager tabs), `src/ported/components/views/DonateView.tsx` and `GetInvolvedView.tsx` (cross-links), `src/routes/sitemap[.]xml.ts` (new public routes).
-- Migration: create `coordinator_registrations` and `fundraiser_registrations` with GRANTs to `service_role` only, RLS enabled, admin-only SELECT policy via `has_role(auth.uid(), 'admin')`. No anon/authenticated grants — writes go through server functions using `supabaseAdmin`.
-
-## Questions before I build
-
-1. **ACNC registration**: Is the foundation already registered with the ACNC? If yes, please share the charity ABN/ACN profile URL so the tick links correctly. If not yet registered, I'll add the tick image as a placeholder linking to a generic ACNC info page — say the word and I'll wire it up that way.
-2. **PDF content**: Should I draft the prospectus and tier-list PDFs from scratch (using existing site copy + standard CSR tiers like Bronze $5k / Silver $15k / Gold $50k / Platinum $150k+), or do you have draft text/figures you want included?
+## Files touched
+- `src/ported/components/Footer.tsx` (ACNC img src)
+- `src/assets/acnc-charity-tick.jpg.asset.json` (new pointer)
+- `public/downloads/mdf-csr-prospectus.pdf` (regenerated)
+- `public/downloads/mdf-sponsorship-tiers.pdf` (regenerated)
+- `src/lib/intake.functions.ts` (email sends, approve actions)
+- `src/lib/email-templates/coordinator-confirmation.tsx` (new)
+- `src/lib/email-templates/coordinator-admin-notification.tsx` (new)
+- `src/lib/email-templates/coordinator-approved.tsx` (new)
+- `src/lib/email-templates/fundraiser-confirmation.tsx` (new)
+- `src/lib/email-templates/fundraiser-admin-notification.tsx` (new)
+- `src/lib/email-templates/fundraiser-approved.tsx` (new)
+- `src/lib/email-templates/registry.ts` (register 6 templates)
+- `src/ported/components/views/CoordinatorPortalView.tsx` (success copy)
+- `src/ported/components/views/FundraiserPortalView.tsx` (event select + success copy)
+- `src/ported/components/admin/CoordinatorsManager.tsx` (approve/email actions)
+- `src/ported/components/admin/FundraisersManager.tsx` (approve/email actions, show event)
+- 1 migration adding `event_id` to `fundraiser_registrations`

@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from "react";
+import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
+import { reviewCoordinatorRegistration } from "@/lib/intake.functions";
 
 type Row = {
   id: string;
@@ -22,6 +24,8 @@ type Row = {
 export const CoordinatorsManager: React.FC = () => {
   const [rows, setRows] = useState<Row[]>([]);
   const [loading, setLoading] = useState(true);
+  const [pending, setPending] = useState<string | null>(null);
+  const review = useServerFn(reviewCoordinatorRegistration);
 
   const load = () => {
     setLoading(true);
@@ -40,11 +44,23 @@ export const CoordinatorsManager: React.FC = () => {
     await supabase.from("coordinator_registrations").update({ status }).eq("id", id);
     load();
   };
+  const decide = async (id: string, decision: "approve" | "decline") => {
+    setPending(id);
+    try {
+      await review({ data: { id, decision } });
+      load();
+    } catch (e: any) {
+      alert(e?.message || "Action failed");
+    } finally {
+      setPending(null);
+    }
+  };
   const remove = async (id: string) => {
     if (!confirm("Delete this registration?")) return;
     await supabase.from("coordinator_registrations").delete().eq("id", id);
     load();
   };
+
 
   return (
     <div className="space-y-4">
@@ -102,7 +118,21 @@ export const CoordinatorsManager: React.FC = () => {
                       <option value="declined">Declined</option>
                     </select>
                   </td>
-                  <td className="text-right">
+                  <td className="text-right whitespace-nowrap">
+                    <button
+                      onClick={() => decide(r.id, "approve")}
+                      disabled={pending === r.id || r.status === "approved"}
+                      className="text-emerald-700 text-xs hover:underline mr-3 disabled:opacity-40"
+                    >
+                      Approve
+                    </button>
+                    <button
+                      onClick={() => decide(r.id, "decline")}
+                      disabled={pending === r.id || r.status === "declined"}
+                      className="text-amber-700 text-xs hover:underline mr-3 disabled:opacity-40"
+                    >
+                      Decline
+                    </button>
                     <button
                       onClick={() => remove(r.id)}
                       className="text-rose-600 text-xs hover:underline"
@@ -110,6 +140,7 @@ export const CoordinatorsManager: React.FC = () => {
                       Delete
                     </button>
                   </td>
+
                 </tr>
               ))}
             </tbody>

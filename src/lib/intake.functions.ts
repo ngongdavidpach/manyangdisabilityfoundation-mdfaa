@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { enforceRateLimit } from "@/lib/rateLimit.server";
+import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 const str = (max: number) => z.string().trim().max(max);
 const optStr = (max: number) =>
@@ -284,24 +285,51 @@ export const submitCoordinatorRegistration = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     await enforceRateLimit({ bucket: "coordinator-reg", max: 5, windowSeconds: 3600 });
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { error } = await supabaseAdmin.from("coordinator_registrations").insert({
-      full_name: data.fullName,
-      email: data.email,
-      phone: data.phone,
-      country: data.country,
-      region: data.region,
-      organisation: data.organisation,
-      role_title: data.roleTitle,
-      years_experience: data.yearsExperience,
-      languages: data.languages,
-      aid_types: data.aidTypes,
-      estimated_beneficiaries: data.estimatedBeneficiaries,
-      notes: data.notes,
-    });
-    if (error) {
+    const { data: inserted, error } = await supabaseAdmin
+      .from("coordinator_registrations")
+      .insert({
+        full_name: data.fullName,
+        email: data.email,
+        phone: data.phone,
+        country: data.country,
+        region: data.region,
+        organisation: data.organisation,
+        role_title: data.roleTitle,
+        years_experience: data.yearsExperience,
+        languages: data.languages,
+        aid_types: data.aidTypes,
+        estimated_beneficiaries: data.estimatedBeneficiaries,
+        notes: data.notes,
+      })
+      .select("id")
+      .single();
+    if (error || !inserted) {
       console.error("[submitCoordinatorRegistration]", error);
       throw new Error("Unable to submit your registration. Please try again later.");
     }
+    const { enqueueTransactionalEmail } = await import("@/lib/email/queue.server");
+    await Promise.all([
+      enqueueTransactionalEmail({
+        templateName: "coordinator-confirmation",
+        recipientEmail: data.email,
+        idempotencyKey: `coord-conf-${inserted.id}`,
+        templateData: { fullName: data.fullName, country: data.country },
+      }),
+      enqueueTransactionalEmail({
+        templateName: "coordinator-admin-notification",
+        idempotencyKey: `coord-admin-${inserted.id}`,
+        templateData: {
+          fullName: data.fullName,
+          email: data.email,
+          phone: data.phone,
+          country: data.country,
+          organisation: data.organisation,
+          roleTitle: data.roleTitle,
+          aidTypes: (data.aidTypes || []).join(", "),
+          notes: data.notes,
+        },
+      }),
+    ]).catch((e) => console.error("[coordinator emails]", e));
     return { ok: true };
   });
 
@@ -323,6 +351,13 @@ const fundraiserSchema = z.object({
     .optional()
     .nullable()
     .transform((v) => (v ? v : null)),
+  eventId: z
+    .string()
+    .trim()
+    .uuid()
+    .optional()
+    .nullable()
+    .transform((v) => (v ? v : null)),
   expectedParticipants: z
     .union([z.string(), z.number()])
     .transform((v) => (v === "" || v == null ? null : Number(v)))
@@ -340,25 +375,156 @@ export const submitFundraiserRegistration = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     await enforceRateLimit({ bucket: "fundraiser-reg", max: 5, windowSeconds: 3600 });
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { error } = await supabaseAdmin.from("fundraiser_registrations").insert({
-      full_name: data.fullName,
-      email: data.email,
-      phone: data.phone,
-      state: data.state,
-      city: data.city,
-      postcode: data.postcode,
-      event_type: data.eventType,
-      event_date: data.eventDate,
-      expected_participants: data.expectedParticipants,
-      fundraising_goal_cents:
-        data.fundraisingGoal != null ? Math.round(data.fundraisingGoal * 100) : null,
-      prior_experience: data.priorExperience,
-      message: data.message,
-    });
-    if (error) {
+
+    // Resolve linked event title (optional)
+    let linkedEventTitle: string | null = null;
+    if (data.eventId) {
+      const { data: ev } = await supabaseAdmin
+        .from("events")
+        .select("title")
+        .eq("id", data.eventId)
+        .maybeSingle();
+      linkedEventTitle = ev?.title ?? null;
+    }
+
+    const { data: inserted, error } = await supabaseAdmin
+      .from("fundraiser_registrations")
+      .insert({
+        full_name: data.fullName,
+        email: data.email,
+        phone: data.phone,
+        state: data.state,
+        city: data.city,
+        postcode: data.postcode,
+        event_type: data.eventType,
+        event_date: data.eventDate,
+        event_id: data.eventId,
+        expected_participants: data.expectedParticipants,
+        fundraising_goal_cents:
+          data.fundraisingGoal != null ? Math.round(data.fundraisingGoal * 100) : null,
+        prior_experience: data.priorExperience,
+        message: data.message,
+      } as any)
+      .select("id")
+      .single();
+    if (error || !inserted) {
       console.error("[submitFundraiserRegistration]", error);
       throw new Error("Unable to submit your registration. Please try again later.");
     }
+
+    const { enqueueTransactionalEmail } = await import("@/lib/email/queue.server");
+    await Promise.all([
+      enqueueTransactionalEmail({
+        templateName: "fundraiser-confirmation",
+        recipientEmail: data.email,
+        idempotencyKey: `fund-conf-${inserted.id}`,
+        templateData: {
+          fullName: data.fullName,
+          eventType: data.eventType || "your event",
+          state: data.state,
+        },
+      }),
+      enqueueTransactionalEmail({
+        templateName: "fundraiser-admin-notification",
+        idempotencyKey: `fund-admin-${inserted.id}`,
+        templateData: {
+          fullName: data.fullName,
+          email: data.email,
+          phone: data.phone,
+          state: data.state,
+          city: data.city,
+          eventType: data.eventType,
+          eventDate: data.eventDate,
+          linkedEvent: linkedEventTitle,
+          fundraisingGoal:
+            data.fundraisingGoal != null ? `$${data.fundraisingGoal.toLocaleString()}` : null,
+          message: data.message,
+        },
+      }),
+    ]).catch((e) => console.error("[fundraiser emails]", e));
+
     return { ok: true };
   });
+
+// ---------- admin review actions ----------
+const reviewSchema = z.object({
+  id: z.string().uuid(),
+  decision: z.enum(["approve", "decline"]),
+  notes: optStr(2000),
+});
+
+async function assertAdmin(userId: string) {
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const { data } = await supabaseAdmin
+    .from("user_roles")
+    .select("role")
+    .eq("user_id", userId)
+    .eq("role", "admin")
+    .maybeSingle();
+  if (!data) throw new Error("Admin role required");
+}
+
+export const reviewCoordinatorRegistration = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .validator((d: z.input<typeof reviewSchema>) => reviewSchema.parse(d))
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context.userId);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const status = data.decision === "approve" ? "approved" : "declined";
+    const { data: row, error } = await supabaseAdmin
+      .from("coordinator_registrations")
+      .update({
+        status,
+        reviewed_at: new Date().toISOString(),
+        reviewed_by: context.userId,
+        review_notes: data.notes,
+      } as any)
+      .eq("id", data.id)
+      .select("full_name, email")
+      .single();
+    if (error || !row) throw new Error("Update failed");
+    if (data.decision === "approve") {
+      const { enqueueTransactionalEmail } = await import("@/lib/email/queue.server");
+      await enqueueTransactionalEmail({
+        templateName: "coordinator-approved",
+        recipientEmail: row.email,
+        idempotencyKey: `coord-approved-${data.id}`,
+        templateData: { fullName: row.full_name },
+      }).catch((e) => console.error("[coordinator-approved email]", e));
+    }
+    return { ok: true, status };
+  });
+
+export const reviewFundraiserRegistration = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .validator((d: z.input<typeof reviewSchema>) => reviewSchema.parse(d))
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context.userId);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const status = data.decision === "approve" ? "approved" : "declined";
+    const { data: row, error } = await supabaseAdmin
+      .from("fundraiser_registrations")
+      .update({
+        status,
+        reviewed_at: new Date().toISOString(),
+        reviewed_by: context.userId,
+        review_notes: data.notes,
+      } as any)
+      .eq("id", data.id)
+      .select("full_name, email, event_type")
+      .single();
+    if (error || !row) throw new Error("Update failed");
+    if (data.decision === "approve") {
+      const { enqueueTransactionalEmail } = await import("@/lib/email/queue.server");
+      await enqueueTransactionalEmail({
+        templateName: "fundraiser-approved",
+        recipientEmail: row.email,
+        idempotencyKey: `fund-approved-${data.id}`,
+        templateData: { fullName: row.full_name, eventType: row.event_type || "your event" },
+      }).catch((e) => console.error("[fundraiser-approved email]", e));
+    }
+    return { ok: true, status };
+  });
+
+
 
