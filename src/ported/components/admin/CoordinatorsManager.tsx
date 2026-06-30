@@ -118,7 +118,21 @@ export const CoordinatorsManager: React.FC = () => {
                       <option value="declined">Declined</option>
                     </select>
                   </td>
-                  <td className="text-right">
+                  <td className="text-right whitespace-nowrap">
+                    <button
+                      onClick={() => decide(r.id, "approve")}
+                      disabled={pending === r.id || r.status === "approved"}
+                      className="text-emerald-700 text-xs hover:underline mr-3 disabled:opacity-40"
+                    >
+                      Approve
+                    </button>
+                    <button
+                      onClick={() => decide(r.id, "decline")}
+                      disabled={pending === r.id || r.status === "declined"}
+                      className="text-amber-700 text-xs hover:underline mr-3 disabled:opacity-40"
+                    >
+                      Decline
+                    </button>
                     <button
                       onClick={() => remove(r.id)}
                       className="text-rose-600 text-xs hover:underline"
@@ -126,6 +140,7 @@ export const CoordinatorsManager: React.FC = () => {
                       Delete
                     </button>
                   </td>
+
                 </tr>
               ))}
             </tbody>
