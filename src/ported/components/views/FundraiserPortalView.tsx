@@ -184,6 +184,35 @@ export const FundraiserPortalView: React.FC = () => {
 
         <div className="bg-white rounded-2xl border border-slate-200 p-6 space-y-4">
           <h2 className="font-bold text-slate-900">Your event</h2>
+
+          <Field label="Link to an upcoming MDF event (optional)">
+            <select
+              value={form.eventId}
+              onChange={(e) => upd("eventId", e.target.value)}
+              className={inputCls}
+            >
+              <option value="">— Standalone event (no link) —</option>
+              {events.map((ev) => (
+                <option key={ev.id} value={ev.id}>
+                  {ev.title}
+                  {ev.starts_at
+                    ? ` · ${new Date(ev.starts_at).toLocaleDateString("en-AU", {
+                        day: "2-digit",
+                        month: "short",
+                        year: "numeric",
+                      })}`
+                    : ""}
+                  {ev.location ? ` · ${ev.location}` : ""}
+                </option>
+              ))}
+            </select>
+            {events.length === 0 && (
+              <span className="block text-xs text-slate-500 mt-1">
+                No upcoming events listed — describe your own below.
+              </span>
+            )}
+          </Field>
+
           <div className="grid md:grid-cols-2 gap-4">
             <Field label="Event type">
               <select
