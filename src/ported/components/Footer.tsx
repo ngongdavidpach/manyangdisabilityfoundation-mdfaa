@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Mail, Phone, MapPin, Heart, ArrowRight, CheckCircle2 } from "lucide-react";
+import acncTickAsset from "@/assets/acnc-charity-tick.jpg.asset.json";
 
 const Facebook = ({ className = "" }: { className?: string }) => (
   <svg viewBox="0 0 24 24" fill="currentColor" className={className} aria-hidden>
@@ -331,12 +332,12 @@ export const Footer: React.FC = () => {
               className="shrink-0"
             >
               <img
-                src="/images/acnc-charity-tick.png"
+                src={acncTickAsset.url}
                 alt="ACNC Registered Charity Tick — Manyang Disability Foundation"
                 width={64}
                 height={64}
                 loading="lazy"
-                className="w-16 h-16 bg-white rounded-full p-1"
+                className="w-16 h-16"
               />
             </a>
             <div className="space-y-1">
