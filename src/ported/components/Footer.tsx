@@ -332,12 +332,12 @@ export const Footer: React.FC = () => {
               className="shrink-0"
             >
               <img
-                src="/images/acnc-charity-tick.png"
+                src={acncTickAsset.url}
                 alt="ACNC Registered Charity Tick — Manyang Disability Foundation"
                 width={64}
                 height={64}
                 loading="lazy"
-                className="w-16 h-16 bg-white rounded-full p-1"
+                className="w-16 h-16"
               />
             </a>
             <div className="space-y-1">
