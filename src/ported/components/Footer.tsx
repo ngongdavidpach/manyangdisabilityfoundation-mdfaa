@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Mail, Phone, MapPin, Heart, ArrowRight, CheckCircle2 } from "lucide-react";
+import acncTickAsset from "@/assets/acnc-charity-tick.jpg.asset.json";
 
 const Facebook = ({ className = "" }: { className?: string }) => (
   <svg viewBox="0 0 24 24" fill="currentColor" className={className} aria-hidden>
