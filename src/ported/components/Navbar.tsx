@@ -97,23 +97,12 @@ export const Navbar: React.FC = () => {
       <div className="bg-blue-900 text-white text-xs py-2 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-2">
           <div className="flex items-center gap-4">
-            <span>
-              <strong className="text-amber-400">Emergency Aid Line:</strong>{" "}
-              {foundationInfo.phone}
-            </span>
-            <span className="hidden md:inline text-blue-300">|</span>
             <span className="hidden md:inline">{foundationInfo.email}</span>
           </div>
           <div className="flex items-center gap-3">
             <span className="bg-blue-800 text-blue-200 px-2 py-0.5 rounded font-medium hidden sm:inline">
               Non-Profit 501(c)(3) Equivalent
             </span>
-            <button
-              onClick={() => handleNavClick({ id: "request", to: "/request" })}
-              className="text-amber-300 hover:text-amber-100 transition font-semibold underline text-[11px]"
-            >
-              Request Aid
-            </button>
           </div>
         </div>
       </div>
