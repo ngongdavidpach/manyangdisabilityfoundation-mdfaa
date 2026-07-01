@@ -1,44 +1,65 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useQuery } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
 import { AdminDashboard } from "../ported/components/views/AdminDashboardView";
 import { StaffLoginView } from "../ported/components/views/StaffLoginView";
 import { useAuth } from "../ported/contexts/AuthContext";
+import { verifyIsAdmin } from "../lib/adminAccess.functions";
+
+function LoadingPanel({ label }: { label: string }) {
+  return (
+    <div className="min-h-[70vh] flex items-center justify-center bg-slate-50">
+      <div className="text-center space-y-3">
+        <div className="w-10 h-10 border-2 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto" />
+        <p className="text-xs font-medium text-slate-500">{label}</p>
+      </div>
+    </div>
+  );
+}
+
+function AccessDenied({ name }: { name?: string }) {
+  return (
+    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <div className="bg-white rounded-2xl border border-red-200 p-8 sm:p-12 text-center max-w-md shadow-xs mx-auto">
+        <h2 className="text-xl font-bold text-slate-900">Access Restricted</h2>
+        <p className="text-sm text-slate-600 mt-2 leading-relaxed">
+          Hello {name || "friend"}, you are signed in, but your account does not have admin
+          clearance for this section.
+        </p>
+        <div className="mt-6 pt-4 border-t border-slate-100">
+          <p className="text-xs text-slate-500">
+            Required clearance: <strong className="text-slate-700">admin</strong>
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 function AdminRouteComponent() {
-  const { isAuthenticated, isLoading, hasRole, user } = useAuth();
+  const { isAuthenticated, isLoading, user } = useAuth();
+  const verify = useServerFn(verifyIsAdmin);
 
-  if (isLoading) {
-    return (
-      <div className="min-h-[70vh] flex items-center justify-center bg-slate-50">
-        <div className="text-center space-y-3">
-          <div className="w-10 h-10 border-2 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto" />
-          <p className="text-xs font-medium text-slate-500">Restoring secure session...</p>
-        </div>
-      </div>
-    );
-  }
+  // Server-verified admin gate: the client-side hasRole() cannot be trusted
+  // for rendering the admin UI. We call a server function that consults
+  // public.user_roles via has_role(), so tampering with local auth state
+  // cannot unlock the dashboard.
+  const {
+    data: gate,
+    isLoading: isVerifying,
+    isError,
+  } = useQuery({
+    queryKey: ["admin-access", user?.id],
+    queryFn: () => verify(),
+    enabled: isAuthenticated,
+    staleTime: 60_000,
+    retry: false,
+  });
 
-  if (!isAuthenticated) {
-    return <StaffLoginView />;
-  }
-
-  if (!hasRole(["admin"])) {
-    return (
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="bg-white rounded-2xl border border-red-200 p-8 sm:p-12 text-center max-w-md shadow-xs mx-auto">
-          <h2 className="text-xl font-bold text-slate-900">Access Restricted</h2>
-          <p className="text-sm text-slate-600 mt-2 leading-relaxed">
-            Hello {user?.fullName?.split(" ")[0] || "friend"}, you are signed in, but your current
-            role does not grant permission to view this section.
-          </p>
-          <div className="mt-6 pt-4 border-t border-slate-100">
-            <p className="text-xs text-slate-500">
-              Required clearance: <strong className="text-slate-700">admin</strong>
-            </p>
-          </div>
-        </div>
-      </div>
-    );
-  }
+  if (isLoading) return <LoadingPanel label="Restoring secure session..." />;
+  if (!isAuthenticated) return <StaffLoginView />;
+  if (isVerifying) return <LoadingPanel label="Verifying admin access..." />;
+  if (isError || !gate?.isAdmin) return <AccessDenied name={user?.fullName?.split(" ")[0]} />;
 
   return <AdminDashboard />;
 }
