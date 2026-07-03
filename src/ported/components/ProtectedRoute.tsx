@@ -1,5 +1,4 @@
-import React, { useEffect } from "react";
-import { useNavigate, useRouterState } from "@tanstack/react-router";
+import React from "react";
 import { useAuth } from "../contexts/AuthContext";
 import type { UserRole } from "../types/auth";
 import { Lock, AlertTriangle, LogIn } from "lucide-react";
@@ -11,22 +10,29 @@ interface ProtectedRouteProps {
 
 export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requiredRoles }) => {
   const { isAuthenticated, isLoading, hasRole, user } = useAuth();
-  const navigate = useNavigate();
-  const pathname = useRouterState({ select: (s) => s.location.pathname });
 
-  useEffect(() => {
-    if (!isLoading && !isAuthenticated) {
-      navigate({ to: "/admin", search: { redirect: pathname } });
-    }
-  }, [isLoading, isAuthenticated, navigate, pathname]);
-
-  if (isLoading || !isAuthenticated) {
+  if (isLoading) {
     return (
       <div className="min-h-[70vh] flex items-center justify-center bg-slate-50">
         <div className="text-center space-y-3">
           <div className="w-10 h-10 border-2 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto" />
           <p className="text-xs font-medium text-slate-500">Restoring secure session...</p>
         </div>
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return (
+      <div className="max-w-md mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <AuthenticationGate
+          onLoginClick={() => {
+            window.location.href = "/admin";
+          }}
+          onRegisterClick={() => {
+            window.location.href = "/admin";
+          }}
+        />
       </div>
     );
   }
