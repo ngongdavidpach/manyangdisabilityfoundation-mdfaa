@@ -1,16 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
-import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-
-type Ctx = { supabase: any; userId: string };
-
-async function assertAdmin(context: Ctx) {
-  const { data: isAdmin, error } = await context.supabase.rpc("has_role", {
-    _user_id: context.userId,
-    _role: "admin",
-  });
-  if (error) throw new Error("Authorization check failed");
-  if (!isAdmin) throw new Error("Forbidden");
-}
+import { requireAdmin } from "@/integrations/supabase/admin-middleware";
 
 export type StaffAccount = {
   id: string;
@@ -22,9 +11,8 @@ export type StaffAccount = {
 };
 
 export const listStaffAccounts = createServerFn({ method: "GET" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireAdmin])
   .handler(async ({ context }): Promise<StaffAccount[]> => {
-    await assertAdmin(context as Ctx);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
     const { data: list, error } = await supabaseAdmin.auth.admin.listUsers({
@@ -60,13 +48,12 @@ export const listStaffAccounts = createServerFn({ method: "GET" })
   });
 
 export const setUserAdmin = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireAdmin])
   .validator((d: { userId: string; isAdmin: boolean }) => {
     if (!d.userId || typeof d.isAdmin !== "boolean") throw new Error("Invalid input");
     return d;
   })
   .handler(async ({ data, context }) => {
-    await assertAdmin(context as Ctx);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
     if (data.isAdmin) {
@@ -93,14 +80,13 @@ export const setUserAdmin = createServerFn({ method: "POST" })
   });
 
 export const inviteStaffAccount = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireAdmin])
   .validator((d: { email: string; fullName: string; makeAdmin: boolean }) => {
     if (!d.email || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(d.email)) throw new Error("Invalid email");
     if (!d.fullName || d.fullName.length > 200) throw new Error("Full name required");
     return d;
   })
   .handler(async ({ data, context }) => {
-    await assertAdmin(context as Ctx);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
     const { data: invited, error } = await supabaseAdmin.auth.admin.inviteUserByEmail(data.email, {
