@@ -1,16 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
-import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-
-type Ctx = { supabase: any; userId: string };
-
-async function assertAdmin(context: Ctx) {
-  const { data: isAdmin, error } = await context.supabase.rpc("has_role", {
-    _user_id: context.userId,
-    _role: "admin",
-  });
-  if (error) throw new Error("Authorization check failed");
-  if (!isAdmin) throw new Error("Forbidden");
-}
+import { requireAdmin } from "@/integrations/supabase/admin-middleware";
 
 export type StaffAccount = {
   id: string;
