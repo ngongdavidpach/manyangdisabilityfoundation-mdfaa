@@ -1,7 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { enforceRateLimit } from "@/lib/rateLimit.server";
-import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { requireAdmin } from "@/integrations/supabase/admin-middleware";
 
 const str = (max: number) => z.string().trim().max(max);
