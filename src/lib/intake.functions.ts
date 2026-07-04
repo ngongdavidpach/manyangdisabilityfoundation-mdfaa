@@ -453,16 +453,8 @@ const reviewSchema = z.object({
   notes: optStr(2000),
 });
 
-async function assertAdmin(userId: string) {
-  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-  const { data } = await supabaseAdmin
-    .from("user_roles")
-    .select("role")
-    .eq("user_id", userId)
-    .eq("role", "admin")
-    .maybeSingle();
-  if (!data) throw new Error("Admin role required");
-}
+
+
 
 export const reviewCoordinatorRegistration = createServerFn({ method: "POST" })
   .middleware([requireAdmin])
