@@ -2,6 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { enforceRateLimit } from "@/lib/rateLimit.server";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { requireAdmin } from "@/integrations/supabase/admin-middleware";
 
 const str = (max: number) => z.string().trim().max(max);
 const optStr = (max: number) =>
@@ -465,10 +466,9 @@ async function assertAdmin(userId: string) {
 }
 
 export const reviewCoordinatorRegistration = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireAdmin])
   .validator((d: z.input<typeof reviewSchema>) => reviewSchema.parse(d))
   .handler(async ({ data, context }) => {
-    await assertAdmin(context.userId);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const status = data.decision === "approve" ? "approved" : "declined";
     const { data: row, error } = await supabaseAdmin
@@ -496,10 +496,9 @@ export const reviewCoordinatorRegistration = createServerFn({ method: "POST" })
   });
 
 export const reviewFundraiserRegistration = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireAdmin])
   .validator((d: z.input<typeof reviewSchema>) => reviewSchema.parse(d))
   .handler(async ({ data, context }) => {
-    await assertAdmin(context.userId);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const status = data.decision === "approve" ? "approved" : "declined";
     const { data: row, error } = await supabaseAdmin
