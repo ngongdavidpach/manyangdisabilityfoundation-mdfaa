@@ -14,6 +14,36 @@ export type Database = {
   }
   public: {
     Tables: {
+      admin_access_log: {
+        Row: {
+          created_at: string
+          endpoint: string | null
+          id: string
+          ip: string | null
+          reason: string | null
+          role_result: boolean
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          endpoint?: string | null
+          id?: string
+          ip?: string | null
+          reason?: string | null
+          role_result?: boolean
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          endpoint?: string | null
+          id?: string
+          ip?: string | null
+          reason?: string | null
+          role_result?: boolean
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       aid_requests: {
         Row: {
           age: number | null
@@ -568,12 +598,14 @@ export type Database = {
       }
       events: {
         Row: {
+          category: string | null
           cover_image: string | null
           created_at: string
           description: string | null
           ends_at: string | null
           id: string
           location: string | null
+          rsvp_url: string | null
           slug: string
           starts_at: string
           status: string
@@ -581,12 +613,14 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          category?: string | null
           cover_image?: string | null
           created_at?: string
           description?: string | null
           ends_at?: string | null
           id?: string
           location?: string | null
+          rsvp_url?: string | null
           slug: string
           starts_at: string
           status?: string
@@ -594,12 +628,14 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          category?: string | null
           cover_image?: string | null
           created_at?: string
           description?: string | null
           ends_at?: string | null
           id?: string
           location?: string | null
+          rsvp_url?: string | null
           slug?: string
           starts_at?: string
           status?: string

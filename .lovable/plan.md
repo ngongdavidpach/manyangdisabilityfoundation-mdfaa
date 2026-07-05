@@ -1,35 +1,89 @@
-## Inline sign-in with post-login redirect + verified no-redirect on protected routes
+## Scope
 
-### Goal
-1. After a successful sign-in, land the user back on the page they originally requested.
-2. Confirm every admin/protected route renders the inline sign-in prompt (no bounce to `/admin`).
-3. Give the inline sign-in prompt real loading and error states for failed authentication.
+Four related additions:
 
-### Findings from the codebase
-- `ProtectedRoute` is only used by `src/routes/dashboard.tsx`. It already renders `<AuthenticationGate>` inline when unauthenticated (no redirect after the previous change).
-- `src/routes/admin.tsx` renders `<StaffLoginView />` inline when unauthenticated — no redirect. It will stay that way.
-- `StaffLoginView` already reads `search.redirect` and navigates there on success, so it already supports "return to original page" — but only if callers pass the redirect through.
-- The current `AuthenticationGate` just sends users to `/admin` via `window.location.href`, which drops the current URL and loses the return path.
+1. Server-side audit logging for forbidden admin access attempts.
+2. Contact / partner inquiry form with Cloudflare Turnstile spam protection.
+3. Convert News pages to SSR (fetch in loader, not `useEffect`) for SEO/accessibility.
+4. Events calendar page (fundraisers, awareness days) driven by the existing `events` table.
 
-### Changes
+## 1. Forbidden-access audit log
 
-**`src/ported/components/ProtectedRoute.tsx`**
-- Replace the button-only `AuthenticationGate` with an inline email/password sign-in form (same fields as `StaffLoginView`, compact styling to match the existing card).
-- Wire it directly to `useAuth().login`, with:
-  - `isProcessing` state → disabled button + spinner ("Signing in…").
-  - Inline error banner (red alert) for validation errors and auth failures returned by `login()`.
-  - Show/hide password toggle.
-- On success: do nothing — `AuthContext` flips `isAuthenticated`, and `ProtectedRoute` renders `children` on the same URL. No navigation, so the user stays on the originally requested page.
-- Keep a secondary "Create account" link that navigates via TanStack `useNavigate` to `/admin` with `search: { redirect: currentPath }` (using `useRouterState` for `location.href`) — so if the user goes to the full staff login page, it still returns them to the original page after login.
-- Keep the role-based "Access Restricted" branch unchanged.
-- Keep `AuthenticationGate` exported (used by nothing else today, but preserved as a named export for compatibility).
+- New migration:
+  - `public.admin_access_log(id uuid pk, user_id uuid null, endpoint text, role_result boolean, reason text, ip text null, created_at timestamptz default now())`
+  - RLS on, `GRANT SELECT` to `authenticated` restricted via `has_role('admin')` policy; `GRANT INSERT, SELECT, ALL` to `service_role`.
+- Update `src/integrations/supabase/admin-middleware.ts`:
+  - On failed `has_role` check (error or `!isAdmin`), insert one row via `supabaseAdmin` (loaded via dynamic import) with `user_id`, `endpoint` (from `getRequestUrl().pathname`), `role_result`, and `reason`.
+  - Best-effort: swallow log errors so they never mask the 403. Never log tokens, emails, or request bodies.
+- Add a simple admin viewer tab "Access Log" in `AdminDashboardView` reading the last 100 rows via a new `listAdminAccessLog` server fn guarded by `requireAdmin`.
 
-**`src/routes/admin.tsx`** (verification only — no functional change)
-- Confirm the unauthenticated branch renders `<StaffLoginView />` inline (already true). No edits unless a redirect is discovered.
+## 2. Contact / partner inquiry form + Turnstile
 
-**`src/routes/dashboard.tsx`** (verification only)
-- Uses `<ProtectedRoute>`; will automatically get the new inline form. No edits.
+- New public route `src/routes/contact.tsx` with its own `head()` (title, description, og:*) and a form:
+  - Contact fields: name, email, phone (optional), organization (optional), partnership_type (select: General / Partnership / CSR / Media / Other), message.
+  - Client renders Cloudflare Turnstile widget (`@marsidev/react-turnstile`) using `VITE_TURNSTILE_SITE_KEY`.
+- New secrets: `TURNSTILE_SECRET_KEY` (server), `VITE_TURNSTILE_SITE_KEY` (public) — request via `add_secret`.
+- New `src/lib/contact.functions.ts`:
+  - `submitContactInquiry` server fn (no auth middleware) with Zod input validation (length caps, email format).
+  - Verifies Turnstile token via `https://challenges.cloudflare.com/turnstile/v0/siteverify` using request IP.
+  - Applies `enforceRateLimit({ bucket: "contact", max: 5, windowSeconds: 600 })`.
+  - Inserts into `public.partner_inquiries` via `supabaseAdmin` (dynamic import).
+  - Enqueues a transactional email notification to the foundation inbox using existing email queue helpers.
+- Add "Contact" link to `Navbar` and `Footer`.
+- No schema changes needed — `partner_inquiries` already exists; add an `INSERT` policy for `service_role` only (verify current policies via migration if missing) and confirm GRANTs.
 
-### Out of scope
-- No changes to `AuthContext`, routing, or `/admin` page behavior beyond the above.
-- No new routes, no changes to role logic, no changes to `StaffLoginView`'s existing redirect behavior.
+## 3. SSR-friendly News pages
+
+- `src/routes/news.tsx`:
+  - Loader fetches published articles list + upcoming events using a server publishable client (already used in `pageSeo.functions.ts`) and returns `{ seo, articles, events }`.
+  - Pass data into `<NewsView />` as props.
+- `src/routes/news.$slug.tsx`:
+  - Extend existing `fetchArticleMeta` to also return `body_md`, then pass full article to `NewsView` as a prop.
+- `src/routes/news.archive.tsx`: move Supabase fetch out of client into the loader with `loaderDeps` on the `page` search param.
+- Refactor `NewsView` to accept `articles`, `events`, and optional `article` props; drop the client-side `useEffect` + `supabase.from(...)` calls used for initial render (keep them only as fallback if props absent to avoid breaking other callers). Renders synchronously so SSR HTML contains full content for crawlers.
+- Add JSON-LD `ItemList` on the news index route.
+
+## 4. Events calendar page
+
+- New public route `src/routes/events.tsx`:
+  - Loader fetches published events (`status='published'`) ordered by `starts_at`, split into upcoming vs past.
+  - `head()` with SEO metadata.
+  - New `EventsCalendarView` component with:
+    - Month-grid calendar (shadcn `Calendar` with `pointer-events-auto`) highlighting event dates.
+    - Upcoming list (date, time, location, cover image, description, RSVP link where present).
+    - Past events collapsed section.
+    - Filter chips (Fundraiser / Awareness / Community) using event tags — add optional `category` column? No — reuse `description` prefix or existing tags on `events`. If `events` lacks a category column, add a nullable `category text` in migration.
+  - JSON-LD `Event` array for SEO.
+- New `src/routes/events.$slug.tsx` detail page with per-event `head()` (title, description, og:image = cover_image) and JSON-LD `Event`.
+- Add "Events" link to `Navbar`; update `sitemap.xml` and `rss.xml` to include events routes.
+- Update `NewsView` events tab to link into the new `/events` pages instead of rendering inline.
+
+## Technical notes
+
+- All new server fns follow `createServerFn` pattern; admin ones use `requireAdmin`.
+- Turnstile verification and Supabase writes happen inside the handler; `supabaseAdmin` imported dynamically.
+- No changes to auto-generated files (`client.ts`, `types.ts` regenerated by migration tool).
+- Rate limiter reuses existing `enforceRateLimit` + `check_rate_limit` RPC.
+- Migration order per project rules: CREATE TABLE → GRANT → ENABLE RLS → CREATE POLICY.
+
+## Files touched
+
+Created:
+- `supabase/migrations/<ts>_admin_access_log_and_events_category.sql`
+- `src/lib/adminAccessLog.functions.ts`
+- `src/lib/contact.functions.ts`
+- `src/routes/contact.tsx`
+- `src/routes/events.tsx`, `src/routes/events.$slug.tsx`
+- `src/ported/components/views/ContactView.tsx`
+- `src/ported/components/views/EventsCalendarView.tsx`
+- `src/ported/components/admin/AccessLogViewer.tsx`
+
+Edited:
+- `src/integrations/supabase/admin-middleware.ts` (audit insert)
+- `src/routes/news.tsx`, `src/routes/news.$slug.tsx`, `src/routes/news.archive.tsx` (SSR loaders)
+- `src/ported/components/views/NewsView.tsx` (accept props, drop client fetch)
+- `src/ported/components/Navbar.tsx`, `Footer.tsx` (Contact + Events links)
+- `src/ported/components/views/AdminDashboardView.tsx` (Access Log tab)
+- `src/routes/sitemap[.]xml.ts`, `src/routes/rss[.]xml.ts` (events entries)
+
+Secrets to request: `TURNSTILE_SECRET_KEY`, `VITE_TURNSTILE_SITE_KEY`.
