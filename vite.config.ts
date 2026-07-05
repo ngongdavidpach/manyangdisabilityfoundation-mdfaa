@@ -1,4 +1,5 @@
 import { defineConfig } from "@lovable.dev/vite-tanstack-config";
+import { mcpPlugin } from "@lovable.dev/mcp-js/stacks/tanstack/vite";
 import { createLogger } from "vite";
 
 // NOTE: vite-plugin-pwa is intentionally not used here. It assumes a
@@ -26,5 +27,6 @@ logger.warnOnce = (msg, opts) => {
 export default defineConfig({
   vite: {
     customLogger: logger,
+    plugins: [mcpPlugin()],
   },
 });

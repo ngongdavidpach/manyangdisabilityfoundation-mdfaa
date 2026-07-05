@@ -15,6 +15,7 @@ import { Route as RssDotxmlRouteImport } from './routes/rss[.]xml'
 import { Route as RequestRouteImport } from './routes/request'
 import { Route as ProgramsRouteImport } from './routes/programs'
 import { Route as NewsRouteImport } from './routes/news'
+import { Route as McpRouteImport } from './routes/mcp'
 import { Route as GetInvolvedRouteImport } from './routes/get-involved'
 import { Route as GalleryRouteImport } from './routes/gallery'
 import { Route as DonateRouteImport } from './routes/donate'
@@ -33,7 +34,10 @@ import { Route as GuidesFreeMedicalEquipmentRouteImport } from './routes/guides.
 import { Route as GuidesDonateSuppliesRouteImport } from './routes/guides.donate-supplies'
 import { Route as FaqDonationsRouteImport } from './routes/faq.donations'
 import { Route as EmailUnsubscribeRouteImport } from './routes/email/unsubscribe'
+import { Route as Char91DotwellKnownChar93OauthProtectedResourceRouteImport } from './routes/[.well-known]/oauth-protected-resource'
+import { Route as Char91DotmcpChar93ListToolsRouteImport } from './routes/[.mcp]/list-tools'
 import { Route as LovableEmailSuppressionRouteImport } from './routes/lovable/email/suppression'
+import { Route as Char91DotmcpChar93InvokeToolToolRouteImport } from './routes/[.mcp]/invoke-tool/$tool'
 import { Route as LovableEmailTransactionalSendRouteImport } from './routes/lovable/email/transactional/send'
 import { Route as LovableEmailTransactionalPreviewRouteImport } from './routes/lovable/email/transactional/preview'
 import { Route as LovableEmailQueueProcessRouteImport } from './routes/lovable/email/queue/process'
@@ -68,6 +72,11 @@ const ProgramsRoute = ProgramsRouteImport.update({
 const NewsRoute = NewsRouteImport.update({
   id: '/news',
   path: '/news',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const McpRoute = McpRouteImport.update({
+  id: '/mcp',
+  path: '/mcp',
   getParentRoute: () => rootRouteImport,
 } as any)
 const GetInvolvedRoute = GetInvolvedRouteImport.update({
@@ -161,11 +170,29 @@ const EmailUnsubscribeRoute = EmailUnsubscribeRouteImport.update({
   path: '/email/unsubscribe',
   getParentRoute: () => rootRouteImport,
 } as any)
+const Char91DotwellKnownChar93OauthProtectedResourceRoute =
+  Char91DotwellKnownChar93OauthProtectedResourceRouteImport.update({
+    id: '/.well-known/oauth-protected-resource',
+    path: '/.well-known/oauth-protected-resource',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const Char91DotmcpChar93ListToolsRoute =
+  Char91DotmcpChar93ListToolsRouteImport.update({
+    id: '/.mcp/list-tools',
+    path: '/.mcp/list-tools',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const LovableEmailSuppressionRoute = LovableEmailSuppressionRouteImport.update({
   id: '/lovable/email/suppression',
   path: '/lovable/email/suppression',
   getParentRoute: () => rootRouteImport,
 } as any)
+const Char91DotmcpChar93InvokeToolToolRoute =
+  Char91DotmcpChar93InvokeToolToolRouteImport.update({
+    id: '/.mcp/invoke-tool/$tool',
+    path: '/.mcp/invoke-tool/$tool',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const LovableEmailTransactionalSendRoute =
   LovableEmailTransactionalSendRouteImport.update({
     id: '/lovable/email/transactional/send',
@@ -204,12 +231,15 @@ export interface FileRoutesByFullPath {
   '/donate': typeof DonateRoute
   '/gallery': typeof GalleryRoute
   '/get-involved': typeof GetInvolvedRoute
+  '/mcp': typeof McpRoute
   '/news': typeof NewsRouteWithChildren
   '/programs': typeof ProgramsRouteWithChildren
   '/request': typeof RequestRoute
   '/rss.xml': typeof RssDotxmlRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/unsubscribe': typeof UnsubscribeRoute
+  '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
+  '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
   '/faq/donations': typeof FaqDonationsRoute
   '/guides/donate-supplies': typeof GuidesDonateSuppliesRoute
@@ -220,6 +250,7 @@ export interface FileRoutesByFullPath {
   '/portal/coordinators': typeof PortalCoordinatorsRoute
   '/portal/fundraisers': typeof PortalFundraisersRoute
   '/programs/rss.xml': typeof ProgramsRssDotxmlRoute
+  '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
@@ -236,12 +267,15 @@ export interface FileRoutesByTo {
   '/donate': typeof DonateRoute
   '/gallery': typeof GalleryRoute
   '/get-involved': typeof GetInvolvedRoute
+  '/mcp': typeof McpRoute
   '/news': typeof NewsRouteWithChildren
   '/programs': typeof ProgramsRouteWithChildren
   '/request': typeof RequestRoute
   '/rss.xml': typeof RssDotxmlRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/unsubscribe': typeof UnsubscribeRoute
+  '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
+  '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
   '/faq/donations': typeof FaqDonationsRoute
   '/guides/donate-supplies': typeof GuidesDonateSuppliesRoute
@@ -252,6 +286,7 @@ export interface FileRoutesByTo {
   '/portal/coordinators': typeof PortalCoordinatorsRoute
   '/portal/fundraisers': typeof PortalFundraisersRoute
   '/programs/rss.xml': typeof ProgramsRssDotxmlRoute
+  '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
@@ -269,12 +304,15 @@ export interface FileRoutesById {
   '/donate': typeof DonateRoute
   '/gallery': typeof GalleryRoute
   '/get-involved': typeof GetInvolvedRoute
+  '/mcp': typeof McpRoute
   '/news': typeof NewsRouteWithChildren
   '/programs': typeof ProgramsRouteWithChildren
   '/request': typeof RequestRoute
   '/rss.xml': typeof RssDotxmlRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/unsubscribe': typeof UnsubscribeRoute
+  '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
+  '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
   '/faq/donations': typeof FaqDonationsRoute
   '/guides/donate-supplies': typeof GuidesDonateSuppliesRoute
@@ -285,6 +323,7 @@ export interface FileRoutesById {
   '/portal/coordinators': typeof PortalCoordinatorsRoute
   '/portal/fundraisers': typeof PortalFundraisersRoute
   '/programs/rss.xml': typeof ProgramsRssDotxmlRoute
+  '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
@@ -303,12 +342,15 @@ export interface FileRouteTypes {
     | '/donate'
     | '/gallery'
     | '/get-involved'
+    | '/mcp'
     | '/news'
     | '/programs'
     | '/request'
     | '/rss.xml'
     | '/sitemap.xml'
     | '/unsubscribe'
+    | '/.mcp/list-tools'
+    | '/.well-known/oauth-protected-resource'
     | '/email/unsubscribe'
     | '/faq/donations'
     | '/guides/donate-supplies'
@@ -319,6 +361,7 @@ export interface FileRouteTypes {
     | '/portal/coordinators'
     | '/portal/fundraisers'
     | '/programs/rss.xml'
+    | '/.mcp/invoke-tool/$tool'
     | '/lovable/email/suppression'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
@@ -335,12 +378,15 @@ export interface FileRouteTypes {
     | '/donate'
     | '/gallery'
     | '/get-involved'
+    | '/mcp'
     | '/news'
     | '/programs'
     | '/request'
     | '/rss.xml'
     | '/sitemap.xml'
     | '/unsubscribe'
+    | '/.mcp/list-tools'
+    | '/.well-known/oauth-protected-resource'
     | '/email/unsubscribe'
     | '/faq/donations'
     | '/guides/donate-supplies'
@@ -351,6 +397,7 @@ export interface FileRouteTypes {
     | '/portal/coordinators'
     | '/portal/fundraisers'
     | '/programs/rss.xml'
+    | '/.mcp/invoke-tool/$tool'
     | '/lovable/email/suppression'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
@@ -367,12 +414,15 @@ export interface FileRouteTypes {
     | '/donate'
     | '/gallery'
     | '/get-involved'
+    | '/mcp'
     | '/news'
     | '/programs'
     | '/request'
     | '/rss.xml'
     | '/sitemap.xml'
     | '/unsubscribe'
+    | '/.mcp/list-tools'
+    | '/.well-known/oauth-protected-resource'
     | '/email/unsubscribe'
     | '/faq/donations'
     | '/guides/donate-supplies'
@@ -383,6 +433,7 @@ export interface FileRouteTypes {
     | '/portal/coordinators'
     | '/portal/fundraisers'
     | '/programs/rss.xml'
+    | '/.mcp/invoke-tool/$tool'
     | '/lovable/email/suppression'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
@@ -400,12 +451,15 @@ export interface RootRouteChildren {
   DonateRoute: typeof DonateRoute
   GalleryRoute: typeof GalleryRoute
   GetInvolvedRoute: typeof GetInvolvedRoute
+  McpRoute: typeof McpRoute
   NewsRoute: typeof NewsRouteWithChildren
   ProgramsRoute: typeof ProgramsRouteWithChildren
   RequestRoute: typeof RequestRoute
   RssDotxmlRoute: typeof RssDotxmlRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   UnsubscribeRoute: typeof UnsubscribeRoute
+  Char91DotmcpChar93ListToolsRoute: typeof Char91DotmcpChar93ListToolsRoute
+  Char91DotwellKnownChar93OauthProtectedResourceRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   EmailUnsubscribeRoute: typeof EmailUnsubscribeRoute
   FaqDonationsRoute: typeof FaqDonationsRoute
   GuidesDonateSuppliesRoute: typeof GuidesDonateSuppliesRoute
@@ -413,6 +467,7 @@ export interface RootRouteChildren {
   GuidesMobilityAidGrantsRoute: typeof GuidesMobilityAidGrantsRoute
   PortalCoordinatorsRoute: typeof PortalCoordinatorsRoute
   PortalFundraisersRoute: typeof PortalFundraisersRoute
+  Char91DotmcpChar93InvokeToolToolRoute: typeof Char91DotmcpChar93InvokeToolToolRoute
   LovableEmailSuppressionRoute: typeof LovableEmailSuppressionRoute
   LovableEmailAuthPreviewRoute: typeof LovableEmailAuthPreviewRoute
   LovableEmailAuthWebhookRoute: typeof LovableEmailAuthWebhookRoute
@@ -463,6 +518,13 @@ declare module '@tanstack/react-router' {
       path: '/news'
       fullPath: '/news'
       preLoaderRoute: typeof NewsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/mcp': {
+      id: '/mcp'
+      path: '/mcp'
+      fullPath: '/mcp'
+      preLoaderRoute: typeof McpRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/get-involved': {
@@ -591,11 +653,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof EmailUnsubscribeRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/.well-known/oauth-protected-resource': {
+      id: '/.well-known/oauth-protected-resource'
+      path: '/.well-known/oauth-protected-resource'
+      fullPath: '/.well-known/oauth-protected-resource'
+      preLoaderRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/.mcp/list-tools': {
+      id: '/.mcp/list-tools'
+      path: '/.mcp/list-tools'
+      fullPath: '/.mcp/list-tools'
+      preLoaderRoute: typeof Char91DotmcpChar93ListToolsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/lovable/email/suppression': {
       id: '/lovable/email/suppression'
       path: '/lovable/email/suppression'
       fullPath: '/lovable/email/suppression'
       preLoaderRoute: typeof LovableEmailSuppressionRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/.mcp/invoke-tool/$tool': {
+      id: '/.mcp/invoke-tool/$tool'
+      path: '/.mcp/invoke-tool/$tool'
+      fullPath: '/.mcp/invoke-tool/$tool'
+      preLoaderRoute: typeof Char91DotmcpChar93InvokeToolToolRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/lovable/email/transactional/send': {
@@ -669,12 +752,16 @@ const rootRouteChildren: RootRouteChildren = {
   DonateRoute: DonateRoute,
   GalleryRoute: GalleryRoute,
   GetInvolvedRoute: GetInvolvedRoute,
+  McpRoute: McpRoute,
   NewsRoute: NewsRouteWithChildren,
   ProgramsRoute: ProgramsRouteWithChildren,
   RequestRoute: RequestRoute,
   RssDotxmlRoute: RssDotxmlRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   UnsubscribeRoute: UnsubscribeRoute,
+  Char91DotmcpChar93ListToolsRoute: Char91DotmcpChar93ListToolsRoute,
+  Char91DotwellKnownChar93OauthProtectedResourceRoute:
+    Char91DotwellKnownChar93OauthProtectedResourceRoute,
   EmailUnsubscribeRoute: EmailUnsubscribeRoute,
   FaqDonationsRoute: FaqDonationsRoute,
   GuidesDonateSuppliesRoute: GuidesDonateSuppliesRoute,
@@ -682,6 +769,7 @@ const rootRouteChildren: RootRouteChildren = {
   GuidesMobilityAidGrantsRoute: GuidesMobilityAidGrantsRoute,
   PortalCoordinatorsRoute: PortalCoordinatorsRoute,
   PortalFundraisersRoute: PortalFundraisersRoute,
+  Char91DotmcpChar93InvokeToolToolRoute: Char91DotmcpChar93InvokeToolToolRoute,
   LovableEmailSuppressionRoute: LovableEmailSuppressionRoute,
   LovableEmailAuthPreviewRoute: LovableEmailAuthPreviewRoute,
   LovableEmailAuthWebhookRoute: LovableEmailAuthWebhookRoute,
