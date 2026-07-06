@@ -1,7 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { createServerFn } from "@tanstack/react-start";
-import { useServerFn } from "@tanstack/react-start";
-import { useEffect, useState } from "react";
 import { z } from "zod";
 
 import {
