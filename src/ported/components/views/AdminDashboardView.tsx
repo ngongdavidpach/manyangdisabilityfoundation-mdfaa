@@ -42,6 +42,7 @@ import { FoundationInfoEditor } from "../admin/FoundationInfoEditor";
 import { StaffAccountsManager } from "../admin/StaffAccountsManager";
 import { CoordinatorsManager } from "../admin/CoordinatorsManager";
 import { FundraisersManager } from "../admin/FundraisersManager";
+import { AccessLogViewer } from "../admin/AccessLogViewer";
 
 type Tab =
   | "overview"
@@ -60,7 +61,8 @@ type Tab =
   | "pipeline"
   | "donations"
   | "expenses"
-  | "reports";
+  | "reports"
+  | "access-log";
 
 type RecentArticle = {
   id: string;
@@ -189,6 +191,7 @@ export const AdminDashboard: React.FC = () => {
       items: [
         { id: "foundation", label: "Foundation Info", icon: SettingsIcon },
         { id: "settings", label: "Settings", icon: SettingsIcon },
+        { id: "access-log", label: "Access Log", icon: ShieldCheck },
       ],
     },
   ];
@@ -234,6 +237,8 @@ export const AdminDashboard: React.FC = () => {
         return <CoordinatorsManager />;
       case "fundraisers":
         return <FundraisersManager />;
+      case "access-log":
+        return <AccessLogViewer />;
       case "settings":
         return (
           <div className="space-y-4">
