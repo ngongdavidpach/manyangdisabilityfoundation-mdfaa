@@ -1,4 +1,5 @@
 import { createMiddleware } from "@tanstack/react-start";
+import { getRequestIP, getRequestURL } from "@tanstack/react-start/server";
 import { requireSupabaseAuth } from "./auth-middleware";
 
 /**
@@ -10,11 +11,36 @@ import { requireSupabaseAuth } from "./auth-middleware";
  * handler code runs, so admin server functions cannot be executed by client
  * routing bypasses, direct RPC calls, or tampered local auth state.
  *
- * Usage:
- *   createServerFn({ method: "POST" })
- *     .middleware([requireAdmin])
- *     .handler(async ({ context }) => { ... context.userId ... });
+ * Denied attempts are recorded in `public.admin_access_log` (user id,
+ * endpoint path, reason). Logging is best-effort — failures never mask the
+ * 403 response. No request bodies, tokens, or emails are recorded.
  */
+async function logDenial(params: {
+  userId: string | null;
+  reason: string;
+}) {
+  try {
+    let endpoint: string | null = null;
+    let ip: string | null = null;
+    try {
+      endpoint = new URL(getRequestURL()).pathname;
+    } catch {}
+    try {
+      ip = getRequestIP({ xForwardedFor: true }) ?? null;
+    } catch {}
+    const { supabaseAdmin } = await import("./client.server");
+    await supabaseAdmin.from("admin_access_log").insert({
+      user_id: params.userId,
+      endpoint,
+      role_result: false,
+      reason: params.reason,
+      ip,
+    });
+  } catch (err) {
+    console.error("[admin-middleware] failed to record denial", err);
+  }
+}
+
 export const requireAdmin = createMiddleware({ type: "function" })
   .middleware([requireSupabaseAuth])
   .server(async ({ next, context }) => {
@@ -24,9 +50,11 @@ export const requireAdmin = createMiddleware({ type: "function" })
       _role: "admin",
     });
     if (error) {
+      await logDenial({ userId: ctx.userId ?? null, reason: "has_role_rpc_error" });
       throw new Error("Forbidden: authorization check failed");
     }
     if (!isAdmin) {
+      await logDenial({ userId: ctx.userId ?? null, reason: "not_admin" });
       throw new Error("Forbidden: admin role required");
     }
     return next({ context: { isAdmin: true as const } });
