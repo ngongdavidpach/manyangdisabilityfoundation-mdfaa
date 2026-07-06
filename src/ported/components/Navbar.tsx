@@ -28,6 +28,8 @@ const PATH_FOR: Record<string, string> = {
   request: "/request",
   news: "/news",
   "get-involved": "/get-involved",
+  events: "/events",
+  contact: "/contact",
 };
 
 export const Navbar: React.FC = () => {
