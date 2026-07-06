@@ -1,5 +1,5 @@
 import { createMiddleware } from "@tanstack/react-start";
-import { getRequestIP, getRequestURL } from "@tanstack/react-start/server";
+import { getRequestIP, getRequestUrl } from "@tanstack/react-start/server";
 import { requireSupabaseAuth } from "./auth-middleware";
 
 /**
@@ -23,7 +23,7 @@ async function logDenial(params: {
     let endpoint: string | null = null;
     let ip: string | null = null;
     try {
-      endpoint = new URL(getRequestURL()).pathname;
+      endpoint = new URL(getRequestUrl()).pathname;
     } catch {}
     try {
       ip = getRequestIP({ xForwardedFor: true }) ?? null;
