@@ -28,6 +28,8 @@ export const Route = createFileRoute("/sitemap.xml")({
           { path: "/faq/donations", changefreq: "monthly", priority: "0.7" },
           { path: "/news/archive", changefreq: "weekly", priority: "0.6" },
           { path: "/csr-sponsorship", changefreq: "monthly", priority: "0.7" },
+          { path: "/contact", changefreq: "monthly", priority: "0.7" },
+          { path: "/events", changefreq: "weekly", priority: "0.7" },
         ];
         // /portal/* routes are noindex and intentionally excluded from the sitemap.
 
@@ -45,6 +47,13 @@ export const Route = createFileRoute("/sitemap.xml")({
             .eq("status", "published");
           for (const a of (data as Array<{ slug: string }>) || []) {
             entries.push({ path: `/news/${a.slug}`, changefreq: "monthly", priority: "0.6" });
+          }
+          const { data: eventsData } = await client
+            .from("events")
+            .select("slug")
+            .eq("status", "published");
+          for (const e of (eventsData as Array<{ slug: string }>) || []) {
+            entries.push({ path: `/events/${e.slug}`, changefreq: "weekly", priority: "0.6" });
           }
         } catch {}
 

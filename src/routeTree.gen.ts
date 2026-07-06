@@ -18,9 +18,11 @@ import { Route as NewsRouteImport } from './routes/news'
 import { Route as McpRouteImport } from './routes/mcp'
 import { Route as GetInvolvedRouteImport } from './routes/get-involved'
 import { Route as GalleryRouteImport } from './routes/gallery'
+import { Route as EventsRouteImport } from './routes/events'
 import { Route as DonateRouteImport } from './routes/donate'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as CsrSponsorshipRouteImport } from './routes/csr-sponsorship'
+import { Route as ContactRouteImport } from './routes/contact'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
@@ -33,6 +35,7 @@ import { Route as GuidesMobilityAidGrantsRouteImport } from './routes/guides.mob
 import { Route as GuidesFreeMedicalEquipmentRouteImport } from './routes/guides.free-medical-equipment'
 import { Route as GuidesDonateSuppliesRouteImport } from './routes/guides.donate-supplies'
 import { Route as FaqDonationsRouteImport } from './routes/faq.donations'
+import { Route as EventsSlugRouteImport } from './routes/events.$slug'
 import { Route as EmailUnsubscribeRouteImport } from './routes/email/unsubscribe'
 import { Route as Char91DotwellKnownChar93OauthProtectedResourceRouteImport } from './routes/[.well-known]/oauth-protected-resource'
 import { Route as Char91DotmcpChar93ListToolsRouteImport } from './routes/[.mcp]/list-tools'
@@ -89,6 +92,11 @@ const GalleryRoute = GalleryRouteImport.update({
   path: '/gallery',
   getParentRoute: () => rootRouteImport,
 } as any)
+const EventsRoute = EventsRouteImport.update({
+  id: '/events',
+  path: '/events',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const DonateRoute = DonateRouteImport.update({
   id: '/donate',
   path: '/donate',
@@ -102,6 +110,11 @@ const DashboardRoute = DashboardRouteImport.update({
 const CsrSponsorshipRoute = CsrSponsorshipRouteImport.update({
   id: '/csr-sponsorship',
   path: '/csr-sponsorship',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ContactRoute = ContactRouteImport.update({
+  id: '/contact',
+  path: '/contact',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminRoute = AdminRouteImport.update({
@@ -165,6 +178,11 @@ const FaqDonationsRoute = FaqDonationsRouteImport.update({
   path: '/faq/donations',
   getParentRoute: () => rootRouteImport,
 } as any)
+const EventsSlugRoute = EventsSlugRouteImport.update({
+  id: '/$slug',
+  path: '/$slug',
+  getParentRoute: () => EventsRoute,
+} as any)
 const EmailUnsubscribeRoute = EmailUnsubscribeRouteImport.update({
   id: '/email/unsubscribe',
   path: '/email/unsubscribe',
@@ -226,9 +244,11 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/admin': typeof AdminRoute
+  '/contact': typeof ContactRoute
   '/csr-sponsorship': typeof CsrSponsorshipRoute
   '/dashboard': typeof DashboardRoute
   '/donate': typeof DonateRoute
+  '/events': typeof EventsRouteWithChildren
   '/gallery': typeof GalleryRoute
   '/get-involved': typeof GetInvolvedRoute
   '/mcp': typeof McpRoute
@@ -241,6 +261,7 @@ export interface FileRoutesByFullPath {
   '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
+  '/events/$slug': typeof EventsSlugRoute
   '/faq/donations': typeof FaqDonationsRoute
   '/guides/donate-supplies': typeof GuidesDonateSuppliesRoute
   '/guides/free-medical-equipment': typeof GuidesFreeMedicalEquipmentRoute
@@ -262,9 +283,11 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/admin': typeof AdminRoute
+  '/contact': typeof ContactRoute
   '/csr-sponsorship': typeof CsrSponsorshipRoute
   '/dashboard': typeof DashboardRoute
   '/donate': typeof DonateRoute
+  '/events': typeof EventsRouteWithChildren
   '/gallery': typeof GalleryRoute
   '/get-involved': typeof GetInvolvedRoute
   '/mcp': typeof McpRoute
@@ -277,6 +300,7 @@ export interface FileRoutesByTo {
   '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
+  '/events/$slug': typeof EventsSlugRoute
   '/faq/donations': typeof FaqDonationsRoute
   '/guides/donate-supplies': typeof GuidesDonateSuppliesRoute
   '/guides/free-medical-equipment': typeof GuidesFreeMedicalEquipmentRoute
@@ -299,9 +323,11 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/admin': typeof AdminRoute
+  '/contact': typeof ContactRoute
   '/csr-sponsorship': typeof CsrSponsorshipRoute
   '/dashboard': typeof DashboardRoute
   '/donate': typeof DonateRoute
+  '/events': typeof EventsRouteWithChildren
   '/gallery': typeof GalleryRoute
   '/get-involved': typeof GetInvolvedRoute
   '/mcp': typeof McpRoute
@@ -314,6 +340,7 @@ export interface FileRoutesById {
   '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
+  '/events/$slug': typeof EventsSlugRoute
   '/faq/donations': typeof FaqDonationsRoute
   '/guides/donate-supplies': typeof GuidesDonateSuppliesRoute
   '/guides/free-medical-equipment': typeof GuidesFreeMedicalEquipmentRoute
@@ -337,9 +364,11 @@ export interface FileRouteTypes {
     | '/'
     | '/about'
     | '/admin'
+    | '/contact'
     | '/csr-sponsorship'
     | '/dashboard'
     | '/donate'
+    | '/events'
     | '/gallery'
     | '/get-involved'
     | '/mcp'
@@ -352,6 +381,7 @@ export interface FileRouteTypes {
     | '/.mcp/list-tools'
     | '/.well-known/oauth-protected-resource'
     | '/email/unsubscribe'
+    | '/events/$slug'
     | '/faq/donations'
     | '/guides/donate-supplies'
     | '/guides/free-medical-equipment'
@@ -373,9 +403,11 @@ export interface FileRouteTypes {
     | '/'
     | '/about'
     | '/admin'
+    | '/contact'
     | '/csr-sponsorship'
     | '/dashboard'
     | '/donate'
+    | '/events'
     | '/gallery'
     | '/get-involved'
     | '/mcp'
@@ -388,6 +420,7 @@ export interface FileRouteTypes {
     | '/.mcp/list-tools'
     | '/.well-known/oauth-protected-resource'
     | '/email/unsubscribe'
+    | '/events/$slug'
     | '/faq/donations'
     | '/guides/donate-supplies'
     | '/guides/free-medical-equipment'
@@ -409,9 +442,11 @@ export interface FileRouteTypes {
     | '/'
     | '/about'
     | '/admin'
+    | '/contact'
     | '/csr-sponsorship'
     | '/dashboard'
     | '/donate'
+    | '/events'
     | '/gallery'
     | '/get-involved'
     | '/mcp'
@@ -424,6 +459,7 @@ export interface FileRouteTypes {
     | '/.mcp/list-tools'
     | '/.well-known/oauth-protected-resource'
     | '/email/unsubscribe'
+    | '/events/$slug'
     | '/faq/donations'
     | '/guides/donate-supplies'
     | '/guides/free-medical-equipment'
@@ -446,9 +482,11 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AboutRoute: typeof AboutRoute
   AdminRoute: typeof AdminRoute
+  ContactRoute: typeof ContactRoute
   CsrSponsorshipRoute: typeof CsrSponsorshipRoute
   DashboardRoute: typeof DashboardRoute
   DonateRoute: typeof DonateRoute
+  EventsRoute: typeof EventsRouteWithChildren
   GalleryRoute: typeof GalleryRoute
   GetInvolvedRoute: typeof GetInvolvedRoute
   McpRoute: typeof McpRoute
@@ -541,6 +579,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof GalleryRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/events': {
+      id: '/events'
+      path: '/events'
+      fullPath: '/events'
+      preLoaderRoute: typeof EventsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/donate': {
       id: '/donate'
       path: '/donate'
@@ -560,6 +605,13 @@ declare module '@tanstack/react-router' {
       path: '/csr-sponsorship'
       fullPath: '/csr-sponsorship'
       preLoaderRoute: typeof CsrSponsorshipRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/contact': {
+      id: '/contact'
+      path: '/contact'
+      fullPath: '/contact'
+      preLoaderRoute: typeof ContactRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/admin': {
@@ -646,6 +698,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof FaqDonationsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/events/$slug': {
+      id: '/events/$slug'
+      path: '/$slug'
+      fullPath: '/events/$slug'
+      preLoaderRoute: typeof EventsSlugRouteImport
+      parentRoute: typeof EventsRoute
+    }
     '/email/unsubscribe': {
       id: '/email/unsubscribe'
       path: '/email/unsubscribe'
@@ -719,6 +778,17 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface EventsRouteChildren {
+  EventsSlugRoute: typeof EventsSlugRoute
+}
+
+const EventsRouteChildren: EventsRouteChildren = {
+  EventsSlugRoute: EventsSlugRoute,
+}
+
+const EventsRouteWithChildren =
+  EventsRoute._addFileChildren(EventsRouteChildren)
+
 interface NewsRouteChildren {
   NewsSlugRoute: typeof NewsSlugRoute
   NewsArchiveRoute: typeof NewsArchiveRoute
@@ -747,9 +817,11 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
   AdminRoute: AdminRoute,
+  ContactRoute: ContactRoute,
   CsrSponsorshipRoute: CsrSponsorshipRoute,
   DashboardRoute: DashboardRoute,
   DonateRoute: DonateRoute,
+  EventsRoute: EventsRouteWithChildren,
   GalleryRoute: GalleryRoute,
   GetInvolvedRoute: GetInvolvedRoute,
   McpRoute: McpRoute,

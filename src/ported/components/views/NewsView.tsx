@@ -27,6 +27,8 @@ interface NewsContent {
 
 interface NewsViewProps {
   articleId?: string;
+  initialArticles?: NewsArticle[];
+  initialEvents?: FoundationEvent[];
 }
 
 function estimateReadTime(text: string | null | undefined): string {
@@ -57,17 +59,18 @@ function formatTime(iso: string | null | undefined): string {
   }
 }
 
-export const NewsView: React.FC<NewsViewProps> = ({ articleId }) => {
+export const NewsView: React.FC<NewsViewProps> = ({ articleId, initialArticles, initialEvents }) => {
   const navigate = useNavigate();
   const [copied, setCopied] = useState(false);
   const [activeTab, setActiveTab] = useState<"news" | "events">("news");
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
 
   const { content: newsContent } = usePageSettings<NewsContent>("news", {});
-  const [dbArticles, setDbArticles] = useState<NewsArticle[] | null>(null);
-  const [dbEvents, setDbEvents] = useState<FoundationEvent[] | null>(null);
+  const [dbArticles, setDbArticles] = useState<NewsArticle[] | null>(initialArticles ?? null);
+  const [dbEvents, setDbEvents] = useState<FoundationEvent[] | null>(initialEvents ?? null);
 
   useEffect(() => {
+    if (initialArticles && initialEvents) return; // SSR-provided; skip client fetch
     supabase
       .from("news_articles")
       .select("slug, title, excerpt, body_md, cover_image, published_at")

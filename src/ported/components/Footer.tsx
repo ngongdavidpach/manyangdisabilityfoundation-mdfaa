@@ -259,6 +259,16 @@ export const Footer: React.FC = () => {
                   Donation FAQ
                 </Link>
               </li>
+              <li>
+                <Link to="/events" className="hover:text-white transition-colors">
+                  Events Calendar
+                </Link>
+              </li>
+              <li>
+                <Link to="/contact" className="hover:text-white transition-colors">
+                  Contact &amp; Partnerships
+                </Link>
+              </li>
             </ul>
           </div>
 
