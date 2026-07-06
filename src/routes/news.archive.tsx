@@ -145,13 +145,11 @@ function ArchivePage() {
         ))}
       </div>
 
-      {state.loading ? (
-        <p className="text-sm text-slate-500">Loading…</p>
-      ) : state.articles.length === 0 ? (
+      {state.articles.length === 0 ? (
         <p className="text-sm text-slate-500">No articles found for this filter.</p>
       ) : (
         <ul className="space-y-6">
-          {state.articles.map((a) => (
+          {state.articles.map((a: ArchiveArticle) => (
             <li
               key={a.slug}
               className="bg-white rounded-2xl border border-slate-200 p-5 sm:p-6 flex flex-col sm:flex-row gap-5 hover:border-blue-300 transition-colors"
