@@ -13,7 +13,8 @@ import {
   Newspaper,
   Home,
   Image as GalleryIcon,
-  
+  Calendar,
+  Mail,
   LayoutDashboard,
 } from "lucide-react";
 import { useFoundationInfo } from "../hooks/useFoundationInfo";
@@ -65,7 +66,9 @@ export const Navbar: React.FC = () => {
     gallery: GalleryIcon,
     request: HelpCircle,
     news: Newspaper,
+    events: Calendar,
     "get-involved": HeartHandshake,
+    contact: Mail,
   };
   const navLinks = navConfig.order
     .map((id) => NAV_ITEM_DEFS.find((d) => d.id === id))
