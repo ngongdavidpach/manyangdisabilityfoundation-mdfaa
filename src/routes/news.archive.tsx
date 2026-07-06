@@ -95,30 +95,14 @@ export const Route = createFileRoute("/news/archive")({
     ],
     links: [{ rel: "canonical", href: "https://manyangdisabilityfoundation.org/news/archive" }],
   }),
+  loaderDeps: ({ search: { page, year } }) => ({ page, year }),
+  loader: ({ deps }) => fetchArchive({ data: deps }),
   component: ArchivePage,
 });
 
 function ArchivePage() {
   const { page, year } = Route.useSearch();
-  const fetcher = useServerFn(fetchArchive);
-  const [state, setState] = useState<{
-    articles: ArchiveArticle[];
-    total: number;
-    years: string[];
-    loading: boolean;
-  }>({ articles: [], total: 0, years: [], loading: true });
-
-  useEffect(() => {
-    let alive = true;
-    setState((s) => ({ ...s, loading: true }));
-    fetcher({ data: { page, year } }).then((res) => {
-      if (!alive) return;
-      setState({ articles: res.articles, total: res.total, years: res.years, loading: false });
-    });
-    return () => {
-      alive = false;
-    };
-  }, [page, year, fetcher]);
+  const state = Route.useLoaderData();
 
   const totalPages = Math.max(1, Math.ceil(state.total / PAGE_SIZE));
   const filters = ["all", ...state.years];
