@@ -1,6 +1,7 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { CalendarDays, Clock, MapPin, ArrowLeft, ExternalLink } from "lucide-react";
 import { getPublicEvent } from "../lib/publicContent.functions";
+import { EventRsvpForm } from "../ported/components/EventRsvpForm";
 
 const FALLBACK_IMG = "https://manyangdisabilityfoundation.org/images/logo.png";
 function truncate(s: string, n: number) {
@@ -139,9 +140,10 @@ function EventDetail() {
           rel="noopener noreferrer"
           className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold px-5 py-2.5 rounded-md"
         >
-          RSVP for this event <ExternalLink className="w-4 h-4" />
+          RSVP via external site <ExternalLink className="w-4 h-4" />
         </a>
       )}
+      <EventRsvpForm eventId={e.id} eventTitle={e.title} />
     </article>
   );
 }
