@@ -6,6 +6,7 @@ import { template as coordinatorApproved } from "./coordinator-approved";
 import { template as fundraiserConfirmation } from "./fundraiser-confirmation";
 import { template as fundraiserAdminNotification } from "./fundraiser-admin-notification";
 import { template as fundraiserApproved } from "./fundraiser-approved";
+import { template as eventRsvpConfirmation } from "./event-rsvp-confirmation";
 
 export interface TemplateEntry {
   component: ComponentType<any>;
@@ -23,4 +24,5 @@ export const TEMPLATES: Record<string, TemplateEntry> = {
   "fundraiser-confirmation": fundraiserConfirmation,
   "fundraiser-admin-notification": fundraiserAdminNotification,
   "fundraiser-approved": fundraiserApproved,
+  "event-rsvp-confirmation": eventRsvpConfirmation,
 };
