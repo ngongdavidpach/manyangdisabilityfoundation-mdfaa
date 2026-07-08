@@ -1,89 +1,25 @@
-## Scope
+## Plan: Event RSVP form with confirmation email
 
-Four related additions:
+The `submitEventRsvp` server function and `event_rsvps` table already exist. This plan wires up the UI, adds a confirmation email, and updates the server function to send it.
 
-1. Server-side audit logging for forbidden admin access attempts.
-2. Contact / partner inquiry form with Cloudflare Turnstile spam protection.
-3. Convert News pages to SSR (fetch in loader, not `useEffect`) for SEO/accessibility.
-4. Events calendar page (fundraisers, awareness days) driven by the existing `events` table.
+### 1. Extend `submitEventRsvp` in `src/lib/intake.functions.ts`
+- Keep existing Zod schema (fullName, email, phone, eventTitle, eventExternalId).
+- After successful insert, enqueue an `event-rsvp-confirmation` email via `enqueueTransactionalEmail` using an idempotency key derived from the inserted RSVP id (mirrors the coordinator/fundraiser pattern). Errors from the email step are logged, never thrown, so a mail failure doesn't fail the RSVP.
 
-## 1. Forbidden-access audit log
+### 2. New email template `src/lib/email-templates/event-rsvp-confirmation.tsx`
+- React Email template branded to match the existing confirmation templates (same shared header/footer style).
+- Props: `fullName`, `eventTitle`, `eventDate` (optional pretty string), `eventLocation` (optional).
+- Register it in `src/lib/email-templates/registry.ts`.
 
-- New migration:
-  - `public.admin_access_log(id uuid pk, user_id uuid null, endpoint text, role_result boolean, reason text, ip text null, created_at timestamptz default now())`
-  - RLS on, `GRANT SELECT` to `authenticated` restricted via `has_role('admin')` policy; `GRANT INSERT, SELECT, ALL` to `service_role`.
-- Update `src/integrations/supabase/admin-middleware.ts`:
-  - On failed `has_role` check (error or `!isAdmin`), insert one row via `supabaseAdmin` (loaded via dynamic import) with `user_id`, `endpoint` (from `getRequestUrl().pathname`), `role_result`, and `reason`.
-  - Best-effort: swallow log errors so they never mask the 403. Never log tokens, emails, or request bodies.
-- Add a simple admin viewer tab "Access Log" in `AdminDashboardView` reading the last 100 rows via a new `listAdminAccessLog` server fn guarded by `requireAdmin`.
+### 3. New component `src/ported/components/EventRsvpForm.tsx`
+- Controlled form: Full name, email, phone (optional). Client-side validation for required fields + email format; server remains source of truth.
+- Calls `submitEventRsvp` via `useServerFn`, passing `eventExternalId` (event id) and `eventTitle`.
+- States: idle → submitting → success (shows thank-you card) / error (inline message). Disables submit while pending.
 
-## 2. Contact / partner inquiry form + Turnstile
+### 4. Wire form into `src/routes/events.$slug.tsx`
+- Render `<EventRsvpForm />` below the event description, above/replacing the current external "RSVP for this event" button when `rsvp_url` is not set. If `rsvp_url` exists, show both: external RSVP link and the internal form (external takes visual priority).
 
-- New public route `src/routes/contact.tsx` with its own `head()` (title, description, og:*) and a form:
-  - Contact fields: name, email, phone (optional), organization (optional), partnership_type (select: General / Partnership / CSR / Media / Other), message.
-  - Client renders Cloudflare Turnstile widget (`@marsidev/react-turnstile`) using `VITE_TURNSTILE_SITE_KEY`.
-- New secrets: `TURNSTILE_SECRET_KEY` (server), `VITE_TURNSTILE_SITE_KEY` (public) — request via `add_secret`.
-- New `src/lib/contact.functions.ts`:
-  - `submitContactInquiry` server fn (no auth middleware) with Zod input validation (length caps, email format).
-  - Verifies Turnstile token via `https://challenges.cloudflare.com/turnstile/v0/siteverify` using request IP.
-  - Applies `enforceRateLimit({ bucket: "contact", max: 5, windowSeconds: 600 })`.
-  - Inserts into `public.partner_inquiries` via `supabaseAdmin` (dynamic import).
-  - Enqueues a transactional email notification to the foundation inbox using existing email queue helpers.
-- Add "Contact" link to `Navbar` and `Footer`.
-- No schema changes needed — `partner_inquiries` already exists; add an `INSERT` policy for `service_role` only (verify current policies via migration if missing) and confirm GRANTs.
-
-## 3. SSR-friendly News pages
-
-- `src/routes/news.tsx`:
-  - Loader fetches published articles list + upcoming events using a server publishable client (already used in `pageSeo.functions.ts`) and returns `{ seo, articles, events }`.
-  - Pass data into `<NewsView />` as props.
-- `src/routes/news.$slug.tsx`:
-  - Extend existing `fetchArticleMeta` to also return `body_md`, then pass full article to `NewsView` as a prop.
-- `src/routes/news.archive.tsx`: move Supabase fetch out of client into the loader with `loaderDeps` on the `page` search param.
-- Refactor `NewsView` to accept `articles`, `events`, and optional `article` props; drop the client-side `useEffect` + `supabase.from(...)` calls used for initial render (keep them only as fallback if props absent to avoid breaking other callers). Renders synchronously so SSR HTML contains full content for crawlers.
-- Add JSON-LD `ItemList` on the news index route.
-
-## 4. Events calendar page
-
-- New public route `src/routes/events.tsx`:
-  - Loader fetches published events (`status='published'`) ordered by `starts_at`, split into upcoming vs past.
-  - `head()` with SEO metadata.
-  - New `EventsCalendarView` component with:
-    - Month-grid calendar (shadcn `Calendar` with `pointer-events-auto`) highlighting event dates.
-    - Upcoming list (date, time, location, cover image, description, RSVP link where present).
-    - Past events collapsed section.
-    - Filter chips (Fundraiser / Awareness / Community) using event tags — add optional `category` column? No — reuse `description` prefix or existing tags on `events`. If `events` lacks a category column, add a nullable `category text` in migration.
-  - JSON-LD `Event` array for SEO.
-- New `src/routes/events.$slug.tsx` detail page with per-event `head()` (title, description, og:image = cover_image) and JSON-LD `Event`.
-- Add "Events" link to `Navbar`; update `sitemap.xml` and `rss.xml` to include events routes.
-- Update `NewsView` events tab to link into the new `/events` pages instead of rendering inline.
-
-## Technical notes
-
-- All new server fns follow `createServerFn` pattern; admin ones use `requireAdmin`.
-- Turnstile verification and Supabase writes happen inside the handler; `supabaseAdmin` imported dynamically.
-- No changes to auto-generated files (`client.ts`, `types.ts` regenerated by migration tool).
-- Rate limiter reuses existing `enforceRateLimit` + `check_rate_limit` RPC.
-- Migration order per project rules: CREATE TABLE → GRANT → ENABLE RLS → CREATE POLICY.
-
-## Files touched
-
-Created:
-- `supabase/migrations/<ts>_admin_access_log_and_events_category.sql`
-- `src/lib/adminAccessLog.functions.ts`
-- `src/lib/contact.functions.ts`
-- `src/routes/contact.tsx`
-- `src/routes/events.tsx`, `src/routes/events.$slug.tsx`
-- `src/ported/components/views/ContactView.tsx`
-- `src/ported/components/views/EventsCalendarView.tsx`
-- `src/ported/components/admin/AccessLogViewer.tsx`
-
-Edited:
-- `src/integrations/supabase/admin-middleware.ts` (audit insert)
-- `src/routes/news.tsx`, `src/routes/news.$slug.tsx`, `src/routes/news.archive.tsx` (SSR loaders)
-- `src/ported/components/views/NewsView.tsx` (accept props, drop client fetch)
-- `src/ported/components/Navbar.tsx`, `Footer.tsx` (Contact + Events links)
-- `src/ported/components/views/AdminDashboardView.tsx` (Access Log tab)
-- `src/routes/sitemap[.]xml.ts`, `src/routes/rss[.]xml.ts` (events entries)
-
-Secrets to request: `TURNSTILE_SECRET_KEY`, `VITE_TURNSTILE_SITE_KEY`.
+### Technical notes
+- No schema changes. `event_rsvps` already stores name/email/phone/event_title/event_external_id.
+- Rate limiting already enforced in the existing server function (10/hour).
+- Uses existing email queue infrastructure; no new routes or migrations.
