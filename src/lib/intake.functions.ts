@@ -88,17 +88,57 @@ export const submitEventRsvp = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     await enforceRateLimit({ bucket: "event-rsvp", max: 10, windowSeconds: 3600 });
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { error } = await supabaseAdmin.from("event_rsvps").insert({
-      event_external_id: data.eventExternalId,
-      event_title: data.eventTitle,
-      full_name: data.fullName,
-      email: data.email,
-      phone: data.phone,
-    });
-    if (error) {
+    const { data: inserted, error } = await supabaseAdmin
+      .from("event_rsvps")
+      .insert({
+        event_external_id: data.eventExternalId,
+        event_title: data.eventTitle,
+        full_name: data.fullName,
+        email: data.email,
+        phone: data.phone,
+      })
+      .select("id")
+      .single();
+    if (error || !inserted) {
       console.error("[submitEventRsvp]", error);
       throw new Error("Unable to record your RSVP. Please try again later.");
     }
+
+    // Look up event details for the confirmation email (best-effort).
+    let eventDate: string | null = null;
+    let eventLocation: string | null = null;
+    if (data.eventExternalId) {
+      const { data: ev } = await supabaseAdmin
+        .from("events")
+        .select("starts_at, location")
+        .eq("id", data.eventExternalId)
+        .maybeSingle();
+      if (ev?.starts_at) {
+        eventDate = new Date(ev.starts_at).toLocaleString(undefined, {
+          weekday: "long",
+          month: "long",
+          day: "numeric",
+          year: "numeric",
+          hour: "numeric",
+          minute: "2-digit",
+        });
+      }
+      eventLocation = ev?.location ?? null;
+    }
+
+    const { enqueueTransactionalEmail } = await import("@/lib/email/queue.server");
+    await enqueueTransactionalEmail({
+      templateName: "event-rsvp-confirmation",
+      recipientEmail: data.email,
+      idempotencyKey: `event-rsvp-${inserted.id}`,
+      templateData: {
+        fullName: data.fullName,
+        eventTitle: data.eventTitle,
+        eventDate,
+        eventLocation,
+      },
+    }).catch((e) => console.error("[event-rsvp-confirmation email]", e));
+
     return { ok: true };
   });
 
