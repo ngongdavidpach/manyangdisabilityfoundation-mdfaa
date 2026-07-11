@@ -152,8 +152,18 @@ export const StaffLoginView: React.FC = () => {
             type="button"
             onClick={async () => {
               setError("");
+              // Preserve the intended post-login destination (e.g. the OAuth
+              // consent URL) across the social round-trip by encoding it into
+              // the redirect_uri as a same-origin ?redirect= param.
+              const next =
+                search.redirect && search.redirect.startsWith("/") && !search.redirect.startsWith("//")
+                  ? search.redirect
+                  : null;
+              const redirectUri = next
+                ? `${window.location.origin}/admin?redirect=${encodeURIComponent(next)}`
+                : window.location.origin;
               const result = await lovable.auth.signInWithOAuth("apple", {
-                redirect_uri: window.location.origin,
+                redirect_uri: redirectUri,
               });
               if (result.error) {
                 setError("Apple sign-in failed. Please try again.");
