@@ -107,3 +107,33 @@ export const getPublishedArticle = createServerFn({ method: "GET" })
       return null;
     }
   });
+
+export type PublicFaq = { question: string; answer: string; category?: string };
+
+export const getPublicAboutFaqs = createServerFn({ method: "GET" }).handler(
+  async (): Promise<PublicFaq[]> => {
+    try {
+      const client = server();
+      const { data: row } = await client
+        .from("page_settings")
+        .select("content, published")
+        .eq("page_key", "about")
+        .maybeSingle();
+      if (!row || !(row as { published?: boolean }).published) return [];
+      const content = (row as { content?: { faqs?: unknown } }).content;
+      const faqs = Array.isArray(content?.faqs) ? content!.faqs : [];
+      return (faqs as PublicFaq[])
+        .filter(
+          (f) =>
+            f &&
+            typeof f.question === "string" &&
+            typeof f.answer === "string" &&
+            f.question.trim() &&
+            f.answer.trim(),
+        )
+        .map((f) => ({ question: f.question, answer: f.answer }));
+    } catch {
+      return [];
+    }
+  },
+);

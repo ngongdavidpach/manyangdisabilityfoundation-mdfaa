@@ -4,7 +4,7 @@ import { useFoundationInfo } from "../ported/hooks/useFoundationInfo";
 export const Route = createFileRoute("/guides/donate-supplies")({
   head: () => ({
     meta: [
-      { title: "Where to Donate Used Medical Equipment — Manyang Disability Foundation" },
+      { title: "Where to Donate Used Medical Equipment — MDF" },
       {
         name: "description",
         content:

@@ -4,10 +4,7 @@ import { useFoundationInfo } from "../ported/hooks/useFoundationInfo";
 export const Route = createFileRoute("/guides/free-medical-equipment")({
   head: () => ({
     meta: [
-      {
-        title:
-          "How to Access Free Mobility Aids & Medical Equipment — Manyang Disability Foundation",
-      },
+      { title: "Free Mobility Aids & Medical Equipment Guide — MDF" },
       {
         name: "description",
         content:

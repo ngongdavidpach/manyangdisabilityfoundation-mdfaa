@@ -40,7 +40,7 @@ const FAQS: { q: string; a: string }[] = [
 export const Route = createFileRoute("/guides/mobility-aid-grants")({
   head: () => ({
     meta: [
-      { title: "Mobility Aid Grants: Eligibility & How to Apply — Manyang Disability Foundation" },
+      { title: "Mobility Aid Grants: Eligibility & How to Apply — MDF" },
       {
         name: "description",
         content:
