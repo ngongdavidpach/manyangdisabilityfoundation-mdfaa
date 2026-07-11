@@ -41,6 +41,7 @@ import { Route as Char91DotwellKnownChar93OauthProtectedResourceRouteImport } fr
 import { Route as Char91DotmcpChar93ListToolsRouteImport } from './routes/[.mcp]/list-tools'
 import { Route as LovableEmailSuppressionRouteImport } from './routes/lovable/email/suppression'
 import { Route as Char91DotmcpChar93InvokeToolToolRouteImport } from './routes/[.mcp]/invoke-tool/$tool'
+import { Route as DotlovableOauthConsentRouteImport } from './routes/[.]lovable.oauth.consent'
 import { Route as LovableEmailTransactionalSendRouteImport } from './routes/lovable/email/transactional/send'
 import { Route as LovableEmailTransactionalPreviewRouteImport } from './routes/lovable/email/transactional/preview'
 import { Route as LovableEmailQueueProcessRouteImport } from './routes/lovable/email/queue/process'
@@ -211,6 +212,11 @@ const Char91DotmcpChar93InvokeToolToolRoute =
     path: '/.mcp/invoke-tool/$tool',
     getParentRoute: () => rootRouteImport,
   } as any)
+const DotlovableOauthConsentRoute = DotlovableOauthConsentRouteImport.update({
+  id: '/.lovable/oauth/consent',
+  path: '/.lovable/oauth/consent',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const LovableEmailTransactionalSendRoute =
   LovableEmailTransactionalSendRouteImport.update({
     id: '/lovable/email/transactional/send',
@@ -271,6 +277,7 @@ export interface FileRoutesByFullPath {
   '/portal/coordinators': typeof PortalCoordinatorsRoute
   '/portal/fundraisers': typeof PortalFundraisersRoute
   '/programs/rss.xml': typeof ProgramsRssDotxmlRoute
+  '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
@@ -310,6 +317,7 @@ export interface FileRoutesByTo {
   '/portal/coordinators': typeof PortalCoordinatorsRoute
   '/portal/fundraisers': typeof PortalFundraisersRoute
   '/programs/rss.xml': typeof ProgramsRssDotxmlRoute
+  '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
@@ -350,6 +358,7 @@ export interface FileRoutesById {
   '/portal/coordinators': typeof PortalCoordinatorsRoute
   '/portal/fundraisers': typeof PortalFundraisersRoute
   '/programs/rss.xml': typeof ProgramsRssDotxmlRoute
+  '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
@@ -391,6 +400,7 @@ export interface FileRouteTypes {
     | '/portal/coordinators'
     | '/portal/fundraisers'
     | '/programs/rss.xml'
+    | '/.lovable/oauth/consent'
     | '/.mcp/invoke-tool/$tool'
     | '/lovable/email/suppression'
     | '/lovable/email/auth/preview'
@@ -430,6 +440,7 @@ export interface FileRouteTypes {
     | '/portal/coordinators'
     | '/portal/fundraisers'
     | '/programs/rss.xml'
+    | '/.lovable/oauth/consent'
     | '/.mcp/invoke-tool/$tool'
     | '/lovable/email/suppression'
     | '/lovable/email/auth/preview'
@@ -469,6 +480,7 @@ export interface FileRouteTypes {
     | '/portal/coordinators'
     | '/portal/fundraisers'
     | '/programs/rss.xml'
+    | '/.lovable/oauth/consent'
     | '/.mcp/invoke-tool/$tool'
     | '/lovable/email/suppression'
     | '/lovable/email/auth/preview'
@@ -505,6 +517,7 @@ export interface RootRouteChildren {
   GuidesMobilityAidGrantsRoute: typeof GuidesMobilityAidGrantsRoute
   PortalCoordinatorsRoute: typeof PortalCoordinatorsRoute
   PortalFundraisersRoute: typeof PortalFundraisersRoute
+  DotlovableOauthConsentRoute: typeof DotlovableOauthConsentRoute
   Char91DotmcpChar93InvokeToolToolRoute: typeof Char91DotmcpChar93InvokeToolToolRoute
   LovableEmailSuppressionRoute: typeof LovableEmailSuppressionRoute
   LovableEmailAuthPreviewRoute: typeof LovableEmailAuthPreviewRoute
@@ -740,6 +753,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof Char91DotmcpChar93InvokeToolToolRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/.lovable/oauth/consent': {
+      id: '/.lovable/oauth/consent'
+      path: '/.lovable/oauth/consent'
+      fullPath: '/.lovable/oauth/consent'
+      preLoaderRoute: typeof DotlovableOauthConsentRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/lovable/email/transactional/send': {
       id: '/lovable/email/transactional/send'
       path: '/lovable/email/transactional/send'
@@ -841,6 +861,7 @@ const rootRouteChildren: RootRouteChildren = {
   GuidesMobilityAidGrantsRoute: GuidesMobilityAidGrantsRoute,
   PortalCoordinatorsRoute: PortalCoordinatorsRoute,
   PortalFundraisersRoute: PortalFundraisersRoute,
+  DotlovableOauthConsentRoute: DotlovableOauthConsentRoute,
   Char91DotmcpChar93InvokeToolToolRoute: Char91DotmcpChar93InvokeToolToolRoute,
   LovableEmailSuppressionRoute: LovableEmailSuppressionRoute,
   LovableEmailAuthPreviewRoute: LovableEmailAuthPreviewRoute,
