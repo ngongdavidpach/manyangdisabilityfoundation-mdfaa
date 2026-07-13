@@ -233,7 +233,8 @@ export const Navbar: React.FC = () => {
       </div>
 
       {mobileMenuOpen && (
-        <div className="lg:hidden border-t border-slate-200 bg-white animate-fade-in">
+        <div className="border-t border-slate-200 bg-white animate-fade-in">
+
           <div className="px-4 pt-2 pb-6 space-y-1">
             {isAuthenticated && user && (
               <div className="flex items-center gap-3 p-3 bg-slate-50 rounded-xl mb-2">
