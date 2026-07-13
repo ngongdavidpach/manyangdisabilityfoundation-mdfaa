@@ -127,26 +127,6 @@ export const Navbar: React.FC = () => {
             />
           </Link>
 
-          <nav className="hidden lg:flex items-center gap-1 xl:gap-2">
-            {navLinks.map((link) => {
-              const Icon = link.icon;
-              const isActive = isLinkActive(link);
-              return (
-                <button
-                  key={link.id}
-                  onClick={() => handleNavClick(link)}
-                  className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-all ${
-                    isActive
-                      ? "bg-blue-50 text-blue-700 font-semibold"
-                      : "text-slate-600 hover:text-blue-600 hover:bg-slate-50"
-                  }`}
-                >
-                  <Icon className={`w-4 h-4 ${isActive ? "text-blue-600" : "text-slate-500"}`} />
-                  <span>{link.label}</span>
-                </button>
-              );
-            })}
-          </nav>
 
           <div className="hidden sm:flex items-center gap-2">
             <Link
@@ -217,7 +197,16 @@ export const Navbar: React.FC = () => {
                 )}
               </div>
             ) : null}
+            <button
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="p-2 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-100 focus:outline-hidden"
+              aria-label="Toggle menu"
+              aria-expanded={mobileMenuOpen}
+            >
+              {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            </button>
           </div>
+
 
 
           <div className="flex items-center gap-2 sm:hidden">
@@ -244,7 +233,8 @@ export const Navbar: React.FC = () => {
       </div>
 
       {mobileMenuOpen && (
-        <div className="lg:hidden border-t border-slate-200 bg-white animate-fade-in">
+        <div className="border-t border-slate-200 bg-white animate-fade-in">
+
           <div className="px-4 pt-2 pb-6 space-y-1">
             {isAuthenticated && user && (
               <div className="flex items-center gap-3 p-3 bg-slate-50 rounded-xl mb-2">
