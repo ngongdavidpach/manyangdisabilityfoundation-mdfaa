@@ -127,26 +127,6 @@ export const Navbar: React.FC = () => {
             />
           </Link>
 
-          <nav className="hidden lg:flex items-center gap-1 xl:gap-2">
-            {navLinks.map((link) => {
-              const Icon = link.icon;
-              const isActive = isLinkActive(link);
-              return (
-                <button
-                  key={link.id}
-                  onClick={() => handleNavClick(link)}
-                  className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-all ${
-                    isActive
-                      ? "bg-blue-50 text-blue-700 font-semibold"
-                      : "text-slate-600 hover:text-blue-600 hover:bg-slate-50"
-                  }`}
-                >
-                  <Icon className={`w-4 h-4 ${isActive ? "text-blue-600" : "text-slate-500"}`} />
-                  <span>{link.label}</span>
-                </button>
-              );
-            })}
-          </nav>
 
           <div className="hidden sm:flex items-center gap-2">
             <Link
