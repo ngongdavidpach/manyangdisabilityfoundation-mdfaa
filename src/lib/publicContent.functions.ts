@@ -110,6 +110,21 @@ export const getPublishedArticle = createServerFn({ method: "GET" })
 
 export type PublicFaq = { question: string; answer: string; category?: string };
 
+export type AboutStructuredData = {
+  orgName?: string;
+  orgUrl?: string;
+  orgLogo?: string;
+  orgDescription?: string;
+  orgSameAs?: string;
+};
+
+export type ProgramsStructuredData = {
+  name?: string;
+  description?: string;
+  url?: string;
+  topics?: string;
+};
+
 export const getPublicAboutFaqs = createServerFn({ method: "GET" }).handler(
   async (): Promise<PublicFaq[]> => {
     try {
@@ -137,3 +152,29 @@ export const getPublicAboutFaqs = createServerFn({ method: "GET" }).handler(
     }
   },
 );
+
+async function readPageStructured<T>(pageKey: string): Promise<T | null> {
+  try {
+    const client = server();
+    const { data: row } = await client
+      .from("page_settings")
+      .select("content, published")
+      .eq("page_key", pageKey)
+      .maybeSingle();
+    if (!row || !(row as { published?: boolean }).published) return null;
+    const content = (row as { content?: { structuredData?: T } }).content;
+    return (content?.structuredData ?? null) as T | null;
+  } catch {
+    return null;
+  }
+}
+
+export const getAboutStructuredData = createServerFn({ method: "GET" }).handler(
+  async (): Promise<AboutStructuredData | null> => readPageStructured<AboutStructuredData>("about"),
+);
+
+export const getProgramsStructuredData = createServerFn({ method: "GET" }).handler(
+  async (): Promise<ProgramsStructuredData | null> =>
+    readPageStructured<ProgramsStructuredData>("programs"),
+);
+
