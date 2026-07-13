@@ -1,23 +1,41 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { AboutView } from "../ported/components/views/AboutView";
-import { getPublicAboutFaqs } from "../lib/publicContent.functions";
+import {
+  getPublicAboutFaqs,
+  getAboutStructuredData,
+} from "../lib/publicContent.functions";
 
 export const Route = createFileRoute("/about")({
-  loader: async () => ({ faqs: await getPublicAboutFaqs() }),
+  loader: async () => ({
+    faqs: await getPublicAboutFaqs(),
+    structured: await getAboutStructuredData(),
+  }),
   head: ({ loaderData }) => {
     const faqs = loaderData?.faqs ?? [];
+    const sd = loaderData?.structured ?? null;
+    const orgName = sd?.orgName?.trim() || "Manyang Disability Foundation";
+    const orgUrl = sd?.orgUrl?.trim() || "https://manyangdisabilityfoundation.org/";
+    const orgLogo =
+      sd?.orgLogo?.trim() || "https://manyangdisabilityfoundation.org/images/logo.png";
+    const orgDescription =
+      sd?.orgDescription?.trim() ||
+      "Manyang Disability Foundation supports persons with disabilities through mobility aids, healthcare access, inclusive education, and sustainable livelihoods.";
+    const sameAs = (sd?.orgSameAs || "https://manyangdisabilityfoundation.lovable.app")
+      .split(/[\n,]/)
+      .map((s) => s.trim())
+      .filter(Boolean);
+
     const scripts: Array<{ type: string; children: string }> = [
       {
         type: "application/ld+json",
         children: JSON.stringify({
           "@context": "https://schema.org",
           "@type": "Organization",
-          name: "Manyang Disability Foundation",
-          url: "https://manyangdisabilityfoundation.org/",
-          logo: "https://manyangdisabilityfoundation.org/images/logo.png",
-          description:
-            "Manyang Disability Foundation supports persons with disabilities through mobility aids, healthcare access, inclusive education, and sustainable livelihoods.",
-          sameAs: ["https://manyangdisabilityfoundation.lovable.app"],
+          name: orgName,
+          url: orgUrl,
+          logo: orgLogo,
+          description: orgDescription,
+          ...(sameAs.length ? { sameAs } : {}),
         }),
       },
     ];

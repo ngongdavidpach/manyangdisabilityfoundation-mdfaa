@@ -1,5 +1,4 @@
 import { supabase } from "@/integrations/supabase/client";
-import { optimizeImage } from "./imageOptimize";
 
 export const BUCKET = "site-images";
 
@@ -10,25 +9,36 @@ export async function signedUrlFor(path: string, expiresIn = 60 * 60 * 24 * 365)
   return data.signedUrl;
 }
 
+async function readImageDimensions(file: File): Promise<{ width: number; height: number }> {
+  try {
+    const bitmap = await createImageBitmap(file);
+    const dims = { width: bitmap.width, height: bitmap.height };
+    bitmap.close?.();
+    return dims;
+  } catch {
+    return { width: 0, height: 0 };
+  }
+}
+
 export async function uploadImage(file: File, folder = "uploads", alt = "", tags: string[] = []) {
-  const optimized = await optimizeImage(file);
-  const ext = "webp";
+  const ext = (file.name.split(".").pop() || "bin").toLowerCase();
   const path = `${folder}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
   const { error: upErr } = await supabase.storage
     .from(BUCKET)
-    .upload(path, optimized.blob, { contentType: optimized.mime, cacheControl: "31536000" });
+    .upload(path, file, { contentType: file.type || "application/octet-stream", cacheControl: "31536000" });
   if (upErr) throw upErr;
   const url = await signedUrlFor(path);
+  const { width, height } = await readImageDimensions(file);
   const { data: row, error: dbErr } = await supabase
     .from("media_assets")
     .insert({
       storage_path: path,
       url,
       alt,
-      width: optimized.width,
-      height: optimized.height,
-      size_bytes: optimized.size,
-      mime_type: optimized.mime,
+      width,
+      height,
+      size_bytes: file.size,
+      mime_type: file.type || "application/octet-stream",
       tags,
     })
     .select()
