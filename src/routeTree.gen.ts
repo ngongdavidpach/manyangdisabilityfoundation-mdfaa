@@ -28,6 +28,7 @@ import { Route as AdminRouteImport } from './routes/admin'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ProgramsRssDotxmlRouteImport } from './routes/programs.rss[.]xml'
+import { Route as PrivacyEmailsRouteImport } from './routes/privacy.emails'
 import { Route as PortalFundraisersRouteImport } from './routes/portal.fundraisers'
 import { Route as PortalCoordinatorsRouteImport } from './routes/portal.coordinators'
 import { Route as NewsArchiveRouteImport } from './routes/news.archive'
@@ -149,6 +150,11 @@ const ProgramsRssDotxmlRoute = ProgramsRssDotxmlRouteImport.update({
   id: '/rss.xml',
   path: '/rss.xml',
   getParentRoute: () => ProgramsRoute,
+} as any)
+const PrivacyEmailsRoute = PrivacyEmailsRouteImport.update({
+  id: '/emails',
+  path: '/emails',
+  getParentRoute: () => PrivacyRoute,
 } as any)
 const PortalFundraisersRoute = PortalFundraisersRouteImport.update({
   id: '/portal/fundraisers',
@@ -302,7 +308,7 @@ export interface FileRoutesByFullPath {
   '/get-involved': typeof GetInvolvedRoute
   '/mcp': typeof McpRoute
   '/news': typeof NewsRouteWithChildren
-  '/privacy': typeof PrivacyRoute
+  '/privacy': typeof PrivacyRouteWithChildren
   '/programs': typeof ProgramsRouteWithChildren
   '/request': typeof RequestRoute
   '/rss.xml': typeof RssDotxmlRoute
@@ -325,6 +331,7 @@ export interface FileRoutesByFullPath {
   '/news/archive': typeof NewsArchiveRoute
   '/portal/coordinators': typeof PortalCoordinatorsRoute
   '/portal/fundraisers': typeof PortalFundraisersRoute
+  '/privacy/emails': typeof PrivacyEmailsRoute
   '/programs/rss.xml': typeof ProgramsRssDotxmlRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
@@ -349,7 +356,7 @@ export interface FileRoutesByTo {
   '/get-involved': typeof GetInvolvedRoute
   '/mcp': typeof McpRoute
   '/news': typeof NewsRouteWithChildren
-  '/privacy': typeof PrivacyRoute
+  '/privacy': typeof PrivacyRouteWithChildren
   '/programs': typeof ProgramsRouteWithChildren
   '/request': typeof RequestRoute
   '/rss.xml': typeof RssDotxmlRoute
@@ -372,6 +379,7 @@ export interface FileRoutesByTo {
   '/news/archive': typeof NewsArchiveRoute
   '/portal/coordinators': typeof PortalCoordinatorsRoute
   '/portal/fundraisers': typeof PortalFundraisersRoute
+  '/privacy/emails': typeof PrivacyEmailsRoute
   '/programs/rss.xml': typeof ProgramsRssDotxmlRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
@@ -397,7 +405,7 @@ export interface FileRoutesById {
   '/get-involved': typeof GetInvolvedRoute
   '/mcp': typeof McpRoute
   '/news': typeof NewsRouteWithChildren
-  '/privacy': typeof PrivacyRoute
+  '/privacy': typeof PrivacyRouteWithChildren
   '/programs': typeof ProgramsRouteWithChildren
   '/request': typeof RequestRoute
   '/rss.xml': typeof RssDotxmlRoute
@@ -420,6 +428,7 @@ export interface FileRoutesById {
   '/news/archive': typeof NewsArchiveRoute
   '/portal/coordinators': typeof PortalCoordinatorsRoute
   '/portal/fundraisers': typeof PortalFundraisersRoute
+  '/privacy/emails': typeof PrivacyEmailsRoute
   '/programs/rss.xml': typeof ProgramsRssDotxmlRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
@@ -469,6 +478,7 @@ export interface FileRouteTypes {
     | '/news/archive'
     | '/portal/coordinators'
     | '/portal/fundraisers'
+    | '/privacy/emails'
     | '/programs/rss.xml'
     | '/.lovable/oauth/consent'
     | '/.mcp/invoke-tool/$tool'
@@ -516,6 +526,7 @@ export interface FileRouteTypes {
     | '/news/archive'
     | '/portal/coordinators'
     | '/portal/fundraisers'
+    | '/privacy/emails'
     | '/programs/rss.xml'
     | '/.lovable/oauth/consent'
     | '/.mcp/invoke-tool/$tool'
@@ -563,6 +574,7 @@ export interface FileRouteTypes {
     | '/news/archive'
     | '/portal/coordinators'
     | '/portal/fundraisers'
+    | '/privacy/emails'
     | '/programs/rss.xml'
     | '/.lovable/oauth/consent'
     | '/.mcp/invoke-tool/$tool'
@@ -588,7 +600,7 @@ export interface RootRouteChildren {
   GetInvolvedRoute: typeof GetInvolvedRoute
   McpRoute: typeof McpRoute
   NewsRoute: typeof NewsRouteWithChildren
-  PrivacyRoute: typeof PrivacyRoute
+  PrivacyRoute: typeof PrivacyRouteWithChildren
   ProgramsRoute: typeof ProgramsRouteWithChildren
   RequestRoute: typeof RequestRoute
   RssDotxmlRoute: typeof RssDotxmlRoute
@@ -753,6 +765,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/programs/rss.xml'
       preLoaderRoute: typeof ProgramsRssDotxmlRouteImport
       parentRoute: typeof ProgramsRoute
+    }
+    '/privacy/emails': {
+      id: '/privacy/emails'
+      path: '/emails'
+      fullPath: '/privacy/emails'
+      preLoaderRoute: typeof PrivacyEmailsRouteImport
+      parentRoute: typeof PrivacyRoute
     }
     '/portal/fundraisers': {
       id: '/portal/fundraisers'
@@ -962,6 +981,17 @@ const NewsRouteChildren: NewsRouteChildren = {
 
 const NewsRouteWithChildren = NewsRoute._addFileChildren(NewsRouteChildren)
 
+interface PrivacyRouteChildren {
+  PrivacyEmailsRoute: typeof PrivacyEmailsRoute
+}
+
+const PrivacyRouteChildren: PrivacyRouteChildren = {
+  PrivacyEmailsRoute: PrivacyEmailsRoute,
+}
+
+const PrivacyRouteWithChildren =
+  PrivacyRoute._addFileChildren(PrivacyRouteChildren)
+
 interface ProgramsRouteChildren {
   ProgramsRssDotxmlRoute: typeof ProgramsRssDotxmlRoute
 }
@@ -987,7 +1017,7 @@ const rootRouteChildren: RootRouteChildren = {
   GetInvolvedRoute: GetInvolvedRoute,
   McpRoute: McpRoute,
   NewsRoute: NewsRouteWithChildren,
-  PrivacyRoute: PrivacyRoute,
+  PrivacyRoute: PrivacyRouteWithChildren,
   ProgramsRoute: ProgramsRouteWithChildren,
   RequestRoute: RequestRoute,
   RssDotxmlRoute: RssDotxmlRoute,
