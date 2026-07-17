@@ -313,6 +313,18 @@ export const AdminDashboard: React.FC = () => {
             >
               <LogOut className="w-[18px] h-[18px]" /> Sign out
             </button>
+            <button
+              onClick={() => navigate({ to: "/auth/change-password" })}
+              className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-xs font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-700 transition-colors"
+            >
+              Change password
+            </button>
+            <button
+              onClick={() => navigate({ to: "/auth/delete-account" })}
+              className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-xs font-medium text-red-600 hover:bg-red-50 transition-colors"
+            >
+              Delete account
+            </button>
           </nav>
         </aside>
 
