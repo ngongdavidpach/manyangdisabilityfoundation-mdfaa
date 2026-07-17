@@ -1,13 +1,8 @@
 import { createServerFn } from "@tanstack/react-start";
-import { setResponseStatus } from "@tanstack/react-start/server";
 import { z } from "zod";
 import { createClient } from "@supabase/supabase-js";
-import {
-  enforceRateLimit,
-  enforceRateLimits,
-  RATE_LIMIT_MESSAGE,
-} from "@/lib/rateLimit.server";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { RATE_LIMIT_MESSAGE } from "@/lib/rateLimit.constants";
 
 export { RATE_LIMIT_MESSAGE };
 
@@ -60,6 +55,8 @@ const EmailSchema = z.object({
 export const requestPasswordReset = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) => EmailSchema.parse(input))
   .handler(async ({ data }) => {
+    const { enforceRateLimits } = await import("@/lib/rateLimit.server");
+    const { setResponseStatus } = await import("@tanstack/react-start/server");
     try {
       await enforceRateLimits([
         { bucket: "password-reset:email", key: data.email, max: 3, windowSeconds: 600 },
@@ -96,6 +93,8 @@ const CompleteResetSchema = z.object({
 export const completePasswordReset = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) => CompleteResetSchema.parse(input))
   .handler(async ({ data }) => {
+    const { enforceRateLimit, enforceRateLimits } = await import("@/lib/rateLimit.server");
+    const { setResponseStatus } = await import("@tanstack/react-start/server");
     try {
       await enforceRateLimits([
         { bucket: "password-reset-complete:ip", max: 20, windowSeconds: 3600 },
@@ -165,6 +164,8 @@ export const changePassword = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) => ChangePasswordSchema.parse(input))
   .handler(async ({ data, context }) => {
+    const { enforceRateLimits } = await import("@/lib/rateLimit.server");
+    const { setResponseStatus } = await import("@tanstack/react-start/server");
     const userId = context.userId;
     try {
       await enforceRateLimits([
@@ -201,7 +202,6 @@ export const changePassword = createServerFn({ method: "POST" })
     if (signInError) {
       return { ok: false as const, reason: "wrong_current" as const };
     }
-    // Clean up the scratch session
     try {
       await verifier.auth.signOut();
     } catch {
@@ -214,6 +214,94 @@ export const changePassword = createServerFn({ method: "POST" })
     });
     if (updErr) {
       return { ok: false as const, reason: "update_failed" as const, message: updErr.message };
+    }
+
+    return { ok: true as const };
+  });
+
+const DeleteAccountSchema = z.object({
+  currentPassword: z.string().min(1).max(200),
+  confirmEmail: z.string().trim().toLowerCase().email().max(255),
+});
+
+/**
+ * Protected server function: permanently delete the signed-in user's account.
+ * Requires the current password and a matching email confirmation. Refuses
+ * to delete the last remaining admin so the org can't get locked out.
+ * FK cascades on profiles / user_roles clean up linked rows.
+ */
+export const deleteAccount = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) => DeleteAccountSchema.parse(input))
+  .handler(async ({ data, context }) => {
+    const { enforceRateLimits } = await import("@/lib/rateLimit.server");
+    const { setResponseStatus } = await import("@tanstack/react-start/server");
+    const userId = context.userId;
+    try {
+      await enforceRateLimits([
+        { bucket: "delete-account:user", key: userId, max: 5, windowSeconds: 900 },
+        { bucket: "delete-account:ip", max: 10, windowSeconds: 3600 },
+      ]);
+    } catch {
+      setResponseStatus(429);
+      return { ok: false as const, reason: "rate_limited" as const, message: RATE_LIMIT_MESSAGE };
+    }
+
+    const { data: userData, error: userErr } = await context.supabase.auth.getUser();
+    const email = userData?.user?.email;
+    if (userErr || !email) {
+      return { ok: false as const, reason: "unauthenticated" as const };
+    }
+
+    if (data.confirmEmail !== email.toLowerCase()) {
+      return { ok: false as const, reason: "wrong_email" as const };
+    }
+
+    // Re-authenticate to confirm password
+    const verifier = makePublishableClient();
+    const { error: signInError } = await verifier.auth.signInWithPassword({
+      email,
+      password: data.currentPassword,
+    });
+    if (signInError) {
+      return { ok: false as const, reason: "wrong_password" as const };
+    }
+    try {
+      await verifier.auth.signOut();
+    } catch {
+      /* ignore */
+    }
+
+    // Prevent deleting the last remaining admin
+    const isAdminRes = await context.supabase
+      .from("user_roles")
+      .select("user_id")
+      .eq("user_id", userId)
+      .eq("role", "admin")
+      .maybeSingle();
+
+    if (isAdminRes.data) {
+      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+      const { count, error: countErr } = await supabaseAdmin
+        .from("user_roles")
+        .select("user_id", { count: "exact", head: true })
+        .eq("role", "admin");
+      if (countErr) {
+        return {
+          ok: false as const,
+          reason: "check_failed" as const,
+          message: "Could not verify account role. Please try again.",
+        };
+      }
+      if ((count ?? 0) <= 1) {
+        return { ok: false as const, reason: "last_admin" as const };
+      }
+    }
+
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { error: delErr } = await supabaseAdmin.auth.admin.deleteUser(userId);
+    if (delErr) {
+      return { ok: false as const, reason: "delete_failed" as const, message: delErr.message };
     }
 
     return { ok: true as const };
