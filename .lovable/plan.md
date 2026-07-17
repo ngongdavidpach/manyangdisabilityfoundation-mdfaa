@@ -1,76 +1,56 @@
-## Goals
+## 1. Fix the build error (client bundle pulled server-only imports)
 
-Tighten accessibility, UX, and server-side enforcement on the password reset / change flow.
+The last change made `auth.functions.ts` reach `rateLimit.server.ts` and `@tanstack/react-start/server` **at the module top level**. The `.functions.ts` splitter only strips `.handler()` bodies, not top-level imports, so the client graph now hits `getRequestIP` in a `.server.ts` file and the import-protection plugin fails the build.
 
-## 1. Accessible ARIA feedback (`PasswordFields.tsx`)
+Fix (surgical, no behavior change):
 
-- Wrap the strength meter in `role="progressbar"` with `aria-valuemin=0`, `aria-valuemax=5`, `aria-valuenow={score}`, `aria-valuetext={label}`, and `aria-label="Password strength"`.
-- Wrap the strength label + rule checklist in a single `role="status"` `aria-live="polite"` `aria-atomic="false"` region so SR users hear rule flips as they type (debounced by React re-render only).
-- Give each rule `<li>` a stable `id` and set `aria-label="{rule label}: {met|not met}"`; icon becomes `aria-hidden`.
-- Add a live region under the confirm field (`role="status"` `aria-live="polite"`) that renders the match/mismatch sentence, so screen readers announce match state changes without moving focus.
-- Ensure the input keeps `aria-describedby` pointing to both the requirements list and the confirm-status region.
+- Create `src/lib/rateLimit.constants.ts` — a client-safe module exporting `RATE_LIMIT_MESSAGE`. Both `rateLimit.server.ts` and `auth.functions.ts` import it from there; the three route files also import `RATE_LIMIT_MESSAGE` from this constants file instead of re-exporting through `auth.functions.ts`.
+- In `src/lib/auth.functions.ts`, drop the top-level imports of `@/lib/rateLimit.server` and `@tanstack/react-start/server`. Load them via `await import(...)` **inside each handler**, matching the pattern already used for `@/integrations/supabase/client.server`. Keep `requireSupabaseAuth` at top level (integration file is client-safe by design).
+- Leave `rateLimit.server.ts` unchanged.
 
-## 2. Show/hide + live match feedback
+Verify with `bun run build:dev`.
 
-- Split the visibility toggle into two independent buttons — one on the new-password field, one on the confirm field — each with `aria-pressed` and `aria-label` reflecting current state ("Show password" / "Hide password").
-- On `auth.change-password.tsx`, keep the existing Current Password toggle but rewrite its `aria-label` the same way and add `aria-pressed`.
-- Match/mismatch is already computed; add it as a live-region announcement (see §1) and make it visible on every keystroke after the user has typed at least one char in confirm (drop the "touched" gate so feedback is immediate — the CTA remains disabled while invalid, so users aren't punished).
+## 2. Delete account feature
 
-## 3. Server-side password strength enforcement
+### Route
 
-Currently `supabase.auth.updateUser({ password })` is called from the browser, so client validation can be bypassed. Move the write behind two new server functions in `src/lib/auth.functions.ts` that share one Zod strength schema:
+New authenticated page `src/routes/auth.delete-account.tsx`:
+- Shows the signed-in email.
+- Warning panel listing what gets removed (profile row + linked data cascade via existing `ON DELETE CASCADE`, role assignments, and access to Lovable Cloud).
+- Requires two independent confirmations before the submit button enables:
+  1. Type the account email exactly (case-insensitive compare after trim).
+  2. Password field (current password, re-authenticated server-side).
+  3. Checkbox: "I understand this is permanent and cannot be undone."
+- Submit calls new server fn `deleteAccount`. On success: `supabase.auth.signOut({ scope: "global" })` + `queryClient.clear()` + navigate to `/` with a toast/inline "Your account has been deleted."
+- `head()` with title / description / `noindex,nofollow`, same styling shell as `auth.change-password.tsx`.
 
-```text
-StrongPasswordSchema = z.string()
-  .min(8).max(128)
-  .regex(/[A-Z]/).regex(/[a-z]/).regex(/[0-9]/).regex(/[!@#$%^&*(),.?":{}|<>]/)
-```
+### Server fn (`src/lib/auth.functions.ts`)
 
-- `completePasswordReset({ accessToken, refreshToken, newPassword })` — public server fn.
-  - Validates `newPassword` against `StrongPasswordSchema`; on failure returns `{ ok: false, reason: "weak_password", issues }`.
-  - Creates a server-scoped Supabase client (publishable key), calls `setSession({ accessToken, refreshToken })`, then `updateUser({ password })`.
-  - On expired/invalid token returns `{ ok: false, reason: "expired" | "invalid" }`.
-  - On success returns `{ ok: true }`. The route then calls `supabase.auth.signOut({ scope: "global" })` client-side.
-- `changePassword({ currentPassword, newPassword })` — protected server fn using `requireSupabaseAuth`.
-  - Validates `newPassword` with the same schema, rejects if equal to `currentPassword`.
-  - Re-authenticates via a scratch server client `signInWithPassword({ email: claims.email, password: currentPassword })` to verify current password.
-  - Uses `supabaseAdmin.auth.admin.updateUserById(userId, { password })` (loaded lazily inside the handler) after authorization succeeds.
-  - Returns `{ ok, reason?: "wrong_current" | "same_password" | "weak_password" | "rate_limited" }`.
+`deleteAccount({ currentPassword, confirmEmail })` — protected via `requireSupabaseAuth`.
+1. Rate-limit (per-user `5/900s`, per-IP `10/3600s`) via the shared helper. 429 uses `RATE_LIMIT_MESSAGE`.
+2. Read caller email via `context.supabase.auth.getUser()`; reject if missing.
+3. Verify `confirmEmail.trim().toLowerCase() === email.toLowerCase()` — reject `wrong_email` if not.
+4. Re-authenticate with a scratch publishable-key client (`signInWithPassword`) to confirm the password — reject `wrong_password` on failure. Sign the scratch session out.
+5. Guard: refuse to delete if the caller is the only remaining `admin` in `user_roles`. Query with `context.supabase` and return `last_admin` so the UI can explain. This prevents locking the org out.
+6. Lazy-import `supabaseAdmin` and call `supabaseAdmin.auth.admin.deleteUser(userId)`. FK cascades clean up `profiles` and `user_roles` (already `ON DELETE CASCADE`).
+7. Return `{ ok: true }`.
 
-Both routes are refactored to call these server fns instead of calling `supabase.auth.updateUser` directly. The client still runs its existing validation for UX; the server is now authoritative.
+### Entry points
 
-## 4. Hardened rate limiting with consistent 429 messaging
+- Add a small "Danger zone" section to `src/routes/auth.change-password.tsx` with a link to `/auth/delete-account`, so users can find it from the account settings area.
+- Add a "Delete account" link under the Sign-out button in `AdminDashboardView.tsx` sidebar (line 314 area) styled as a subdued destructive link (`text-red-600`), routed to `/auth/delete-account`.
 
-Introduce a single helper in `rateLimit.server.ts`:
+### Not included
 
-```text
-const RATE_LIMIT_MESSAGE = "Too many requests. Please try again in a few minutes.";
-enforceRateLimits([...opts]) → runs every bucket, aggregates, throws Response(429) on any fail
-```
-
-Applied per endpoint:
-
-| Server fn                | Per-email                  | Per-IP                    |
-| ------------------------ | -------------------------- | ------------------------- |
-| `requestPasswordReset`   | 3 / 10 min                 | 10 / hour                 |
-| `completePasswordReset`  | (per user id) 5 / 15 min   | 20 / hour                 |
-| `changePassword`         | (per user id) 5 / 15 min   | 20 / hour                 |
-
-- Both counters are always incremented (no short-circuit), so an attacker can't probe one axis for free.
-- On limit hit, the server fn calls `setResponseStatus(429)` and returns `{ ok: false, reason: "rate_limited", message: RATE_LIMIT_MESSAGE }` — same string everywhere.
-- The three routes render `result.message` (falling back to the shared constant) whenever `reason === "rate_limited"`, so the UI copy is identical across forgot-password, reset-password resend, reset submission, and change-password.
+- No new DB tables or migrations. Cascade is already set up on `profiles` and `user_roles`.
+- No admin UI to delete other users (only self-service).
+- No 30-day soft-delete grace period — deletion is immediate via `auth.admin.deleteUser`. If the user later wants soft-delete, that's a separate change.
 
 ## Files touched
 
-- `src/ported/components/PasswordFields.tsx` — ARIA regions, per-field toggles, always-on match feedback.
-- `src/routes/auth.change-password.tsx` — call `changePassword` server fn; rewire Current Password toggle ARIA.
-- `src/routes/auth.reset-password.tsx` — call `completePasswordReset` server fn; unify 429 copy.
-- `src/routes/auth.forgot-password.tsx` — unify 429 copy via shared message.
-- `src/lib/auth.functions.ts` — add `completePasswordReset`, `changePassword`, shared `StrongPasswordSchema`, shared `RATE_LIMIT_MESSAGE`.
-- `src/lib/rateLimit.server.ts` — export `RATE_LIMIT_MESSAGE` and small `enforceRateLimits` helper that runs all buckets.
-
-## Out of scope
-
-- No DB schema changes (existing `check_rate_limit` RPC + `rate_limits` table are reused).
-- No changes to Supabase Auth project-level password policy.
-- No changes to `PasswordFields` visual design beyond adding the second toggle button.
+- `src/lib/rateLimit.constants.ts` — new, exports `RATE_LIMIT_MESSAGE`.
+- `src/lib/rateLimit.server.ts` — import the constant from the new module (re-export kept for backward compat).
+- `src/lib/auth.functions.ts` — move server-only imports inside handlers, add `deleteAccount`.
+- `src/routes/auth.change-password.tsx`, `src/routes/auth.reset-password.tsx`, `src/routes/auth.forgot-password.tsx` — import `RATE_LIMIT_MESSAGE` from the new constants module; reset-password gets a "Danger zone" link.
+- `src/routes/auth.delete-account.tsx` — new page.
+- `src/ported/components/views/AdminDashboardView.tsx` — add "Delete account" link near Sign out.
