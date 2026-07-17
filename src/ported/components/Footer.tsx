@@ -369,14 +369,15 @@ export const Footer: React.FC = () => {
             </div>
           </div>
           <div className="flex items-center justify-center md:justify-end gap-4">
-            <button onClick={() => handleLink("about")} className="hover:text-slate-300">
+            <Link to="/privacy" className="hover:text-slate-300">
               Privacy
-            </button>
+            </Link>
             <span>•</span>
             <button onClick={() => handleLink("about")} className="hover:text-slate-300">
               Governance
             </button>
           </div>
+
         </div>
       </div>
 
