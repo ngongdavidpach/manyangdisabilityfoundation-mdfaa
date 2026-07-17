@@ -358,7 +358,93 @@ function DeleteAccountRoute() {
               </button>
             </div>
 
+            {needsReauth && (
+              <section
+                role="region"
+                aria-labelledby="reauth-heading"
+                className="bg-amber-50 border border-amber-200 rounded-lg p-3 space-y-2"
+              >
+                <p
+                  id="reauth-heading"
+                  className="text-xs font-bold text-amber-900 flex items-center gap-1.5"
+                >
+                  <ShieldAlert className="w-3.5 h-3.5" aria-hidden="true" />
+                  Confirm it's you
+                </p>
+                <p className="text-[11px] text-amber-800">
+                  For your security, please re-enter your password. Account deletion
+                  requires a recent sign-in (within the last 5 minutes).
+                </p>
+                <form onSubmit={handleReauth} className="space-y-2" noValidate>
+                  <div className="relative">
+                    <span
+                      className="absolute left-3 top-2.5 text-slate-500"
+                      aria-hidden="true"
+                    >
+                      <Lock className="w-4 h-4" />
+                    </span>
+                    <input
+                      id="reauth-password"
+                      type={showReauthPassword ? "text" : "password"}
+                      required
+                      autoComplete="current-password"
+                      value={reauthPassword}
+                      onChange={(e) => setReauthPassword(e.target.value)}
+                      placeholder="Enter your password"
+                      aria-label="Password to re-verify your identity"
+                      className="w-full bg-white border border-amber-300 rounded-lg py-2.5 pl-10 pr-10 text-xs text-slate-900 focus:outline-hidden focus:border-amber-500 focus:ring-2 focus:ring-amber-100"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowReauthPassword((v) => !v)}
+                      className="absolute right-3 top-2.5 text-slate-500 hover:text-slate-700"
+                      aria-label={showReauthPassword ? "Hide password" : "Show password"}
+                      aria-pressed={showReauthPassword}
+                    >
+                      {showReauthPassword ? (
+                        <EyeOff className="w-4 h-4" aria-hidden="true" />
+                      ) : (
+                        <Eye className="w-4 h-4" aria-hidden="true" />
+                      )}
+                    </button>
+                  </div>
+                  <div aria-live="polite" className="min-h-[1rem]">
+                    {reauthError && (
+                      <p className="text-[11px] text-red-700 flex items-start gap-1">
+                        <AlertTriangle className="w-3 h-3 mt-0.5" aria-hidden="true" />
+                        <span>{reauthError}</span>
+                      </p>
+                    )}
+                  </div>
+                  <button
+                    type="submit"
+                    disabled={reauthing || reauthPassword.length === 0}
+                    className="w-full bg-amber-600 hover:bg-amber-700 disabled:bg-amber-300 disabled:cursor-not-allowed text-white font-bold py-2 rounded-md text-xs transition-colors flex items-center justify-center gap-1.5"
+                  >
+                    {reauthing ? (
+                      <>
+                        <div className="w-3.5 h-3.5 border-2 border-white/40 border-t-white rounded-full animate-spin" />
+                        <span>Verifying…</span>
+                      </>
+                    ) : (
+                      <span>Verify identity</span>
+                    )}
+                  </button>
+                </form>
+              </section>
+            )}
+            {!needsReauth && reauthMsg && (
+              <div
+                aria-live="polite"
+                className="bg-emerald-50 border border-emerald-200 text-emerald-800 text-[11px] p-2.5 rounded-lg flex items-start gap-1.5"
+              >
+                <CheckCircle2 className="w-3.5 h-3.5 mt-0.5" aria-hidden="true" />
+                <span>{reauthMsg}</span>
+              </div>
+            )}
+
             <form onSubmit={handleSubmit} className="space-y-4" noValidate>
+
               <div
                 className="bg-red-50 border border-red-200 text-red-800 text-xs p-3 rounded-lg space-y-1"
                 role="alert"
