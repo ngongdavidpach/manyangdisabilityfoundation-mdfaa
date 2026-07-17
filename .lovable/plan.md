@@ -1,34 +1,37 @@
-# Test image uploads end-to-end (no WebP re-encoding)
 
-Same plan as previously approved — re-issued unchanged for this turn.
+## Goal
 
-Goal: prove that when an admin uploads an image through the app, the exact original bytes land in `site-images` storage and are served back unchanged, with the original MIME type and extension.
+Give staff a self-service password reset flow. The recovery email template + auth webhook already exist; we just need the two public pages and a "Forgot password?" entry point on the staff sign-in screen.
 
-## What we're verifying
+## New routes (public, top-level)
 
-From `src/ported/lib/storage.ts` after the earlier refactor:
-- `uploadImage` uploads `file` directly (no `optimizeImage` step).
-- `path` keeps the original extension.
-- `contentType` is `file.type`.
-- `media_assets` row records `storage_path`, `mime_type`, `size_bytes`, and a signed URL.
+1. `src/routes/auth.forgot-password.tsx` — `/auth/forgot-password`
+   - Form with a single email field.
+   - Calls `supabase.auth.resetPasswordForEmail(email, { redirectTo: ${window.location.origin}/auth/reset-password })`.
+   - Always shows a generic success state ("If an account exists, we've sent a reset link") to avoid account enumeration. Renders errors only for network/validation failures.
+   - Link back to `/admin` (staff sign-in).
 
-## Test steps (Playwright via shell, script under `/tmp/browser/img-upload/`)
+2. `src/routes/auth.reset-password.tsx` — `/auth/reset-password`
+   - Public route (NOT under `_authenticated/`). SSR-safe: all Supabase calls in effects/handlers.
+   - On mount:
+     - Supabase auto-processes the recovery link and fires `PASSWORD_RECOVERY` via `onAuthStateChange`. Subscribe once; mark the form ready when that event fires OR when `supabase.auth.getSession()` returns a session with a user.
+     - If no recovery session is detected after a short check, show "This reset link is invalid or has expired" with a link to `/auth/forgot-password`.
+   - Form: new password + confirm password, with the existing `getPasswordStrength` helper for the strength meter.
+   - Submit calls `supabase.auth.updateUser({ password })`. On success, sign the user out (`supabase.auth.signOut()`) so they must sign in fresh with the new password, then redirect to `/admin` with a success toast/inline message.
 
-1. **Fixtures** — generate `sample.png` and `sample.jpg` with PIL under `/tmp/browser/img-upload/fixtures/`. Record SHA-256, byte length, MIME for each.
-2. **Restore admin session** — hydrate `LOVABLE_BROWSER_SUPABASE_*` cookies + `localStorage` for `http://localhost:8080`. If `LOVABLE_BROWSER_AUTH_STATUS` is not `injected`, stop and tell the user.
-3. **Drive UI** — go to `/admin`, open Gallery, set the `ImageUploader`'s file input to each fixture, wait for the spinner to clear and the preview `<img>` to receive a signed URL. Screenshot each state.
-4. **DB row check** — via PostgREST with the restored access token, query the latest `media_assets` row after each upload and assert `mime_type`, extension of `storage_path`, and `size_bytes` match the source.
-5. **Served bytes check** — fetch the signed `url`; assert `Content-Type` header, byte length, and SHA-256 of the response equal the source (definitive no-re-encoding check).
-6. **Report** — compact pass/fail table per fixture (mime, ext, size, sha), screenshots saved.
+## Entry point
+
+3. Edit `src/ported/components/views/StaffLoginView.tsx`
+   - Add a "Forgot password?" `<Link to="/auth/forgot-password">` under the password field. No other changes to the sign-in flow.
+
+## Styling / conventions
+
+- Match the visual language of `StaffLoginView` (white card, `rounded-2xl`, slate palette, lucide icons: `Mail`, `Lock`, `Eye/EyeOff`, `ShieldCheck`, `AlertTriangle`, `CheckCircle2`).
+- Each route sets its own `head()` with a real title + description; noindex both (`<meta name="robots" content="noindex" />` via head meta) since they're transactional.
+- Both route files include the required `errorComponent` / `notFoundComponent` (none of them use a loader, so no data-loader boundaries needed beyond defaults).
 
 ## Out of scope
 
-- No code changes; verification only.
-- No cleanup of uploaded rows/objects.
-- `uploadRawFile` (docs) not tested.
-
-## Deliverables
-
-- `/tmp/browser/img-upload/test.py`
-- `/tmp/browser/img-upload/screenshots/*`
-- Chat summary: PASS / FAIL per fixture.
+- Email template changes (recovery template already branded).
+- Any change to auth middleware, RLS, or the `_authenticated/` layout.
+- Public self-signup (staff accounts are still created by admins).

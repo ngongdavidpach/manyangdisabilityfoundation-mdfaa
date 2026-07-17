@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useNavigate, useSearch } from "@tanstack/react-router";
+import { Link, useNavigate, useSearch } from "@tanstack/react-router";
 import {
   Mail,
   Lock,
@@ -109,15 +109,23 @@ export const StaffLoginView: React.FC = () => {
             </div>
           </div>
 
-          <label className="inline-flex items-center gap-2 text-xs text-slate-700 cursor-pointer">
-            <input
-              type="checkbox"
-              checked={form.rememberMe}
-              onChange={(e) => setForm({ ...form, rememberMe: e.target.checked })}
-              className="rounded border-slate-300 text-blue-600 focus:ring-blue-500"
-            />
-            <span>Remember me for 30 days</span>
-          </label>
+          <div className="flex items-center justify-between">
+            <label className="inline-flex items-center gap-2 text-xs text-slate-700 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={form.rememberMe}
+                onChange={(e) => setForm({ ...form, rememberMe: e.target.checked })}
+                className="rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+              />
+              <span>Remember me for 30 days</span>
+            </label>
+            <Link
+              to="/auth/forgot-password"
+              className="text-xs text-blue-600 hover:text-blue-700 font-semibold"
+            >
+              Forgot password?
+            </Link>
+          </div>
 
           <button
             type="submit"
