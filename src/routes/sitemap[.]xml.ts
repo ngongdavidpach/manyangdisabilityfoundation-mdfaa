@@ -30,6 +30,9 @@ export const Route = createFileRoute("/sitemap.xml")({
           { path: "/csr-sponsorship", changefreq: "monthly", priority: "0.7" },
           { path: "/contact", changefreq: "monthly", priority: "0.7" },
           { path: "/events", changefreq: "weekly", priority: "0.7" },
+          { path: "/privacy", changefreq: "yearly", priority: "0.3" },
+          { path: "/privacy/emails", changefreq: "yearly", priority: "0.3" },
+
         ];
         // /portal/* routes are noindex and intentionally excluded from the sitemap.
 
