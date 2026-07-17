@@ -509,6 +509,48 @@ export type Database = {
           },
         ]
       }
+      email_preferences: {
+        Row: {
+          account: boolean
+          coordinators: boolean
+          created_at: string
+          email: string
+          events: boolean
+          fundraisers: boolean
+          id: string
+          receipts: boolean
+          unsubscribed_all: boolean
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          account?: boolean
+          coordinators?: boolean
+          created_at?: string
+          email: string
+          events?: boolean
+          fundraisers?: boolean
+          id?: string
+          receipts?: boolean
+          unsubscribed_all?: boolean
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          account?: boolean
+          coordinators?: boolean
+          created_at?: string
+          email?: string
+          events?: boolean
+          fundraisers?: boolean
+          id?: string
+          receipts?: boolean
+          unsubscribed_all?: boolean
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       email_send_log: {
         Row: {
           created_at: string
