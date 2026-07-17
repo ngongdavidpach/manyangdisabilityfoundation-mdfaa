@@ -48,6 +48,19 @@ export async function enqueueTransactionalEmail(
       .eq("email", normalizedEmail)
       .maybeSingle();
     if (suppressed) return { ok: false, reason: "suppressed" };
+
+    const { categoryForTemplate } = await import("@/lib/email/preferences");
+    const category = categoryForTemplate(opts.templateName);
+    if (category) {
+      const { data: prefs } = await supabaseAdmin
+        .from("email_preferences")
+        .select("unsubscribed_all, receipts, events, coordinators, fundraisers, account")
+        .eq("email", normalizedEmail)
+        .maybeSingle();
+      if (prefs && (prefs.unsubscribed_all || (prefs as any)[category] === false)) {
+        return { ok: false, reason: "category_opted_out" };
+      }
+    }
   }
 
   // Ensure an unsubscribe token exists

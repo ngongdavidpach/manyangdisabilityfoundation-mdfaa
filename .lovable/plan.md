@@ -1,68 +1,99 @@
-## Goal
-Publish a GDPR-aligned privacy policy for Manyang Disability Foundation, plus a linked email/communications addendum, and wire it up in the footer.
+## 1. Cookie consent banner
 
-## Sources of truth (from user)
-- **Data controller:** Manyang Disability Foundation, Australia. Reaches EU/UK users.
-- **Privacy contact:** `privacy@manyangdisabilityfoundation.org`
-- **Retention:** 1 month for contact/communications data.
-- **Emails sent:** Transactional + auth only. No marketing/newsletter.
-- **Existing site facts:** ABN 75 986 228 179; ACNC-registered; contact form at `/contact`; account deletion at `/auth/delete-account`; data export from the same page.
+New component `src/ported/components/CookieConsent.tsx`, mounted once in `__root.tsx` `ClientShell` (hidden on `/admin`).
 
-Anything outside these + observable app behaviour will NOT be claimed (no ISO/SOC 2/end-to-end encryption/breach guarantees). Page carries the trust-baseline qualifiers: "maintained by MDF", "not a certification", shared-responsibility note about the hosting platform.
+- Reads `mdf.cookieConsent` from `localStorage`. If missing, shows a fixed bottom banner.
+- Banner shows short notice + three buttons: **Accept all**, **Reject non-essential**, **Customize**.
+- **Customize** expands per-category toggles:
+  - Necessary (always on, disabled toggle) — auth/session cookies
+  - Analytics (default off) — currently unused, reserved for future
+  - Marketing (default off) — currently unused, reserved for future
+- Stores `{ necessary: true, analytics: bool, marketing: bool, updatedAt, version: 1 }` in `localStorage`.
+- Exposes a `useCookieConsent()` hook returning current prefs + `openPreferences()` to reopen the banner.
+- Footer gets a **"Cookie preferences"** link that calls `openPreferences()`.
+- Privacy policy (`/privacy`) gets a "Manage cookie preferences" link in the Cookies section.
+- No analytics/marketing scripts are currently loaded — banner only records intent for now, ready for future gating.
 
-## New routes
-1. **`src/routes/privacy.tsx`** — main privacy policy `/privacy`
-   Sections:
-   - Who we are & how to contact us (entity, ABN, ACNC, privacy@ address, /contact link).
-   - Data we collect (contact form; donations — name/email/amount; event RSVPs; volunteer/coordinator/fundraiser/aid-request submissions; staff auth account data; server logs for security).
-   - Legal bases (GDPR Art. 6): consent for contact/RSVP, contract for donations, legitimate interest for security logs, legal obligation for donation records where applicable.
-   - How we use it (respond to enquiries, process donations, coordinate programs, send transactional + auth emails only).
-   - Emails — brief, with a "Read the email addendum" link to `/privacy/emails`.
-   - Sharing / subprocessors: hosting + database + email delivery through our platform provider; payment processor for donations; no sale of personal data.
-   - International transfers: data may be processed outside the EU/UK/Australia by our providers; safeguards summarised generically.
-   - Retention: 1 month for contact-form/communications; donation records retained as required by Australian tax/charity law; auth accounts until you delete them via `/auth/delete-account` (30-day grace period).
-   - Your rights (GDPR + Australian Privacy Act): access, rectification, erasure, restriction, objection, portability, withdraw consent, lodge a complaint. Australian users → OAIC; EU users → their local supervisory authority; UK users → ICO.
-   - How to exercise rights — email `privacy@…`, or use `/auth/delete-account` (export + delete) for account holders.
-   - Cookies & analytics — session/auth cookies only unless stated; no third-party ad tracking.
-   - Children — service not directed at under-16s.
-   - Changes to this policy + "Last updated" date.
+## 2. Email preferences
 
-2. **`src/routes/privacy.emails.tsx`** — email addendum `/privacy/emails`
-   Sections:
-   - Scope: what emails the site sends and why.
-   - Categories: (a) **Auth emails** (signup confirm, password reset, magic link, email change, reauth, invite) — legal basis: contract/necessary for the service; (b) **Transactional emails** (donation receipt, event RSVP confirmation, coordinator/fundraiser status, account-deletion request/confirmation, unsubscribe confirmation) — legal basis: contract/legitimate interest.
-   - **No marketing emails.** No newsletter. Contact-form replies are 1:1 correspondence.
-   - How email addresses are collected (forms, account creation).
-   - Where data flows: pre-rendered on our server, queued, delivered by our email-sending infrastructure, with delivery/bounce/complaint records kept.
-   - Suppression list: bounces/complaints/unsubscribes stored to protect deliverability (append-only).
-   - Unsubscribe / opt-out: link in every eligible email; auth emails cannot be unsubscribed because they secure your account; if you no longer want any email from us, delete your account at `/auth/delete-account` or email privacy@.
-   - Retention: log records kept 1 month; suppression list kept while your address remains contactable.
-   - Your rights + privacy contact (mirrored).
-   - "Last updated" date.
+### Data model (new migration)
 
-## Wiring
-- **Footer** (`src/ported/components/Footer.tsx`, lines ~373-380): replace the "Privacy" button (currently routes to `/about`) with a TanStack `<Link to="/privacy">Privacy</Link>`.
-- **Contact form** (`src/routes/contact.tsx` / `ContactView`): add a small helper line under the submit button — "By submitting, you agree to our [Privacy Policy](/privacy)." Only if the current form doesn't already say so.
-- **Account deletion page** already links to /auth/change-password; add a "See our Privacy Policy" link at the bottom.
-- **Root sitemap** (`src/routes/sitemap[.]xml.ts`) — include `/privacy` and `/privacy/emails` as public URLs.
+New table `public.email_preferences`:
 
-## Design & implementation
-- Reuse existing app shell (root layout, Tailwind tokens, typography). No new palette or components.
-- Semantic HTML: single `<h1>`, `<h2>` per section, `<address>` for contact block, table of contents at the top with in-page hash links (this is the trust-page exception — one long page).
-- SEO: unique `head()` per route (title, description, `og:title`, `og:description`, robots follow/index). No og:image.
-- Both pages are static — no loader, no server fn calls.
-- Qualifier line at top: "This page is maintained by Manyang Disability Foundation to describe how we handle personal data. It is not an independent certification."
+```text
+id uuid pk
+email citext unique not null      -- normalized recipient email
+user_id uuid null references auth.users(id) on delete set null
+receipts boolean default true     -- donation receipts
+events boolean default true       -- event RSVP / reminders
+coordinators boolean default true -- coordinator confirmations/approvals
+fundraisers boolean default true  -- fundraiser confirmations/approvals
+account boolean default true      -- account-deletion etc. (non-security)
+unsubscribed_all boolean default false
+updated_at timestamptz default now()
+```
+
+- GRANTs: `authenticated` SELECT/INSERT/UPDATE own row; `service_role` ALL; no anon.
+- RLS: authenticated users can read/write rows where `email = auth.jwt() ->> 'email'` OR `user_id = auth.uid()`.
+- Trigger to keep `updated_at` current.
+
+Auth emails (signup, recovery, magic-link, reauth, invite, email-change) are **always sent** — required for account security — and are documented as such on the page.
+
+### Send-path enforcement
+
+`src/lib/email/enqueue.server.ts` gains a `category` field (e.g. `"receipts" | "events" | "coordinators" | "fundraisers" | "account" | null`). Before enqueue:
+
+1. Existing suppression check.
+2. New check: look up `email_preferences` by normalized email. If `unsubscribed_all` or the category flag is false, skip with `reason: "category_opted_out"` and log to `email_send_log` as `skipped`.
+3. Auth emails route through the auth webhook and are not gated by this table.
+
+All existing transactional call sites (donations, event RSVP, coordinator/fundraiser flows, account deletion) pass the appropriate `category`.
+
+### Access surfaces
+
+**A. Signed-in users** — new route `src/routes/_authenticated/dashboard.email-preferences.tsx` (or plain `dashboard/email-preferences` matching existing convention). Reachable from Dashboard via a "Email preferences" card.
+
+**B. Token link from emails** — new public route `src/routes/email/preferences.tsx` (page) + `src/routes/email/preferences.ts` (API):
+
+- Reuses existing `email_unsubscribe_tokens` table (already keyed by email); no new token infra.
+- Page reads `?token=…`, GETs `/email/preferences?token=…` to validate and fetch current prefs, renders toggles, POSTs to save.
+- API validates token, resolves the email, upserts `email_preferences`. Does **not** mark the token used (so the user can revisit).
+- Footer of every transactional email gets a "Manage email preferences" link alongside the existing "Unsubscribe" link, pointing to `/email/preferences?token=…` using the same token variable.
+
+### Admin dashboard toggle sync
+
+The existing dashboard shows a global unsubscribe status via `suppressed_emails`. The new page renders both:
+- Category toggles (writes `email_preferences`)
+- "Unsubscribe from all non-essential emails" master toggle (writes `unsubscribed_all` and adds/removes from `suppressed_emails` to stay consistent with existing suppression logic)
+
+### Privacy policy updates
+
+- `/privacy/emails`: add a "Manage your preferences" section linking to `/email/preferences` (token) and `/dashboard/email-preferences` (signed in).
+- Clarify that auth/security emails cannot be disabled while an account exists; deleting the account is the way to stop them.
+
+## 3. Files changed / created
+
+Created:
+- `src/ported/components/CookieConsent.tsx`
+- `src/ported/hooks/useCookieConsent.ts`
+- `src/routes/email/preferences.tsx` (user-facing page)
+- `src/routes/email/preferences.ts` (GET/POST JSON API)
+- `src/routes/dashboard.email-preferences.tsx` (signed-in view; placed to match existing dashboard routing)
+- SQL migration for `email_preferences` table, grants, RLS, trigger
+
+Edited:
+- `src/routes/__root.tsx` — mount `<CookieConsent />` in `ClientShell`
+- `src/ported/components/Footer.tsx` — "Cookie preferences" link
+- `src/lib/email/enqueue.server.ts` — accept `category`, enforce preferences
+- Existing send call sites — pass `category`
+- `src/lib/email-templates/_shared.tsx` — footer gets "Manage preferences" link next to unsubscribe
+- `src/routes/privacy.emails.tsx` and `src/routes/privacy.tsx` — link to preferences pages, clarify auth-email policy
+- `src/routes/sitemap[.]xml.ts` — no additions (token/auth pages are noindex)
+- `src/ported/components/views/DashboardView.tsx` — card linking to email preferences
 
 ## Non-goals
-- No changes to how data is actually collected or stored.
-- No cookie-consent banner (only strictly-necessary cookies are used).
-- No DPO appointment claim, no ISO/SOC 2/HIPAA/PCI/GDPR-certified claims.
-- No changes to email sending infrastructure.
 
-## Files
-- **create** `src/routes/privacy.tsx`
-- **create** `src/routes/privacy.emails.tsx`
-- **edit** `src/ported/components/Footer.tsx` (wire Privacy link)
-- **edit** `src/routes/sitemap[.]xml.ts` (add new URLs)
-- **edit** `src/routes/auth.delete-account.tsx` (small "Privacy Policy" link)
-- **edit** `src/routes/contact.tsx` or the underlying ContactView (add privacy disclosure line if missing)
+- No changes to the auth webhook or auth email content.
+- No cookie category currently gates any real script (no analytics/ads today) — banner records intent only.
+- No token rotation / expiry changes to `email_unsubscribe_tokens`.
+- No new email templates.

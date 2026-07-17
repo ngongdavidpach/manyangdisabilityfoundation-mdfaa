@@ -39,6 +39,8 @@ import { Route as GuidesDonateSuppliesRouteImport } from './routes/guides.donate
 import { Route as FaqDonationsRouteImport } from './routes/faq.donations'
 import { Route as EventsSlugRouteImport } from './routes/events.$slug'
 import { Route as EmailUnsubscribeRouteImport } from './routes/email/unsubscribe'
+import { Route as EmailPreferencesRouteImport } from './routes/email/preferences'
+import { Route as DashboardEmailPreferencesRouteImport } from './routes/dashboard.email-preferences'
 import { Route as AuthResetPasswordRouteImport } from './routes/auth.reset-password'
 import { Route as AuthForgotPasswordRouteImport } from './routes/auth.forgot-password'
 import { Route as AuthDeleteAccountRouteImport } from './routes/auth.delete-account'
@@ -47,6 +49,7 @@ import { Route as AuthCancelDeletionRouteImport } from './routes/auth.cancel-del
 import { Route as Char91DotwellKnownChar93OauthProtectedResourceRouteImport } from './routes/[.well-known]/oauth-protected-resource'
 import { Route as Char91DotmcpChar93ListToolsRouteImport } from './routes/[.mcp]/list-tools'
 import { Route as LovableEmailSuppressionRouteImport } from './routes/lovable/email/suppression'
+import { Route as ApiPublicEmailPreferencesRouteImport } from './routes/api/public/email-preferences'
 import { Route as Char91DotmcpChar93InvokeToolToolRouteImport } from './routes/[.mcp]/invoke-tool/$tool'
 import { Route as DotlovableOauthConsentRouteImport } from './routes/[.]lovable.oauth.consent'
 import { Route as LovableEmailTransactionalSendRouteImport } from './routes/lovable/email/transactional/send'
@@ -207,6 +210,17 @@ const EmailUnsubscribeRoute = EmailUnsubscribeRouteImport.update({
   path: '/email/unsubscribe',
   getParentRoute: () => rootRouteImport,
 } as any)
+const EmailPreferencesRoute = EmailPreferencesRouteImport.update({
+  id: '/email/preferences',
+  path: '/email/preferences',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DashboardEmailPreferencesRoute =
+  DashboardEmailPreferencesRouteImport.update({
+    id: '/email-preferences',
+    path: '/email-preferences',
+    getParentRoute: () => DashboardRoute,
+  } as any)
 const AuthResetPasswordRoute = AuthResetPasswordRouteImport.update({
   id: '/auth/reset-password',
   path: '/auth/reset-password',
@@ -249,6 +263,12 @@ const LovableEmailSuppressionRoute = LovableEmailSuppressionRouteImport.update({
   path: '/lovable/email/suppression',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicEmailPreferencesRoute =
+  ApiPublicEmailPreferencesRouteImport.update({
+    id: '/api/public/email-preferences',
+    path: '/api/public/email-preferences',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const Char91DotmcpChar93InvokeToolToolRoute =
   Char91DotmcpChar93InvokeToolToolRouteImport.update({
     id: '/.mcp/invoke-tool/$tool',
@@ -301,7 +321,7 @@ export interface FileRoutesByFullPath {
   '/admin': typeof AdminRoute
   '/contact': typeof ContactRoute
   '/csr-sponsorship': typeof CsrSponsorshipRoute
-  '/dashboard': typeof DashboardRoute
+  '/dashboard': typeof DashboardRouteWithChildren
   '/donate': typeof DonateRoute
   '/events': typeof EventsRouteWithChildren
   '/gallery': typeof GalleryRoute
@@ -321,6 +341,8 @@ export interface FileRoutesByFullPath {
   '/auth/delete-account': typeof AuthDeleteAccountRoute
   '/auth/forgot-password': typeof AuthForgotPasswordRoute
   '/auth/reset-password': typeof AuthResetPasswordRoute
+  '/dashboard/email-preferences': typeof DashboardEmailPreferencesRoute
+  '/email/preferences': typeof EmailPreferencesRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
   '/events/$slug': typeof EventsSlugRoute
   '/faq/donations': typeof FaqDonationsRoute
@@ -335,6 +357,7 @@ export interface FileRoutesByFullPath {
   '/programs/rss.xml': typeof ProgramsRssDotxmlRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
+  '/api/public/email-preferences': typeof ApiPublicEmailPreferencesRoute
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
   '/api/public/hooks/purge-deleted-accounts': typeof ApiPublicHooksPurgeDeletedAccountsRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
@@ -349,7 +372,7 @@ export interface FileRoutesByTo {
   '/admin': typeof AdminRoute
   '/contact': typeof ContactRoute
   '/csr-sponsorship': typeof CsrSponsorshipRoute
-  '/dashboard': typeof DashboardRoute
+  '/dashboard': typeof DashboardRouteWithChildren
   '/donate': typeof DonateRoute
   '/events': typeof EventsRouteWithChildren
   '/gallery': typeof GalleryRoute
@@ -369,6 +392,8 @@ export interface FileRoutesByTo {
   '/auth/delete-account': typeof AuthDeleteAccountRoute
   '/auth/forgot-password': typeof AuthForgotPasswordRoute
   '/auth/reset-password': typeof AuthResetPasswordRoute
+  '/dashboard/email-preferences': typeof DashboardEmailPreferencesRoute
+  '/email/preferences': typeof EmailPreferencesRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
   '/events/$slug': typeof EventsSlugRoute
   '/faq/donations': typeof FaqDonationsRoute
@@ -383,6 +408,7 @@ export interface FileRoutesByTo {
   '/programs/rss.xml': typeof ProgramsRssDotxmlRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
+  '/api/public/email-preferences': typeof ApiPublicEmailPreferencesRoute
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
   '/api/public/hooks/purge-deleted-accounts': typeof ApiPublicHooksPurgeDeletedAccountsRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
@@ -398,7 +424,7 @@ export interface FileRoutesById {
   '/admin': typeof AdminRoute
   '/contact': typeof ContactRoute
   '/csr-sponsorship': typeof CsrSponsorshipRoute
-  '/dashboard': typeof DashboardRoute
+  '/dashboard': typeof DashboardRouteWithChildren
   '/donate': typeof DonateRoute
   '/events': typeof EventsRouteWithChildren
   '/gallery': typeof GalleryRoute
@@ -418,6 +444,8 @@ export interface FileRoutesById {
   '/auth/delete-account': typeof AuthDeleteAccountRoute
   '/auth/forgot-password': typeof AuthForgotPasswordRoute
   '/auth/reset-password': typeof AuthResetPasswordRoute
+  '/dashboard/email-preferences': typeof DashboardEmailPreferencesRoute
+  '/email/preferences': typeof EmailPreferencesRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
   '/events/$slug': typeof EventsSlugRoute
   '/faq/donations': typeof FaqDonationsRoute
@@ -432,6 +460,7 @@ export interface FileRoutesById {
   '/programs/rss.xml': typeof ProgramsRssDotxmlRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
+  '/api/public/email-preferences': typeof ApiPublicEmailPreferencesRoute
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
   '/api/public/hooks/purge-deleted-accounts': typeof ApiPublicHooksPurgeDeletedAccountsRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
@@ -468,6 +497,8 @@ export interface FileRouteTypes {
     | '/auth/delete-account'
     | '/auth/forgot-password'
     | '/auth/reset-password'
+    | '/dashboard/email-preferences'
+    | '/email/preferences'
     | '/email/unsubscribe'
     | '/events/$slug'
     | '/faq/donations'
@@ -482,6 +513,7 @@ export interface FileRouteTypes {
     | '/programs/rss.xml'
     | '/.lovable/oauth/consent'
     | '/.mcp/invoke-tool/$tool'
+    | '/api/public/email-preferences'
     | '/lovable/email/suppression'
     | '/api/public/hooks/purge-deleted-accounts'
     | '/lovable/email/auth/preview'
@@ -516,6 +548,8 @@ export interface FileRouteTypes {
     | '/auth/delete-account'
     | '/auth/forgot-password'
     | '/auth/reset-password'
+    | '/dashboard/email-preferences'
+    | '/email/preferences'
     | '/email/unsubscribe'
     | '/events/$slug'
     | '/faq/donations'
@@ -530,6 +564,7 @@ export interface FileRouteTypes {
     | '/programs/rss.xml'
     | '/.lovable/oauth/consent'
     | '/.mcp/invoke-tool/$tool'
+    | '/api/public/email-preferences'
     | '/lovable/email/suppression'
     | '/api/public/hooks/purge-deleted-accounts'
     | '/lovable/email/auth/preview'
@@ -564,6 +599,8 @@ export interface FileRouteTypes {
     | '/auth/delete-account'
     | '/auth/forgot-password'
     | '/auth/reset-password'
+    | '/dashboard/email-preferences'
+    | '/email/preferences'
     | '/email/unsubscribe'
     | '/events/$slug'
     | '/faq/donations'
@@ -578,6 +615,7 @@ export interface FileRouteTypes {
     | '/programs/rss.xml'
     | '/.lovable/oauth/consent'
     | '/.mcp/invoke-tool/$tool'
+    | '/api/public/email-preferences'
     | '/lovable/email/suppression'
     | '/api/public/hooks/purge-deleted-accounts'
     | '/lovable/email/auth/preview'
@@ -593,7 +631,7 @@ export interface RootRouteChildren {
   AdminRoute: typeof AdminRoute
   ContactRoute: typeof ContactRoute
   CsrSponsorshipRoute: typeof CsrSponsorshipRoute
-  DashboardRoute: typeof DashboardRoute
+  DashboardRoute: typeof DashboardRouteWithChildren
   DonateRoute: typeof DonateRoute
   EventsRoute: typeof EventsRouteWithChildren
   GalleryRoute: typeof GalleryRoute
@@ -613,6 +651,7 @@ export interface RootRouteChildren {
   AuthDeleteAccountRoute: typeof AuthDeleteAccountRoute
   AuthForgotPasswordRoute: typeof AuthForgotPasswordRoute
   AuthResetPasswordRoute: typeof AuthResetPasswordRoute
+  EmailPreferencesRoute: typeof EmailPreferencesRoute
   EmailUnsubscribeRoute: typeof EmailUnsubscribeRoute
   FaqDonationsRoute: typeof FaqDonationsRoute
   GuidesDonateSuppliesRoute: typeof GuidesDonateSuppliesRoute
@@ -622,6 +661,7 @@ export interface RootRouteChildren {
   PortalFundraisersRoute: typeof PortalFundraisersRoute
   DotlovableOauthConsentRoute: typeof DotlovableOauthConsentRoute
   Char91DotmcpChar93InvokeToolToolRoute: typeof Char91DotmcpChar93InvokeToolToolRoute
+  ApiPublicEmailPreferencesRoute: typeof ApiPublicEmailPreferencesRoute
   LovableEmailSuppressionRoute: typeof LovableEmailSuppressionRoute
   ApiPublicHooksPurgeDeletedAccountsRoute: typeof ApiPublicHooksPurgeDeletedAccountsRoute
   LovableEmailAuthPreviewRoute: typeof LovableEmailAuthPreviewRoute
@@ -843,6 +883,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof EmailUnsubscribeRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/email/preferences': {
+      id: '/email/preferences'
+      path: '/email/preferences'
+      fullPath: '/email/preferences'
+      preLoaderRoute: typeof EmailPreferencesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dashboard/email-preferences': {
+      id: '/dashboard/email-preferences'
+      path: '/email-preferences'
+      fullPath: '/dashboard/email-preferences'
+      preLoaderRoute: typeof DashboardEmailPreferencesRouteImport
+      parentRoute: typeof DashboardRoute
+    }
     '/auth/reset-password': {
       id: '/auth/reset-password'
       path: '/auth/reset-password'
@@ -897,6 +951,13 @@ declare module '@tanstack/react-router' {
       path: '/lovable/email/suppression'
       fullPath: '/lovable/email/suppression'
       preLoaderRoute: typeof LovableEmailSuppressionRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/email-preferences': {
+      id: '/api/public/email-preferences'
+      path: '/api/public/email-preferences'
+      fullPath: '/api/public/email-preferences'
+      preLoaderRoute: typeof ApiPublicEmailPreferencesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/.mcp/invoke-tool/$tool': {
@@ -958,6 +1019,18 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface DashboardRouteChildren {
+  DashboardEmailPreferencesRoute: typeof DashboardEmailPreferencesRoute
+}
+
+const DashboardRouteChildren: DashboardRouteChildren = {
+  DashboardEmailPreferencesRoute: DashboardEmailPreferencesRoute,
+}
+
+const DashboardRouteWithChildren = DashboardRoute._addFileChildren(
+  DashboardRouteChildren,
+)
+
 interface EventsRouteChildren {
   EventsSlugRoute: typeof EventsSlugRoute
 }
@@ -1010,7 +1083,7 @@ const rootRouteChildren: RootRouteChildren = {
   AdminRoute: AdminRoute,
   ContactRoute: ContactRoute,
   CsrSponsorshipRoute: CsrSponsorshipRoute,
-  DashboardRoute: DashboardRoute,
+  DashboardRoute: DashboardRouteWithChildren,
   DonateRoute: DonateRoute,
   EventsRoute: EventsRouteWithChildren,
   GalleryRoute: GalleryRoute,
@@ -1031,6 +1104,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthDeleteAccountRoute: AuthDeleteAccountRoute,
   AuthForgotPasswordRoute: AuthForgotPasswordRoute,
   AuthResetPasswordRoute: AuthResetPasswordRoute,
+  EmailPreferencesRoute: EmailPreferencesRoute,
   EmailUnsubscribeRoute: EmailUnsubscribeRoute,
   FaqDonationsRoute: FaqDonationsRoute,
   GuidesDonateSuppliesRoute: GuidesDonateSuppliesRoute,
@@ -1040,6 +1114,7 @@ const rootRouteChildren: RootRouteChildren = {
   PortalFundraisersRoute: PortalFundraisersRoute,
   DotlovableOauthConsentRoute: DotlovableOauthConsentRoute,
   Char91DotmcpChar93InvokeToolToolRoute: Char91DotmcpChar93InvokeToolToolRoute,
+  ApiPublicEmailPreferencesRoute: ApiPublicEmailPreferencesRoute,
   LovableEmailSuppressionRoute: LovableEmailSuppressionRoute,
   ApiPublicHooksPurgeDeletedAccountsRoute:
     ApiPublicHooksPurgeDeletedAccountsRoute,
