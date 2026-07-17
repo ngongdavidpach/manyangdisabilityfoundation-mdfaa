@@ -237,8 +237,6 @@ function ChangePasswordRoute() {
             </Link>
           </div>
         )}
-          </form>
-        )}
       </div>
     </div>
   );
