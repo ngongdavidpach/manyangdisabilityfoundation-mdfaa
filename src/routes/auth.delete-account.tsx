@@ -584,6 +584,14 @@ function DeleteAccountRoute() {
                 <ArrowLeft className="w-3 h-3" aria-hidden="true" />
                 Back to account settings
               </Link>
+              <p className="text-[11px] text-slate-500">
+                See our{" "}
+                <Link to="/privacy" className="underline hover:text-slate-700">
+                  Privacy Policy
+                </Link>{" "}
+                for how we handle your data.
+              </p>
+
             </form>
           </div>
         )}
