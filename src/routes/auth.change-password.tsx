@@ -1,8 +1,10 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import React, { useEffect, useState } from "react";
+import { useServerFn } from "@tanstack/react-start";
 import { Lock, Eye, EyeOff, ArrowRight, ShieldCheck, AlertTriangle, CheckCircle2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { PasswordFields, validateNewPassword } from "@/ported/components/PasswordFields";
+import { changePassword, RATE_LIMIT_MESSAGE } from "@/lib/auth.functions";
 
 export const Route = createFileRoute("/auth/change-password")({
   head: () => ({
@@ -19,6 +21,7 @@ type Status = "checking" | "unauthenticated" | "ready" | "success";
 
 function ChangePasswordRoute() {
   const navigate = useNavigate();
+  const changePasswordFn = useServerFn(changePassword);
   const [status, setStatus] = useState<Status>("checking");
   const [email, setEmail] = useState("");
   const [currentPassword, setCurrentPassword] = useState("");
@@ -62,20 +65,31 @@ function ChangePasswordRoute() {
 
     setSubmitting(true);
 
-    // Verify current password by re-authenticating
-    const { error: signInError } = await supabase.auth.signInWithPassword({
-      email,
-      password: currentPassword,
-    });
-    if (signInError) {
-      setError("Current password is incorrect.");
+    let result: Awaited<ReturnType<typeof changePasswordFn>>;
+    try {
+      result = await changePasswordFn({
+        data: { currentPassword, newPassword: password },
+      });
+    } catch {
+      setError("Could not update password. Please try again.");
       setSubmitting(false);
       return;
     }
 
-    const { error: updateError } = await supabase.auth.updateUser({ password });
-    if (updateError) {
-      setError(updateError.message || "Could not update password.");
+    if (!result.ok) {
+      if (result.reason === "wrong_current") {
+        setError("Current password is incorrect.");
+      } else if (result.reason === "same_password") {
+        setError("New password must be different from your current password.");
+      } else if (result.reason === "weak_password") {
+        setError(result.issues?.[0] || "Password does not meet all requirements.");
+      } else if (result.reason === "rate_limited") {
+        setError(result.message || RATE_LIMIT_MESSAGE);
+      } else if (result.reason === "unauthenticated") {
+        setStatus("unauthenticated");
+      } else {
+        setError(("message" in result && result.message) || "Could not update password.");
+      }
       setSubmitting(false);
       return;
     }
