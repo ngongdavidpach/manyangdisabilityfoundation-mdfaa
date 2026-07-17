@@ -1,45 +1,68 @@
 ## Goal
-Require a fresh authentication (recent login) before an account deletion request is accepted, so a stolen/idle session cannot be used to schedule deletion.
+Publish a GDPR-aligned privacy policy for Manyang Disability Foundation, plus a linked email/communications addendum, and wire it up in the footer.
 
-## Approach
-Combine two server-side checks in `requestAccountDeletion` (in `src/lib/auth.functions.ts`), plus small UX affordances on `/auth/delete-account`.
+## Sources of truth (from user)
+- **Data controller:** Manyang Disability Foundation, Australia. Reaches EU/UK users.
+- **Privacy contact:** `privacy@manyangdisabilityfoundation.org`
+- **Retention:** 1 month for contact/communications data.
+- **Emails sent:** Transactional + auth only. No marketing/newsletter.
+- **Existing site facts:** ABN 75 986 228 179; ACNC-registered; contact form at `/contact`; account deletion at `/auth/delete-account`; data export from the same page.
 
-### 1. Server: recent-login check in `requestAccountDeletion`
-- Read `auth_time` from `context.claims` (JWT `auth_time` / `iat`) via `requireSupabaseAuth`.
-- Compare against `now()`. If older than **5 minutes**, return a new typed failure:
-  `{ ok: false, reason: "reauth_required", secondsSinceAuth }`.
-- The existing `currentPassword` check stays — it re-verifies the credential, and combined with the freshness check ensures the password was entered *in this session, recently*.
-- Order of checks: unauthenticated → rate limit → reauth_required → wrong_email → wrong_password → last_admin → proceed.
+Anything outside these + observable app behaviour will NOT be claimed (no ISO/SOC 2/end-to-end encryption/breach guarantees). Page carries the trust-baseline qualifiers: "maintained by MDF", "not a certification", shared-responsibility note about the hosting platform.
 
-### 2. Server: `reauthenticate` helper server fn
-New `reauthenticate({ password })` in `auth.functions.ts`:
-- Uses `requireSupabaseAuth` to get the user's email.
-- Calls `supabase.auth.signInWithPassword({ email, password })` on a fresh server client to mint a new session (updating `auth_time`).
-- Returns `{ ok: true, session }` or typed error. Rate-limited per user + per IP (reuse `authRateLimit`).
-- Client calls `supabase.auth.setSession()` with the returned tokens so subsequent server fn calls carry a fresh `auth_time`.
+## New routes
+1. **`src/routes/privacy.tsx`** — main privacy policy `/privacy`
+   Sections:
+   - Who we are & how to contact us (entity, ABN, ACNC, privacy@ address, /contact link).
+   - Data we collect (contact form; donations — name/email/amount; event RSVPs; volunteer/coordinator/fundraiser/aid-request submissions; staff auth account data; server logs for security).
+   - Legal bases (GDPR Art. 6): consent for contact/RSVP, contract for donations, legitimate interest for security logs, legal obligation for donation records where applicable.
+   - How we use it (respond to enquiries, process donations, coordinate programs, send transactional + auth emails only).
+   - Emails — brief, with a "Read the email addendum" link to `/privacy/emails`.
+   - Sharing / subprocessors: hosting + database + email delivery through our platform provider; payment processor for donations; no sale of personal data.
+   - International transfers: data may be processed outside the EU/UK/Australia by our providers; safeguards summarised generically.
+   - Retention: 1 month for contact-form/communications; donation records retained as required by Australian tax/charity law; auth accounts until you delete them via `/auth/delete-account` (30-day grace period).
+   - Your rights (GDPR + Australian Privacy Act): access, rectification, erasure, restriction, objection, portability, withdraw consent, lodge a complaint. Australian users → OAIC; EU users → their local supervisory authority; UK users → ICO.
+   - How to exercise rights — email `privacy@…`, or use `/auth/delete-account` (export + delete) for account holders.
+   - Cookies & analytics — session/auth cookies only unless stated; no third-party ad tracking.
+   - Children — service not directed at under-16s.
+   - Changes to this policy + "Last updated" date.
 
-### 3. Client: `/auth/delete-account` UX
-- On mount, fetch the current session and compute `secondsSinceAuth = now - session.user.last_sign_in_at` (fallback to JWT `iat`).
-- If > 5 min, show a **"Confirm it's you"** panel above the delete form:
-  - Password field + "Verify" button that calls `reauthenticate`.
-  - On success, refresh the session and unlock the delete form.
-  - Delete form's submit button stays disabled with helper text "Please re-verify your identity to continue" until reauth completes or freshness check passes.
-- If the delete submission returns `reauth_required` (e.g. token aged out mid-form), surface the same panel with an inline message.
+2. **`src/routes/privacy.emails.tsx`** — email addendum `/privacy/emails`
+   Sections:
+   - Scope: what emails the site sends and why.
+   - Categories: (a) **Auth emails** (signup confirm, password reset, magic link, email change, reauth, invite) — legal basis: contract/necessary for the service; (b) **Transactional emails** (donation receipt, event RSVP confirmation, coordinator/fundraiser status, account-deletion request/confirmation, unsubscribe confirmation) — legal basis: contract/legitimate interest.
+   - **No marketing emails.** No newsletter. Contact-form replies are 1:1 correspondence.
+   - How email addresses are collected (forms, account creation).
+   - Where data flows: pre-rendered on our server, queued, delivered by our email-sending infrastructure, with delivery/bounce/complaint records kept.
+   - Suppression list: bounces/complaints/unsubscribes stored to protect deliverability (append-only).
+   - Unsubscribe / opt-out: link in every eligible email; auth emails cannot be unsubscribed because they secure your account; if you no longer want any email from us, delete your account at `/auth/delete-account` or email privacy@.
+   - Retention: log records kept 1 month; suppression list kept while your address remains contactable.
+   - Your rights + privacy contact (mirrored).
+   - "Last updated" date.
 
-### 4. Copy & accessibility
-- Error message: "For your security, please re-enter your password to confirm it's you before deleting your account."
-- Panel has `role="region"` + `aria-labelledby`; verification result announced via `aria-live="polite"`.
+## Wiring
+- **Footer** (`src/ported/components/Footer.tsx`, lines ~373-380): replace the "Privacy" button (currently routes to `/about`) with a TanStack `<Link to="/privacy">Privacy</Link>`.
+- **Contact form** (`src/routes/contact.tsx` / `ContactView`): add a small helper line under the submit button — "By submitting, you agree to our [Privacy Policy](/privacy)." Only if the current form doesn't already say so.
+- **Account deletion page** already links to /auth/change-password; add a "See our Privacy Policy" link at the bottom.
+- **Root sitemap** (`src/routes/sitemap[.]xml.ts`) — include `/privacy` and `/privacy/emails` as public URLs.
 
-## Files
-- **Edit** `src/lib/auth.functions.ts` — add `reauthenticate` server fn; add reauth freshness check + `reauth_required` reason in `requestAccountDeletion`.
-- **Edit** `src/routes/auth.delete-account.tsx` — add reauth panel, freshness detection, wire `reauthenticate`, handle `reauth_required`.
-- **Edit** `.lovable/plan.md` — record the change.
+## Design & implementation
+- Reuse existing app shell (root layout, Tailwind tokens, typography). No new palette or components.
+- Semantic HTML: single `<h1>`, `<h2>` per section, `<address>` for contact block, table of contents at the top with in-page hash links (this is the trust-page exception — one long page).
+- SEO: unique `head()` per route (title, description, `og:title`, `og:description`, robots follow/index). No og:image.
+- Both pages are static — no loader, no server fn calls.
+- Qualifier line at top: "This page is maintained by Manyang Disability Foundation to describe how we handle personal data. It is not an independent certification."
 
 ## Non-goals
-- No DB schema changes.
-- No changes to other sensitive flows (password change already requires current password). Can extend later if desired.
+- No changes to how data is actually collected or stored.
+- No cookie-consent banner (only strictly-necessary cookies are used).
+- No DPO appointment claim, no ISO/SOC 2/HIPAA/PCI/GDPR-certified claims.
+- No changes to email sending infrastructure.
 
-## Technical details
-- 5-minute window is standard for "sudo mode" flows (GitHub uses ~1h, Google ~10 min; 5 min is conservative for a destructive action).
-- `context.claims.iat` is issued-at of the current access token. Since Supabase refreshes tokens hourly *without* re-authenticating the user, we must ALSO track a separate "last password verification" timestamp. Simpler: use `auth.users.last_sign_in_at` read via `context.supabase.auth.getUser()` and compare to now. `signInWithPassword` updates it; token refresh does not.
-- `reauthenticate` will NOT persist the new session server-side; it returns `access_token` + `refresh_token` and the client calls `supabase.auth.setSession(...)` so the next server-fn call carries the new bearer whose backing user row has an updated `last_sign_in_at`.
+## Files
+- **create** `src/routes/privacy.tsx`
+- **create** `src/routes/privacy.emails.tsx`
+- **edit** `src/ported/components/Footer.tsx` (wire Privacy link)
+- **edit** `src/routes/sitemap[.]xml.ts` (add new URLs)
+- **edit** `src/routes/auth.delete-account.tsx` (small "Privacy Policy" link)
+- **edit** `src/routes/contact.tsx` or the underlying ContactView (add privacy disclosure line if missing)
