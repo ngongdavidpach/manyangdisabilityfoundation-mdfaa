@@ -9,6 +9,11 @@ export { RATE_LIMIT_MESSAGE };
 const GRACE_PERIOD_DAYS = 30;
 const BAN_DURATION = "720h"; // 30 days
 const SITE_ORIGIN = "https://manyangdisabilityfoundation.org";
+// Max age of the user's last sign-in to allow destructive actions
+// (account deletion). GitHub sudo mode is ~1h; we use 5 min for a
+// permanent-destruction flow.
+const REAUTH_WINDOW_SECONDS = 300;
+
 
 // Shared password strength schema — MUST match the client-side rules in
 // src/ported/utils/auth.ts getPasswordStrength(). Enforced server-side so
