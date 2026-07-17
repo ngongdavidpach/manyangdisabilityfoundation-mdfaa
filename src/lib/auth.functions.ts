@@ -625,3 +625,57 @@ export const getAccountDeletionStatus = createServerFn({ method: "GET" })
       purgeAfter: data.purge_after,
     };
   });
+
+const ReauthenticateSchema = z.object({
+  password: z.string().min(1).max(200),
+});
+
+/**
+ * Re-verify the signed-in user's password and mint a fresh session so
+ * subsequent sensitive actions (account deletion) pass the recent-login
+ * check. Returns the new access/refresh tokens for the client to install
+ * via supabase.auth.setSession(). Rate-limited per user + per IP.
+ */
+export const reauthenticate = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) => ReauthenticateSchema.parse(input))
+  .handler(async ({ data, context }) => {
+    const { enforceRateLimits } = await import("@/lib/rateLimit.server");
+    const { setResponseStatus } = await import("@tanstack/react-start/server");
+    const userId = context.userId;
+    try {
+      await enforceRateLimits([
+        { bucket: "reauthenticate:user", key: userId, max: 5, windowSeconds: 900 },
+        { bucket: "reauthenticate:ip", max: 20, windowSeconds: 3600 },
+      ]);
+    } catch {
+      setResponseStatus(429);
+      return { ok: false as const, reason: "rate_limited" as const, message: RATE_LIMIT_MESSAGE };
+    }
+
+    const { data: userData, error: userErr } = await context.supabase.auth.getUser();
+    const email = userData?.user?.email;
+    if (userErr || !email) {
+      return { ok: false as const, reason: "unauthenticated" as const };
+    }
+
+    const verifier = makePublishableClient();
+    const { data: signInData, error: signInError } = await verifier.auth.signInWithPassword({
+      email,
+      password: data.password,
+    });
+    if (signInError || !signInData.session) {
+      return { ok: false as const, reason: "wrong_password" as const };
+    }
+
+    const session = signInData.session;
+    // Do not sign the verifier out — that would revoke the refresh token
+    // we're about to hand to the client.
+    return {
+      ok: true as const,
+      accessToken: session.access_token,
+      refreshToken: session.refresh_token,
+      expiresAt: session.expires_at ?? null,
+    };
+  });
+
