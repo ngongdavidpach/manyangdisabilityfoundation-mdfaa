@@ -169,11 +169,16 @@ function ChangePasswordRoute() {
                 />
                 <button
                   type="button"
-                  onClick={() => setShowCurrent(!showCurrent)}
+                  onClick={() => setShowCurrent((v) => !v)}
                   className="absolute right-3 top-2.5 text-slate-500 hover:text-slate-700"
-                  aria-label="Toggle password visibility"
+                  aria-label={showCurrent ? "Hide password" : "Show password"}
+                  aria-pressed={showCurrent}
                 >
-                  {showCurrent ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  {showCurrent ? (
+                    <EyeOff className="w-4 h-4" aria-hidden="true" />
+                  ) : (
+                    <Eye className="w-4 h-4" aria-hidden="true" />
+                  )}
                 </button>
               </div>
             </div>
