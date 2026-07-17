@@ -570,6 +570,12 @@ function DeleteAccountRoute() {
                   </>
                 )}
               </button>
+              {needsReauth && (
+                <p className="text-[11px] text-amber-700 text-center">
+                  Please re-verify your identity above to continue.
+                </p>
+              )}
+
 
               <Link
                 to="/auth/change-password"
