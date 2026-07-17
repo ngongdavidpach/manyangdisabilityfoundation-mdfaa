@@ -401,9 +401,26 @@ export const requestAccountDeletion = createServerFn({ method: "POST" })
       return { ok: false as const, reason: "unauthenticated" as const };
     }
 
+    // Recent-login (sudo mode) check. Refuses the request when the user's
+    // last authentication is older than REAUTH_WINDOW_SECONDS — a stolen or
+    // long-idle session can't schedule a permanent deletion without
+    // re-entering the password via the reauthenticate flow.
+    const lastSignIn = userData?.user?.last_sign_in_at;
+    const secondsSinceAuth = lastSignIn
+      ? Math.max(0, Math.floor((Date.now() - new Date(lastSignIn).getTime()) / 1000))
+      : Number.MAX_SAFE_INTEGER;
+    if (secondsSinceAuth > REAUTH_WINDOW_SECONDS) {
+      return {
+        ok: false as const,
+        reason: "reauth_required" as const,
+        secondsSinceAuth,
+      };
+    }
+
     if (data.confirmEmail !== email.toLowerCase()) {
       return { ok: false as const, reason: "wrong_email" as const };
     }
+
 
     const verifier = makePublishableClient();
     const { error: signInError } = await verifier.auth.signInWithPassword({
