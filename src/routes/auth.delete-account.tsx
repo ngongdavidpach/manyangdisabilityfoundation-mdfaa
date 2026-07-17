@@ -105,7 +105,50 @@ function DeleteAccountRoute() {
     confirmEmail.trim().length > 0 &&
     confirmEmail.trim().toLowerCase() === email.toLowerCase();
   const canSubmit =
-    emailMatches && currentPassword.length > 0 && acknowledged && !submitting;
+    emailMatches &&
+    currentPassword.length > 0 &&
+    acknowledged &&
+    !submitting &&
+    !needsReauth;
+
+  const handleReauth = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setReauthError("");
+    setReauthMsg("");
+    if (!reauthPassword) return;
+    setReauthing(true);
+    try {
+      const result = await reauthenticateFn({ data: { password: reauthPassword } });
+      if (!result.ok) {
+        if (result.reason === "wrong_password") {
+          setReauthError("Password is incorrect.");
+        } else if (result.reason === "rate_limited") {
+          setReauthError(result.message || RATE_LIMIT_MESSAGE);
+        } else if (result.reason === "unauthenticated") {
+          setStatus("unauthenticated");
+        } else {
+          setReauthError("Could not verify your identity. Please try again.");
+        }
+        return;
+      }
+      const { error: setErr } = await supabase.auth.setSession({
+        access_token: result.accessToken,
+        refresh_token: result.refreshToken,
+      });
+      if (setErr) {
+        setReauthError("Could not refresh your session. Please sign in again.");
+        return;
+      }
+      setNeedsReauth(false);
+      setReauthPassword("");
+      setReauthMsg("Identity confirmed. You can now schedule your deletion.");
+    } catch {
+      setReauthError("Could not verify your identity. Please try again.");
+    } finally {
+      setReauthing(false);
+    }
+  };
+
 
   const handleExport = async () => {
     setExportErr(null);
