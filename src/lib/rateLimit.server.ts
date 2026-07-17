@@ -2,6 +2,9 @@
 // public.check_rate_limit function via the service-role client.
 import { getRequestIP } from "@tanstack/react-start/server";
 
+export const RATE_LIMIT_MESSAGE =
+  "Too many requests. Please try again in a few minutes.";
+
 export type RateLimitOptions = {
   bucket: string;
   max: number;
@@ -10,7 +13,7 @@ export type RateLimitOptions = {
   key?: string | null;
 };
 
-export async function enforceRateLimit(opts: RateLimitOptions): Promise<void> {
+async function checkOne(opts: RateLimitOptions): Promise<boolean> {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   let key = opts.key;
   if (!key) {
@@ -29,9 +32,24 @@ export async function enforceRateLimit(opts: RateLimitOptions): Promise<void> {
   if (error) {
     // Fail-open on infra error rather than block legitimate users
     console.error("[rateLimit] check_rate_limit error", error);
-    return;
+    return true;
   }
-  if (data === false) {
-    throw new Error("Too many requests. Please try again later.");
+  return data !== false;
+}
+
+export async function enforceRateLimit(opts: RateLimitOptions): Promise<void> {
+  const ok = await checkOne(opts);
+  if (!ok) throw new Error(RATE_LIMIT_MESSAGE);
+}
+
+/**
+ * Enforce multiple buckets at once. ALL buckets are incremented
+ * (no short-circuit) so an attacker can't probe one axis for free.
+ * Throws if any bucket exceeds its limit.
+ */
+export async function enforceRateLimits(all: RateLimitOptions[]): Promise<void> {
+  const results = await Promise.all(all.map((o) => checkOne(o).catch(() => true)));
+  if (results.some((ok) => !ok)) {
+    throw new Error(RATE_LIMIT_MESSAGE);
   }
 }

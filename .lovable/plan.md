@@ -1,55 +1,76 @@
+## Goals
 
-## Summary
+Tighten accessibility, UX, and server-side enforcement on the password reset / change flow.
 
-Change-password already exists from the previous turn (`/auth/change-password`) and reset-password already calls `supabase.auth.signOut()` after `updateUser` (invalidates the active session). This turn focuses on the remaining gaps: clearer token error states, a rate-limited "Resend recovery email" button, and belt-and-braces session invalidation.
+## 1. Accessible ARIA feedback (`PasswordFields.tsx`)
 
-## 1. Distinguish token error states on `/auth/reset-password`
+- Wrap the strength meter in `role="progressbar"` with `aria-valuemin=0`, `aria-valuemax=5`, `aria-valuenow={score}`, `aria-valuetext={label}`, and `aria-label="Password strength"`.
+- Wrap the strength label + rule checklist in a single `role="status"` `aria-live="polite"` `aria-atomic="false"` region so SR users hear rule flips as they type (debounced by React re-render only).
+- Give each rule `<li>` a stable `id` and set `aria-label="{rule label}: {met|not met}"`; icon becomes `aria-hidden`.
+- Add a live region under the confirm field (`role="status"` `aria-live="polite"`) that renders the match/mismatch sentence, so screen readers announce match state changes without moving focus.
+- Ensure the input keeps `aria-describedby` pointing to both the requirements list and the confirm-status region.
 
-Supabase redirects invalid/expired recovery links back to the `redirectTo` URL with error info in the hash: `#error=access_denied&error_code=otp_expired&error_description=Email+link+is+invalid+or+has+expired`.
+## 2. Show/hide + live match feedback
 
-- Parse `window.location.hash` on mount before running the current session check.
-- Map to three distinct UI states, each with tailored copy:
-  - `otp_expired` → "This reset link has expired. Reset links are valid for a short time and can only be used once."
-  - `access_denied` / no session detected within 2.5s → "This reset link is invalid or has already been used."
-  - Generic Supabase error → show `error_description`.
-- All error states show the same "Request new link" CTA to `/auth/forgot-password`.
+- Split the visibility toggle into two independent buttons — one on the new-password field, one on the confirm field — each with `aria-pressed` and `aria-label` reflecting current state ("Show password" / "Hide password").
+- On `auth.change-password.tsx`, keep the existing Current Password toggle but rewrite its `aria-label` the same way and add `aria-pressed`.
+- Match/mismatch is already computed; add it as a live-region announcement (see §1) and make it visible on every keystroke after the user has typed at least one char in confirm (drop the "touched" gate so feedback is immediate — the CTA remains disabled while invalid, so users aren't punished).
 
-Supabase already enforces expiration and single-use natively — no schema change needed. We just surface the reason.
+## 3. Server-side password strength enforcement
 
-## 2. Resend recovery email button
+Currently `supabase.auth.updateUser({ password })` is called from the browser, so client validation can be bypassed. Move the write behind two new server functions in `src/lib/auth.functions.ts` that share one Zod strength schema:
 
-Show it in two places on `/auth/reset-password`:
-- Inside the invalid/expired panel ("Send a new link to <email>").
-- Below the form in the `ready` state (in case the user opened the link late and wants a fresh one before submitting).
+```text
+StrongPasswordSchema = z.string()
+  .min(8).max(128)
+  .regex(/[A-Z]/).regex(/[a-z]/).regex(/[0-9]/).regex(/[!@#$%^&*(),.?":{}|<>]/)
+```
 
-Behaviour:
-- Read the recipient email from `supabase.auth.getUser()` when a recovery session exists; otherwise the invalid-state panel shows a single email input instead.
-- On click, call a new server function `requestPasswordReset({ email })` from `src/lib/auth.functions.ts` (no auth required — it's a public endpoint). The server fn:
-  - Validates email shape with Zod.
-  - Calls `enforceRateLimit` (from the existing `rateLimit.server.ts`) with `bucket: "password-reset"`, keyed by lowercased email, `max: 3` per `600s` (10-minute window). Also enforces a per-IP cap of `max: 10` per `3600s` as a second bucket to prevent enumeration/spraying.
-  - Uses the publishable-key server Supabase client to call `resetPasswordForEmail(email, { redirectTo: <site>/auth/reset-password })`. Always returns `{ ok: true }` regardless of whether the email exists (no enumeration).
-  - Throws "Too many requests. Please try again later." only for the rate-limit failure so the client can display it.
-- Client-side cooldown: after a successful call, disable the button for 60s with a live countdown ("Resend in 42s"). Persist the cooldown deadline in `sessionStorage` under `mdf.recovery.resend.until` so a reload doesn't reset it.
-- Show a small success confirmation ("New link sent to j***@example.com") after each resend.
+- `completePasswordReset({ accessToken, refreshToken, newPassword })` — public server fn.
+  - Validates `newPassword` against `StrongPasswordSchema`; on failure returns `{ ok: false, reason: "weak_password", issues }`.
+  - Creates a server-scoped Supabase client (publishable key), calls `setSession({ accessToken, refreshToken })`, then `updateUser({ password })`.
+  - On expired/invalid token returns `{ ok: false, reason: "expired" | "invalid" }`.
+  - On success returns `{ ok: true }`. The route then calls `supabase.auth.signOut({ scope: "global" })` client-side.
+- `changePassword({ currentPassword, newPassword })` — protected server fn using `requireSupabaseAuth`.
+  - Validates `newPassword` with the same schema, rejects if equal to `currentPassword`.
+  - Re-authenticates via a scratch server client `signInWithPassword({ email: claims.email, password: currentPassword })` to verify current password.
+  - Uses `supabaseAdmin.auth.admin.updateUserById(userId, { password })` (loaded lazily inside the handler) after authorization succeeds.
+  - Returns `{ ok, reason?: "wrong_current" | "same_password" | "weak_password" | "rate_limited" }`.
 
-## 3. Session invalidation after reset
+Both routes are refactored to call these server fns instead of calling `supabase.auth.updateUser` directly. The client still runs its existing validation for UX; the server is now authoritative.
 
-Already covered on `/auth/reset-password`: after `updateUser({ password })` succeeds, we call `supabase.auth.signOut()` then redirect to `/admin`. Add one small improvement:
-- Call `supabase.auth.signOut({ scope: "global" })` so refresh tokens on **all** devices are revoked, not just the current tab. Supabase's Auth API supports this — no server code needed.
-- Apply the same `scope: "global"` sign-out inside the existing `/auth/change-password` flow's re-authentication step is unnecessary (we want to keep the user signed in there), but AFTER a successful password update in change-password we do NOT sign them out — that behaviour stays as-is. (Confirm with user only if they want change-password to also force re-login.)
+## 4. Hardened rate limiting with consistent 429 messaging
 
-## 4. Change-password page
+Introduce a single helper in `rateLimit.server.ts`:
 
-Already implemented at `/auth/change-password` from the previous turn. No changes needed unless the user wants it to force sign-out after success. Not in scope.
+```text
+const RATE_LIMIT_MESSAGE = "Too many requests. Please try again in a few minutes.";
+enforceRateLimits([...opts]) → runs every bucket, aggregates, throws Response(429) on any fail
+```
+
+Applied per endpoint:
+
+| Server fn                | Per-email                  | Per-IP                    |
+| ------------------------ | -------------------------- | ------------------------- |
+| `requestPasswordReset`   | 3 / 10 min                 | 10 / hour                 |
+| `completePasswordReset`  | (per user id) 5 / 15 min   | 20 / hour                 |
+| `changePassword`         | (per user id) 5 / 15 min   | 20 / hour                 |
+
+- Both counters are always incremented (no short-circuit), so an attacker can't probe one axis for free.
+- On limit hit, the server fn calls `setResponseStatus(429)` and returns `{ ok: false, reason: "rate_limited", message: RATE_LIMIT_MESSAGE }` — same string everywhere.
+- The three routes render `result.message` (falling back to the shared constant) whenever `reason === "rate_limited"`, so the UI copy is identical across forgot-password, reset-password resend, reset submission, and change-password.
 
 ## Files touched
 
-- `src/routes/auth.reset-password.tsx` — hash parsing, tailored error copy, resend button + cooldown, `scope: "global"` sign-out.
-- `src/lib/auth.functions.ts` **new** — `requestPasswordReset` server function with two rate-limit buckets.
-- `src/routes/auth.forgot-password.tsx` — swap direct `supabase.auth.resetPasswordForEmail` call to the new `requestPasswordReset` server fn so the initial request is rate-limited the same way as resends.
+- `src/ported/components/PasswordFields.tsx` — ARIA regions, per-field toggles, always-on match feedback.
+- `src/routes/auth.change-password.tsx` — call `changePassword` server fn; rewire Current Password toggle ARIA.
+- `src/routes/auth.reset-password.tsx` — call `completePasswordReset` server fn; unify 429 copy.
+- `src/routes/auth.forgot-password.tsx` — unify 429 copy via shared message.
+- `src/lib/auth.functions.ts` — add `completePasswordReset`, `changePassword`, shared `StrongPasswordSchema`, shared `RATE_LIMIT_MESSAGE`.
+- `src/lib/rateLimit.server.ts` — export `RATE_LIMIT_MESSAGE` and small `enforceRateLimits` helper that runs all buckets.
 
 ## Out of scope
 
-- No new database tables (the existing `rate_limits` table + `check_rate_limit` RPC cover this).
-- No changes to Supabase Auth settings (token TTL is configured in Auth settings; not modified here — Supabase's default is already short and single-use).
-- No change to `change-password`'s post-success behaviour.
+- No DB schema changes (existing `check_rate_limit` RPC + `rate_limits` table are reused).
+- No changes to Supabase Auth project-level password policy.
+- No changes to `PasswordFields` visual design beyond adding the second toggle button.

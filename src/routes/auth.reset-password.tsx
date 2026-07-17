@@ -4,7 +4,11 @@ import { useServerFn } from "@tanstack/react-start";
 import { Mail, ArrowRight, ShieldCheck, AlertTriangle, CheckCircle2, RotateCw } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { PasswordFields, validateNewPassword } from "@/ported/components/PasswordFields";
-import { requestPasswordReset } from "@/lib/auth.functions";
+import {
+  requestPasswordReset,
+  completePasswordReset,
+  RATE_LIMIT_MESSAGE,
+} from "@/lib/auth.functions";
 
 export const Route = createFileRoute("/auth/reset-password")({
   head: () => ({
@@ -43,6 +47,7 @@ function parseHashError(): { code?: string; description?: string } | null {
 function ResetPasswordRoute() {
   const navigate = useNavigate();
   const requestReset = useServerFn(requestPasswordReset);
+  const completeReset = useServerFn(completePasswordReset);
   const [status, setStatus] = useState<Status>("checking");
   const [tokenErrorDescription, setTokenErrorDescription] = useState<string | null>(null);
   const [sessionEmail, setSessionEmail] = useState<string | null>(null);
@@ -127,13 +132,37 @@ function ResetPasswordRoute() {
       return;
     }
     setSubmitting(true);
-    const { error: updateError } = await supabase.auth.updateUser({ password });
-    if (updateError) {
-      const msg = updateError.message?.toLowerCase() || "";
-      if (msg.includes("expired") || msg.includes("invalid")) {
+
+    // Grab the current recovery session so the server can perform the update
+    const { data: sessData } = await supabase.auth.getSession();
+    const accessToken = sessData.session?.access_token;
+    const refreshToken = sessData.session?.refresh_token;
+    if (!accessToken || !refreshToken) {
+      setStatus("invalid");
+      setSubmitting(false);
+      return;
+    }
+
+    let result: Awaited<ReturnType<typeof completeReset>>;
+    try {
+      result = await completeReset({ data: { accessToken, refreshToken, newPassword: password } });
+    } catch {
+      setError("Could not update password. Please try again.");
+      setSubmitting(false);
+      return;
+    }
+
+    if (!result.ok) {
+      if (result.reason === "expired") {
         setStatus("expired");
+      } else if (result.reason === "invalid") {
+        setStatus("invalid");
+      } else if (result.reason === "rate_limited") {
+        setError(result.message || RATE_LIMIT_MESSAGE);
+      } else if (result.reason === "weak_password") {
+        setError(result.issues?.[0] || "Password does not meet all requirements.");
       } else {
-        setError(updateError.message || "Could not update password.");
+        setError(("message" in result && result.message) || "Could not update password.");
       }
       setSubmitting(false);
       return;
@@ -170,9 +199,7 @@ function ResetPasswordRoute() {
     try {
       const result = await requestReset({ data: { email, origin: window.location.origin } });
       if (!result.ok && result.reason === "rate_limited") {
-        setResendErr(
-          "Too many reset requests. Please wait a few minutes before trying again.",
-        );
+        setResendErr(result.message || RATE_LIMIT_MESSAGE);
       } else {
         setResendMsg(`A new reset link has been sent to ${redactEmail(email)}.`);
         startCooldown();

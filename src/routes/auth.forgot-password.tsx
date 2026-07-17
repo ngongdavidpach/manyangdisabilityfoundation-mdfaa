@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import React, { useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { Mail, ArrowRight, ShieldCheck, AlertTriangle, CheckCircle2 } from "lucide-react";
-import { requestPasswordReset } from "@/lib/auth.functions";
+import { requestPasswordReset, RATE_LIMIT_MESSAGE } from "@/lib/auth.functions";
 
 export const Route = createFileRoute("/auth/forgot-password")({
   head: () => ({
@@ -36,9 +36,7 @@ function ForgotPasswordRoute() {
         data: { email: trimmed, origin: window.location.origin },
       });
       if (!result.ok && result.reason === "rate_limited") {
-        setError(
-          "Too many reset requests for this address. Please wait a few minutes before trying again.",
-        );
+        setError(result.message || RATE_LIMIT_MESSAGE);
       } else {
         setSent(true);
       }
