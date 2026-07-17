@@ -9,6 +9,11 @@ export { RATE_LIMIT_MESSAGE };
 const GRACE_PERIOD_DAYS = 30;
 const BAN_DURATION = "720h"; // 30 days
 const SITE_ORIGIN = "https://manyangdisabilityfoundation.org";
+// Max age of the user's last sign-in to allow destructive actions
+// (account deletion). GitHub sudo mode is ~1h; we use 5 min for a
+// permanent-destruction flow.
+const REAUTH_WINDOW_SECONDS = 300;
+
 
 // Shared password strength schema — MUST match the client-side rules in
 // src/ported/utils/auth.ts getPasswordStrength(). Enforced server-side so
@@ -396,9 +401,26 @@ export const requestAccountDeletion = createServerFn({ method: "POST" })
       return { ok: false as const, reason: "unauthenticated" as const };
     }
 
+    // Recent-login (sudo mode) check. Refuses the request when the user's
+    // last authentication is older than REAUTH_WINDOW_SECONDS — a stolen or
+    // long-idle session can't schedule a permanent deletion without
+    // re-entering the password via the reauthenticate flow.
+    const lastSignIn = userData?.user?.last_sign_in_at;
+    const secondsSinceAuth = lastSignIn
+      ? Math.max(0, Math.floor((Date.now() - new Date(lastSignIn).getTime()) / 1000))
+      : Number.MAX_SAFE_INTEGER;
+    if (secondsSinceAuth > REAUTH_WINDOW_SECONDS) {
+      return {
+        ok: false as const,
+        reason: "reauth_required" as const,
+        secondsSinceAuth,
+      };
+    }
+
     if (data.confirmEmail !== email.toLowerCase()) {
       return { ok: false as const, reason: "wrong_email" as const };
     }
+
 
     const verifier = makePublishableClient();
     const { error: signInError } = await verifier.auth.signInWithPassword({
@@ -603,3 +625,57 @@ export const getAccountDeletionStatus = createServerFn({ method: "GET" })
       purgeAfter: data.purge_after,
     };
   });
+
+const ReauthenticateSchema = z.object({
+  password: z.string().min(1).max(200),
+});
+
+/**
+ * Re-verify the signed-in user's password and mint a fresh session so
+ * subsequent sensitive actions (account deletion) pass the recent-login
+ * check. Returns the new access/refresh tokens for the client to install
+ * via supabase.auth.setSession(). Rate-limited per user + per IP.
+ */
+export const reauthenticate = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) => ReauthenticateSchema.parse(input))
+  .handler(async ({ data, context }) => {
+    const { enforceRateLimits } = await import("@/lib/rateLimit.server");
+    const { setResponseStatus } = await import("@tanstack/react-start/server");
+    const userId = context.userId;
+    try {
+      await enforceRateLimits([
+        { bucket: "reauthenticate:user", key: userId, max: 5, windowSeconds: 900 },
+        { bucket: "reauthenticate:ip", max: 20, windowSeconds: 3600 },
+      ]);
+    } catch {
+      setResponseStatus(429);
+      return { ok: false as const, reason: "rate_limited" as const, message: RATE_LIMIT_MESSAGE };
+    }
+
+    const { data: userData, error: userErr } = await context.supabase.auth.getUser();
+    const email = userData?.user?.email;
+    if (userErr || !email) {
+      return { ok: false as const, reason: "unauthenticated" as const };
+    }
+
+    const verifier = makePublishableClient();
+    const { data: signInData, error: signInError } = await verifier.auth.signInWithPassword({
+      email,
+      password: data.password,
+    });
+    if (signInError || !signInData.session) {
+      return { ok: false as const, reason: "wrong_password" as const };
+    }
+
+    const session = signInData.session;
+    // Do not sign the verifier out — that would revoke the refresh token
+    // we're about to hand to the client.
+    return {
+      ok: true as const,
+      accessToken: session.access_token,
+      refreshToken: session.refresh_token,
+      expiresAt: session.expires_at ?? null,
+    };
+  });
+
