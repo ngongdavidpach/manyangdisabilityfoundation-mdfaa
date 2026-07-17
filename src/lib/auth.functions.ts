@@ -287,16 +287,16 @@ export const exportMyData = createServerFn({ method: "POST" })
     // Gather rows the user owns. Some tables key on user_id, some on email —
     // fetch both when useful. Errors on any individual table are ignored so
     // the export still returns whatever we could read.
-    async function safeRows<T = unknown>(
+    async function safeRows(
       table: string,
       column: "user_id" | "email" | "created_by",
       value: string | null,
-    ): Promise<T[]> {
+    ): Promise<any[]> {
       if (!value) return [];
       try {
         const { data, error } = await supabase.from(table as any).select("*").eq(column, value);
         if (error) return [];
-        return (data as T[]) || [];
+        return (data as any[]) || [];
       } catch {
         return [];
       }
