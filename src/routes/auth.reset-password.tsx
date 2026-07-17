@@ -199,9 +199,7 @@ function ResetPasswordRoute() {
     try {
       const result = await requestReset({ data: { email, origin: window.location.origin } });
       if (!result.ok && result.reason === "rate_limited") {
-        setResendErr(
-          "Too many reset requests. Please wait a few minutes before trying again.",
-        );
+        setResendErr(result.message || RATE_LIMIT_MESSAGE);
       } else {
         setResendMsg(`A new reset link has been sent to ${redactEmail(email)}.`);
         startCooldown();
