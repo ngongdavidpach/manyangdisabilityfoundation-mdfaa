@@ -206,6 +206,12 @@ function DeleteAccountRoute() {
 
     if (!result.ok) {
       switch (result.reason) {
+        case "reauth_required":
+          setNeedsReauth(true);
+          setError(
+            "For your security, please re-enter your password to confirm it's you before deleting your account.",
+          );
+          break;
         case "wrong_password":
           setError("Current password is incorrect.");
           break;
@@ -231,6 +237,7 @@ function DeleteAccountRoute() {
       setSubmitting(false);
       return;
     }
+
 
     setPurgeAfter(result.purgeAfter);
     await queryClient.cancelQueries();
