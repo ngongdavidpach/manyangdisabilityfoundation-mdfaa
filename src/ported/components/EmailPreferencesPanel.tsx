@@ -51,7 +51,7 @@ export function EmailPreferencesPanel({ mode }: { mode: "auth" | "token" }) {
     let cancelled = false;
     (async () => {
       try {
-        let url = "/email/preferences";
+        let url = "/api/public/email-preferences";
         const headers: Record<string, string> = { "content-type": "application/json" };
         if (mode === "token") {
           const t = new URL(window.location.href).searchParams.get("token") || "";
@@ -105,7 +105,7 @@ export function EmailPreferencesPanel({ mode }: { mode: "auth" | "token" }) {
         if (!jwt) throw new Error("Signed out");
         headers.Authorization = `Bearer ${jwt}`;
       }
-      const res = await fetch("/email/preferences", {
+      const res = await fetch("/api/public/email-preferences", {
         method: "POST",
         headers,
         body: JSON.stringify(body),
