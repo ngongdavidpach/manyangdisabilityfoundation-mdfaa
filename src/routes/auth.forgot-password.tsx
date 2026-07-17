@@ -1,7 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import React, { useState } from "react";
+import { useServerFn } from "@tanstack/react-start";
 import { Mail, ArrowRight, ShieldCheck, AlertTriangle, CheckCircle2 } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
+import { requestPasswordReset } from "@/lib/auth.functions";
 
 export const Route = createFileRoute("/auth/forgot-password")({
   head: () => ({
@@ -15,6 +16,7 @@ export const Route = createFileRoute("/auth/forgot-password")({
 });
 
 function ForgotPasswordRoute() {
+  const requestReset = useServerFn(requestPasswordReset);
   const [email, setEmail] = useState("");
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -30,10 +32,16 @@ function ForgotPasswordRoute() {
     }
     setSubmitting(true);
     try {
-      await supabase.auth.resetPasswordForEmail(trimmed, {
-        redirectTo: `${window.location.origin}/auth/reset-password`,
+      const result = await requestReset({
+        data: { email: trimmed, origin: window.location.origin },
       });
-      setSent(true);
+      if (!result.ok && result.reason === "rate_limited") {
+        setError(
+          "Too many reset requests for this address. Please wait a few minutes before trying again.",
+        );
+      } else {
+        setSent(true);
+      }
     } catch {
       // Show generic success anyway to avoid enumeration
       setSent(true);
@@ -49,9 +57,7 @@ function ForgotPasswordRoute() {
           <img src="/images/logo.png" alt="MDF Logo" className="w-12 h-12 object-contain" />
           <div>
             <h1 className="text-lg font-bold text-slate-900 leading-tight">Forgot password?</h1>
-            <p className="text-xs text-slate-500">
-              We'll email you a link to reset it.
-            </p>
+            <p className="text-xs text-slate-500">We'll email you a link to reset it.</p>
           </div>
         </div>
 
@@ -60,8 +66,8 @@ function ForgotPasswordRoute() {
             <div className="bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs p-3 rounded-lg flex items-start gap-2">
               <CheckCircle2 className="w-4 h-4 shrink-0 mt-0.5" />
               <span>
-                If an account exists for that address, we've sent a password reset link.
-                Check your inbox (and spam folder).
+                If an account exists for that address, we've sent a password reset link. Check your
+                inbox (and spam folder).
               </span>
             </div>
             <Link

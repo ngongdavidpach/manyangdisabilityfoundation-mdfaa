@@ -1,37 +1,55 @@
 
-## Goal
+## Summary
 
-Give staff a self-service password reset flow. The recovery email template + auth webhook already exist; we just need the two public pages and a "Forgot password?" entry point on the staff sign-in screen.
+Change-password already exists from the previous turn (`/auth/change-password`) and reset-password already calls `supabase.auth.signOut()` after `updateUser` (invalidates the active session). This turn focuses on the remaining gaps: clearer token error states, a rate-limited "Resend recovery email" button, and belt-and-braces session invalidation.
 
-## New routes (public, top-level)
+## 1. Distinguish token error states on `/auth/reset-password`
 
-1. `src/routes/auth.forgot-password.tsx` — `/auth/forgot-password`
-   - Form with a single email field.
-   - Calls `supabase.auth.resetPasswordForEmail(email, { redirectTo: ${window.location.origin}/auth/reset-password })`.
-   - Always shows a generic success state ("If an account exists, we've sent a reset link") to avoid account enumeration. Renders errors only for network/validation failures.
-   - Link back to `/admin` (staff sign-in).
+Supabase redirects invalid/expired recovery links back to the `redirectTo` URL with error info in the hash: `#error=access_denied&error_code=otp_expired&error_description=Email+link+is+invalid+or+has+expired`.
 
-2. `src/routes/auth.reset-password.tsx` — `/auth/reset-password`
-   - Public route (NOT under `_authenticated/`). SSR-safe: all Supabase calls in effects/handlers.
-   - On mount:
-     - Supabase auto-processes the recovery link and fires `PASSWORD_RECOVERY` via `onAuthStateChange`. Subscribe once; mark the form ready when that event fires OR when `supabase.auth.getSession()` returns a session with a user.
-     - If no recovery session is detected after a short check, show "This reset link is invalid or has expired" with a link to `/auth/forgot-password`.
-   - Form: new password + confirm password, with the existing `getPasswordStrength` helper for the strength meter.
-   - Submit calls `supabase.auth.updateUser({ password })`. On success, sign the user out (`supabase.auth.signOut()`) so they must sign in fresh with the new password, then redirect to `/admin` with a success toast/inline message.
+- Parse `window.location.hash` on mount before running the current session check.
+- Map to three distinct UI states, each with tailored copy:
+  - `otp_expired` → "This reset link has expired. Reset links are valid for a short time and can only be used once."
+  - `access_denied` / no session detected within 2.5s → "This reset link is invalid or has already been used."
+  - Generic Supabase error → show `error_description`.
+- All error states show the same "Request new link" CTA to `/auth/forgot-password`.
 
-## Entry point
+Supabase already enforces expiration and single-use natively — no schema change needed. We just surface the reason.
 
-3. Edit `src/ported/components/views/StaffLoginView.tsx`
-   - Add a "Forgot password?" `<Link to="/auth/forgot-password">` under the password field. No other changes to the sign-in flow.
+## 2. Resend recovery email button
 
-## Styling / conventions
+Show it in two places on `/auth/reset-password`:
+- Inside the invalid/expired panel ("Send a new link to <email>").
+- Below the form in the `ready` state (in case the user opened the link late and wants a fresh one before submitting).
 
-- Match the visual language of `StaffLoginView` (white card, `rounded-2xl`, slate palette, lucide icons: `Mail`, `Lock`, `Eye/EyeOff`, `ShieldCheck`, `AlertTriangle`, `CheckCircle2`).
-- Each route sets its own `head()` with a real title + description; noindex both (`<meta name="robots" content="noindex" />` via head meta) since they're transactional.
-- Both route files include the required `errorComponent` / `notFoundComponent` (none of them use a loader, so no data-loader boundaries needed beyond defaults).
+Behaviour:
+- Read the recipient email from `supabase.auth.getUser()` when a recovery session exists; otherwise the invalid-state panel shows a single email input instead.
+- On click, call a new server function `requestPasswordReset({ email })` from `src/lib/auth.functions.ts` (no auth required — it's a public endpoint). The server fn:
+  - Validates email shape with Zod.
+  - Calls `enforceRateLimit` (from the existing `rateLimit.server.ts`) with `bucket: "password-reset"`, keyed by lowercased email, `max: 3` per `600s` (10-minute window). Also enforces a per-IP cap of `max: 10` per `3600s` as a second bucket to prevent enumeration/spraying.
+  - Uses the publishable-key server Supabase client to call `resetPasswordForEmail(email, { redirectTo: <site>/auth/reset-password })`. Always returns `{ ok: true }` regardless of whether the email exists (no enumeration).
+  - Throws "Too many requests. Please try again later." only for the rate-limit failure so the client can display it.
+- Client-side cooldown: after a successful call, disable the button for 60s with a live countdown ("Resend in 42s"). Persist the cooldown deadline in `sessionStorage` under `mdf.recovery.resend.until` so a reload doesn't reset it.
+- Show a small success confirmation ("New link sent to j***@example.com") after each resend.
+
+## 3. Session invalidation after reset
+
+Already covered on `/auth/reset-password`: after `updateUser({ password })` succeeds, we call `supabase.auth.signOut()` then redirect to `/admin`. Add one small improvement:
+- Call `supabase.auth.signOut({ scope: "global" })` so refresh tokens on **all** devices are revoked, not just the current tab. Supabase's Auth API supports this — no server code needed.
+- Apply the same `scope: "global"` sign-out inside the existing `/auth/change-password` flow's re-authentication step is unnecessary (we want to keep the user signed in there), but AFTER a successful password update in change-password we do NOT sign them out — that behaviour stays as-is. (Confirm with user only if they want change-password to also force re-login.)
+
+## 4. Change-password page
+
+Already implemented at `/auth/change-password` from the previous turn. No changes needed unless the user wants it to force sign-out after success. Not in scope.
+
+## Files touched
+
+- `src/routes/auth.reset-password.tsx` — hash parsing, tailored error copy, resend button + cooldown, `scope: "global"` sign-out.
+- `src/lib/auth.functions.ts` **new** — `requestPasswordReset` server function with two rate-limit buckets.
+- `src/routes/auth.forgot-password.tsx` — swap direct `supabase.auth.resetPasswordForEmail` call to the new `requestPasswordReset` server fn so the initial request is rate-limited the same way as resends.
 
 ## Out of scope
 
-- Email template changes (recovery template already branded).
-- Any change to auth middleware, RLS, or the `_authenticated/` layout.
-- Public self-signup (staff accounts are still created by admins).
+- No new database tables (the existing `rate_limits` table + `check_rate_limit` RPC cover this).
+- No changes to Supabase Auth settings (token TTL is configured in Auth settings; not modified here — Supabase's default is already short and single-use).
+- No change to `change-password`'s post-success behaviour.
