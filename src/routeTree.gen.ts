@@ -14,6 +14,7 @@ import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as RssDotxmlRouteImport } from './routes/rss[.]xml'
 import { Route as RequestRouteImport } from './routes/request'
 import { Route as ProgramsRouteImport } from './routes/programs'
+import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as NewsRouteImport } from './routes/news'
 import { Route as McpRouteImport } from './routes/mcp'
 import { Route as GetInvolvedRouteImport } from './routes/get-involved'
@@ -77,6 +78,11 @@ const RequestRoute = RequestRouteImport.update({
 const ProgramsRoute = ProgramsRouteImport.update({
   id: '/programs',
   path: '/programs',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PrivacyRoute = PrivacyRouteImport.update({
+  id: '/privacy',
+  path: '/privacy',
   getParentRoute: () => rootRouteImport,
 } as any)
 const NewsRoute = NewsRouteImport.update({
@@ -296,6 +302,7 @@ export interface FileRoutesByFullPath {
   '/get-involved': typeof GetInvolvedRoute
   '/mcp': typeof McpRoute
   '/news': typeof NewsRouteWithChildren
+  '/privacy': typeof PrivacyRoute
   '/programs': typeof ProgramsRouteWithChildren
   '/request': typeof RequestRoute
   '/rss.xml': typeof RssDotxmlRoute
@@ -342,6 +349,7 @@ export interface FileRoutesByTo {
   '/get-involved': typeof GetInvolvedRoute
   '/mcp': typeof McpRoute
   '/news': typeof NewsRouteWithChildren
+  '/privacy': typeof PrivacyRoute
   '/programs': typeof ProgramsRouteWithChildren
   '/request': typeof RequestRoute
   '/rss.xml': typeof RssDotxmlRoute
@@ -389,6 +397,7 @@ export interface FileRoutesById {
   '/get-involved': typeof GetInvolvedRoute
   '/mcp': typeof McpRoute
   '/news': typeof NewsRouteWithChildren
+  '/privacy': typeof PrivacyRoute
   '/programs': typeof ProgramsRouteWithChildren
   '/request': typeof RequestRoute
   '/rss.xml': typeof RssDotxmlRoute
@@ -437,6 +446,7 @@ export interface FileRouteTypes {
     | '/get-involved'
     | '/mcp'
     | '/news'
+    | '/privacy'
     | '/programs'
     | '/request'
     | '/rss.xml'
@@ -483,6 +493,7 @@ export interface FileRouteTypes {
     | '/get-involved'
     | '/mcp'
     | '/news'
+    | '/privacy'
     | '/programs'
     | '/request'
     | '/rss.xml'
@@ -529,6 +540,7 @@ export interface FileRouteTypes {
     | '/get-involved'
     | '/mcp'
     | '/news'
+    | '/privacy'
     | '/programs'
     | '/request'
     | '/rss.xml'
@@ -576,6 +588,7 @@ export interface RootRouteChildren {
   GetInvolvedRoute: typeof GetInvolvedRoute
   McpRoute: typeof McpRoute
   NewsRoute: typeof NewsRouteWithChildren
+  PrivacyRoute: typeof PrivacyRoute
   ProgramsRoute: typeof ProgramsRouteWithChildren
   RequestRoute: typeof RequestRoute
   RssDotxmlRoute: typeof RssDotxmlRoute
@@ -641,6 +654,13 @@ declare module '@tanstack/react-router' {
       path: '/programs'
       fullPath: '/programs'
       preLoaderRoute: typeof ProgramsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/privacy': {
+      id: '/privacy'
+      path: '/privacy'
+      fullPath: '/privacy'
+      preLoaderRoute: typeof PrivacyRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/news': {
@@ -967,6 +987,7 @@ const rootRouteChildren: RootRouteChildren = {
   GetInvolvedRoute: GetInvolvedRoute,
   McpRoute: McpRoute,
   NewsRoute: NewsRouteWithChildren,
+  PrivacyRoute: PrivacyRoute,
   ProgramsRoute: ProgramsRouteWithChildren,
   RequestRoute: RequestRoute,
   RssDotxmlRoute: RssDotxmlRoute,
