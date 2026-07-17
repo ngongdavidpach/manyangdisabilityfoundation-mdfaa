@@ -57,6 +57,7 @@ function DeleteAccountRoute() {
   const queryClient = useQueryClient();
   const requestDeletionFn = useServerFn(requestAccountDeletion);
   const exportFn = useServerFn(exportMyData);
+  const reauthenticateFn = useServerFn(reauthenticate);
 
   const [status, setStatus] = useState<Status>("checking");
   const [email, setEmail] = useState("");
@@ -72,16 +73,33 @@ function DeleteAccountRoute() {
   const [exportMsg, setExportMsg] = useState<string | null>(null);
   const [exportErr, setExportErr] = useState<string | null>(null);
 
+  // Re-authentication (recent-login / sudo mode) state
+  const [needsReauth, setNeedsReauth] = useState(false);
+  const [reauthPassword, setReauthPassword] = useState("");
+  const [showReauthPassword, setShowReauthPassword] = useState(false);
+  const [reauthing, setReauthing] = useState(false);
+  const [reauthError, setReauthError] = useState("");
+  const [reauthMsg, setReauthMsg] = useState("");
+
+  const computeNeedsReauth = (lastSignInAt: string | null | undefined) => {
+    if (!lastSignInAt) return true;
+    const seconds = Math.floor((Date.now() - new Date(lastSignInAt).getTime()) / 1000);
+    return seconds > REAUTH_WINDOW_SECONDS;
+  };
+
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => {
       if (data.user?.email) {
         setEmail(data.user.email);
+        setNeedsReauth(computeNeedsReauth(data.user.last_sign_in_at));
         setStatus("ready");
       } else {
         setStatus("unauthenticated");
       }
     });
   }, []);
+
+
 
   const emailMatches =
     confirmEmail.trim().length > 0 &&
