@@ -206,7 +206,14 @@ export const ContactView: React.FC<Props> = ({ siteKey }) => {
             </p>
           )}
 
-          <div className="flex items-center justify-end pt-2 border-t border-slate-100">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pt-2 border-t border-slate-100">
+            <p className="text-[11px] text-slate-500">
+              By submitting, you agree to our{" "}
+              <a href="/privacy" className="underline hover:text-slate-700">
+                Privacy Policy
+              </a>
+              .
+            </p>
             <button
               type="submit"
               disabled={status === "loading" || !siteKey}
@@ -220,6 +227,7 @@ export const ContactView: React.FC<Props> = ({ siteKey }) => {
               {status === "loading" ? "Sending…" : "Send message"}
             </button>
           </div>
+
         </form>
       </div>
     </div>
