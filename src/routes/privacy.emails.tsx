@@ -144,6 +144,15 @@ function EmailAddendum() {
         <h2 className="text-xl font-bold text-slate-900 mb-3">5. Opting out</h2>
         <ul className="list-disc pl-6 space-y-2 text-sm">
           <li>
+            You can manage individual categories (donation receipts, event confirmations,
+            coordinator and fundraiser updates, account notices) from your{" "}
+            <Link to="/dashboard/email-preferences" className="text-blue-700 underline">
+              email preferences
+            </Link>{" "}
+            when signed in, or via the "Manage preferences" link included with any
+            transactional email.
+          </li>
+          <li>
             Eligible transactional emails include an unsubscribe link. Using it adds your
             address to the suppression list.
           </li>
