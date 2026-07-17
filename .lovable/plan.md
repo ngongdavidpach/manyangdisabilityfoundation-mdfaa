@@ -1,56 +1,156 @@
-## 1. Fix the build error (client bundle pulled server-only imports)
 
-The last change made `auth.functions.ts` reach `rateLimit.server.ts` and `@tanstack/react-start/server` **at the module top level**. The `.functions.ts` splitter only strips `.handler()` bodies, not top-level imports, so the client graph now hits `getRequestIP` in a `.server.ts` file and the import-protection plugin fails the build.
+## Overview
 
-Fix (surgical, no behavior change):
+Four related additions to the account/auth flows:
 
-- Create `src/lib/rateLimit.constants.ts` — a client-safe module exporting `RATE_LIMIT_MESSAGE`. Both `rateLimit.server.ts` and `auth.functions.ts` import it from there; the three route files also import `RATE_LIMIT_MESSAGE` from this constants file instead of re-exporting through `auth.functions.ts`.
-- In `src/lib/auth.functions.ts`, drop the top-level imports of `@/lib/rateLimit.server` and `@tanstack/react-start/server`. Load them via `await import(...)` **inside each handler**, matching the pattern already used for `@/integrations/supabase/client.server`. Keep `requireSupabaseAuth` at top level (integration file is client-safe by design).
-- Leave `rateLimit.server.ts` unchanged.
+1. Let users download all their personal data before requesting deletion.
+2. Replace instant deletion with a 30-day soft-delete grace period (with cancel option).
+3. Send a confirmation email once the account is permanently deleted.
+4. Prevent reuse of the last 5 passwords on both change-password and reset-password.
 
-Verify with `bun run build:dev`.
+## 1. Data export (before delete)
 
-## 2. Delete account feature
+**DB migration:** none — read existing rows.
 
-### Route
+**Server fn** `exportMyData` in `src/lib/auth.functions.ts`:
+- `requireSupabaseAuth`, rate-limited (5/hour per user).
+- Uses `context.supabase` (RLS) to gather rows owned by the user across: `profiles`, `user_roles`, `donations`, `donation_intents`, `event_rsvps`, `contact_messages`, `volunteer_applications`, `coordinator_registrations`, `fundraiser_registrations`, `aid_requests`, `partner_inquiries`, plus auth email/metadata from `getUser()`.
+- Returns `{ ok: true, data: {...}, generatedAt }` as a single JSON payload.
 
-New authenticated page `src/routes/auth.delete-account.tsx`:
-- Shows the signed-in email.
-- Warning panel listing what gets removed (profile row + linked data cascade via existing `ON DELETE CASCADE`, role assignments, and access to Lovable Cloud).
-- Requires two independent confirmations before the submit button enables:
-  1. Type the account email exactly (case-insensitive compare after trim).
-  2. Password field (current password, re-authenticated server-side).
-  3. Checkbox: "I understand this is permanent and cannot be undone."
-- Submit calls new server fn `deleteAccount`. On success: `supabase.auth.signOut({ scope: "global" })` + `queryClient.clear()` + navigate to `/` with a toast/inline "Your account has been deleted."
-- `head()` with title / description / `noindex,nofollow`, same styling shell as `auth.change-password.tsx`.
+**UI** on `/auth/delete-account`:
+- Add a "Download your data" panel above the destructive form. Button calls `exportMyData`, converts the response to a Blob, and triggers a `mdf-account-data-<date>.json` download.
+- Copy explains this is a one-time snapshot the user can save before proceeding.
 
-### Server fn (`src/lib/auth.functions.ts`)
+## 2. Soft-delete with 30-day grace period
 
-`deleteAccount({ currentPassword, confirmEmail })` — protected via `requireSupabaseAuth`.
-1. Rate-limit (per-user `5/900s`, per-IP `10/3600s`) via the shared helper. 429 uses `RATE_LIMIT_MESSAGE`.
-2. Read caller email via `context.supabase.auth.getUser()`; reject if missing.
-3. Verify `confirmEmail.trim().toLowerCase() === email.toLowerCase()` — reject `wrong_email` if not.
-4. Re-authenticate with a scratch publishable-key client (`signInWithPassword`) to confirm the password — reject `wrong_password` on failure. Sign the scratch session out.
-5. Guard: refuse to delete if the caller is the only remaining `admin` in `user_roles`. Query with `context.supabase` and return `last_admin` so the UI can explain. This prevents locking the org out.
-6. Lazy-import `supabaseAdmin` and call `supabaseAdmin.auth.admin.deleteUser(userId)`. FK cascades clean up `profiles` and `user_roles` (already `ON DELETE CASCADE`).
-7. Return `{ ok: true }`.
+**DB migration** (new tables + columns):
 
-### Entry points
+```sql
+CREATE TABLE public.account_deletion_requests (
+  user_id uuid PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
+  requested_at timestamptz NOT NULL DEFAULT now(),
+  purge_after timestamptz NOT NULL,        -- requested_at + 30 days
+  email text NOT NULL,                     -- captured for the final email
+  status text NOT NULL DEFAULT 'pending',  -- pending | cancelled | purged
+  cancelled_at timestamptz,
+  purged_at timestamptz
+);
 
-- Add a small "Danger zone" section to `src/routes/auth.change-password.tsx` with a link to `/auth/delete-account`, so users can find it from the account settings area.
-- Add a "Delete account" link under the Sign-out button in `AdminDashboardView.tsx` sidebar (line 314 area) styled as a subdued destructive link (`text-red-600`), routed to `/auth/delete-account`.
+GRANT SELECT, INSERT, UPDATE ON public.account_deletion_requests TO authenticated;
+GRANT ALL ON public.account_deletion_requests TO service_role;
 
-### Not included
+ALTER TABLE public.account_deletion_requests ENABLE ROW LEVEL SECURITY;
 
-- No new DB tables or migrations. Cascade is already set up on `profiles` and `user_roles`.
-- No admin UI to delete other users (only self-service).
-- No 30-day soft-delete grace period — deletion is immediate via `auth.admin.deleteUser`. If the user later wants soft-delete, that's a separate change.
+CREATE POLICY "Users manage own deletion request"
+  ON public.account_deletion_requests
+  FOR ALL TO authenticated
+  USING (user_id = auth.uid())
+  WITH CHECK (user_id = auth.uid());
+```
 
-## Files touched
+**Server fns** (`src/lib/auth.functions.ts`, all rate-limited):
+- `requestAccountDeletion({ currentPassword, confirmEmail })` — replaces the current immediate delete. Verifies password + email + last-admin guard (unchanged), inserts an `account_deletion_requests` row with `purge_after = now() + interval '30 days'`, calls `supabaseAdmin.auth.admin.updateUserById(userId, { ban_duration: '720h' })` to block sign-in during grace, then `signOut({ scope: 'global' })` client-side. Returns `{ ok: true, purgeAfter }`.
+- `cancelAccountDeletion()` — protected; marks the row `cancelled`, unbans the user, only allowed while `status='pending'` and `purge_after > now()`.
+- `getAccountDeletionStatus()` — protected; returns current pending request if any (used by admin dashboard banner).
 
-- `src/lib/rateLimit.constants.ts` — new, exports `RATE_LIMIT_MESSAGE`.
-- `src/lib/rateLimit.server.ts` — import the constant from the new module (re-export kept for backward compat).
-- `src/lib/auth.functions.ts` — move server-only imports inside handlers, add `deleteAccount`.
-- `src/routes/auth.change-password.tsx`, `src/routes/auth.reset-password.tsx`, `src/routes/auth.forgot-password.tsx` — import `RATE_LIMIT_MESSAGE` from the new constants module; reset-password gets a "Danger zone" link.
-- `src/routes/auth.delete-account.tsx` — new page.
-- `src/ported/components/views/AdminDashboardView.tsx` — add "Delete account" link near Sign out.
+**Purge job** (server route + pg_cron):
+- New route `src/routes/api/public/hooks/purge-deleted-accounts.ts` (POST, apikey-authenticated via anon key header). Loads `supabaseAdmin` inside handler, selects `account_deletion_requests` where `status='pending' AND purge_after <= now()`, for each: enqueue confirmation email (see §3), `supabaseAdmin.auth.admin.deleteUser(user_id)` (FK cascade removes profile/roles/etc.), update row to `status='purged', purged_at=now()`.
+- Migration adds `pg_cron` job running daily at 03:00 UTC that POSTs to the stable `project--<id>.lovable.app` URL with `apikey` header (per schedule-jobs-options doc).
+
+**UI updates:**
+- `/auth/delete-account` — after successful `requestAccountDeletion`, show a success card explaining the account is scheduled for permanent deletion on `<date>`, that sign-in is disabled until then, and how to cancel (email support or use the recovery link before signing out — we surface a cancel link on the success screen that requires re-signing in via a recovery flow, which cancels the request then re-bans if not confirmed).
+- Simpler path: success screen shows date + "Sign back in within 30 days to cancel." Since the user is banned, cancellation actually happens via a dedicated public route `/auth/cancel-deletion` that accepts a signed token emailed at request time. Add:
+  - `sendDeletionRequestedEmail` (new template `account-deletion-requested.tsx`) sent at request time, containing purge date + cancel link with a single-use signed token stored in the request row (`cancel_token` + `cancel_token_used_at`).
+  - Route `/auth/cancel-deletion?token=...` calls new server fn `cancelAccountDeletionByToken({ token })` which validates, marks cancelled, unbans user, and shows "Deletion cancelled — you can sign in again."
+- Admin dashboard sidebar: hide "Delete account" button when a pending request exists; instead show a warning banner with cancel link.
+
+## 3. Confirmation email after permanent deletion
+
+**New React Email template** `src/lib/email-templates/account-deletion-confirmed.tsx` (matches existing brand shell). Fields: user's email (as recipient), `deletedAt`, and support contact block (`info@manyangdisabilityfoundation.org` + phone from `foundationData`).
+
+**Registry:** register in `src/lib/email-templates/registry.ts` alongside a sibling `account-deletion-requested` template.
+
+**Trigger:** purge-deleted-accounts route enqueues both emails via existing `enqueue_email('transactional_emails', ...)` RPC before calling `admin.deleteUser`, so the auth user still exists at enqueue time; the queue processor sends afterward using the stored `email` column (independent of auth row).
+
+## 4. Password history (no reuse of last 5)
+
+**DB migration:**
+
+```sql
+CREATE TABLE public.password_history (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id uuid NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  password_hash text NOT NULL,      -- bcrypt via pgcrypto crypt()
+  created_at timestamptz NOT NULL DEFAULT now()
+);
+CREATE INDEX ON public.password_history (user_id, created_at DESC);
+
+GRANT ALL ON public.password_history TO service_role;
+-- No authenticated grants: only server-role code touches this table.
+
+ALTER TABLE public.password_history ENABLE ROW LEVEL SECURITY;
+-- (No policies → only service_role can read/write, which is what we want.)
+```
+
+Two SECURITY DEFINER RPCs (callable only via service role from server functions):
+
+```sql
+CREATE FUNCTION public.check_password_reuse(_user_id uuid, _new_password text)
+RETURNS boolean LANGUAGE sql SECURITY DEFINER SET search_path=public,extensions AS $$
+  SELECT EXISTS (
+    SELECT 1 FROM (
+      SELECT password_hash FROM public.password_history
+       WHERE user_id = _user_id
+       ORDER BY created_at DESC LIMIT 5
+    ) recent
+    WHERE recent.password_hash = extensions.crypt(_new_password, recent.password_hash)
+  );
+$$;
+
+CREATE FUNCTION public.record_password_hash(_user_id uuid, _new_password text)
+RETURNS void LANGUAGE plpgsql SECURITY DEFINER SET search_path=public,extensions AS $$
+BEGIN
+  INSERT INTO public.password_history(user_id, password_hash)
+  VALUES (_user_id, extensions.crypt(_new_password, extensions.gen_salt('bf', 10)));
+  -- Trim: keep only the 5 most recent
+  DELETE FROM public.password_history
+   WHERE user_id = _user_id
+     AND id NOT IN (
+       SELECT id FROM public.password_history
+        WHERE user_id = _user_id ORDER BY created_at DESC LIMIT 5
+     );
+END; $$;
+```
+
+Requires `pgcrypto`; enable in migration if missing.
+
+**Server function changes:**
+- `changePassword` handler: before `supabaseAdmin.auth.admin.updateUserById`, call `check_password_reuse` via `supabaseAdmin.rpc`. If true, return `{ ok:false, reason:'password_reused' }`. After successful update, call `record_password_hash`.
+- `completePasswordReset` handler: after `setSession` succeeds and password strength passes, run the same reuse check with the resolved `userId`, then update, then record.
+- The current "same as current password" check in `changePassword` remains as a fast-path.
+
+**Client copy:** map new `password_reused` reason to `"You cannot reuse any of your last 5 passwords."` on both `/auth/change-password` and `/auth/reset-password`.
+
+## Files
+
+New:
+- `src/lib/email-templates/account-deletion-requested.tsx`
+- `src/lib/email-templates/account-deletion-confirmed.tsx`
+- `src/routes/api/public/hooks/purge-deleted-accounts.ts`
+- `src/routes/auth.cancel-deletion.tsx`
+- One migration for `account_deletion_requests`, `password_history`, RPCs, pgcrypto, and pg_cron job.
+
+Edited:
+- `src/lib/auth.functions.ts` — new fns (`exportMyData`, `requestAccountDeletion` replacing immediate delete, `cancelAccountDeletionByToken`, `getAccountDeletionStatus`), password-history checks in `changePassword` / `completePasswordReset`.
+- `src/routes/auth.delete-account.tsx` — data export panel; switch to request-flow success state.
+- `src/routes/auth.change-password.tsx` — surface `password_reused` error.
+- `src/routes/auth.reset-password.tsx` — surface `password_reused` error.
+- `src/lib/email-templates/registry.ts` — register two new templates.
+- `src/ported/components/views/AdminDashboardView.tsx` — pending-deletion banner + hide destructive link while pending.
+
+## Out of scope
+
+- No admin UI to purge/cancel other users' deletion requests.
+- No SMS notifications.
+- Password history depth stays at 5 (not configurable via UI).
+- Grace-period length hard-coded to 30 days.

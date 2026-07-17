@@ -161,6 +161,8 @@ function ResetPasswordRoute() {
         setError(result.message || RATE_LIMIT_MESSAGE);
       } else if (result.reason === "weak_password") {
         setError(result.issues?.[0] || "Password does not meet all requirements.");
+      } else if (result.reason === "password_reused") {
+        setError("You cannot reuse any of your last 5 passwords. Please choose a different one.");
       } else {
         setError(("message" in result && result.message) || "Could not update password.");
       }

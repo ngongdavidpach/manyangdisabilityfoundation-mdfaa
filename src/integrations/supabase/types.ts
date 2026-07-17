@@ -14,6 +14,42 @@ export type Database = {
   }
   public: {
     Tables: {
+      account_deletion_requests: {
+        Row: {
+          cancel_token: string
+          cancel_token_used_at: string | null
+          cancelled_at: string | null
+          email: string
+          purge_after: string
+          purged_at: string | null
+          requested_at: string
+          status: string
+          user_id: string
+        }
+        Insert: {
+          cancel_token: string
+          cancel_token_used_at?: string | null
+          cancelled_at?: string | null
+          email: string
+          purge_after: string
+          purged_at?: string | null
+          requested_at?: string
+          status?: string
+          user_id: string
+        }
+        Update: {
+          cancel_token?: string
+          cancel_token_used_at?: string | null
+          cancelled_at?: string | null
+          email?: string
+          purge_after?: string
+          purged_at?: string | null
+          requested_at?: string
+          status?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       admin_access_log: {
         Row: {
           created_at: string
@@ -956,6 +992,27 @@ export type Database = {
         }
         Relationships: []
       }
+      password_history: {
+        Row: {
+          created_at: string
+          id: string
+          password_hash: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          password_hash: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          password_hash?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -1214,6 +1271,10 @@ export type Database = {
       }
     }
     Functions: {
+      check_password_reuse: {
+        Args: { _new_password: string; _user_id: string }
+        Returns: boolean
+      }
       check_rate_limit: {
         Args: {
           _bucket: string
@@ -1255,6 +1316,10 @@ export type Database = {
           msg_id: number
           read_ct: number
         }[]
+      }
+      record_password_hash: {
+        Args: { _new_password: string; _user_id: string }
+        Returns: undefined
       }
     }
     Enums: {
