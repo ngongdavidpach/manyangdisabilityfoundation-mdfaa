@@ -39,6 +39,8 @@ import { Route as GuidesDonateSuppliesRouteImport } from './routes/guides.donate
 import { Route as FaqDonationsRouteImport } from './routes/faq.donations'
 import { Route as EventsSlugRouteImport } from './routes/events.$slug'
 import { Route as EmailUnsubscribeRouteImport } from './routes/email/unsubscribe'
+import { Route as EmailPreferencesRouteImport } from './routes/email/preferences'
+import { Route as DashboardEmailPreferencesRouteImport } from './routes/dashboard.email-preferences'
 import { Route as AuthResetPasswordRouteImport } from './routes/auth.reset-password'
 import { Route as AuthForgotPasswordRouteImport } from './routes/auth.forgot-password'
 import { Route as AuthDeleteAccountRouteImport } from './routes/auth.delete-account'
@@ -207,6 +209,17 @@ const EmailUnsubscribeRoute = EmailUnsubscribeRouteImport.update({
   path: '/email/unsubscribe',
   getParentRoute: () => rootRouteImport,
 } as any)
+const EmailPreferencesRoute = EmailPreferencesRouteImport.update({
+  id: '/email/preferences',
+  path: '/email/preferences',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DashboardEmailPreferencesRoute =
+  DashboardEmailPreferencesRouteImport.update({
+    id: '/email-preferences',
+    path: '/email-preferences',
+    getParentRoute: () => DashboardRoute,
+  } as any)
 const AuthResetPasswordRoute = AuthResetPasswordRouteImport.update({
   id: '/auth/reset-password',
   path: '/auth/reset-password',
@@ -301,7 +314,7 @@ export interface FileRoutesByFullPath {
   '/admin': typeof AdminRoute
   '/contact': typeof ContactRoute
   '/csr-sponsorship': typeof CsrSponsorshipRoute
-  '/dashboard': typeof DashboardRoute
+  '/dashboard': typeof DashboardRouteWithChildren
   '/donate': typeof DonateRoute
   '/events': typeof EventsRouteWithChildren
   '/gallery': typeof GalleryRoute
@@ -321,6 +334,8 @@ export interface FileRoutesByFullPath {
   '/auth/delete-account': typeof AuthDeleteAccountRoute
   '/auth/forgot-password': typeof AuthForgotPasswordRoute
   '/auth/reset-password': typeof AuthResetPasswordRoute
+  '/dashboard/email-preferences': typeof DashboardEmailPreferencesRoute
+  '/email/preferences': typeof EmailPreferencesRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
   '/events/$slug': typeof EventsSlugRoute
   '/faq/donations': typeof FaqDonationsRoute
@@ -349,7 +364,7 @@ export interface FileRoutesByTo {
   '/admin': typeof AdminRoute
   '/contact': typeof ContactRoute
   '/csr-sponsorship': typeof CsrSponsorshipRoute
-  '/dashboard': typeof DashboardRoute
+  '/dashboard': typeof DashboardRouteWithChildren
   '/donate': typeof DonateRoute
   '/events': typeof EventsRouteWithChildren
   '/gallery': typeof GalleryRoute
@@ -369,6 +384,8 @@ export interface FileRoutesByTo {
   '/auth/delete-account': typeof AuthDeleteAccountRoute
   '/auth/forgot-password': typeof AuthForgotPasswordRoute
   '/auth/reset-password': typeof AuthResetPasswordRoute
+  '/dashboard/email-preferences': typeof DashboardEmailPreferencesRoute
+  '/email/preferences': typeof EmailPreferencesRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
   '/events/$slug': typeof EventsSlugRoute
   '/faq/donations': typeof FaqDonationsRoute
@@ -398,7 +415,7 @@ export interface FileRoutesById {
   '/admin': typeof AdminRoute
   '/contact': typeof ContactRoute
   '/csr-sponsorship': typeof CsrSponsorshipRoute
-  '/dashboard': typeof DashboardRoute
+  '/dashboard': typeof DashboardRouteWithChildren
   '/donate': typeof DonateRoute
   '/events': typeof EventsRouteWithChildren
   '/gallery': typeof GalleryRoute
@@ -418,6 +435,8 @@ export interface FileRoutesById {
   '/auth/delete-account': typeof AuthDeleteAccountRoute
   '/auth/forgot-password': typeof AuthForgotPasswordRoute
   '/auth/reset-password': typeof AuthResetPasswordRoute
+  '/dashboard/email-preferences': typeof DashboardEmailPreferencesRoute
+  '/email/preferences': typeof EmailPreferencesRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
   '/events/$slug': typeof EventsSlugRoute
   '/faq/donations': typeof FaqDonationsRoute
@@ -468,6 +487,8 @@ export interface FileRouteTypes {
     | '/auth/delete-account'
     | '/auth/forgot-password'
     | '/auth/reset-password'
+    | '/dashboard/email-preferences'
+    | '/email/preferences'
     | '/email/unsubscribe'
     | '/events/$slug'
     | '/faq/donations'
@@ -516,6 +537,8 @@ export interface FileRouteTypes {
     | '/auth/delete-account'
     | '/auth/forgot-password'
     | '/auth/reset-password'
+    | '/dashboard/email-preferences'
+    | '/email/preferences'
     | '/email/unsubscribe'
     | '/events/$slug'
     | '/faq/donations'
@@ -564,6 +587,8 @@ export interface FileRouteTypes {
     | '/auth/delete-account'
     | '/auth/forgot-password'
     | '/auth/reset-password'
+    | '/dashboard/email-preferences'
+    | '/email/preferences'
     | '/email/unsubscribe'
     | '/events/$slug'
     | '/faq/donations'
@@ -593,7 +618,7 @@ export interface RootRouteChildren {
   AdminRoute: typeof AdminRoute
   ContactRoute: typeof ContactRoute
   CsrSponsorshipRoute: typeof CsrSponsorshipRoute
-  DashboardRoute: typeof DashboardRoute
+  DashboardRoute: typeof DashboardRouteWithChildren
   DonateRoute: typeof DonateRoute
   EventsRoute: typeof EventsRouteWithChildren
   GalleryRoute: typeof GalleryRoute
@@ -613,6 +638,7 @@ export interface RootRouteChildren {
   AuthDeleteAccountRoute: typeof AuthDeleteAccountRoute
   AuthForgotPasswordRoute: typeof AuthForgotPasswordRoute
   AuthResetPasswordRoute: typeof AuthResetPasswordRoute
+  EmailPreferencesRoute: typeof EmailPreferencesRoute
   EmailUnsubscribeRoute: typeof EmailUnsubscribeRoute
   FaqDonationsRoute: typeof FaqDonationsRoute
   GuidesDonateSuppliesRoute: typeof GuidesDonateSuppliesRoute
@@ -843,6 +869,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof EmailUnsubscribeRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/email/preferences': {
+      id: '/email/preferences'
+      path: '/email/preferences'
+      fullPath: '/email/preferences'
+      preLoaderRoute: typeof EmailPreferencesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dashboard/email-preferences': {
+      id: '/dashboard/email-preferences'
+      path: '/email-preferences'
+      fullPath: '/dashboard/email-preferences'
+      preLoaderRoute: typeof DashboardEmailPreferencesRouteImport
+      parentRoute: typeof DashboardRoute
+    }
     '/auth/reset-password': {
       id: '/auth/reset-password'
       path: '/auth/reset-password'
@@ -958,6 +998,18 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface DashboardRouteChildren {
+  DashboardEmailPreferencesRoute: typeof DashboardEmailPreferencesRoute
+}
+
+const DashboardRouteChildren: DashboardRouteChildren = {
+  DashboardEmailPreferencesRoute: DashboardEmailPreferencesRoute,
+}
+
+const DashboardRouteWithChildren = DashboardRoute._addFileChildren(
+  DashboardRouteChildren,
+)
+
 interface EventsRouteChildren {
   EventsSlugRoute: typeof EventsSlugRoute
 }
@@ -1010,7 +1062,7 @@ const rootRouteChildren: RootRouteChildren = {
   AdminRoute: AdminRoute,
   ContactRoute: ContactRoute,
   CsrSponsorshipRoute: CsrSponsorshipRoute,
-  DashboardRoute: DashboardRoute,
+  DashboardRoute: DashboardRouteWithChildren,
   DonateRoute: DonateRoute,
   EventsRoute: EventsRouteWithChildren,
   GalleryRoute: GalleryRoute,
@@ -1031,6 +1083,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthDeleteAccountRoute: AuthDeleteAccountRoute,
   AuthForgotPasswordRoute: AuthForgotPasswordRoute,
   AuthResetPasswordRoute: AuthResetPasswordRoute,
+  EmailPreferencesRoute: EmailPreferencesRoute,
   EmailUnsubscribeRoute: EmailUnsubscribeRoute,
   FaqDonationsRoute: FaqDonationsRoute,
   GuidesDonateSuppliesRoute: GuidesDonateSuppliesRoute,
@@ -1052,3 +1105,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
