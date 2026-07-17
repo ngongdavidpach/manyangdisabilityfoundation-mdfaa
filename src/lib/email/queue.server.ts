@@ -59,6 +59,27 @@ export async function enqueueTransactionalEmail(args: EnqueueArgs): Promise<{
     return { ok: false, reason: "suppressed" };
   }
 
+  // Per-category preference check (opt-out)
+  const { categoryForTemplate } = await import("@/lib/email/preferences");
+  const category = categoryForTemplate(args.templateName);
+  if (category) {
+    const { data: prefs } = await supabaseAdmin
+      .from("email_preferences")
+      .select("unsubscribed_all, receipts, events, coordinators, fundraisers, account")
+      .eq("email", normalised)
+      .maybeSingle();
+    if (prefs && (prefs.unsubscribed_all || (prefs as any)[category] === false)) {
+      await supabaseAdmin.from("email_send_log").insert({
+        message_id: messageId,
+        template_name: args.templateName,
+        recipient_email: recipient,
+        status: "suppressed",
+        error_message: `category_opted_out:${category}`,
+      });
+      return { ok: false, reason: "category_opted_out" };
+    }
+  }
+
   // Get-or-create unsubscribe token
   let unsubscribeToken: string;
   const { data: existingToken } = await supabaseAdmin
