@@ -1,77 +1,85 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import React, { useEffect, useState } from "react";
-import { ArrowRight, ShieldCheck, AlertTriangle, CheckCircle2 } from "lucide-react";
+import { Lock, Eye, EyeOff, ArrowRight, ShieldCheck, AlertTriangle, CheckCircle2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { PasswordFields, validateNewPassword } from "@/ported/components/PasswordFields";
 
-export const Route = createFileRoute("/auth/reset-password")({
+export const Route = createFileRoute("/auth/change-password")({
   head: () => ({
     meta: [
-      { title: "Reset Password — Manyang Disability Foundation" },
-      { name: "description", content: "Choose a new password for your MDF staff account." },
+      { title: "Change Password — Manyang Disability Foundation" },
+      { name: "description", content: "Update the password on your MDF staff account." },
       { name: "robots", content: "noindex,nofollow" },
     ],
   }),
-  component: ResetPasswordRoute,
+  component: ChangePasswordRoute,
 });
 
-type Status = "checking" | "ready" | "invalid" | "success";
+type Status = "checking" | "unauthenticated" | "ready" | "success";
 
-function ResetPasswordRoute() {
+function ChangePasswordRoute() {
   const navigate = useNavigate();
   const [status, setStatus] = useState<Status>("checking");
+  const [email, setEmail] = useState("");
+  const [currentPassword, setCurrentPassword] = useState("");
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
+  const [showCurrent, setShowCurrent] = useState(false);
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
-    let resolved = false;
-
-    const { data: sub } = supabase.auth.onAuthStateChange((event, session) => {
-      if (event === "PASSWORD_RECOVERY" || (event === "SIGNED_IN" && session)) {
-        resolved = true;
+    supabase.auth.getUser().then(({ data }) => {
+      if (data.user?.email) {
+        setEmail(data.user.email);
         setStatus("ready");
+      } else {
+        setStatus("unauthenticated");
       }
     });
-
-    supabase.auth.getSession().then(({ data }) => {
-      if (data.session) {
-        resolved = true;
-        setStatus("ready");
-      }
-    });
-
-    const timeout = setTimeout(() => {
-      if (!resolved) setStatus((s) => (s === "checking" ? "invalid" : s));
-    }, 2500);
-
-    return () => {
-      sub.subscription.unsubscribe();
-      clearTimeout(timeout);
-    };
   }, []);
 
   const validation = validateNewPassword(password, confirm);
-  const canSubmit = validation.ok && !submitting;
+  const samePassword = password.length > 0 && password === currentPassword;
+  const canSubmit = validation.ok && currentPassword.length > 0 && !samePassword && !submitting;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
+
+    if (!currentPassword) {
+      setError("Please enter your current password.");
+      return;
+    }
     if (!validation.ok) {
       setError(validation.reason || "Please fix the errors above.");
       return;
     }
+    if (samePassword) {
+      setError("New password must be different from your current password.");
+      return;
+    }
 
     setSubmitting(true);
-    const { error: updateError } = await supabase.auth.updateUser({ password });
-    if (updateError) {
-      setError(updateError.message || "Could not update password. The link may have expired.");
+
+    // Verify current password by re-authenticating
+    const { error: signInError } = await supabase.auth.signInWithPassword({
+      email,
+      password: currentPassword,
+    });
+    if (signInError) {
+      setError("Current password is incorrect.");
       setSubmitting(false);
       return;
     }
 
-    await supabase.auth.signOut();
+    const { error: updateError } = await supabase.auth.updateUser({ password });
+    if (updateError) {
+      setError(updateError.message || "Could not update password.");
+      setSubmitting(false);
+      return;
+    }
+
     setStatus("success");
     setSubmitting(false);
     setTimeout(() => navigate({ to: "/admin" }), 2000);
@@ -83,39 +91,39 @@ function ResetPasswordRoute() {
         <div className="flex items-center gap-3 mb-6">
           <img src="/images/logo.png" alt="MDF Logo" className="w-12 h-12 object-contain" />
           <div>
-            <h1 className="text-lg font-bold text-slate-900 leading-tight">Reset your password</h1>
-            <p className="text-xs text-slate-500">Choose a strong new password.</p>
+            <h1 className="text-lg font-bold text-slate-900 leading-tight">Change password</h1>
+            <p className="text-xs text-slate-500">
+              {email ? `Signed in as ${email}` : "Update your account password."}
+            </p>
           </div>
         </div>
 
         {status === "checking" && (
           <div className="flex items-center justify-center py-8 gap-2 text-slate-500 text-xs">
             <div className="w-4 h-4 border-2 border-slate-300 border-t-blue-600 rounded-full animate-spin" />
-            <span>Verifying reset link…</span>
+            <span>Loading…</span>
           </div>
         )}
 
-        {status === "invalid" && (
+        {status === "unauthenticated" && (
           <div className="space-y-4">
-            <div className="bg-red-50 border border-red-200 text-red-700 text-xs p-3 rounded-lg flex items-start gap-2">
+            <div className="bg-amber-50 border border-amber-200 text-amber-800 text-xs p-3 rounded-lg flex items-start gap-2">
               <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" />
-              <span>This reset link is invalid or has expired. Please request a new one.</span>
+              <span>You need to be signed in to change your password.</span>
             </div>
             <Link
-              to="/auth/forgot-password"
+              to="/admin"
               className="block text-center w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg text-sm transition-colors"
             >
-              Request new link
+              Go to sign in
             </Link>
           </div>
         )}
 
         {status === "success" && (
-          <div className="space-y-4">
-            <div className="bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs p-3 rounded-lg flex items-start gap-2">
-              <CheckCircle2 className="w-4 h-4 shrink-0 mt-0.5" />
-              <span>Password updated. Redirecting you to sign in…</span>
-            </div>
+          <div className="bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs p-3 rounded-lg flex items-start gap-2">
+            <CheckCircle2 className="w-4 h-4 shrink-0 mt-0.5" />
+            <span>Password updated. Redirecting…</span>
           </div>
         )}
 
@@ -128,12 +136,46 @@ function ResetPasswordRoute() {
               </div>
             )}
 
+            <div>
+              <label className="block text-xs font-bold text-slate-700 mb-1.5">
+                Current Password
+              </label>
+              <div className="relative">
+                <span className="absolute left-3 top-2.5 text-slate-500">
+                  <Lock className="w-4 h-4" />
+                </span>
+                <input
+                  type={showCurrent ? "text" : "password"}
+                  required
+                  autoComplete="current-password"
+                  value={currentPassword}
+                  onChange={(e) => setCurrentPassword(e.target.value)}
+                  placeholder="Enter your current password"
+                  className="w-full bg-slate-50 border border-slate-300 rounded-lg py-2.5 pl-10 pr-10 text-xs text-slate-900 focus:outline-hidden focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowCurrent(!showCurrent)}
+                  className="absolute right-3 top-2.5 text-slate-500 hover:text-slate-700"
+                  aria-label="Toggle password visibility"
+                >
+                  {showCurrent ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
+              </div>
+            </div>
+
             <PasswordFields
               password={password}
               confirm={confirm}
               onPasswordChange={setPassword}
               onConfirmChange={setConfirm}
             />
+
+            {samePassword && (
+              <p className="text-[11px] text-red-600">
+                New password must be different from your current password.
+              </p>
+            )}
 
             <button
               type="submit"
@@ -155,7 +197,7 @@ function ResetPasswordRoute() {
 
             <div className="pt-3 border-t border-slate-100 flex items-center gap-2 text-[11px] text-slate-500">
               <ShieldCheck className="w-3.5 h-3.5 text-emerald-500" />
-              <span>Your session will be reset after updating.</span>
+              <span>Your current password is required to confirm this change.</span>
             </div>
           </form>
         )}
