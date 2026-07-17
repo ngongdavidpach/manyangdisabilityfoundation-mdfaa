@@ -4,7 +4,11 @@ import { useServerFn } from "@tanstack/react-start";
 import { Mail, ArrowRight, ShieldCheck, AlertTriangle, CheckCircle2, RotateCw } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { PasswordFields, validateNewPassword } from "@/ported/components/PasswordFields";
-import { requestPasswordReset } from "@/lib/auth.functions";
+import {
+  requestPasswordReset,
+  completePasswordReset,
+  RATE_LIMIT_MESSAGE,
+} from "@/lib/auth.functions";
 
 export const Route = createFileRoute("/auth/reset-password")({
   head: () => ({
