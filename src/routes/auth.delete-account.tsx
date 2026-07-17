@@ -19,8 +19,13 @@ import { supabase } from "@/integrations/supabase/client";
 import {
   requestAccountDeletion,
   exportMyData,
+  reauthenticate,
   RATE_LIMIT_MESSAGE,
 } from "@/lib/auth.functions";
+
+// Must match REAUTH_WINDOW_SECONDS in src/lib/auth.functions.ts
+const REAUTH_WINDOW_SECONDS = 300;
+
 
 export const Route = createFileRoute("/auth/delete-account")({
   head: () => ({
