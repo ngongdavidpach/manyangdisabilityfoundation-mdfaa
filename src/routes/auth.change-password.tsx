@@ -83,6 +83,8 @@ function ChangePasswordRoute() {
         setError("New password must be different from your current password.");
       } else if (result.reason === "weak_password") {
         setError(result.issues?.[0] || "Password does not meet all requirements.");
+      } else if (result.reason === "password_reused") {
+        setError("You cannot reuse any of your last 5 passwords. Please choose a different one.");
       } else if (result.reason === "rate_limited") {
         setError(result.message || RATE_LIMIT_MESSAGE);
       } else if (result.reason === "unauthenticated") {
