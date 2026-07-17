@@ -7,6 +7,8 @@ import { template as fundraiserConfirmation } from "./fundraiser-confirmation";
 import { template as fundraiserAdminNotification } from "./fundraiser-admin-notification";
 import { template as fundraiserApproved } from "./fundraiser-approved";
 import { template as eventRsvpConfirmation } from "./event-rsvp-confirmation";
+import { template as accountDeletionRequested } from "./account-deletion-requested";
+import { template as accountDeletionConfirmed } from "./account-deletion-confirmed";
 
 export interface TemplateEntry {
   component: ComponentType<any>;
@@ -25,4 +27,6 @@ export const TEMPLATES: Record<string, TemplateEntry> = {
   "fundraiser-admin-notification": fundraiserAdminNotification,
   "fundraiser-approved": fundraiserApproved,
   "event-rsvp-confirmation": eventRsvpConfirmation,
+  "account-deletion-requested": accountDeletionRequested,
+  "account-deletion-confirmed": accountDeletionConfirmed,
 };
