@@ -39,7 +39,6 @@ import { Route as EventsSlugRouteImport } from './routes/events.$slug'
 import { Route as EmailUnsubscribeRouteImport } from './routes/email/unsubscribe'
 import { Route as AuthResetPasswordRouteImport } from './routes/auth.reset-password'
 import { Route as AuthForgotPasswordRouteImport } from './routes/auth.forgot-password'
-import { Route as AuthDeleteAccountRouteImport } from './routes/auth.delete-account'
 import { Route as AuthChangePasswordRouteImport } from './routes/auth.change-password'
 import { Route as AuthCancelDeletionRouteImport } from './routes/auth.cancel-deletion'
 import { Route as Char91DotwellKnownChar93OauthProtectedResourceRouteImport } from './routes/[.well-known]/oauth-protected-resource'
@@ -205,11 +204,6 @@ const AuthForgotPasswordRoute = AuthForgotPasswordRouteImport.update({
   path: '/auth/forgot-password',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AuthDeleteAccountRoute = AuthDeleteAccountRouteImport.update({
-  id: '/auth/delete-account',
-  path: '/auth/delete-account',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const AuthChangePasswordRoute = AuthChangePasswordRouteImport.update({
   id: '/auth/change-password',
   path: '/auth/change-password',
@@ -305,7 +299,6 @@ export interface FileRoutesByFullPath {
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/auth/cancel-deletion': typeof AuthCancelDeletionRoute
   '/auth/change-password': typeof AuthChangePasswordRoute
-  '/auth/delete-account': typeof AuthDeleteAccountRoute
   '/auth/forgot-password': typeof AuthForgotPasswordRoute
   '/auth/reset-password': typeof AuthResetPasswordRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
@@ -351,7 +344,6 @@ export interface FileRoutesByTo {
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/auth/cancel-deletion': typeof AuthCancelDeletionRoute
   '/auth/change-password': typeof AuthChangePasswordRoute
-  '/auth/delete-account': typeof AuthDeleteAccountRoute
   '/auth/forgot-password': typeof AuthForgotPasswordRoute
   '/auth/reset-password': typeof AuthResetPasswordRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
@@ -398,7 +390,6 @@ export interface FileRoutesById {
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/auth/cancel-deletion': typeof AuthCancelDeletionRoute
   '/auth/change-password': typeof AuthChangePasswordRoute
-  '/auth/delete-account': typeof AuthDeleteAccountRoute
   '/auth/forgot-password': typeof AuthForgotPasswordRoute
   '/auth/reset-password': typeof AuthResetPasswordRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
@@ -446,7 +437,6 @@ export interface FileRouteTypes {
     | '/.well-known/oauth-protected-resource'
     | '/auth/cancel-deletion'
     | '/auth/change-password'
-    | '/auth/delete-account'
     | '/auth/forgot-password'
     | '/auth/reset-password'
     | '/email/unsubscribe'
@@ -492,7 +482,6 @@ export interface FileRouteTypes {
     | '/.well-known/oauth-protected-resource'
     | '/auth/cancel-deletion'
     | '/auth/change-password'
-    | '/auth/delete-account'
     | '/auth/forgot-password'
     | '/auth/reset-password'
     | '/email/unsubscribe'
@@ -538,7 +527,6 @@ export interface FileRouteTypes {
     | '/.well-known/oauth-protected-resource'
     | '/auth/cancel-deletion'
     | '/auth/change-password'
-    | '/auth/delete-account'
     | '/auth/forgot-password'
     | '/auth/reset-password'
     | '/email/unsubscribe'
@@ -585,7 +573,6 @@ export interface RootRouteChildren {
   Char91DotwellKnownChar93OauthProtectedResourceRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   AuthCancelDeletionRoute: typeof AuthCancelDeletionRoute
   AuthChangePasswordRoute: typeof AuthChangePasswordRoute
-  AuthDeleteAccountRoute: typeof AuthDeleteAccountRoute
   AuthForgotPasswordRoute: typeof AuthForgotPasswordRoute
   AuthResetPasswordRoute: typeof AuthResetPasswordRoute
   EmailUnsubscribeRoute: typeof EmailUnsubscribeRoute
@@ -818,13 +805,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthForgotPasswordRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/auth/delete-account': {
-      id: '/auth/delete-account'
-      path: '/auth/delete-account'
-      fullPath: '/auth/delete-account'
-      preLoaderRoute: typeof AuthDeleteAccountRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/auth/change-password': {
       id: '/auth/change-password'
       path: '/auth/change-password'
@@ -977,7 +957,6 @@ const rootRouteChildren: RootRouteChildren = {
     Char91DotwellKnownChar93OauthProtectedResourceRoute,
   AuthCancelDeletionRoute: AuthCancelDeletionRoute,
   AuthChangePasswordRoute: AuthChangePasswordRoute,
-  AuthDeleteAccountRoute: AuthDeleteAccountRoute,
   AuthForgotPasswordRoute: AuthForgotPasswordRoute,
   AuthResetPasswordRoute: AuthResetPasswordRoute,
   EmailUnsubscribeRoute: EmailUnsubscribeRoute,
