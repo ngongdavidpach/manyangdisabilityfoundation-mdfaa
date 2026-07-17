@@ -220,6 +220,25 @@ function ChangePasswordRoute() {
             </div>
           </form>
         )}
+
+        {(status === "ready" || status === "success") && (
+          <div className="mt-6 pt-5 border-t border-red-100">
+            <p className="text-[11px] font-bold uppercase tracking-wide text-red-700 mb-1">
+              Danger zone
+            </p>
+            <p className="text-[11px] text-slate-600 mb-2">
+              Permanently delete your account and all associated data. This cannot be undone.
+            </p>
+            <Link
+              to="/auth/delete-account"
+              className="inline-flex items-center gap-1 text-xs font-semibold text-red-600 hover:text-red-700"
+            >
+              Delete my account →
+            </Link>
+          </div>
+        )}
+          </form>
+        )}
       </div>
     </div>
   );
