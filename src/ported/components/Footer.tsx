@@ -41,6 +41,7 @@ const Youtube = ({ className = "" }: { className?: string }) => (
 import { Link, useNavigate } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
 import { NAV_ITEM_DEFS, resolveNavOrder } from "../lib/navItems";
+import { useCookieConsent } from "../hooks/useCookieConsent";
 
 const PATH_FOR: Record<string, string> = {
   home: "/",
@@ -85,6 +86,7 @@ const TikTokIcon = ({ className = "" }: { className?: string }) => (
 
 export const Footer: React.FC = () => {
   const navigate = useNavigate();
+  const { openPreferences } = useCookieConsent();
 
   const [email, setEmailVal] = useState("");
   const [subscribed, setSubscribed] = useState(false);
@@ -368,9 +370,17 @@ export const Footer: React.FC = () => {
               </p>
             </div>
           </div>
-          <div className="flex items-center justify-center md:justify-end gap-4">
+          <div className="flex items-center justify-center md:justify-end gap-4 flex-wrap">
             <Link to="/privacy" className="hover:text-slate-300">
               Privacy
+            </Link>
+            <span>•</span>
+            <button onClick={openPreferences} className="hover:text-slate-300">
+              Cookie preferences
+            </button>
+            <span>•</span>
+            <Link to="/dashboard/email-preferences" className="hover:text-slate-300">
+              Email preferences
             </Link>
             <span>•</span>
             <button onClick={() => handleLink("about")} className="hover:text-slate-300">

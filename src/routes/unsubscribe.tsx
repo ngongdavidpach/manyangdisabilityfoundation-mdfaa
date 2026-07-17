@@ -60,6 +60,16 @@ function UnsubscribePage() {
             >
               Confirm unsubscribe
             </button>
+            <p className="mt-4 text-xs text-slate-500">
+              Prefer to keep some emails?{" "}
+              <a
+                href={`/email/preferences?token=${encodeURIComponent(token)}`}
+                className="text-blue-700 hover:underline"
+              >
+                Manage individual preferences
+              </a>
+              .
+            </p>
           </>
         )}
         {status === "done" && (
