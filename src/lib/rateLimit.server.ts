@@ -1,9 +1,9 @@
 // Server-only rate-limit helper. Calls the SECURITY DEFINER
 // public.check_rate_limit function via the service-role client.
 import { getRequestIP } from "@tanstack/react-start/server";
+import { RATE_LIMIT_MESSAGE } from "@/lib/rateLimit.constants";
 
-export const RATE_LIMIT_MESSAGE =
-  "Too many requests. Please try again in a few minutes.";
+export { RATE_LIMIT_MESSAGE };
 
 export type RateLimitOptions = {
   bucket: string;
