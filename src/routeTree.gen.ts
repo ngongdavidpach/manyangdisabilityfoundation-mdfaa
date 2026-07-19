@@ -23,6 +23,7 @@ import { Route as EventsRouteImport } from './routes/events'
 import { Route as DonateRouteImport } from './routes/donate'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as CsrSponsorshipRouteImport } from './routes/csr-sponsorship'
+import { Route as CookieSettingsRouteImport } from './routes/cookie-settings'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as AboutRouteImport } from './routes/about'
@@ -41,6 +42,7 @@ import { Route as EventsSlugRouteImport } from './routes/events.$slug'
 import { Route as EmailUnsubscribeRouteImport } from './routes/email/unsubscribe'
 import { Route as EmailPreferencesRouteImport } from './routes/email/preferences'
 import { Route as DashboardEmailPreferencesRouteImport } from './routes/dashboard.email-preferences'
+import { Route as DashboardActivityRouteImport } from './routes/dashboard.activity'
 import { Route as AuthResetPasswordRouteImport } from './routes/auth.reset-password'
 import { Route as AuthForgotPasswordRouteImport } from './routes/auth.forgot-password'
 import { Route as AuthDeleteAccountRouteImport } from './routes/auth.delete-account'
@@ -128,6 +130,11 @@ const DashboardRoute = DashboardRouteImport.update({
 const CsrSponsorshipRoute = CsrSponsorshipRouteImport.update({
   id: '/csr-sponsorship',
   path: '/csr-sponsorship',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CookieSettingsRoute = CookieSettingsRouteImport.update({
+  id: '/cookie-settings',
+  path: '/cookie-settings',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ContactRoute = ContactRouteImport.update({
@@ -222,6 +229,11 @@ const DashboardEmailPreferencesRoute =
     path: '/email-preferences',
     getParentRoute: () => DashboardRoute,
   } as any)
+const DashboardActivityRoute = DashboardActivityRouteImport.update({
+  id: '/activity',
+  path: '/activity',
+  getParentRoute: () => DashboardRoute,
+} as any)
 const AuthResetPasswordRoute = AuthResetPasswordRouteImport.update({
   id: '/auth/reset-password',
   path: '/auth/reset-password',
@@ -327,6 +339,7 @@ export interface FileRoutesByFullPath {
   '/about': typeof AboutRoute
   '/admin': typeof AdminRoute
   '/contact': typeof ContactRoute
+  '/cookie-settings': typeof CookieSettingsRoute
   '/csr-sponsorship': typeof CsrSponsorshipRoute
   '/dashboard': typeof DashboardRouteWithChildren
   '/donate': typeof DonateRoute
@@ -348,6 +361,7 @@ export interface FileRoutesByFullPath {
   '/auth/delete-account': typeof AuthDeleteAccountRoute
   '/auth/forgot-password': typeof AuthForgotPasswordRoute
   '/auth/reset-password': typeof AuthResetPasswordRoute
+  '/dashboard/activity': typeof DashboardActivityRoute
   '/dashboard/email-preferences': typeof DashboardEmailPreferencesRoute
   '/email/preferences': typeof EmailPreferencesRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
@@ -379,6 +393,7 @@ export interface FileRoutesByTo {
   '/about': typeof AboutRoute
   '/admin': typeof AdminRoute
   '/contact': typeof ContactRoute
+  '/cookie-settings': typeof CookieSettingsRoute
   '/csr-sponsorship': typeof CsrSponsorshipRoute
   '/dashboard': typeof DashboardRouteWithChildren
   '/donate': typeof DonateRoute
@@ -400,6 +415,7 @@ export interface FileRoutesByTo {
   '/auth/delete-account': typeof AuthDeleteAccountRoute
   '/auth/forgot-password': typeof AuthForgotPasswordRoute
   '/auth/reset-password': typeof AuthResetPasswordRoute
+  '/dashboard/activity': typeof DashboardActivityRoute
   '/dashboard/email-preferences': typeof DashboardEmailPreferencesRoute
   '/email/preferences': typeof EmailPreferencesRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
@@ -432,6 +448,7 @@ export interface FileRoutesById {
   '/about': typeof AboutRoute
   '/admin': typeof AdminRoute
   '/contact': typeof ContactRoute
+  '/cookie-settings': typeof CookieSettingsRoute
   '/csr-sponsorship': typeof CsrSponsorshipRoute
   '/dashboard': typeof DashboardRouteWithChildren
   '/donate': typeof DonateRoute
@@ -453,6 +470,7 @@ export interface FileRoutesById {
   '/auth/delete-account': typeof AuthDeleteAccountRoute
   '/auth/forgot-password': typeof AuthForgotPasswordRoute
   '/auth/reset-password': typeof AuthResetPasswordRoute
+  '/dashboard/activity': typeof DashboardActivityRoute
   '/dashboard/email-preferences': typeof DashboardEmailPreferencesRoute
   '/email/preferences': typeof EmailPreferencesRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
@@ -486,6 +504,7 @@ export interface FileRouteTypes {
     | '/about'
     | '/admin'
     | '/contact'
+    | '/cookie-settings'
     | '/csr-sponsorship'
     | '/dashboard'
     | '/donate'
@@ -507,6 +526,7 @@ export interface FileRouteTypes {
     | '/auth/delete-account'
     | '/auth/forgot-password'
     | '/auth/reset-password'
+    | '/dashboard/activity'
     | '/dashboard/email-preferences'
     | '/email/preferences'
     | '/email/unsubscribe'
@@ -538,6 +558,7 @@ export interface FileRouteTypes {
     | '/about'
     | '/admin'
     | '/contact'
+    | '/cookie-settings'
     | '/csr-sponsorship'
     | '/dashboard'
     | '/donate'
@@ -559,6 +580,7 @@ export interface FileRouteTypes {
     | '/auth/delete-account'
     | '/auth/forgot-password'
     | '/auth/reset-password'
+    | '/dashboard/activity'
     | '/dashboard/email-preferences'
     | '/email/preferences'
     | '/email/unsubscribe'
@@ -590,6 +612,7 @@ export interface FileRouteTypes {
     | '/about'
     | '/admin'
     | '/contact'
+    | '/cookie-settings'
     | '/csr-sponsorship'
     | '/dashboard'
     | '/donate'
@@ -611,6 +634,7 @@ export interface FileRouteTypes {
     | '/auth/delete-account'
     | '/auth/forgot-password'
     | '/auth/reset-password'
+    | '/dashboard/activity'
     | '/dashboard/email-preferences'
     | '/email/preferences'
     | '/email/unsubscribe'
@@ -643,6 +667,7 @@ export interface RootRouteChildren {
   AboutRoute: typeof AboutRoute
   AdminRoute: typeof AdminRoute
   ContactRoute: typeof ContactRoute
+  CookieSettingsRoute: typeof CookieSettingsRoute
   CsrSponsorshipRoute: typeof CsrSponsorshipRoute
   DashboardRoute: typeof DashboardRouteWithChildren
   DonateRoute: typeof DonateRoute
@@ -785,6 +810,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CsrSponsorshipRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/cookie-settings': {
+      id: '/cookie-settings'
+      path: '/cookie-settings'
+      fullPath: '/cookie-settings'
+      preLoaderRoute: typeof CookieSettingsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/contact': {
       id: '/contact'
       path: '/contact'
@@ -909,6 +941,13 @@ declare module '@tanstack/react-router' {
       path: '/email-preferences'
       fullPath: '/dashboard/email-preferences'
       preLoaderRoute: typeof DashboardEmailPreferencesRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/dashboard/activity': {
+      id: '/dashboard/activity'
+      path: '/activity'
+      fullPath: '/dashboard/activity'
+      preLoaderRoute: typeof DashboardActivityRouteImport
       parentRoute: typeof DashboardRoute
     }
     '/auth/reset-password': {
@@ -1041,10 +1080,12 @@ declare module '@tanstack/react-router' {
 }
 
 interface DashboardRouteChildren {
+  DashboardActivityRoute: typeof DashboardActivityRoute
   DashboardEmailPreferencesRoute: typeof DashboardEmailPreferencesRoute
 }
 
 const DashboardRouteChildren: DashboardRouteChildren = {
+  DashboardActivityRoute: DashboardActivityRoute,
   DashboardEmailPreferencesRoute: DashboardEmailPreferencesRoute,
 }
 
@@ -1103,6 +1144,7 @@ const rootRouteChildren: RootRouteChildren = {
   AboutRoute: AboutRoute,
   AdminRoute: AdminRoute,
   ContactRoute: ContactRoute,
+  CookieSettingsRoute: CookieSettingsRoute,
   CsrSponsorshipRoute: CsrSponsorshipRoute,
   DashboardRoute: DashboardRouteWithChildren,
   DonateRoute: DonateRoute,
