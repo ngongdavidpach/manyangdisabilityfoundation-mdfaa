@@ -50,6 +50,7 @@ import { Route as Char91DotwellKnownChar93OauthProtectedResourceRouteImport } fr
 import { Route as Char91DotmcpChar93ListToolsRouteImport } from './routes/[.mcp]/list-tools'
 import { Route as LovableEmailSuppressionRouteImport } from './routes/lovable/email/suppression'
 import { Route as ApiPublicEmailPreferencesRouteImport } from './routes/api/public/email-preferences'
+import { Route as ApiPublicCookieConsentLogRouteImport } from './routes/api/public/cookie-consent-log'
 import { Route as Char91DotmcpChar93InvokeToolToolRouteImport } from './routes/[.mcp]/invoke-tool/$tool'
 import { Route as DotlovableOauthConsentRouteImport } from './routes/[.]lovable.oauth.consent'
 import { Route as LovableEmailTransactionalSendRouteImport } from './routes/lovable/email/transactional/send'
@@ -269,6 +270,12 @@ const ApiPublicEmailPreferencesRoute =
     path: '/api/public/email-preferences',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicCookieConsentLogRoute =
+  ApiPublicCookieConsentLogRouteImport.update({
+    id: '/api/public/cookie-consent-log',
+    path: '/api/public/cookie-consent-log',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const Char91DotmcpChar93InvokeToolToolRoute =
   Char91DotmcpChar93InvokeToolToolRouteImport.update({
     id: '/.mcp/invoke-tool/$tool',
@@ -357,6 +364,7 @@ export interface FileRoutesByFullPath {
   '/programs/rss.xml': typeof ProgramsRssDotxmlRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
+  '/api/public/cookie-consent-log': typeof ApiPublicCookieConsentLogRoute
   '/api/public/email-preferences': typeof ApiPublicEmailPreferencesRoute
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
   '/api/public/hooks/purge-deleted-accounts': typeof ApiPublicHooksPurgeDeletedAccountsRoute
@@ -408,6 +416,7 @@ export interface FileRoutesByTo {
   '/programs/rss.xml': typeof ProgramsRssDotxmlRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
+  '/api/public/cookie-consent-log': typeof ApiPublicCookieConsentLogRoute
   '/api/public/email-preferences': typeof ApiPublicEmailPreferencesRoute
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
   '/api/public/hooks/purge-deleted-accounts': typeof ApiPublicHooksPurgeDeletedAccountsRoute
@@ -460,6 +469,7 @@ export interface FileRoutesById {
   '/programs/rss.xml': typeof ProgramsRssDotxmlRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
+  '/api/public/cookie-consent-log': typeof ApiPublicCookieConsentLogRoute
   '/api/public/email-preferences': typeof ApiPublicEmailPreferencesRoute
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
   '/api/public/hooks/purge-deleted-accounts': typeof ApiPublicHooksPurgeDeletedAccountsRoute
@@ -513,6 +523,7 @@ export interface FileRouteTypes {
     | '/programs/rss.xml'
     | '/.lovable/oauth/consent'
     | '/.mcp/invoke-tool/$tool'
+    | '/api/public/cookie-consent-log'
     | '/api/public/email-preferences'
     | '/lovable/email/suppression'
     | '/api/public/hooks/purge-deleted-accounts'
@@ -564,6 +575,7 @@ export interface FileRouteTypes {
     | '/programs/rss.xml'
     | '/.lovable/oauth/consent'
     | '/.mcp/invoke-tool/$tool'
+    | '/api/public/cookie-consent-log'
     | '/api/public/email-preferences'
     | '/lovable/email/suppression'
     | '/api/public/hooks/purge-deleted-accounts'
@@ -615,6 +627,7 @@ export interface FileRouteTypes {
     | '/programs/rss.xml'
     | '/.lovable/oauth/consent'
     | '/.mcp/invoke-tool/$tool'
+    | '/api/public/cookie-consent-log'
     | '/api/public/email-preferences'
     | '/lovable/email/suppression'
     | '/api/public/hooks/purge-deleted-accounts'
@@ -661,6 +674,7 @@ export interface RootRouteChildren {
   PortalFundraisersRoute: typeof PortalFundraisersRoute
   DotlovableOauthConsentRoute: typeof DotlovableOauthConsentRoute
   Char91DotmcpChar93InvokeToolToolRoute: typeof Char91DotmcpChar93InvokeToolToolRoute
+  ApiPublicCookieConsentLogRoute: typeof ApiPublicCookieConsentLogRoute
   ApiPublicEmailPreferencesRoute: typeof ApiPublicEmailPreferencesRoute
   LovableEmailSuppressionRoute: typeof LovableEmailSuppressionRoute
   ApiPublicHooksPurgeDeletedAccountsRoute: typeof ApiPublicHooksPurgeDeletedAccountsRoute
@@ -960,6 +974,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicEmailPreferencesRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/cookie-consent-log': {
+      id: '/api/public/cookie-consent-log'
+      path: '/api/public/cookie-consent-log'
+      fullPath: '/api/public/cookie-consent-log'
+      preLoaderRoute: typeof ApiPublicCookieConsentLogRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/.mcp/invoke-tool/$tool': {
       id: '/.mcp/invoke-tool/$tool'
       path: '/.mcp/invoke-tool/$tool'
@@ -1114,6 +1135,7 @@ const rootRouteChildren: RootRouteChildren = {
   PortalFundraisersRoute: PortalFundraisersRoute,
   DotlovableOauthConsentRoute: DotlovableOauthConsentRoute,
   Char91DotmcpChar93InvokeToolToolRoute: Char91DotmcpChar93InvokeToolToolRoute,
+  ApiPublicCookieConsentLogRoute: ApiPublicCookieConsentLogRoute,
   ApiPublicEmailPreferencesRoute: ApiPublicEmailPreferencesRoute,
   LovableEmailSuppressionRoute: LovableEmailSuppressionRoute,
   ApiPublicHooksPurgeDeletedAccountsRoute:
