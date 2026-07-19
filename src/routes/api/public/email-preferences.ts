@@ -125,6 +125,64 @@ export const Route = createFileRoute("/api/public/email-preferences")({
           }
         }
 
+        // Audit log
+        const ip =
+          request.headers.get("cf-connecting-ip") ||
+          request.headers.get("x-real-ip") ||
+          (request.headers.get("x-forwarded-for") || "").split(",")[0].trim() ||
+          null;
+        await supabase.from("user_activity_log").insert({
+          user_id: userId ?? null,
+          email,
+          event_type: "email_preferences_updated",
+          details: {
+            preferences: {
+              receipts: !!update.receipts,
+              events: !!update.events,
+              coordinators: !!update.coordinators,
+              fundraisers: !!update.fundraisers,
+              account: !!update.account,
+            },
+            unsubscribed_all: !!update.unsubscribed_all,
+            source,
+          },
+          ip,
+          user_agent: request.headers.get("user-agent")?.slice(0, 500) ?? null,
+        });
+
+        // Confirmation email (bypasses suppression / prefs — direct response to a user action)
+        try {
+          const { enqueueTransactionalEmail } = await import("@/lib/email/enqueue.server");
+          const finalPrefs = {
+            receipts: update.receipts !== undefined ? !!update.receipts : true,
+            events: update.events !== undefined ? !!update.events : true,
+            coordinators:
+              update.coordinators !== undefined ? !!update.coordinators : true,
+            fundraisers:
+              update.fundraisers !== undefined ? !!update.fundraisers : true,
+            account: update.account !== undefined ? !!update.account : true,
+            unsubscribed_all: !!update.unsubscribed_all,
+          };
+          await enqueueTransactionalEmail({
+            templateName: "email-preferences-updated",
+            recipientEmail: email,
+            bypassSuppression: true,
+            idempotencyKey: `prefs-${email}-${Date.now()}`,
+            templateData: {
+              email,
+              updatedAt: new Date().toLocaleString("en-AU", {
+                dateStyle: "medium",
+                timeStyle: "short",
+              }),
+              preferences: finalPrefs,
+              manageUrl:
+                "https://manyangdisabilityfoundation.org/dashboard/email-preferences",
+            },
+          });
+        } catch (e) {
+          console.error("preferences confirmation email failed", e);
+        }
+
         return Response.json({ success: true });
       },
     },

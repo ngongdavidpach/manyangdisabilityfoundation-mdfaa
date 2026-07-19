@@ -16,6 +16,9 @@ export function categoryForTemplate(templateName: string): PrefCategory | null {
     return "fundraisers";
   if (templateName === "event-rsvp-confirmation") return "events";
   if (templateName.startsWith("account-deletion")) return "account";
+  // Preference-update confirmation is a direct response to a user action;
+  // never gated by preferences (handled with bypassSuppression at the call site).
+  if (templateName === "email-preferences-updated") return null;
   if (templateName.includes("receipt")) return "receipts";
   // Admin notifications, contact confirmations, etc. — not user-preference gated.
   return null;
