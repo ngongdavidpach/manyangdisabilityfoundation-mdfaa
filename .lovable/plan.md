@@ -1,99 +1,66 @@
-## 1. Cookie consent banner
+## Goals
 
-New component `src/ported/components/CookieConsent.tsx`, mounted once in `__root.tsx` `ClientShell` (hidden on `/admin`).
+1. **Audit log page** at `/dashboard/activity` showing the signed-in user's cookie-consent and email-preference changes.
+2. **Confirmation email** on every successful email-preference update (both signed-in and token flows).
+3. **Granular cookie controls** — the banner already has necessary/analytics/marketing toggles; add a dedicated `/cookie-settings` page and a "Cookie settings" link in the footer so users can revisit and edit categories after the initial choice.
 
-- Reads `mdf.cookieConsent` from `localStorage`. If missing, shows a fixed bottom banner.
-- Banner shows short notice + three buttons: **Accept all**, **Reject non-essential**, **Customize**.
-- **Customize** expands per-category toggles:
-  - Necessary (always on, disabled toggle) — auth/session cookies
-  - Analytics (default off) — currently unused, reserved for future
-  - Marketing (default off) — currently unused, reserved for future
-- Stores `{ necessary: true, analytics: bool, marketing: bool, updatedAt, version: 1 }` in `localStorage`.
-- Exposes a `useCookieConsent()` hook returning current prefs + `openPreferences()` to reopen the banner.
-- Footer gets a **"Cookie preferences"** link that calls `openPreferences()`.
-- Privacy policy (`/privacy`) gets a "Manage cookie preferences" link in the Cookies section.
-- No analytics/marketing scripts are currently loaded — banner only records intent for now, ready for future gating.
+## What to build
 
-## 2. Email preferences
+### 1. Audit log
 
-### Data model (new migration)
+**DB migration** — new `user_activity_log` table:
+- `user_id uuid` (nullable — cookie events may be pre-auth), `email citext` (nullable), `event_type text` (`cookie_consent_updated` | `email_preferences_updated`), `details jsonb` (category diff / new values), `ip inet`, `user_agent text`, `created_at`.
+- GRANTs: `SELECT` to `authenticated` (own rows only), `ALL` to `service_role`. `INSERT` only via service role from server routes.
+- RLS: `SELECT USING (auth.uid() = user_id)`.
 
-New table `public.email_preferences`:
+**Server writes** (service-role, from existing routes):
+- `POST /api/public/email-preferences` — after successful upsert, insert an `email_preferences_updated` row with the diff of changed categories.
+- New `POST /api/public/cookie-consent-log` — accepts `{ analytics, marketing, source }` + optional bearer. Client calls it from `useCookieConsent.persist` whenever the user saves. Rate-limited by IP.
 
-```text
-id uuid pk
-email citext unique not null      -- normalized recipient email
-user_id uuid null references auth.users(id) on delete set null
-receipts boolean default true     -- donation receipts
-events boolean default true       -- event RSVP / reminders
-coordinators boolean default true -- coordinator confirmations/approvals
-fundraisers boolean default true  -- fundraiser confirmations/approvals
-account boolean default true      -- account-deletion etc. (non-security)
-unsubscribed_all boolean default false
-updated_at timestamptz default now()
-```
+**Page** `/dashboard/activity` (protected):
+- Server fn `listMyActivity` behind `requireSupabaseAuth` returning last 100 rows for `context.userId` ordered desc.
+- Simple table: timestamp, event type, human-readable summary of `details`.
 
-- GRANTs: `authenticated` SELECT/INSERT/UPDATE own row; `service_role` ALL; no anon.
-- RLS: authenticated users can read/write rows where `email = auth.jwt() ->> 'email'` OR `user_id = auth.uid()`.
-- Trigger to keep `updated_at` current.
+### 2. Confirmation email on preference change
 
-Auth emails (signup, recovery, magic-link, reauth, invite, email-change) are **always sent** — required for account security — and are documented as such on the page.
+**Template** `email-preferences-updated.tsx` (React Email):
+- Shows the new preference state (which categories are on/off, whether globally unsubscribed) and a link to `/dashboard/email-preferences` or the token page.
+- Registered in `src/lib/email-templates/registry.ts`.
 
-### Send-path enforcement
+**Trigger** in `src/routes/api/public/email-preferences.ts` POST handler:
+- After the successful upsert, enqueue `email-preferences-updated` via existing `enqueueTransactionalEmail` helper with `templateData` = the new prefs snapshot.
+- Skip send if the user just enabled `unsubscribed_all` (they explicitly asked to stop non-essential email) — instead send one final "confirmation of unsubscribe" email, since it's a directly-triggered account notice.
+- Idempotency key = `pref-update-${email}-${timestamp}` to avoid duplicate sends on retries within the same batch.
 
-`src/lib/email/enqueue.server.ts` gains a `category` field (e.g. `"receipts" | "events" | "coordinators" | "fundraisers" | "account" | null`). Before enqueue:
+### 3. Granular cookie controls + settings page
 
-1. Existing suppression check.
-2. New check: look up `email_preferences` by normalized email. If `unsubscribed_all` or the category flag is false, skip with `reason: "category_opted_out"` and log to `email_send_log` as `skipped`.
-3. Auth emails route through the auth webhook and are not gated by this table.
+The banner (`src/ported/components/CookieConsent.tsx`) already exposes necessary/analytics/marketing toggles behind "Customize" — no schema change needed there.
 
-All existing transactional call sites (donations, event RSVP, coordinator/fundraiser flows, account deletion) pass the appropriate `category`.
+Additions:
+- **`/cookie-settings` route** — dedicated page that uses `useCookieConsent()` to render the same three toggles with save/accept-all/reject-all actions, plus a summary of the current consent and last-updated timestamp.
+- **Footer link** — add "Cookie settings" in `Footer.tsx` next to Privacy.
+- **Persist call** in `useCookieConsent.persist` — POST to `/api/public/cookie-consent-log` (fire-and-forget) with the new category booleans so the audit log captures it.
 
-### Access surfaces
+## Technical details
 
-**A. Signed-in users** — new route `src/routes/_authenticated/dashboard.email-preferences.tsx` (or plain `dashboard/email-preferences` matching existing convention). Reachable from Dashboard via a "Email preferences" card.
+- No changes to existing email preferences data model; the audit log is additive.
+- The confirmation email is itself an "account" category message and always sends (users cannot silence confirmations of changes they just made) — matches the pattern used for account deletion confirmations.
+- Cookie-consent logging works pre-auth (writes `user_id` null, keeps IP + UA), then can be correlated later if the same session signs in — but the dashboard page only shows rows where `user_id = auth.uid()`, so pre-auth events won't appear unless we also match by a stored anonymous id. Keeping scope simple: only signed-in cookie changes appear in the audit page; the log still records anonymous rows for admin/compliance queries.
 
-**B. Token link from emails** — new public route `src/routes/email/preferences.tsx` (page) + `src/routes/email/preferences.ts` (API):
+## Files
 
-- Reuses existing `email_unsubscribe_tokens` table (already keyed by email); no new token infra.
-- Page reads `?token=…`, GETs `/email/preferences?token=…` to validate and fetch current prefs, renders toggles, POSTs to save.
-- API validates token, resolves the email, upserts `email_preferences`. Does **not** mark the token used (so the user can revisit).
-- Footer of every transactional email gets a "Manage email preferences" link alongside the existing "Unsubscribe" link, pointing to `/email/preferences?token=…` using the same token variable.
-
-### Admin dashboard toggle sync
-
-The existing dashboard shows a global unsubscribe status via `suppressed_emails`. The new page renders both:
-- Category toggles (writes `email_preferences`)
-- "Unsubscribe from all non-essential emails" master toggle (writes `unsubscribed_all` and adds/removes from `suppressed_emails` to stay consistent with existing suppression logic)
-
-### Privacy policy updates
-
-- `/privacy/emails`: add a "Manage your preferences" section linking to `/email/preferences` (token) and `/dashboard/email-preferences` (signed in).
-- Clarify that auth/security emails cannot be disabled while an account exists; deleting the account is the way to stop them.
-
-## 3. Files changed / created
-
-Created:
-- `src/ported/components/CookieConsent.tsx`
-- `src/ported/hooks/useCookieConsent.ts`
-- `src/routes/email/preferences.tsx` (user-facing page)
-- `src/routes/email/preferences.ts` (GET/POST JSON API)
-- `src/routes/dashboard.email-preferences.tsx` (signed-in view; placed to match existing dashboard routing)
-- SQL migration for `email_preferences` table, grants, RLS, trigger
+New:
+- `src/routes/dashboard.activity.tsx`
+- `src/routes/cookie-settings.tsx`
+- `src/routes/api/public/cookie-consent-log.ts`
+- `src/lib/activity.functions.ts` (server fn `listMyActivity`)
+- `src/lib/email-templates/email-preferences-updated.tsx`
+- Migration for `user_activity_log`
 
 Edited:
-- `src/routes/__root.tsx` — mount `<CookieConsent />` in `ClientShell`
-- `src/ported/components/Footer.tsx` — "Cookie preferences" link
-- `src/lib/email/enqueue.server.ts` — accept `category`, enforce preferences
-- Existing send call sites — pass `category`
-- `src/lib/email-templates/_shared.tsx` — footer gets "Manage preferences" link next to unsubscribe
-- `src/routes/privacy.emails.tsx` and `src/routes/privacy.tsx` — link to preferences pages, clarify auth-email policy
-- `src/routes/sitemap[.]xml.ts` — no additions (token/auth pages are noindex)
-- `src/ported/components/views/DashboardView.tsx` — card linking to email preferences
-
-## Non-goals
-
-- No changes to the auth webhook or auth email content.
-- No cookie category currently gates any real script (no analytics/ads today) — banner records intent only.
-- No token rotation / expiry changes to `email_unsubscribe_tokens`.
-- No new email templates.
+- `src/routes/api/public/email-preferences.ts` (log + send confirmation)
+- `src/lib/email-templates/registry.ts` (register new template)
+- `src/lib/email/preferences.ts` (map new template → `account` category, always-send exception)
+- `src/ported/hooks/useCookieConsent.ts` (POST to log route on save)
+- `src/ported/components/Footer.tsx` (add Cookie settings link)
+- `src/ported/components/views/AdminDashboardView.tsx` / dashboard sidebar (link to Activity)
