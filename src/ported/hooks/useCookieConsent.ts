@@ -51,7 +51,7 @@ export const CookieConsentProvider = ({ children }: { children: ReactNode }) => 
     setHydrated(true);
   }, []);
 
-  const persist = useCallback((next: CookieConsent) => {
+  const persist = useCallback((next: CookieConsent, source: "banner" | "settings" = "banner") => {
     try {
       window.localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
     } catch {
@@ -59,6 +59,30 @@ export const CookieConsentProvider = ({ children }: { children: ReactNode }) => 
     }
     setConsent(next);
     setBannerOpen(false);
+    // Fire-and-forget server-side audit log
+    try {
+      const supaMod = (window as any).__mdfSupabase;
+      const sendLog = async () => {
+        const headers: Record<string, string> = { "content-type": "application/json" };
+        try {
+          const mod = await import("@/integrations/supabase/client");
+          const { data } = await mod.supabase.auth.getSession();
+          const jwt = data.session?.access_token;
+          if (jwt) headers.Authorization = `Bearer ${jwt}`;
+        } catch {}
+        void supaMod;
+        void fetch("/api/public/cookie-consent-log", {
+          method: "POST",
+          headers,
+          body: JSON.stringify({
+            analytics: next.analytics,
+            marketing: next.marketing,
+            source,
+          }),
+        }).catch(() => {});
+      };
+      void sendLog();
+    } catch {}
   }, []);
 
   const save = useCallback(
