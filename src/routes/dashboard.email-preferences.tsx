@@ -24,7 +24,12 @@ function Page() {
             <Link to="/privacy/emails" className="underline hover:text-slate-700">
               email privacy addendum
             </Link>{" "}
-            for details on how these categories are used.
+            for details on how these categories are used. You can review your recent
+            changes on the{" "}
+            <Link to="/dashboard/activity" className="underline hover:text-slate-700">
+              account activity
+            </Link>{" "}
+            page.
           </p>
         </div>
       </div>

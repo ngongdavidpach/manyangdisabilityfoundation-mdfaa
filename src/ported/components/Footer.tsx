@@ -375,6 +375,10 @@ export const Footer: React.FC = () => {
               Privacy
             </Link>
             <span>•</span>
+            <Link to="/cookie-settings" className="hover:text-slate-300">
+              Cookie settings
+            </Link>
+            <span>•</span>
             <button onClick={openPreferences} className="hover:text-slate-300">
               Cookie preferences
             </button>
