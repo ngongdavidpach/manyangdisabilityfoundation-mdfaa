@@ -29,7 +29,7 @@ const Email = ({
   email = "your account",
   updatedAt = "just now",
   preferences,
-  manageUrl = "https://manyangdisabilityfoundation.org/dashboard/email-preferences",
+  manageUrl = "https://manyangdisabilityfoundation.org/email/preferences",
 }: Props) => {
   const p = preferences ?? {
     receipts: true,
