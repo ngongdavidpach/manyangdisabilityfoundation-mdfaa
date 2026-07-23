@@ -115,7 +115,7 @@ export const Route = createFileRoute("/api/public/email-preferences")({
           (request.headers.get("x-forwarded-for") || "").split(",")[0].trim() ||
           null;
         await supabase.from("user_activity_log").insert({
-          user_id: userId ?? null,
+          user_id: null,
           email,
           event_type: "email_preferences_updated",
           details: {
@@ -127,7 +127,7 @@ export const Route = createFileRoute("/api/public/email-preferences")({
               account: !!update.account,
             },
             unsubscribed_all: !!update.unsubscribed_all,
-            source,
+            source: "token",
           },
           ip,
           user_agent: request.headers.get("user-agent")?.slice(0, 500) ?? null,
