@@ -25,35 +25,19 @@ async function resolveEmail(
   supabase: any,
   request: Request,
   bodyToken?: string,
-): Promise<
-  | { email: string; source: "token" | "auth"; userId?: string }
-  | { error: Response }
-> {
+): Promise<{ email: string } | { error: Response }> {
   const url = new URL(request.url);
   const token = bodyToken || url.searchParams.get("token");
-  if (token) {
-    const { data } = await supabase
-      .from("email_unsubscribe_tokens")
-      .select("email")
-      .eq("token", token)
-      .maybeSingle();
-    if (!data) return { error: Response.json({ error: "Invalid token" }, { status: 404 }) };
-    return { email: String(data.email).toLowerCase(), source: "token" };
+  if (!token) {
+    return { error: Response.json({ error: "Missing token" }, { status: 401 }) };
   }
-  const auth = request.headers.get("authorization");
-  if (!auth?.startsWith("Bearer ")) {
-    return { error: Response.json({ error: "Unauthorized" }, { status: 401 }) };
-  }
-  const jwt = auth.slice("Bearer ".length).trim();
-  const { data: userRes, error: authError } = await supabase.auth.getUser(jwt);
-  if (authError || !userRes?.user?.email) {
-    return { error: Response.json({ error: "Unauthorized" }, { status: 401 }) };
-  }
-  return {
-    email: String(userRes.user.email).toLowerCase(),
-    source: "auth",
-    userId: userRes.user.id,
-  };
+  const { data } = await supabase
+    .from("email_unsubscribe_tokens")
+    .select("email")
+    .eq("token", token)
+    .maybeSingle();
+  if (!data) return { error: Response.json({ error: "Invalid token" }, { status: 404 }) };
+  return { email: String(data.email).toLowerCase() };
 }
 
 export const Route = createFileRoute("/api/public/email-preferences")({
@@ -92,7 +76,7 @@ export const Route = createFileRoute("/api/public/email-preferences")({
         }
         const resolved = await resolveEmail(supabase, request, body?.token);
         if ("error" in resolved) return resolved.error;
-        const { email, source, userId } = resolved;
+        const { email } = resolved;
 
         const update: Record<string, unknown> = { email };
         for (const c of CATEGORIES) {
@@ -101,7 +85,6 @@ export const Route = createFileRoute("/api/public/email-preferences")({
         if (typeof body.unsubscribed_all === "boolean") {
           update.unsubscribed_all = body.unsubscribed_all;
         }
-        if (source === "auth" && userId) update.user_id = userId;
 
         const { error: upErr } = await supabase
           .from("email_preferences")
@@ -132,7 +115,7 @@ export const Route = createFileRoute("/api/public/email-preferences")({
           (request.headers.get("x-forwarded-for") || "").split(",")[0].trim() ||
           null;
         await supabase.from("user_activity_log").insert({
-          user_id: userId ?? null,
+          user_id: null,
           email,
           event_type: "email_preferences_updated",
           details: {
@@ -144,7 +127,7 @@ export const Route = createFileRoute("/api/public/email-preferences")({
               account: !!update.account,
             },
             unsubscribed_all: !!update.unsubscribed_all,
-            source,
+            source: "token",
           },
           ip,
           user_agent: request.headers.get("user-agent")?.slice(0, 500) ?? null,
@@ -176,7 +159,7 @@ export const Route = createFileRoute("/api/public/email-preferences")({
               }),
               preferences: finalPrefs,
               manageUrl:
-                "https://manyangdisabilityfoundation.org/dashboard/email-preferences",
+                "https://manyangdisabilityfoundation.org/email/preferences",
             },
           });
         } catch (e) {

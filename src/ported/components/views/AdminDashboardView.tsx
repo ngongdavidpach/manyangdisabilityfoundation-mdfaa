@@ -46,23 +46,24 @@ import { AccessLogViewer } from "../admin/AccessLogViewer";
 
 type Tab =
   | "overview"
-  | "pages"
-  | "foundation"
-  | "insight"
-  | "gallery"
-  | "news"
-  | "events"
-  | "staff"
-  | "staff-accounts"
-  | "coordinators"
-  | "fundraisers"
-  | "settings"
   | "contacts"
-  | "pipeline"
+  | "programs"
+  | "team"
   | "donations"
   | "expenses"
   | "reports"
-  | "access-log";
+  | "site-content"
+  | "gallery"
+  | "news"
+  | "events"
+  | "insight"
+  | "system";
+
+type ContactsSub = "contacts" | "pipeline";
+type ProgramsSub = "coordinators" | "fundraisers";
+type TeamSub = "staff" | "staff-accounts";
+type SiteContentSub = "pages" | "foundation";
+type SystemSub = "settings" | "access-log";
 
 type RecentArticle = {
   id: string;
@@ -155,17 +156,20 @@ export const AdminDashboard: React.FC = () => {
   }, [tab]);
 
 
+  const [contactsSub, setContactsSub] = useState<ContactsSub>("contacts");
+  const [programsSub, setProgramsSub] = useState<ProgramsSub>("coordinators");
+  const [teamSub, setTeamSub] = useState<TeamSub>("staff");
+  const [siteContentSub, setSiteContentSub] = useState<SiteContentSub>("pages");
+  const [systemSub, setSystemSub] = useState<SystemSub>("settings");
+
   const sections: { label: string; items: { id: Tab; label: string; icon: any }[] }[] = [
     { label: "Overview", items: [{ id: "overview", label: "Dashboard", icon: LayoutDashboard }] },
     {
       label: "People",
       items: [
         { id: "contacts", label: "Contacts", icon: Users },
-        { id: "pipeline", label: "Pipeline", icon: Workflow },
-        { id: "coordinators", label: "Coordinators (EA)", icon: ShieldCheck },
-        { id: "fundraisers", label: "Fundraisers (AU)", icon: HeartHandshake },
-        { id: "staff", label: "Staff", icon: Users },
-        { id: "staff-accounts", label: "Staff Accounts", icon: ShieldCheck },
+        { id: "programs", label: "Programs", icon: HeartHandshake },
+        { id: "team", label: "Team", icon: ShieldCheck },
       ],
     },
     {
@@ -179,7 +183,7 @@ export const AdminDashboard: React.FC = () => {
     {
       label: "Content",
       items: [
-        { id: "pages", label: "Page Content", icon: FileText },
+        { id: "site-content", label: "Site Content", icon: FileText },
         { id: "gallery", label: "Media Library", icon: ImageIcon },
         { id: "news", label: "News", icon: Newspaper },
         { id: "events", label: "Events", icon: Calendar },
@@ -188,11 +192,7 @@ export const AdminDashboard: React.FC = () => {
     },
     {
       label: "System",
-      items: [
-        { id: "foundation", label: "Foundation Info", icon: SettingsIcon },
-        { id: "settings", label: "Settings", icon: SettingsIcon },
-        { id: "access-log", label: "Access Log", icon: ShieldCheck },
-      ],
+      items: [{ id: "system", label: "System", icon: SettingsIcon }],
     },
   ];
 
@@ -200,27 +200,101 @@ export const AdminDashboard: React.FC = () => {
     { label: "Media Assets", value: counts.media, icon: ImageIcon, tab: "gallery" as Tab },
     { label: "News Articles", value: counts.news, icon: Newspaper, tab: "news" as Tab },
     { label: "Events", value: counts.events, icon: Calendar, tab: "events" as Tab },
-    { label: "Staff", value: counts.staff, icon: Users, tab: "staff" as Tab },
+    { label: "Staff", value: counts.staff, icon: Users, tab: "team" as Tab },
   ];
 
   const initial = (user?.fullName || user?.email || "A").charAt(0).toUpperCase();
 
+  const SubTabs = <T extends string>({
+    value,
+    onChange,
+    options,
+  }: {
+    value: T;
+    onChange: (v: T) => void;
+    options: { id: T; label: string }[];
+  }) => (
+    <div className="flex flex-wrap gap-1 border-b border-gray-100 mb-4">
+      {options.map((o) => (
+        <button
+          key={o.id}
+          onClick={() => onChange(o.id)}
+          className={`px-3 py-1.5 text-sm font-medium rounded-t-md -mb-px border-b-2 transition-colors ${
+            value === o.id
+              ? "border-violet-700 text-violet-700"
+              : "border-transparent text-gray-600 hover:text-gray-900"
+          }`}
+        >
+          {o.label}
+        </button>
+      ))}
+    </div>
+  );
+
   const renderTab = () => {
     switch (tab) {
       case "contacts":
-        return <ContactsManager />;
-      case "pipeline":
-        return <PipelineView />;
+        return (
+          <>
+            <SubTabs
+              value={contactsSub}
+              onChange={setContactsSub}
+              options={[
+                { id: "contacts", label: "Contacts" },
+                { id: "pipeline", label: "Pipeline" },
+              ]}
+            />
+            {contactsSub === "contacts" ? <ContactsManager /> : <PipelineView />}
+          </>
+        );
+      case "programs":
+        return (
+          <>
+            <SubTabs
+              value={programsSub}
+              onChange={setProgramsSub}
+              options={[
+                { id: "coordinators", label: "Coordinators (EA)" },
+                { id: "fundraisers", label: "Fundraisers (AU)" },
+              ]}
+            />
+            {programsSub === "coordinators" ? <CoordinatorsManager /> : <FundraisersManager />}
+          </>
+        );
+      case "team":
+        return (
+          <>
+            <SubTabs
+              value={teamSub}
+              onChange={setTeamSub}
+              options={[
+                { id: "staff", label: "Public staff" },
+                { id: "staff-accounts", label: "Accounts & roles" },
+              ]}
+            />
+            {teamSub === "staff" ? <StaffManager /> : <StaffAccountsManager />}
+          </>
+        );
       case "donations":
         return <DonationsManager />;
       case "expenses":
         return <ExpensesManager />;
       case "reports":
         return <FinanceReports />;
-      case "pages":
-        return <PageSettingsEditor />;
-      case "foundation":
-        return <FoundationInfoEditor />;
+      case "site-content":
+        return (
+          <>
+            <SubTabs
+              value={siteContentSub}
+              onChange={setSiteContentSub}
+              options={[
+                { id: "pages", label: "Page Content" },
+                { id: "foundation", label: "Foundation Info" },
+              ]}
+            />
+            {siteContentSub === "pages" ? <PageSettingsEditor /> : <FoundationInfoEditor />}
+          </>
+        );
       case "insight":
         return <FoundationInsightManager />;
       case "gallery":
@@ -229,43 +303,61 @@ export const AdminDashboard: React.FC = () => {
         return <NewsManager focusArticleId={focusArticleId} />;
       case "events":
         return <EventsManager />;
-      case "staff":
-        return <StaffManager />;
-      case "staff-accounts":
-        return <StaffAccountsManager />;
-      case "coordinators":
-        return <CoordinatorsManager />;
-      case "fundraisers":
-        return <FundraisersManager />;
-      case "access-log":
-        return <AccessLogViewer />;
-      case "settings":
+      case "system":
         return (
-          <div className="space-y-4">
-            <NavigationPagesEditor />
-            <div className="bg-white rounded-2xl border border-gray-100 p-5 space-y-3">
-              <h3 className="text-lg font-bold text-gray-800">Other settings</h3>
-              <p className="text-sm text-gray-600">
-                Site-wide settings are managed under{" "}
-                <button onClick={() => setTab("pages")} className="text-violet-700 underline">
-                  Page Content → Site / Security
-                </button>
-                .
-              </p>
-              <p className="text-sm text-gray-600">
-                Social media URLs and contact info live under{" "}
-                <button onClick={() => setTab("pages")} className="text-violet-700 underline">
-                  Page Content → Footer &amp; Contact
-                </button>
-                .
-              </p>
-            </div>
-          </div>
+          <>
+            <SubTabs
+              value={systemSub}
+              onChange={setSystemSub}
+              options={[
+                { id: "settings", label: "Navigation & site" },
+                { id: "access-log", label: "Security / access log" },
+              ]}
+            />
+            {systemSub === "settings" ? (
+              <div className="space-y-4">
+                <NavigationPagesEditor />
+                <div className="bg-white rounded-2xl border border-gray-100 p-5 space-y-3">
+                  <h3 className="text-lg font-bold text-gray-800">Other settings</h3>
+                  <p className="text-sm text-gray-600">
+                    Site-wide settings are managed under{" "}
+                    <button
+                      onClick={() => {
+                        setTab("site-content");
+                        setSiteContentSub("pages");
+                      }}
+                      className="text-violet-700 underline"
+                    >
+                      Site Content → Page Content
+                    </button>
+                    .
+                  </p>
+                  <p className="text-sm text-gray-600">
+                    Social media URLs and contact info live under{" "}
+                    <button
+                      onClick={() => {
+                        setTab("site-content");
+                        setSiteContentSub("pages");
+                      }}
+                      className="text-violet-700 underline"
+                    >
+                      Site Content → Page Content → Footer &amp; Contact
+                    </button>
+                    .
+                  </p>
+                </div>
+              </div>
+            ) : (
+              <AccessLogViewer />
+            )}
+          </>
         );
       default:
         return null;
     }
   };
+
+
 
   return (
     <div className="w-full min-h-screen bg-white flex flex-col font-sans">

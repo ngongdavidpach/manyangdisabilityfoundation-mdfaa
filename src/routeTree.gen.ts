@@ -41,7 +41,6 @@ import { Route as FaqDonationsRouteImport } from './routes/faq.donations'
 import { Route as EventsSlugRouteImport } from './routes/events.$slug'
 import { Route as EmailUnsubscribeRouteImport } from './routes/email/unsubscribe'
 import { Route as EmailPreferencesRouteImport } from './routes/email/preferences'
-import { Route as DashboardEmailPreferencesRouteImport } from './routes/dashboard.email-preferences'
 import { Route as DashboardActivityRouteImport } from './routes/dashboard.activity'
 import { Route as AuthResetPasswordRouteImport } from './routes/auth.reset-password'
 import { Route as AuthForgotPasswordRouteImport } from './routes/auth.forgot-password'
@@ -223,12 +222,6 @@ const EmailPreferencesRoute = EmailPreferencesRouteImport.update({
   path: '/email/preferences',
   getParentRoute: () => rootRouteImport,
 } as any)
-const DashboardEmailPreferencesRoute =
-  DashboardEmailPreferencesRouteImport.update({
-    id: '/email-preferences',
-    path: '/email-preferences',
-    getParentRoute: () => DashboardRoute,
-  } as any)
 const DashboardActivityRoute = DashboardActivityRouteImport.update({
   id: '/activity',
   path: '/activity',
@@ -362,7 +355,6 @@ export interface FileRoutesByFullPath {
   '/auth/forgot-password': typeof AuthForgotPasswordRoute
   '/auth/reset-password': typeof AuthResetPasswordRoute
   '/dashboard/activity': typeof DashboardActivityRoute
-  '/dashboard/email-preferences': typeof DashboardEmailPreferencesRoute
   '/email/preferences': typeof EmailPreferencesRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
   '/events/$slug': typeof EventsSlugRoute
@@ -416,7 +408,6 @@ export interface FileRoutesByTo {
   '/auth/forgot-password': typeof AuthForgotPasswordRoute
   '/auth/reset-password': typeof AuthResetPasswordRoute
   '/dashboard/activity': typeof DashboardActivityRoute
-  '/dashboard/email-preferences': typeof DashboardEmailPreferencesRoute
   '/email/preferences': typeof EmailPreferencesRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
   '/events/$slug': typeof EventsSlugRoute
@@ -471,7 +462,6 @@ export interface FileRoutesById {
   '/auth/forgot-password': typeof AuthForgotPasswordRoute
   '/auth/reset-password': typeof AuthResetPasswordRoute
   '/dashboard/activity': typeof DashboardActivityRoute
-  '/dashboard/email-preferences': typeof DashboardEmailPreferencesRoute
   '/email/preferences': typeof EmailPreferencesRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
   '/events/$slug': typeof EventsSlugRoute
@@ -527,7 +517,6 @@ export interface FileRouteTypes {
     | '/auth/forgot-password'
     | '/auth/reset-password'
     | '/dashboard/activity'
-    | '/dashboard/email-preferences'
     | '/email/preferences'
     | '/email/unsubscribe'
     | '/events/$slug'
@@ -581,7 +570,6 @@ export interface FileRouteTypes {
     | '/auth/forgot-password'
     | '/auth/reset-password'
     | '/dashboard/activity'
-    | '/dashboard/email-preferences'
     | '/email/preferences'
     | '/email/unsubscribe'
     | '/events/$slug'
@@ -635,7 +623,6 @@ export interface FileRouteTypes {
     | '/auth/forgot-password'
     | '/auth/reset-password'
     | '/dashboard/activity'
-    | '/dashboard/email-preferences'
     | '/email/preferences'
     | '/email/unsubscribe'
     | '/events/$slug'
@@ -936,13 +923,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof EmailPreferencesRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/dashboard/email-preferences': {
-      id: '/dashboard/email-preferences'
-      path: '/email-preferences'
-      fullPath: '/dashboard/email-preferences'
-      preLoaderRoute: typeof DashboardEmailPreferencesRouteImport
-      parentRoute: typeof DashboardRoute
-    }
     '/dashboard/activity': {
       id: '/dashboard/activity'
       path: '/activity'
@@ -1081,12 +1061,10 @@ declare module '@tanstack/react-router' {
 
 interface DashboardRouteChildren {
   DashboardActivityRoute: typeof DashboardActivityRoute
-  DashboardEmailPreferencesRoute: typeof DashboardEmailPreferencesRoute
 }
 
 const DashboardRouteChildren: DashboardRouteChildren = {
   DashboardActivityRoute: DashboardActivityRoute,
-  DashboardEmailPreferencesRoute: DashboardEmailPreferencesRoute,
 }
 
 const DashboardRouteWithChildren = DashboardRoute._addFileChildren(

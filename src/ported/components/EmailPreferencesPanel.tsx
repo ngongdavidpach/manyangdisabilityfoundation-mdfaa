@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
 
 type Prefs = {
   receipts: boolean;
@@ -38,7 +37,8 @@ const CATEGORIES: { key: keyof Omit<Prefs, "unsubscribed_all">; title: string; d
   },
 ];
 
-export function EmailPreferencesPanel({ mode }: { mode: "auth" | "token" }) {
+export function EmailPreferencesPanel({ mode = "token" }: { mode?: "token" }) {
+  void mode;
   const [prefs, setPrefs] = useState<Prefs | null>(null);
   const [email, setEmail] = useState<string>("");
   const [token, setToken] = useState<string>("");
@@ -51,28 +51,19 @@ export function EmailPreferencesPanel({ mode }: { mode: "auth" | "token" }) {
     let cancelled = false;
     (async () => {
       try {
-        let url = "/api/public/email-preferences";
-        const headers: Record<string, string> = { "content-type": "application/json" };
-        if (mode === "token") {
-          const t = new URL(window.location.href).searchParams.get("token") || "";
-          if (!t) {
-            setError("Missing token");
-            setLoading(false);
-            return;
-          }
-          setToken(t);
-          url += `?token=${encodeURIComponent(t)}`;
-        } else {
-          const { data } = await supabase.auth.getSession();
-          const jwt = data.session?.access_token;
-          if (!jwt) {
-            setError("Please sign in to manage email preferences.");
-            setLoading(false);
-            return;
-          }
-          headers.Authorization = `Bearer ${jwt}`;
+        const t = new URL(window.location.href).searchParams.get("token") || "";
+        if (!t) {
+          setError(
+            "This link is missing its access token. Please open the 'Manage preferences' link from a recent email.",
+          );
+          setLoading(false);
+          return;
         }
-        const res = await fetch(url, { headers });
+        setToken(t);
+        const res = await fetch(
+          `/api/public/email-preferences?token=${encodeURIComponent(t)}`,
+          { headers: { "content-type": "application/json" } },
+        );
         const body = await res.json();
         if (!res.ok) {
           setError(body?.error || "Unable to load preferences");
@@ -89,26 +80,17 @@ export function EmailPreferencesPanel({ mode }: { mode: "auth" | "token" }) {
     return () => {
       cancelled = true;
     };
-  }, [mode]);
+  }, []);
 
   const save = async (next: Prefs) => {
     setSaving(true);
     setSaved(false);
     setError(null);
     try {
-      const headers: Record<string, string> = { "content-type": "application/json" };
-      const body: any = { ...next };
-      if (mode === "token") body.token = token;
-      else {
-        const { data } = await supabase.auth.getSession();
-        const jwt = data.session?.access_token;
-        if (!jwt) throw new Error("Signed out");
-        headers.Authorization = `Bearer ${jwt}`;
-      }
       const res = await fetch("/api/public/email-preferences", {
         method: "POST",
-        headers,
-        body: JSON.stringify(body),
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ ...next, token }),
       });
       const data = await res.json();
       if (!res.ok || !data.success) throw new Error(data?.error || "Save failed");
@@ -132,7 +114,6 @@ export function EmailPreferencesPanel({ mode }: { mode: "auth" | "token" }) {
 
   const toggle = (key: keyof Prefs) => {
     const next = { ...prefs, [key]: !prefs[key] };
-    // If enabling any category, ensure global unsubscribe is off
     if (key !== "unsubscribed_all" && next[key]) next.unsubscribed_all = false;
     save(next);
   };

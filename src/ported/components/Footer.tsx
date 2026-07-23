@@ -383,10 +383,6 @@ export const Footer: React.FC = () => {
               Cookie preferences
             </button>
             <span>•</span>
-            <Link to="/dashboard/email-preferences" className="hover:text-slate-300">
-              Email preferences
-            </Link>
-            <span>•</span>
             <button onClick={() => handleLink("about")} className="hover:text-slate-300">
               Governance
             </button>

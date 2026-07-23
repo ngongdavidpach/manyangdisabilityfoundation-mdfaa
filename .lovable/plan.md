@@ -1,66 +1,40 @@
-## Goals
+## Part 1 — Admin dashboard: recommended consolidations
 
-1. **Audit log page** at `/dashboard/activity` showing the signed-in user's cookie-consent and email-preference changes.
-2. **Confirmation email** on every successful email-preference update (both signed-in and token flows).
-3. **Granular cookie controls** — the banner already has necessary/analytics/marketing toggles; add a dedicated `/cookie-settings` page and a "Cookie settings" link in the footer so users can revisit and edit categories after the initial choice.
+Today the sidebar has 18 tabs across 5 sections. Several are thin wrappers or naturally belong together. Recommended merges:
 
-## What to build
+### People (6 → 3)
+- **Contacts + Pipeline** → single "Contacts" tab with a Pipeline sub-view (tab switch inside the panel). Pipeline is a filtered view of the same underlying leads.
+- **Coordinators + Fundraisers** → single "Programs" tab with two sub-tabs (EA Coordinators / AU Fundraisers). They share the same shape: application list, approve/reject, notes.
+- **Staff + Staff Accounts** → single "Team" tab with sub-tabs "Public staff" (bios shown on the site) and "Accounts & roles" (auth users + admin role management). They are two views of the same people.
 
-### 1. Audit log
+### Finance (3 → keep 3, but nest)
+- Keep Donations, Expenses, Reports as-is. Reports already summarises the other two; no merge needed.
 
-**DB migration** — new `user_activity_log` table:
-- `user_id uuid` (nullable — cookie events may be pre-auth), `email citext` (nullable), `event_type text` (`cookie_consent_updated` | `email_preferences_updated`), `details jsonb` (category diff / new values), `ip inet`, `user_agent text`, `created_at`.
-- GRANTs: `SELECT` to `authenticated` (own rows only), `ALL` to `service_role`. `INSERT` only via service role from server routes.
-- RLS: `SELECT USING (auth.uid() = user_id)`.
+### Content (5 → 4)
+- **Page Content + Foundation Info** → merge under "Site Content" with sub-tabs. Both edit CMS-style records; Foundation Info is effectively one more page setting group.
+- Keep Media Library, News, Events, Foundation Insight separate — they manage distinct entities.
 
-**Server writes** (service-role, from existing routes):
-- `POST /api/public/email-preferences` — after successful upsert, insert an `email_preferences_updated` row with the diff of changed categories.
-- New `POST /api/public/cookie-consent-log` — accepts `{ analytics, marketing, source }` + optional bearer. Client calls it from `useCookieConsent.persist` whenever the user saves. Rate-limited by IP.
+### System (3 → 2)
+- **Settings + Access Log** → merge into "System" tab with sub-tabs "Navigation & site", "Security / access log". Settings today is only NavigationPagesEditor plus two pointers back to Page Content, so it's very thin.
 
-**Page** `/dashboard/activity` (protected):
-- Server fn `listMyActivity` behind `requireSupabaseAuth` returning last 100 rows for `context.userId` ordered desc.
-- Simple table: timestamp, event type, human-readable summary of `details`.
+### Result
+Sidebar shrinks from 18 items to **12**:
+Overview · Contacts · Programs · Team · Donations · Expenses · Reports · Site Content · Media · News · Events · Foundation Insight · System
 
-### 2. Confirmation email on preference change
+Implementation approach: keep every existing manager component intact; only change `AdminDashboardView.tsx` — the `Tab` union, the `sections` array, and the `renderTab()` switch — plus add a small in-panel sub-tab bar for the merged tabs. No changes to underlying data or permissions.
 
-**Template** `email-preferences-updated.tsx` (React Email):
-- Shows the new preference state (which categories are on/off, whether globally unsubscribed) and a link to `/dashboard/email-preferences` or the token page.
-- Registered in `src/lib/email-templates/registry.ts`.
+## Part 2 — Remove the sign-in-gated email preferences page
 
-**Trigger** in `src/routes/api/public/email-preferences.ts` POST handler:
-- After the successful upsert, enqueue `email-preferences-updated` via existing `enqueueTransactionalEmail` helper with `templateData` = the new prefs snapshot.
-- Skip send if the user just enabled `unsubscribed_all` (they explicitly asked to stop non-essential email) — instead send one final "confirmation of unsubscribe" email, since it's a directly-triggered account notice.
-- Idempotency key = `pref-update-${email}-${timestamp}` to avoid duplicate sends on retries within the same batch.
+Currently `/dashboard/email-preferences` requires an authenticated session (ProtectedRoute) and duplicates what the token link in every email already provides at `/email/preferences`.
 
-### 3. Granular cookie controls + settings page
+Changes:
+1. Delete `src/routes/dashboard.email-preferences.tsx` (the auth-gated route).
+2. Remove the footer link in `src/ported/components/Footer.tsx` (line 386) pointing to `/dashboard/email-preferences`.
+3. Update `src/routes/privacy.emails.tsx` (line 149) link to point to `/email/preferences` instead.
+4. Update `src/lib/email-templates/email-preferences-updated.tsx` default `manageUrl` and the `manageUrl` passed in `src/routes/api/public/email-preferences.ts` to point to the token-based `…/email/preferences` link (the platform-injected unsubscribe token is what the user should click).
+5. Simplify `src/ported/components/EmailPreferencesPanel.tsx`: drop the `mode="auth"` branch (bearer-token JWT path) since only token-mode is used now. Also drop the auth branch in `src/routes/api/public/email-preferences.ts` so the endpoint only accepts a valid unsubscribe token — the JWT path is no longer callable.
 
-The banner (`src/ported/components/CookieConsent.tsx`) already exposes necessary/analytics/marketing toggles behind "Customize" — no schema change needed there.
+Users manage preferences exclusively via the tokenised link included in every transactional email; there is no in-app page behind sign-in. Auth-required security emails still send regardless.
 
-Additions:
-- **`/cookie-settings` route** — dedicated page that uses `useCookieConsent()` to render the same three toggles with save/accept-all/reject-all actions, plus a summary of the current consent and last-updated timestamp.
-- **Footer link** — add "Cookie settings" in `Footer.tsx` next to Privacy.
-- **Persist call** in `useCookieConsent.persist` — POST to `/api/public/cookie-consent-log` (fire-and-forget) with the new category booleans so the audit log captures it.
-
-## Technical details
-
-- No changes to existing email preferences data model; the audit log is additive.
-- The confirmation email is itself an "account" category message and always sends (users cannot silence confirmations of changes they just made) — matches the pattern used for account deletion confirmations.
-- Cookie-consent logging works pre-auth (writes `user_id` null, keeps IP + UA), then can be correlated later if the same session signs in — but the dashboard page only shows rows where `user_id = auth.uid()`, so pre-auth events won't appear unless we also match by a stored anonymous id. Keeping scope simple: only signed-in cookie changes appear in the audit page; the log still records anonymous rows for admin/compliance queries.
-
-## Files
-
-New:
-- `src/routes/dashboard.activity.tsx`
-- `src/routes/cookie-settings.tsx`
-- `src/routes/api/public/cookie-consent-log.ts`
-- `src/lib/activity.functions.ts` (server fn `listMyActivity`)
-- `src/lib/email-templates/email-preferences-updated.tsx`
-- Migration for `user_activity_log`
-
-Edited:
-- `src/routes/api/public/email-preferences.ts` (log + send confirmation)
-- `src/lib/email-templates/registry.ts` (register new template)
-- `src/lib/email/preferences.ts` (map new template → `account` category, always-send exception)
-- `src/ported/hooks/useCookieConsent.ts` (POST to log route on save)
-- `src/ported/components/Footer.tsx` (add Cookie settings link)
-- `src/ported/components/views/AdminDashboardView.tsx` / dashboard sidebar (link to Activity)
+## Notes / open question
+For Part 1, if you'd rather keep the current 18-tab layout and only relabel some sections, say so and I'll skip the consolidation. Otherwise I'll implement both parts together.
