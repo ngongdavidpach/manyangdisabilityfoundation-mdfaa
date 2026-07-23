@@ -159,7 +159,7 @@ export const Route = createFileRoute("/api/public/email-preferences")({
               }),
               preferences: finalPrefs,
               manageUrl:
-                "https://manyangdisabilityfoundation.org/dashboard/email-preferences",
+                "https://manyangdisabilityfoundation.org/email/preferences",
             },
           });
         } catch (e) {
