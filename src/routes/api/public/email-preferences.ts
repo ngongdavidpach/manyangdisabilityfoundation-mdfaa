@@ -76,7 +76,7 @@ export const Route = createFileRoute("/api/public/email-preferences")({
         }
         const resolved = await resolveEmail(supabase, request, body?.token);
         if ("error" in resolved) return resolved.error;
-        const { email, source, userId } = resolved;
+        const { email } = resolved;
 
         const update: Record<string, unknown> = { email };
         for (const c of CATEGORIES) {
@@ -85,7 +85,6 @@ export const Route = createFileRoute("/api/public/email-preferences")({
         if (typeof body.unsubscribed_all === "boolean") {
           update.unsubscribed_all = body.unsubscribed_all;
         }
-        if (source === "auth" && userId) update.user_id = userId;
 
         const { error: upErr } = await supabase
           .from("email_preferences")
