@@ -96,6 +96,6 @@ export const template = {
       account: true,
       unsubscribed_all: false,
     },
-    manageUrl: "https://manyangdisabilityfoundation.org/dashboard/email-preferences",
+    manageUrl: "https://manyangdisabilityfoundation.org/email/preferences",
   },
 } satisfies TemplateEntry;
