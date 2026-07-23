@@ -46,23 +46,24 @@ import { AccessLogViewer } from "../admin/AccessLogViewer";
 
 type Tab =
   | "overview"
-  | "pages"
-  | "foundation"
-  | "insight"
-  | "gallery"
-  | "news"
-  | "events"
-  | "staff"
-  | "staff-accounts"
-  | "coordinators"
-  | "fundraisers"
-  | "settings"
   | "contacts"
-  | "pipeline"
+  | "programs"
+  | "team"
   | "donations"
   | "expenses"
   | "reports"
-  | "access-log";
+  | "site-content"
+  | "gallery"
+  | "news"
+  | "events"
+  | "insight"
+  | "system";
+
+type ContactsSub = "contacts" | "pipeline";
+type ProgramsSub = "coordinators" | "fundraisers";
+type TeamSub = "staff" | "staff-accounts";
+type SiteContentSub = "pages" | "foundation";
+type SystemSub = "settings" | "access-log";
 
 type RecentArticle = {
   id: string;
