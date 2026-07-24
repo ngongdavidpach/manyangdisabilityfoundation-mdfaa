@@ -1,7 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { enforceRateLimit } from "@/lib/rateLimit.server";
-import { requireAdmin } from "@/integrations/supabase/admin-middleware";
+import { requireStaffOrAdmin } from "@/integrations/supabase/admin-middleware";
 
 const str = (max: number) => z.string().trim().max(max);
 const optStr = (max: number) =>
@@ -497,7 +497,7 @@ const reviewSchema = z.object({
 
 
 export const reviewCoordinatorRegistration = createServerFn({ method: "POST" })
-  .middleware([requireAdmin])
+  .middleware([requireStaffOrAdmin])
   .validator((d: z.input<typeof reviewSchema>) => reviewSchema.parse(d))
   .handler(async ({ data, context }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
@@ -527,7 +527,7 @@ export const reviewCoordinatorRegistration = createServerFn({ method: "POST" })
   });
 
 export const reviewFundraiserRegistration = createServerFn({ method: "POST" })
-  .middleware([requireAdmin])
+  .middleware([requireStaffOrAdmin])
   .validator((d: z.input<typeof reviewSchema>) => reviewSchema.parse(d))
   .handler(async ({ data, context }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");

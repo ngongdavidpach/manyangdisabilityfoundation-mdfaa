@@ -1,12 +1,12 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-import { requireAdmin } from "@/integrations/supabase/admin-middleware";
+import { requireStaffOrAdmin } from "@/integrations/supabase/admin-middleware";
 import { enforceRateLimit } from "@/lib/rateLimit.server";
 
 // Generate a donation receipt PDF, store it in the `receipts` bucket,
 // insert a row in `public.receipts`, and return the storage path.
 export const generateReceipt = createServerFn({ method: "POST" })
-  .middleware([requireAdmin])
+  .middleware([requireStaffOrAdmin])
   .validator((d: { donationId: string }) => d)
   .handler(async ({ data, context }) => {
     const { userId } = context;
