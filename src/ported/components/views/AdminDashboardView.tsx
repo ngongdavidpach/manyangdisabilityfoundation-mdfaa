@@ -75,11 +75,14 @@ type RecentArticle = {
 
 const PAGE_SIZE = 7;
 
-export const AdminDashboard: React.FC = () => {
+export const AdminDashboard: React.FC<{ role?: "admin" | "staff" }> = ({ role = "admin" }) => {
   const navigate = useNavigate();
   const { user, logout } = useAuth();
+  const isAdmin = role === "admin";
 
-  const [tab, setTab] = useState<Tab>("overview");
+  const RESTRICTED_TABS: Tab[] = ["contacts", "team", "system"];
+  const initialTab: Tab = "overview";
+  const [tab, setTab] = useState<Tab>(initialTab);
   const [counts, setCounts] = useState({ media: 0, news: 0, events: 0, staff: 0 });
   const [recent, setRecent] = useState<RecentArticle[]>([]);
   const [total, setTotal] = useState(0);
@@ -162,14 +165,16 @@ export const AdminDashboard: React.FC = () => {
   const [siteContentSub, setSiteContentSub] = useState<SiteContentSub>("pages");
   const [systemSub, setSystemSub] = useState<SystemSub>("settings");
 
-  const sections: { label: string; items: { id: Tab; label: string; icon: any }[] }[] = [
+  const allSections: { label: string; items: { id: Tab; label: string; icon: any }[] }[] = [
     { label: "Overview", items: [{ id: "overview", label: "Dashboard", icon: LayoutDashboard }] },
     {
       label: "People",
       items: [
-        { id: "contacts", label: "Contacts", icon: Users },
+        ...(isAdmin
+          ? [{ id: "contacts" as Tab, label: "Contacts", icon: Users }]
+          : []),
         { id: "programs", label: "Programs", icon: HeartHandshake },
-        { id: "team", label: "Team", icon: ShieldCheck },
+        ...(isAdmin ? [{ id: "team" as Tab, label: "Team", icon: ShieldCheck }] : []),
       ],
     },
     {
@@ -190,18 +195,33 @@ export const AdminDashboard: React.FC = () => {
         { id: "insight", label: "Foundation Insight", icon: Sparkles },
       ],
     },
-    {
-      label: "System",
-      items: [{ id: "system", label: "System", icon: SettingsIcon }],
-    },
+    ...(isAdmin
+      ? [
+          {
+            label: "System",
+            items: [{ id: "system" as Tab, label: "System", icon: SettingsIcon }],
+          },
+        ]
+      : []),
   ];
+  const sections = allSections.filter((s) => s.items.length > 0);
+
+  // Deep-link / stale-state guard: if the active tab is admin-only and the
+  // user is staff, snap back to the overview.
+  useEffect(() => {
+    if (!isAdmin && RESTRICTED_TABS.includes(tab)) setTab("overview");
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isAdmin, tab]);
 
   const stats = [
     { label: "Media Assets", value: counts.media, icon: ImageIcon, tab: "gallery" as Tab },
     { label: "News Articles", value: counts.news, icon: Newspaper, tab: "news" as Tab },
     { label: "Events", value: counts.events, icon: Calendar, tab: "events" as Tab },
-    { label: "Staff", value: counts.staff, icon: Users, tab: "team" as Tab },
+    ...(isAdmin
+      ? [{ label: "Staff", value: counts.staff, icon: Users, tab: "team" as Tab }]
+      : []),
   ];
+
 
   const initial = (user?.fullName || user?.email || "A").charAt(0).toUpperCase();
 
@@ -232,6 +252,7 @@ export const AdminDashboard: React.FC = () => {
   );
 
   const renderTab = () => {
+    if (!isAdmin && RESTRICTED_TABS.includes(tab)) return null;
     switch (tab) {
       case "contacts":
         return (

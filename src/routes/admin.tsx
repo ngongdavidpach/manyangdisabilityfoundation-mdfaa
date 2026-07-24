@@ -4,7 +4,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { AdminDashboard } from "../ported/components/views/AdminDashboardView";
 import { StaffLoginView } from "../ported/components/views/StaffLoginView";
 import { useAuth } from "../ported/contexts/AuthContext";
-import { verifyIsAdmin } from "../lib/adminAccess.functions";
+import { verifyDashboardAccess } from "../lib/adminAccess.functions";
 
 function LoadingPanel({ label }: { label: string }) {
   return (
@@ -23,12 +23,12 @@ function AccessDenied({ name }: { name?: string }) {
       <div className="bg-white rounded-2xl border border-red-200 p-8 sm:p-12 text-center max-w-md shadow-xs mx-auto">
         <h2 className="text-xl font-bold text-slate-900">Access Restricted</h2>
         <p className="text-sm text-slate-600 mt-2 leading-relaxed">
-          Hello {name || "friend"}, you are signed in, but your account does not have admin
-          clearance for this section.
+          Hello {name || "friend"}, you are signed in, but your account does not have staff or
+          admin clearance for this section.
         </p>
         <div className="mt-6 pt-4 border-t border-slate-100">
           <p className="text-xs text-slate-500">
-            Required clearance: <strong className="text-slate-700">admin</strong>
+            Required clearance: <strong className="text-slate-700">admin or staff</strong>
           </p>
         </div>
       </div>
@@ -38,12 +38,11 @@ function AccessDenied({ name }: { name?: string }) {
 
 function AdminRouteComponent() {
   const { isAuthenticated, isLoading, user } = useAuth();
-  const verify = useServerFn(verifyIsAdmin);
+  const verify = useServerFn(verifyDashboardAccess);
 
-  // Server-verified admin gate: the client-side hasRole() cannot be trusted
-  // for rendering the admin UI. We call a server function that consults
-  // public.user_roles via has_role(), so tampering with local auth state
-  // cannot unlock the dashboard.
+  // Server-verified dashboard gate: the client-side hasRole() cannot be
+  // trusted for rendering. The server consults public.user_roles via
+  // has_role() and reports whether this user is an admin or staff.
   const {
     data: gate,
     isLoading: isVerifying,
@@ -58,11 +57,12 @@ function AdminRouteComponent() {
 
   if (isLoading) return <LoadingPanel label="Restoring secure session..." />;
   if (!isAuthenticated) return <StaffLoginView />;
-  if (isVerifying) return <LoadingPanel label="Verifying admin access..." />;
-  if (isError || !gate?.isAdmin) return <AccessDenied name={user?.fullName?.split(" ")[0]} />;
+  if (isVerifying) return <LoadingPanel label="Verifying access..." />;
+  if (isError || !gate?.role) return <AccessDenied name={user?.fullName?.split(" ")[0]} />;
 
-  return <AdminDashboard />;
+  return <AdminDashboard role={gate.role} />;
 }
+
 
 export const Route = createFileRoute("/admin")({
   head: () => ({

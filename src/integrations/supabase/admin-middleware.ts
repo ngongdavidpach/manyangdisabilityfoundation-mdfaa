@@ -59,3 +59,30 @@ export const requireAdmin = createMiddleware({ type: "function" })
     }
     return next({ context: { isAdmin: true as const } });
   });
+
+/**
+ * Allows either an `admin` or a `staff` role. Used to gate dashboard sections
+ * that staff may operate (donations, expenses, programs, content, media, etc.)
+ * while keeping Contacts, Team, System, and Activity strictly admin-only via
+ * `requireAdmin`.
+ */
+export const requireStaffOrAdmin = createMiddleware({ type: "function" })
+  .middleware([requireSupabaseAuth])
+  .server(async ({ next, context }) => {
+    const ctx = context as { supabase: any; userId: string };
+    const [adminRes, staffRes] = await Promise.all([
+      ctx.supabase.rpc("has_role", { _user_id: ctx.userId, _role: "admin" }),
+      ctx.supabase.rpc("has_role", { _user_id: ctx.userId, _role: "staff" }),
+    ]);
+    if (adminRes.error || staffRes.error) {
+      await logDenial({ userId: ctx.userId ?? null, reason: "has_role_rpc_error" });
+      throw new Error("Forbidden: authorization check failed");
+    }
+    const isAdmin = !!adminRes.data;
+    const isStaff = !!staffRes.data;
+    if (!isAdmin && !isStaff) {
+      await logDenial({ userId: ctx.userId ?? null, reason: "not_staff_or_admin" });
+      throw new Error("Forbidden: staff or admin role required");
+    }
+    return next({ context: { isAdmin, isStaff } });
+  });

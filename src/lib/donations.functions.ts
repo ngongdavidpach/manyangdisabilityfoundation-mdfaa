@@ -1,5 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
-import { requireAdmin } from "@/integrations/supabase/admin-middleware";
+import { requireStaffOrAdmin } from "@/integrations/supabase/admin-middleware";
 import { enforceRateLimit } from "@/lib/rateLimit.server";
 
 type DonationInput = {
@@ -26,7 +26,7 @@ function validate(d: DonationInput): DonationInput {
 }
 
 export const insertDonation = createServerFn({ method: "POST" })
-  .middleware([requireAdmin])
+  .middleware([requireStaffOrAdmin])
   .validator((d: DonationInput) => validate(d))
   .handler(async ({ data, context }) => {
     const { userId } = context;
@@ -60,7 +60,7 @@ export const insertDonation = createServerFn({ method: "POST" })
   });
 
 export const deleteDonation = createServerFn({ method: "POST" })
-  .middleware([requireAdmin])
+  .middleware([requireStaffOrAdmin])
   .validator((d: { id: string }) => d)
   .handler(async ({ data, context }) => {
     const { userId } = context;
