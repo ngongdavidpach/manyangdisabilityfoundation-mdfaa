@@ -75,11 +75,14 @@ type RecentArticle = {
 
 const PAGE_SIZE = 7;
 
-export const AdminDashboard: React.FC = () => {
+export const AdminDashboard: React.FC<{ role?: "admin" | "staff" }> = ({ role = "admin" }) => {
   const navigate = useNavigate();
   const { user, logout } = useAuth();
+  const isAdmin = role === "admin";
 
-  const [tab, setTab] = useState<Tab>("overview");
+  const RESTRICTED_TABS: Tab[] = ["contacts", "team", "system"];
+  const initialTab: Tab = "overview";
+  const [tab, setTab] = useState<Tab>(initialTab);
   const [counts, setCounts] = useState({ media: 0, news: 0, events: 0, staff: 0 });
   const [recent, setRecent] = useState<RecentArticle[]>([]);
   const [total, setTotal] = useState(0);
