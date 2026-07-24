@@ -252,6 +252,7 @@ export const AdminDashboard: React.FC<{ role?: "admin" | "staff" }> = ({ role = 
   );
 
   const renderTab = () => {
+    if (!isAdmin && RESTRICTED_TABS.includes(tab)) return null;
     switch (tab) {
       case "contacts":
         return (
