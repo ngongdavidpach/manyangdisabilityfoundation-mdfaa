@@ -10,6 +10,8 @@ export type StaffAccount = {
   lastSignInAt: string | null;
 };
 
+export type AssignableRole = "admin" | "staff" | "none";
+
 export const listStaffAccounts = createServerFn({ method: "GET" })
   .middleware([requireAdmin])
   .handler(async ({ context }): Promise<StaffAccount[]> => {
@@ -47,46 +49,60 @@ export const listStaffAccounts = createServerFn({ method: "GET" })
       .sort((a, b) => (a.email || "").localeCompare(b.email || ""));
   });
 
-export const setUserAdmin = createServerFn({ method: "POST" })
+export const setUserRole = createServerFn({ method: "POST" })
   .middleware([requireAdmin])
-  .validator((d: { userId: string; isAdmin: boolean }) => {
-    if (!d.userId || typeof d.isAdmin !== "boolean") throw new Error("Invalid input");
+  .validator((d: { userId: string; role: AssignableRole }) => {
+    if (!d.userId) throw new Error("Invalid input");
+    if (!["admin", "staff", "none"].includes(d.role)) throw new Error("Invalid role");
     return d;
   })
-  .handler(async ({ data, context }) => {
+  .handler(async ({ data }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
-    if (data.isAdmin) {
-      const { error } = await supabaseAdmin
-        .from("user_roles")
-        .insert({ user_id: data.userId, role: "admin" });
-      if (error && !String(error.message).toLowerCase().includes("duplicate")) {
-        throw new Error("Failed to grant admin");
-      }
-    } else {
+    // Guard: don't drop the last admin
+    const { data: currentRows } = await supabaseAdmin
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", data.userId);
+    const wasAdmin = (currentRows || []).some((r: any) => r.role === "admin");
+
+    if (wasAdmin && data.role !== "admin") {
       const { count } = await supabaseAdmin
         .from("user_roles")
         .select("id", { count: "exact", head: true })
         .eq("role", "admin");
       if ((count ?? 0) <= 1) throw new Error("Cannot remove the last admin");
-      const { error } = await supabaseAdmin
-        .from("user_roles")
-        .delete()
-        .eq("user_id", data.userId)
-        .eq("role", "admin");
-      if (error) throw new Error("Failed to revoke admin");
     }
+
+    // Clear existing admin/staff assignments for this user
+    const { error: delErr } = await supabaseAdmin
+      .from("user_roles")
+      .delete()
+      .eq("user_id", data.userId)
+      .in("role", ["admin", "staff"]);
+    if (delErr) throw new Error("Failed to update role");
+
+    if (data.role !== "none") {
+      const { error: insErr } = await supabaseAdmin
+        .from("user_roles")
+        .insert({ user_id: data.userId, role: data.role });
+      if (insErr && !String(insErr.message).toLowerCase().includes("duplicate")) {
+        throw new Error("Failed to assign role");
+      }
+    }
+
     return { ok: true };
   });
 
 export const inviteStaffAccount = createServerFn({ method: "POST" })
   .middleware([requireAdmin])
-  .validator((d: { email: string; fullName: string; makeAdmin: boolean }) => {
+  .validator((d: { email: string; fullName: string; role: AssignableRole }) => {
     if (!d.email || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(d.email)) throw new Error("Invalid email");
     if (!d.fullName || d.fullName.length > 200) throw new Error("Full name required");
+    if (!["admin", "staff", "none"].includes(d.role)) throw new Error("Invalid role");
     return d;
   })
-  .handler(async ({ data, context }) => {
+  .handler(async ({ data }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
     const { data: invited, error } = await supabaseAdmin.auth.admin.inviteUserByEmail(data.email, {
@@ -94,10 +110,10 @@ export const inviteStaffAccount = createServerFn({ method: "POST" })
     });
     if (error || !invited?.user) throw new Error(error?.message || "Failed to invite user");
 
-    if (data.makeAdmin) {
+    if (data.role !== "none") {
       await supabaseAdmin
         .from("user_roles")
-        .insert({ user_id: invited.user.id, role: "admin" });
+        .insert({ user_id: invited.user.id, role: data.role });
     }
     return { ok: true, userId: invited.user.id };
   });
