@@ -1,18 +1,53 @@
 import React, { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
-import { ShieldCheck, ShieldOff, UserPlus, Loader2, Mail } from "lucide-react";
+import { ShieldCheck, UserPlus, Loader2, Mail } from "lucide-react";
 import {
   listStaffAccounts,
-  setUserAdmin,
+  setUserRole,
   inviteStaffAccount,
   type StaffAccount,
+  type AssignableRole,
 } from "@/lib/staffAccounts.functions";
 import { useAuth } from "../../contexts/AuthContext";
+
+const ROLE_OPTIONS: { value: AssignableRole; label: string }[] = [
+  { value: "admin", label: "Admin" },
+  { value: "staff", label: "Staff" },
+  { value: "none", label: "None" },
+];
+
+function currentRole(row: StaffAccount): AssignableRole {
+  if (row.roles.includes("admin")) return "admin";
+  if (row.roles.includes("staff")) return "staff";
+  return "none";
+}
+
+function RoleBadge({ role }: { role: AssignableRole }) {
+  if (role === "admin") {
+    return (
+      <span className="inline-flex items-center gap-1 text-[11px] font-semibold uppercase tracking-wider text-blue-700 bg-blue-50 border border-blue-200 px-2 py-0.5 rounded-full">
+        <ShieldCheck className="w-3 h-3" /> Admin
+      </span>
+    );
+  }
+  if (role === "staff") {
+    return (
+      <span className="inline-flex items-center text-[11px] font-semibold uppercase tracking-wider text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full">
+        Staff
+      </span>
+    );
+  }
+  return (
+    <span className="inline-flex items-center text-[11px] font-medium text-slate-600 bg-slate-100 border border-slate-200 px-2 py-0.5 rounded-full">
+      None
+    </span>
+  );
+}
 
 export const StaffAccountsManager: React.FC = () => {
   const { user } = useAuth();
   const list = useServerFn(listStaffAccounts);
-  const toggle = useServerFn(setUserAdmin);
+  const updateRole = useServerFn(setUserRole);
   const invite = useServerFn(inviteStaffAccount);
 
   const [rows, setRows] = useState<StaffAccount[]>([]);
@@ -23,7 +58,7 @@ export const StaffAccountsManager: React.FC = () => {
   const [showInvite, setShowInvite] = useState(false);
   const [email, setEmail] = useState("");
   const [fullName, setFullName] = useState("");
-  const [makeAdmin, setMakeAdmin] = useState(false);
+  const [inviteRole, setInviteRole] = useState<AssignableRole>("none");
   const [inviting, setInviting] = useState(false);
   const [notice, setNotice] = useState<string | null>(null);
 
@@ -42,14 +77,18 @@ export const StaffAccountsManager: React.FC = () => {
     load();
   }, []);
 
-  const handleToggle = async (row: StaffAccount, makeAdminNext: boolean) => {
-    if (!makeAdminNext && row.id === user?.id) {
+  const handleRoleChange = async (row: StaffAccount, nextRole: AssignableRole) => {
+    const now = currentRole(row);
+    if (nextRole === now) return;
+
+    if (row.id === user?.id && now === "admin" && nextRole !== "admin") {
       if (!confirm("Remove your own admin access? You may lose access to this dashboard.")) return;
     }
+
     setBusyId(row.id);
     setErr(null);
     try {
-      await toggle({ data: { userId: row.id, isAdmin: makeAdminNext } });
+      await updateRole({ data: { userId: row.id, role: nextRole } });
       await load();
     } catch (e: any) {
       setErr(e?.message || "Action failed");
@@ -64,11 +103,11 @@ export const StaffAccountsManager: React.FC = () => {
     setErr(null);
     setNotice(null);
     try {
-      await invite({ data: { email, fullName, makeAdmin } });
+      await invite({ data: { email, fullName, role: inviteRole } });
       setNotice(`Invitation sent to ${email}`);
       setEmail("");
       setFullName("");
-      setMakeAdmin(false);
+      setInviteRole("none");
       setShowInvite(false);
       await load();
     } catch (e: any) {
@@ -84,7 +123,7 @@ export const StaffAccountsManager: React.FC = () => {
         <div>
           <h3 className="text-lg font-bold text-slate-900">Staff Accounts</h3>
           <p className="text-xs text-slate-500">
-            Manage who can sign in to the admin and who holds the admin role.
+            Manage who can sign in to the admin and assign Admin or Staff roles.
           </p>
         </div>
         <button
@@ -130,14 +169,25 @@ export const StaffAccountsManager: React.FC = () => {
               className="w-full px-3 py-2 border rounded text-sm"
             />
           </div>
-          <label className="flex items-center gap-2 text-sm md:col-span-2">
-            <input
-              type="checkbox"
-              checked={makeAdmin}
-              onChange={(e) => setMakeAdmin(e.target.checked)}
-            />
-            Grant admin role on signup
-          </label>
+          <div className="md:col-span-2">
+            <label className="text-xs font-semibold block mb-1">Role on signup</label>
+            <div className="inline-flex rounded-md border border-slate-200 overflow-hidden text-sm">
+              {ROLE_OPTIONS.map((opt) => (
+                <button
+                  type="button"
+                  key={opt.value}
+                  onClick={() => setInviteRole(opt.value)}
+                  className={`px-3 py-1.5 ${
+                    inviteRole === opt.value
+                      ? "bg-blue-600 text-white"
+                      : "bg-white text-slate-700 hover:bg-slate-50"
+                  }`}
+                >
+                  {opt.label}
+                </button>
+              ))}
+            </div>
+          </div>
           <div className="md:col-span-2 flex gap-2 justify-end">
             <button
               type="button"
@@ -171,15 +221,16 @@ export const StaffAccountsManager: React.FC = () => {
               <tr>
                 <th className="px-4 py-2">Name</th>
                 <th className="px-4 py-2">Email</th>
-                <th className="px-4 py-2">Role</th>
+                <th className="px-4 py-2">Current role</th>
                 <th className="px-4 py-2">Last sign-in</th>
-                <th className="px-4 py-2 text-right">Actions</th>
+                <th className="px-4 py-2 text-right">Assign role</th>
               </tr>
             </thead>
             <tbody>
               {rows.map((r) => {
-                const isAdmin = r.roles.includes("admin");
+                const role = currentRole(r);
                 const isSelf = r.id === user?.id;
+                const busy = busyId === r.id;
                 return (
                   <tr key={r.id} className="border-t">
                     <td className="px-4 py-2">
@@ -190,15 +241,7 @@ export const StaffAccountsManager: React.FC = () => {
                     </td>
                     <td className="px-4 py-2 text-slate-600">{r.email}</td>
                     <td className="px-4 py-2">
-                      {isAdmin ? (
-                        <span className="inline-flex items-center gap-1 text-[11px] font-semibold uppercase tracking-wider text-blue-700 bg-blue-50 border border-blue-200 px-2 py-0.5 rounded-full">
-                          <ShieldCheck className="w-3 h-3" /> Admin
-                        </span>
-                      ) : (
-                        <span className="inline-flex items-center text-[11px] font-medium text-slate-600 bg-slate-100 border border-slate-200 px-2 py-0.5 rounded-full">
-                          Member
-                        </span>
-                      )}
+                      <RoleBadge role={role} />
                     </td>
                     <td className="px-4 py-2 text-slate-500 text-xs">
                       {r.lastSignInAt
@@ -206,24 +249,28 @@ export const StaffAccountsManager: React.FC = () => {
                         : "Never"}
                     </td>
                     <td className="px-4 py-2 text-right">
-                      <button
-                        disabled={busyId === r.id}
-                        onClick={() => handleToggle(r, !isAdmin)}
-                        className={`text-xs px-3 py-1.5 rounded-md inline-flex items-center gap-1 disabled:opacity-60 ${
-                          isAdmin
-                            ? "border border-rose-200 text-rose-700 hover:bg-rose-50"
-                            : "bg-blue-600 text-white hover:bg-blue-700"
-                        }`}
-                      >
-                        {busyId === r.id ? (
-                          <Loader2 className="w-3 h-3 animate-spin" />
-                        ) : isAdmin ? (
-                          <ShieldOff className="w-3 h-3" />
-                        ) : (
-                          <ShieldCheck className="w-3 h-3" />
-                        )}
-                        {isAdmin ? "Remove admin" : "Make admin"}
-                      </button>
+                      <div className="inline-flex items-center gap-2 justify-end">
+                        {busy && <Loader2 className="w-3 h-3 animate-spin text-slate-400" />}
+                        <div className="inline-flex rounded-md border border-slate-200 overflow-hidden text-xs">
+                          {ROLE_OPTIONS.map((opt) => {
+                            const active = role === opt.value;
+                            return (
+                              <button
+                                key={opt.value}
+                                disabled={busy || active}
+                                onClick={() => handleRoleChange(r, opt.value)}
+                                className={`px-2.5 py-1 ${
+                                  active
+                                    ? "bg-slate-900 text-white cursor-default"
+                                    : "bg-white text-slate-700 hover:bg-slate-50 disabled:opacity-60"
+                                }`}
+                              >
+                                {opt.label}
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
                     </td>
                   </tr>
                 );
