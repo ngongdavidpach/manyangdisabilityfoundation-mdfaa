@@ -83,7 +83,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { name: "google-site-verification", content: "-DIrDvS3tDZ6w814f7AHO6jAwsSG-kA3Cr8BnSFtZis" },
+      { name: "google-site-verification", content: "mnsTKLfv9AvUpx18_IyzQoIVVC_Jongqhp6n9OQOx-0" },
       { property: "og:type", content: "website" },
       { property: "og:site_name", content: "Manyang Disability Foundation" },
       { property: "og:image", content: "https://manyangdisabilityfoundation.org/images/logo.png" },
