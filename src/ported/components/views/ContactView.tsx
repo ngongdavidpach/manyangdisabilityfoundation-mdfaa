@@ -115,8 +115,12 @@ export const ContactView: React.FC<Props> = ({ siteKey }) => {
 
           <div className="grid sm:grid-cols-2 gap-4">
             <div>
-              <label className="text-xs font-bold text-slate-700">Your name *</label>
+              <label htmlFor="contact-person" className="text-xs font-bold text-slate-700">
+                Your name *
+              </label>
               <input
+                id="contact-person"
+                name="contact_person"
                 required
                 maxLength={120}
                 value={form.contact_person}
@@ -125,8 +129,12 @@ export const ContactView: React.FC<Props> = ({ siteKey }) => {
               />
             </div>
             <div>
-              <label className="text-xs font-bold text-slate-700">Email *</label>
+              <label htmlFor="contact-email" className="text-xs font-bold text-slate-700">
+                Email *
+              </label>
               <input
+                id="contact-email"
+                name="email"
                 required
                 type="email"
                 maxLength={255}
@@ -136,8 +144,12 @@ export const ContactView: React.FC<Props> = ({ siteKey }) => {
               />
             </div>
             <div>
-              <label className="text-xs font-bold text-slate-700">Phone (optional)</label>
+              <label htmlFor="contact-phone" className="text-xs font-bold text-slate-700">
+                Phone (optional)
+              </label>
               <input
+                id="contact-phone"
+                name="phone"
                 maxLength={40}
                 value={form.phone || ""}
                 onChange={(e) => update("phone", e.target.value)}
@@ -145,8 +157,12 @@ export const ContactView: React.FC<Props> = ({ siteKey }) => {
               />
             </div>
             <div>
-              <label className="text-xs font-bold text-slate-700">Organisation (optional)</label>
+              <label htmlFor="contact-org" className="text-xs font-bold text-slate-700">
+                Organisation (optional)
+              </label>
               <input
+                id="contact-org"
+                name="org_name"
                 maxLength={180}
                 value={form.org_name || ""}
                 onChange={(e) => update("org_name", e.target.value)}
@@ -154,8 +170,13 @@ export const ContactView: React.FC<Props> = ({ siteKey }) => {
               />
             </div>
             <div className="sm:col-span-2">
-              <label className="text-xs font-bold text-slate-700">Reason for contact *</label>
+              <label htmlFor="contact-reason" className="text-xs font-bold text-slate-700">
+                Reason for contact *
+              </label>
               <select
+                id="contact-reason"
+                name="partnership_type"
+                aria-label="Reason for contact"
                 value={form.partnership_type}
                 onChange={(e) =>
                   update("partnership_type", e.target.value as ContactFormInput["partnership_type"])
@@ -170,8 +191,12 @@ export const ContactView: React.FC<Props> = ({ siteKey }) => {
               </select>
             </div>
             <div className="sm:col-span-2">
-              <label className="text-xs font-bold text-slate-700">Message *</label>
+              <label htmlFor="contact-message" className="text-xs font-bold text-slate-700">
+                Message *
+              </label>
               <textarea
+                id="contact-message"
+                name="message"
                 required
                 minLength={10}
                 maxLength={2000}
