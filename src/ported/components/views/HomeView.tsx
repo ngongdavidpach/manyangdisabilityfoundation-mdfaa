@@ -3,6 +3,7 @@ import { useNavigate } from "@tanstack/react-router";
 import { Heart, ArrowRight, Download, PlayCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toEmbedUrl } from "../../lib/videoEmbed";
+import { focusAreaIcon, normalizeFocusAreas, type FocusArea } from "../../lib/focusAreas";
 
 interface InsightContent {
   title?: string;
@@ -28,6 +29,7 @@ export const HomeView = () => {
   const [loading, setLoading] = useState(true);
   const [insight, setInsight] = useState<InsightContent | null>(null);
   const [showInsight, setShowInsight] = useState(false);
+  const [focusAreas, setFocusAreas] = useState<FocusArea[]>([]);
 
   useEffect(() => {
     supabase
@@ -49,6 +51,15 @@ export const HomeView = () => {
         const c = (data?.content as any) || {};
         setInsight((c.insight as InsightContent) || null);
         setShowInsight(!!c.showInsight);
+      });
+    supabase
+      .from("page_settings")
+      .select("content")
+      .eq("page_key", "programs")
+      .maybeSingle()
+      .then(({ data }) => {
+        const c = (data?.content as any) || {};
+        setFocusAreas(c.showFocusAreasOnHome === false ? [] : normalizeFocusAreas(c.focusAreas));
       });
   }, []);
 
@@ -156,6 +167,51 @@ export const HomeView = () => {
           </div>
         </section>
       )}
+
+      {/* Programs & Focus Areas */}
+      {focusAreas.length > 0 && (
+        <section className="bg-slate-50 border-y border-slate-200">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+            <div className="flex flex-wrap justify-between items-baseline gap-3 mb-8">
+              <div>
+                <span className="text-xs font-bold uppercase tracking-widest text-blue-600 block">
+                  What We Do
+                </span>
+                <h2 className="text-2xl font-bold text-slate-900 tracking-tight mt-1">
+                  Programs &amp; Focus Areas
+                </h2>
+              </div>
+              <button
+                onClick={() => navigate({ to: "/programs" })}
+                className="text-blue-600 hover:text-blue-800 font-semibold text-xs flex items-center gap-1 group"
+              >
+                <span>See our full impact</span>
+                <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
+              </button>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {focusAreas.map((area, i) => {
+                const Icon = focusAreaIcon(area.icon);
+                return (
+                  <div
+                    key={i}
+                    className="bg-white border border-slate-200 rounded-xl p-4 flex items-start gap-3"
+                  >
+                    <div className="w-9 h-9 rounded-lg bg-blue-50 flex items-center justify-center shrink-0">
+                      <Icon className="w-4 h-4 text-blue-600" />
+                    </div>
+                    <p className="text-sm font-semibold text-slate-900 leading-snug">
+                      {area.title}
+                    </p>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </section>
+      )}
+
+
 
 
       {/* Latest News & Updates */}

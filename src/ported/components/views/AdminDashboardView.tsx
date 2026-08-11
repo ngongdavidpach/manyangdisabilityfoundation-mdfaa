@@ -39,6 +39,7 @@ import { DonationsManager } from "../admin/DonationsManager";
 import { ExpensesManager } from "../admin/ExpensesManager";
 import { FinanceReports } from "../admin/FinanceReports";
 import { FoundationInfoEditor } from "../admin/FoundationInfoEditor";
+import { FocusAreasManager } from "../admin/FocusAreasManager";
 import { StaffAccountsManager } from "../admin/StaffAccountsManager";
 import { CoordinatorsManager } from "../admin/CoordinatorsManager";
 import { FundraisersManager } from "../admin/FundraisersManager";
@@ -62,7 +63,7 @@ type Tab =
 type ContactsSub = "contacts" | "pipeline";
 type ProgramsSub = "coordinators" | "fundraisers";
 type TeamSub = "staff" | "staff-accounts";
-type SiteContentSub = "pages" | "foundation";
+type SiteContentSub = "pages" | "foundation" | "focus-areas";
 type SystemSub = "settings" | "access-log";
 
 type RecentArticle = {
@@ -311,9 +312,16 @@ export const AdminDashboard: React.FC<{ role?: "admin" | "staff" }> = ({ role = 
               options={[
                 { id: "pages", label: "Page Content" },
                 { id: "foundation", label: "Foundation Info" },
+                { id: "focus-areas", label: "Focus Areas" },
               ]}
             />
-            {siteContentSub === "pages" ? <PageSettingsEditor /> : <FoundationInfoEditor />}
+            {siteContentSub === "pages" ? (
+              <PageSettingsEditor />
+            ) : siteContentSub === "foundation" ? (
+              <FoundationInfoEditor />
+            ) : (
+              <FocusAreasManager />
+            )}
           </>
         );
       case "insight":
