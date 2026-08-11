@@ -1,38 +1,39 @@
-## Goal
-Extend the existing Staff Accounts page so admins can view each user's current role and assign or change it between **Admin**, **Staff**, or **None** — not just the current admin on/off toggle.
+# Programs & Focus Areas — admin-editable
 
-## Current state (verified)
-- `StaffAccountsManager.tsx` lists accounts with roles and offers only a "Make admin / Remove admin" button.
-- `setUserAdmin` in `src/lib/staffAccounts.functions.ts` inserts/deletes the `admin` row in `user_roles` but has no concept of `staff`.
-- `inviteStaffAccount` has a `makeAdmin` boolean; no staff option.
-- The `staff` role already exists in the `app_role` enum and is honoured by `requireStaffOrAdmin`.
+Add a "Programs & Focus Areas" list that appears on both the Programs page and the Home page, fully editable from the admin dashboard, seeded with your seven areas.
 
-## Changes
+## Content to seed
 
-### Server — `src/lib/staffAccounts.functions.ts`
-- Replace `setUserAdmin` with `setUserRole({ userId, role: 'admin' | 'staff' | 'none' })`:
-  - Delete any existing `admin`/`staff` rows for that user.
-  - Insert the new role row unless `none`.
-  - Preserve the "cannot remove the last admin" guard: if the change would drop the final admin, throw.
-  - Keep `requireAdmin` middleware.
-- Update `inviteStaffAccount` to take `role: 'admin' | 'staff' | 'none'` instead of `makeAdmin`, and grant that role on invite.
-- Keep `listStaffAccounts` as-is (it already returns the `roles[]` array).
+1. Advocacy for formal funding and support structures for people with disabilities
+2. Cultural and language education — preserving Dinka traditions, customs, and language
+3. Health awareness — education on disease prevention (including HIV/AIDS) and substance abuse
+4. Sport and talent development for people with disabilities
+5. Liaison with Australian authorities on disability-related matters
+6. Fundraising for community activities and micro-projects at state level
+7. Advocacy for gender equality, human rights, and financial transparency
 
-### UI — `src/ported/components/admin/StaffAccountsManager.tsx`
-- Show the current role as a badge (Admin / Staff / Member).
-- Replace the single toggle button with a small role selector per row (segmented control or dropdown) with three options: Admin, Staff, None. Changing it calls `setUserRole`. Confirm before demoting yourself out of admin.
-- In the invite form, replace the "Grant admin role on signup" checkbox with a role selector (Admin / Staff / None, default None).
-- Keep the existing loading, error, and success states.
+Each item has a title, optional short description, and an icon choice, so the list can grow or be reworded later without code changes.
 
-### Access
-Page is already reachable at Admin Dashboard → **Team → Staff Accounts** (admin-only section). No routing changes needed.
+## What visitors see
 
-## Files changed
-- `src/lib/staffAccounts.functions.ts`
-- `src/ported/components/admin/StaffAccountsManager.tsx`
+- **Programs page**: a new "Programs & Focus Areas" section near the top (below the heading/intro), rendered as a responsive card grid with icons.
+- **Home page**: the same list in a condensed form (title-only cards) with a link through to the Programs page, shown under the existing sections and controlled by a show/hide toggle.
 
-## Verification
-1. As admin, open Team → Staff Accounts: each row shows current role and a selector.
-2. Change a user Staff → Admin → None; list refreshes and role badge updates.
-3. Attempt to demote the sole admin: request is rejected with the existing "Cannot remove the last admin" error.
-4. Invite a new user with role = Staff: after accepting, they can sign in and see the staff-limited dashboard.
+Both render nothing at all if an admin empties the list.
+
+## Admin editing
+
+New "Focus Areas" editor inside the admin dashboard's Site Content section:
+
+- Add, edit, reorder (move up/down), and delete items
+- Fields per item: title (required), short description (optional), icon
+- Toggle for showing the condensed list on the home page
+- Single Save button with success/error feedback, matching the existing editors' look
+
+## Technical notes
+
+- Storage: `page_settings` row with `page_key = 'programs'`, new `focusAreas` array plus a `showFocusAreasOnHome` boolean in the same JSON `content` object. No schema migration needed.
+- Seeding: the seven items are written into that existing row as a data update (not a migration), preserving current `programs`, `successStories`, `crossCutting`, `seo`, and `structuredData` keys.
+- New component `src/ported/components/admin/FocusAreasManager.tsx`, wired as a sub-tab under Site Content in `AdminDashboardView.tsx` (same `SubTabs` pattern already used there).
+- `ProgramsView.tsx` reads `focusAreas` from the existing `usePageSettings("programs")` call; `HomeView.tsx` reads the same `programs` page settings row for the condensed list.
+- Icons come from a small allow-list of lucide icons already imported in `ProgramsView`, so no new dependencies.
