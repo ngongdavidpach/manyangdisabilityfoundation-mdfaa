@@ -80,6 +80,41 @@ export const ProgramsView: React.FC = () => {
         </div>
       </section>
 
+      {/* Programs & Focus Areas */}
+      {focusAreas.length > 0 && (
+        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center max-w-2xl mx-auto space-y-3">
+            <span className="text-xs font-bold uppercase tracking-widest text-blue-600 block">
+              What We Do
+            </span>
+            <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">
+              Programs &amp; Focus Areas
+            </h2>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-10">
+            {focusAreas.map((area, i) => {
+              const Icon = focusAreaIcon(area.icon);
+              return (
+                <div
+                  key={i}
+                  className="bg-white border border-slate-200 rounded-2xl p-6 space-y-3 hover:shadow-sm transition-shadow"
+                >
+                  <div className="w-11 h-11 rounded-xl bg-blue-50 flex items-center justify-center">
+                    <Icon className="w-5 h-5 text-blue-600" />
+                  </div>
+                  <h3 className="text-base font-bold text-slate-900 leading-snug">{area.title}</h3>
+                  {area.description && (
+                    <p className="text-sm text-slate-600 leading-relaxed">{area.description}</p>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </section>
+      )}
+
+
+
       {/* Program Categories Filters */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex flex-wrap gap-2 justify-center border-b border-slate-200 pb-6">
