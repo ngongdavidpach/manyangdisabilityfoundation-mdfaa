@@ -62,7 +62,7 @@ type Tab =
 type ContactsSub = "contacts" | "pipeline";
 type ProgramsSub = "coordinators" | "fundraisers";
 type TeamSub = "staff" | "staff-accounts";
-type SiteContentSub = "pages" | "foundation";
+type SiteContentSub = "pages" | "foundation" | "focus-areas";
 type SystemSub = "settings" | "access-log";
 
 type RecentArticle = {
