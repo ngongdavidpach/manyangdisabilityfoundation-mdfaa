@@ -29,6 +29,7 @@ export const HomeView = () => {
   const [loading, setLoading] = useState(true);
   const [insight, setInsight] = useState<InsightContent | null>(null);
   const [showInsight, setShowInsight] = useState(false);
+  const [focusAreas, setFocusAreas] = useState<FocusArea[]>([]);
 
   useEffect(() => {
     supabase
@@ -50,6 +51,15 @@ export const HomeView = () => {
         const c = (data?.content as any) || {};
         setInsight((c.insight as InsightContent) || null);
         setShowInsight(!!c.showInsight);
+      });
+    supabase
+      .from("page_settings")
+      .select("content")
+      .eq("page_key", "programs")
+      .maybeSingle()
+      .then(({ data }) => {
+        const c = (data?.content as any) || {};
+        setFocusAreas(c.showFocusAreasOnHome === false ? [] : normalizeFocusAreas(c.focusAreas));
       });
   }, []);
 
