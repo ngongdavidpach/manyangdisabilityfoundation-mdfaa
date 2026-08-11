@@ -311,9 +311,16 @@ export const AdminDashboard: React.FC<{ role?: "admin" | "staff" }> = ({ role = 
               options={[
                 { id: "pages", label: "Page Content" },
                 { id: "foundation", label: "Foundation Info" },
+                { id: "focus-areas", label: "Focus Areas" },
               ]}
             />
-            {siteContentSub === "pages" ? <PageSettingsEditor /> : <FoundationInfoEditor />}
+            {siteContentSub === "pages" ? (
+              <PageSettingsEditor />
+            ) : siteContentSub === "foundation" ? (
+              <FoundationInfoEditor />
+            ) : (
+              <FocusAreasManager />
+            )}
           </>
         );
       case "insight":
