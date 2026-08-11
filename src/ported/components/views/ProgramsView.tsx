@@ -13,10 +13,12 @@ import {
 } from "lucide-react";
 import { type Program, type SuccessStory } from "../../data/foundationData";
 import { usePageSettings } from "../../hooks/usePageSettings";
+import { focusAreaIcon, normalizeFocusAreas, type FocusArea } from "../../lib/focusAreas";
 
 interface ProgramsContent {
   programs?: Program[];
   successStories?: SuccessStory[];
+  focusAreas?: FocusArea[];
   crossCutting?: {
     title: string;
     subtitle: string;
@@ -34,6 +36,7 @@ export const ProgramsView: React.FC = () => {
   const { content: programsContent } = usePageSettings<ProgramsContent>("programs", {});
   const programs = programsContent?.programs || [];
   const successStories = programsContent?.successStories || [];
+  const focusAreas = normalizeFocusAreas(programsContent?.focusAreas);
   const crossCutting = programsContent?.crossCutting;
 
   const [selectedStory, setSelectedStory] = useState(successStories[0] || null);
