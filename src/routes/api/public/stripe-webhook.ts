@@ -1,9 +1,4 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { verifyStripeSignature } from "@/lib/payments/stripe.server";
-
-type SupabaseAdmin = Awaited<
-  typeof import("@/integrations/supabase/client.server")
->["supabaseAdmin"];
 
 async function alreadyProcessed(supabase: any, eventId: string, eventType: string) {
   const { error } = await supabase
@@ -71,6 +66,7 @@ export const Route = createFileRoute("/api/public/stripe-webhook")({
           return new Response("Not configured", { status: 500 });
         }
 
+        const { verifyStripeSignature } = await import("@/lib/payments/stripe.server");
         const rawBody = await request.text();
         const signature = request.headers.get("stripe-signature");
         if (!verifyStripeSignature(rawBody, signature, secret)) {
@@ -85,7 +81,7 @@ export const Route = createFileRoute("/api/public/stripe-webhook")({
         }
 
         const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-        const supabase: SupabaseAdmin = supabaseAdmin;
+        const supabase: any = supabaseAdmin;
 
         if (await alreadyProcessed(supabase, event.id, event.type)) {
           return Response.json({ received: true, duplicate: true });
