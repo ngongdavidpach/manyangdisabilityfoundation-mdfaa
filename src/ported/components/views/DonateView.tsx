@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Heart,
   CheckCircle2,
@@ -272,6 +272,13 @@ export const DonateView: React.FC = () => {
         /* Pledge Form */
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2 space-y-6">
+            {checkoutCancelled ? (
+              <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 text-xs text-amber-900">
+                Your checkout was cancelled and nothing was charged. You can try again below or
+                switch to pledge &amp; transfer.
+              </div>
+            ) : null}
+
             {/* Payment method */}
             <div className="space-y-2">
               <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider">
