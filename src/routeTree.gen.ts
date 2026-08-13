@@ -20,6 +20,7 @@ import { Route as McpRouteImport } from './routes/mcp'
 import { Route as GetInvolvedRouteImport } from './routes/get-involved'
 import { Route as GalleryRouteImport } from './routes/gallery'
 import { Route as EventsRouteImport } from './routes/events'
+import { Route as DonationCompleteRouteImport } from './routes/donation-complete'
 import { Route as DonateRouteImport } from './routes/donate'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as CsrSponsorshipRouteImport } from './routes/csr-sponsorship'
@@ -115,6 +116,11 @@ const GalleryRoute = GalleryRouteImport.update({
 const EventsRoute = EventsRouteImport.update({
   id: '/events',
   path: '/events',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DonationCompleteRoute = DonationCompleteRouteImport.update({
+  id: '/donation-complete',
+  path: '/donation-complete',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DonateRoute = DonateRouteImport.update({
@@ -342,6 +348,7 @@ export interface FileRoutesByFullPath {
   '/csr-sponsorship': typeof CsrSponsorshipRoute
   '/dashboard': typeof DashboardRouteWithChildren
   '/donate': typeof DonateRoute
+  '/donation-complete': typeof DonationCompleteRoute
   '/events': typeof EventsRouteWithChildren
   '/gallery': typeof GalleryRoute
   '/get-involved': typeof GetInvolvedRoute
@@ -396,6 +403,7 @@ export interface FileRoutesByTo {
   '/csr-sponsorship': typeof CsrSponsorshipRoute
   '/dashboard': typeof DashboardRouteWithChildren
   '/donate': typeof DonateRoute
+  '/donation-complete': typeof DonationCompleteRoute
   '/events': typeof EventsRouteWithChildren
   '/gallery': typeof GalleryRoute
   '/get-involved': typeof GetInvolvedRoute
@@ -451,6 +459,7 @@ export interface FileRoutesById {
   '/csr-sponsorship': typeof CsrSponsorshipRoute
   '/dashboard': typeof DashboardRouteWithChildren
   '/donate': typeof DonateRoute
+  '/donation-complete': typeof DonationCompleteRoute
   '/events': typeof EventsRouteWithChildren
   '/gallery': typeof GalleryRoute
   '/get-involved': typeof GetInvolvedRoute
@@ -507,6 +516,7 @@ export interface FileRouteTypes {
     | '/csr-sponsorship'
     | '/dashboard'
     | '/donate'
+    | '/donation-complete'
     | '/events'
     | '/gallery'
     | '/get-involved'
@@ -561,6 +571,7 @@ export interface FileRouteTypes {
     | '/csr-sponsorship'
     | '/dashboard'
     | '/donate'
+    | '/donation-complete'
     | '/events'
     | '/gallery'
     | '/get-involved'
@@ -615,6 +626,7 @@ export interface FileRouteTypes {
     | '/csr-sponsorship'
     | '/dashboard'
     | '/donate'
+    | '/donation-complete'
     | '/events'
     | '/gallery'
     | '/get-involved'
@@ -670,6 +682,7 @@ export interface RootRouteChildren {
   CsrSponsorshipRoute: typeof CsrSponsorshipRoute
   DashboardRoute: typeof DashboardRouteWithChildren
   DonateRoute: typeof DonateRoute
+  DonationCompleteRoute: typeof DonationCompleteRoute
   EventsRoute: typeof EventsRouteWithChildren
   GalleryRoute: typeof GalleryRoute
   GetInvolvedRoute: typeof GetInvolvedRoute
@@ -787,6 +800,13 @@ declare module '@tanstack/react-router' {
       path: '/events'
       fullPath: '/events'
       preLoaderRoute: typeof EventsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/donation-complete': {
+      id: '/donation-complete'
+      path: '/donation-complete'
+      fullPath: '/donation-complete'
+      preLoaderRoute: typeof DonationCompleteRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/donate': {
@@ -1146,6 +1166,7 @@ const rootRouteChildren: RootRouteChildren = {
   CsrSponsorshipRoute: CsrSponsorshipRoute,
   DashboardRoute: DashboardRouteWithChildren,
   DonateRoute: DonateRoute,
+  DonationCompleteRoute: DonationCompleteRoute,
   EventsRoute: EventsRouteWithChildren,
   GalleryRoute: GalleryRoute,
   GetInvolvedRoute: GetInvolvedRoute,
