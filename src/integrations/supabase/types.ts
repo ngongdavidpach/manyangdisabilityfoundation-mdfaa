@@ -450,8 +450,10 @@ export type Database = {
           receipt_number: number | null
           received_at: string
           status: Database["public"]["Enums"]["donation_status"]
+          stripe_invoice_id: string | null
           stripe_payment_intent_id: string | null
           stripe_session_id: string | null
+          stripe_subscription_id: string | null
           updated_at: string
           user_id: string | null
         }
@@ -472,8 +474,10 @@ export type Database = {
           receipt_number?: number | null
           received_at?: string
           status?: Database["public"]["Enums"]["donation_status"]
+          stripe_invoice_id?: string | null
           stripe_payment_intent_id?: string | null
           stripe_session_id?: string | null
+          stripe_subscription_id?: string | null
           updated_at?: string
           user_id?: string | null
         }
@@ -494,8 +498,10 @@ export type Database = {
           receipt_number?: number | null
           received_at?: string
           status?: Database["public"]["Enums"]["donation_status"]
+          stripe_invoice_id?: string | null
           stripe_payment_intent_id?: string | null
           stripe_session_id?: string | null
+          stripe_subscription_id?: string | null
           updated_at?: string
           user_id?: string | null
         }
@@ -1052,6 +1058,27 @@ export type Database = {
           id?: string
           password_hash?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      processed_stripe_events: {
+        Row: {
+          created_at: string
+          event_id: string
+          event_type: string
+          id: string
+        }
+        Insert: {
+          created_at?: string
+          event_id: string
+          event_type: string
+          id?: string
+        }
+        Update: {
+          created_at?: string
+          event_id?: string
+          event_type?: string
+          id?: string
         }
         Relationships: []
       }

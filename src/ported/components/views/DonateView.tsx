@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Heart,
   CheckCircle2,
@@ -9,10 +9,13 @@ import {
   Sparkles,
   FileText,
   Info,
+  CreditCard,
+  Loader2,
 } from "lucide-react";
 import { useServerFn } from "@tanstack/react-start";
 import { useFoundationInfo } from "../../hooks/useFoundationInfo";
 import { submitDonationIntent } from "@/lib/intake.functions";
+import { createDonationCheckout } from "@/lib/payments/stripe.functions";
 import { usePageSettings } from "../../hooks/usePageSettings";
 
 type Channel = "bank" | "momo" | "paypal";
@@ -34,6 +37,8 @@ export const DonateView: React.FC = () => {
   const [amount, setAmount] = useState<number>(150);
   const [customAmount, setCustomAmount] = useState<string>("");
   const [channel, setChannel] = useState<Channel>("bank");
+  const [payMode, setPayMode] = useState<"card" | "pledge">("card");
+  const [checkoutCancelled, setCheckoutCancelled] = useState(false);
 
   const [donor, setDonor] = useState({
     fullName: "",
@@ -58,6 +63,13 @@ export const DonateView: React.FC = () => {
   const [serverError, setServerError] = useState<string>("");
 
   const submitIntent = useServerFn(submitDonationIntent);
+  const startCheckout = useServerFn(createDonationCheckout);
+
+  useEffect(() => {
+    if (new URLSearchParams(window.location.search).get("checkout") === "cancelled") {
+      setCheckoutCancelled(true);
+    }
+  }, []);
 
   const { content: donateContent } = usePageSettings<DonateContent>("donate", {});
 
@@ -82,6 +94,32 @@ export const DonateView: React.FC = () => {
     if (amount < 1) return;
     setServerError("");
     setProcessing(true);
+
+    if (payMode === "card") {
+      try {
+        const { url } = await startCheckout({
+          data: {
+            amount,
+            currency: "AUD",
+            frequency,
+            donorName: donor.isAnonymous ? undefined : donor.fullName || undefined,
+            donorEmail: donor.email || undefined,
+            isAnonymous: donor.isAnonymous,
+            message: donor.message || undefined,
+          },
+        });
+        window.location.href = url;
+      } catch (err) {
+        setServerError(
+          err instanceof Error
+            ? err.message
+            : "Unable to start secure checkout. Please try again.",
+        );
+        setProcessing(false);
+      }
+      return;
+    }
+
     try {
       const result = await submitIntent({
         data: {
@@ -139,9 +177,9 @@ export const DonateView: React.FC = () => {
           Invest in Mobility and Dignity
         </h1>
         <p className="text-sm sm:text-base text-slate-600 leading-relaxed max-w-2xl mx-auto">
-          Online card processing is launching soon. Today, pledge your gift and we'll send you
-          secure transfer instructions (bank wire, mobile money, or PayPal) so your contribution
-          reaches the field directly.
+          Give securely by card, Apple Pay or Google Pay through our hosted checkout — or pledge
+          your gift and we'll email verified transfer instructions (bank wire, mobile money, or
+          PayPal) instead.
         </p>
       </div>
 
@@ -149,9 +187,9 @@ export const DonateView: React.FC = () => {
       <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 flex items-start gap-3 max-w-3xl mx-auto">
         <Info className="w-5 h-5 text-blue-700 shrink-0 mt-0.5" />
         <div className="text-xs text-blue-900 leading-relaxed">
-          <strong>We do not collect card or mobile-money account numbers on this site.</strong>{" "}
-          Submitting the form below records a non-binding pledge and emails you our verified
-          transfer details. A real online card checkout is coming soon.
+          <strong>Card details are never entered on this site.</strong> Card gifts are completed on
+          Stripe's PCI-compliant hosted checkout page. Choosing "pledge & transfer" instead records
+          a non-binding pledge and emails you our verified transfer details.
         </div>
       </div>
 
@@ -234,6 +272,54 @@ export const DonateView: React.FC = () => {
         /* Pledge Form */
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2 space-y-6">
+            {checkoutCancelled ? (
+              <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 text-xs text-amber-900">
+                Your checkout was cancelled and nothing was charged. You can try again below or
+                switch to pledge &amp; transfer.
+              </div>
+            ) : null}
+
+            {/* Payment method */}
+            <div className="space-y-2">
+              <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider">
+                How would you like to give?
+              </label>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <button
+                  type="button"
+                  onClick={() => setPayMode("card")}
+                  className={`p-4 rounded-xl border text-left transition-all ${
+                    payMode === "card"
+                      ? "border-blue-600 bg-blue-50/40 ring-2 ring-blue-600"
+                      : "border-slate-200 bg-white hover:border-slate-300"
+                  }`}
+                >
+                  <span className="flex items-center gap-2 text-xs font-bold text-slate-900">
+                    <CreditCard className="w-4 h-4 text-blue-700" /> Pay now by card
+                  </span>
+                  <p className="text-[11px] text-slate-500 mt-1 leading-relaxed">
+                    Secure Stripe checkout — card, Apple Pay or Google Pay. Instant confirmation.
+                  </p>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setPayMode("pledge")}
+                  className={`p-4 rounded-xl border text-left transition-all ${
+                    payMode === "pledge"
+                      ? "border-blue-600 bg-blue-50/40 ring-2 ring-blue-600"
+                      : "border-slate-200 bg-white hover:border-slate-300"
+                  }`}
+                >
+                  <span className="flex items-center gap-2 text-xs font-bold text-slate-900">
+                    <Building className="w-4 h-4 text-blue-700" /> Pledge &amp; transfer
+                  </span>
+                  <p className="text-[11px] text-slate-500 mt-1 leading-relaxed">
+                    We email verified bank, mobile money or PayPal details for you to transfer.
+                  </p>
+                </button>
+              </div>
+            </div>
+
             {/* Frequency */}
             <div className="bg-white p-2 rounded-xl border border-slate-200 flex gap-2">
               <button
@@ -307,7 +393,7 @@ export const DonateView: React.FC = () => {
             {/* Custom amount */}
             <div className="bg-white p-4 rounded-xl border border-slate-200 space-y-2">
               <label className="block text-xs font-bold text-slate-700">
-                Or Enter Custom Amount ($ USD)
+                {payMode === "card" ? "Or Enter Custom Amount ($ AUD)" : "Or Enter Custom Amount ($ USD)"}
               </label>
               <div className="relative max-w-xs">
                 <span className="absolute left-3 top-2.5 text-sm font-bold text-slate-500">$</span>
@@ -323,7 +409,7 @@ export const DonateView: React.FC = () => {
             </div>
 
             {/* Channel */}
-            <div className="space-y-3">
+            <div className={`space-y-3 ${payMode === "card" ? "hidden" : ""}`}>
               <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider">
                 Preferred Transfer Channel
               </label>
@@ -460,7 +546,19 @@ export const DonateView: React.FC = () => {
                   className="w-full bg-amber-500 hover:bg-amber-600 disabled:opacity-50 text-slate-950 font-bold py-3.5 rounded-xl text-sm transition-all shadow-md flex items-center justify-center gap-2"
                 >
                   {processing ? (
-                    <span>Recording your pledge…</span>
+                    <span className="flex items-center gap-2">
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      {payMode === "card"
+                        ? "Opening secure checkout…"
+                        : "Recording your pledge…"}
+                    </span>
+                  ) : payMode === "card" ? (
+                    <>
+                      <CreditCard className="w-4 h-4 text-slate-950" />
+                      <span>
+                        Donate ${amount}.00 AUD{frequency === "monthly" ? " Monthly" : ""}
+                      </span>
+                    </>
                   ) : (
                     <>
                       <Heart className="w-4 h-4 fill-slate-950 text-slate-950" />
@@ -474,10 +572,13 @@ export const DonateView: React.FC = () => {
 
               <div className="flex items-center justify-center gap-4 text-[11px] text-slate-500 pt-2 border-t border-slate-100">
                 <span className="flex items-center gap-1">
-                  <ShieldCheck className="w-3.5 h-3.5 text-emerald-500" /> No card data collected
+                  <ShieldCheck className="w-3.5 h-3.5 text-emerald-500" />{" "}
+                  {payMode === "card"
+                    ? "Card details handled by Stripe, never by us"
+                    : "No card data collected"}
                 </span>
                 <span>•</span>
-                <span>Pledges are non-binding</span>
+                <span>{payMode === "card" ? "Cancel monthly gifts anytime" : "Pledges are non-binding"}</span>
               </div>
             </form>
           </div>
@@ -536,11 +637,11 @@ export const DonateView: React.FC = () => {
               <div className="space-y-2 text-xs">
                 <div>
                   <span className="font-bold text-slate-800 block">
-                    When will online card payments launch?
+                    Is paying by card secure?
                   </span>
                   <p className="text-slate-500 mt-0.5">
-                    We're working on hosted card checkout. In the meantime, your pledge reserves
-                    your gift and we'll email secure transfer steps.
+                    Yes. Card payments are processed on Stripe's hosted checkout over HTTPS. We
+                    never see or store your card number.
                   </p>
                 </div>
                 <div className="pt-2 border-t border-slate-100">
