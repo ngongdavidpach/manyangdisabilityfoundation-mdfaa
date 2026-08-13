@@ -379,7 +379,7 @@ export const DonateView: React.FC = () => {
             {/* Custom amount */}
             <div className="bg-white p-4 rounded-xl border border-slate-200 space-y-2">
               <label className="block text-xs font-bold text-slate-700">
-                Or Enter Custom Amount ($ USD)
+                {payMode === "card" ? "Or Enter Custom Amount ($ AUD)" : "Or Enter Custom Amount ($ USD)"}
               </label>
               <div className="relative max-w-xs">
                 <span className="absolute left-3 top-2.5 text-sm font-bold text-slate-500">$</span>
@@ -395,7 +395,7 @@ export const DonateView: React.FC = () => {
             </div>
 
             {/* Channel */}
-            <div className="space-y-3">
+            <div className={`space-y-3 ${payMode === "card" ? "hidden" : ""}`}>
               <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider">
                 Preferred Transfer Channel
               </label>
@@ -532,7 +532,19 @@ export const DonateView: React.FC = () => {
                   className="w-full bg-amber-500 hover:bg-amber-600 disabled:opacity-50 text-slate-950 font-bold py-3.5 rounded-xl text-sm transition-all shadow-md flex items-center justify-center gap-2"
                 >
                   {processing ? (
-                    <span>Recording your pledge…</span>
+                    <span className="flex items-center gap-2">
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      {payMode === "card"
+                        ? "Opening secure checkout…"
+                        : "Recording your pledge…"}
+                    </span>
+                  ) : payMode === "card" ? (
+                    <>
+                      <CreditCard className="w-4 h-4 text-slate-950" />
+                      <span>
+                        Donate ${amount}.00 AUD{frequency === "monthly" ? " Monthly" : ""}
+                      </span>
+                    </>
                   ) : (
                     <>
                       <Heart className="w-4 h-4 fill-slate-950 text-slate-950" />
@@ -546,10 +558,13 @@ export const DonateView: React.FC = () => {
 
               <div className="flex items-center justify-center gap-4 text-[11px] text-slate-500 pt-2 border-t border-slate-100">
                 <span className="flex items-center gap-1">
-                  <ShieldCheck className="w-3.5 h-3.5 text-emerald-500" /> No card data collected
+                  <ShieldCheck className="w-3.5 h-3.5 text-emerald-500" />{" "}
+                  {payMode === "card"
+                    ? "Card details handled by Stripe, never by us"
+                    : "No card data collected"}
                 </span>
                 <span>•</span>
-                <span>Pledges are non-binding</span>
+                <span>{payMode === "card" ? "Cancel monthly gifts anytime" : "Pledges are non-binding"}</span>
               </div>
             </form>
           </div>
@@ -608,11 +623,11 @@ export const DonateView: React.FC = () => {
               <div className="space-y-2 text-xs">
                 <div>
                   <span className="font-bold text-slate-800 block">
-                    When will online card payments launch?
+                    Is paying by card secure?
                   </span>
                   <p className="text-slate-500 mt-0.5">
-                    We're working on hosted card checkout. In the meantime, your pledge reserves
-                    your gift and we'll email secure transfer steps.
+                    Yes. Card payments are processed on Stripe's hosted checkout over HTTPS. We
+                    never see or store your card number.
                   </p>
                 </div>
                 <div className="pt-2 border-t border-slate-100">
