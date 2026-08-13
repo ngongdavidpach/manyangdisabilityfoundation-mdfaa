@@ -10,6 +10,7 @@ import { template as eventRsvpConfirmation } from "./event-rsvp-confirmation";
 import { template as accountDeletionRequested } from "./account-deletion-requested";
 import { template as accountDeletionConfirmed } from "./account-deletion-confirmed";
 import { template as emailPreferencesUpdated } from "./email-preferences-updated";
+import { template as donationReceipt } from "./donation-receipt";
 
 export interface TemplateEntry {
   component: ComponentType<any>;
@@ -31,4 +32,5 @@ export const TEMPLATES: Record<string, TemplateEntry> = {
   "account-deletion-requested": accountDeletionRequested,
   "account-deletion-confirmed": accountDeletionConfirmed,
   "email-preferences-updated": emailPreferencesUpdated,
+  "donation-receipt": donationReceipt,
 };
