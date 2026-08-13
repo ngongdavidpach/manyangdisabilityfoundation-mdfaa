@@ -38,6 +38,7 @@ export const DonateView: React.FC = () => {
   const [customAmount, setCustomAmount] = useState<string>("");
   const [channel, setChannel] = useState<Channel>("bank");
   const [payMode, setPayMode] = useState<"card" | "pledge">("card");
+  const [checkoutCancelled, setCheckoutCancelled] = useState(false);
 
   const [donor, setDonor] = useState({
     fullName: "",
@@ -63,6 +64,12 @@ export const DonateView: React.FC = () => {
 
   const submitIntent = useServerFn(submitDonationIntent);
   const startCheckout = useServerFn(createDonationCheckout);
+
+  useEffect(() => {
+    if (new URLSearchParams(window.location.search).get("checkout") === "cancelled") {
+      setCheckoutCancelled(true);
+    }
+  }, []);
 
   const { content: donateContent } = usePageSettings<DonateContent>("donate", {});
 
