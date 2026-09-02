@@ -52,19 +52,24 @@ export const CsrSponsorshipView: React.FC = () => {
   return (
     <div className="min-h-screen bg-slate-50">
       <section className="bg-gradient-to-br from-blue-900 via-blue-800 to-slate-900 text-white">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-24">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
           <p className="text-blue-200 text-sm font-semibold uppercase tracking-wider mb-3">
             Corporate Social Responsibility
           </p>
-          <h1 className="text-3xl md:text-5xl font-bold leading-tight max-w-3xl">
+          <h1 className="text-3xl md:text-4xl font-bold leading-tight max-w-3xl">
             Sponsor equipment shipments that restore mobility across East Africa.
           </h1>
-          <p className="mt-5 text-blue-100 text-base md:text-lg max-w-2xl">
+        </div>
+      </section>
+
+      <section className="bg-white border-b border-slate-200">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12 grid md:grid-cols-2 gap-8 items-start">
+          <p className="text-slate-600 text-base md:text-lg">
             Partner with the Manyang Disability Foundation to fund custom wheelchairs,
             prosthetics and rehabilitation supplies — with measurable, documented impact
             and an Australian tax receipt issued against our ABN.
           </p>
-          <div className="mt-8 flex flex-wrap gap-3">
+          <div className="flex flex-wrap gap-3 md:justify-end">
             <a
               href="/downloads/mdf-csr-prospectus.pdf"
               className="inline-flex items-center gap-2 bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold px-6 py-3 rounded-lg text-sm"
@@ -73,7 +78,7 @@ export const CsrSponsorshipView: React.FC = () => {
             </a>
             <a
               href="/downloads/mdf-sponsorship-tiers.pdf"
-              className="inline-flex items-center gap-2 bg-white/10 hover:bg-white/20 text-white font-medium px-5 py-3 rounded-lg text-sm border border-white/20"
+              className="inline-flex items-center gap-2 bg-slate-100 hover:bg-slate-200 text-slate-900 font-medium px-5 py-3 rounded-lg text-sm border border-slate-300"
             >
               <FileText className="w-4 h-4" /> Tier List (PDF)
             </a>
@@ -87,6 +92,7 @@ export const CsrSponsorshipView: React.FC = () => {
           Every tier includes quarterly reporting on equipment shipped and beneficiaries
           served, plus a tax receipt against ABN 75 986 228 179.
         </p>
+
 
         <div className="mt-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
           {TIERS.map((t) => (
