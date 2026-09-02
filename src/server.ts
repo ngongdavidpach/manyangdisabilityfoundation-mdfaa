@@ -52,7 +52,7 @@ function buildCsp(nonce: string): string {
     "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
     "img-src 'self' data: blob: https:",
     "font-src 'self' data: https://fonts.gstatic.com",
-    "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://*.lovable.app https://*.lovable.dev https://api.stripe.com https://challenges.cloudflare.com",
+    "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://*.lovable.app https://*.lovable.dev https://api.stripe.com https://challenges.cloudflare.com https://restcountries.com",
     "frame-src 'self' https://challenges.cloudflare.com https://js.stripe.com https://hooks.stripe.com",
     "form-action 'self' https://checkout.stripe.com",
     "frame-ancestors 'none'",
