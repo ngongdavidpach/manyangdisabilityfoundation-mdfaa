@@ -52,14 +52,16 @@ function buildCsp(nonce: string): string {
     "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
     "img-src 'self' data: blob: https:",
     "font-src 'self' data: https://fonts.gstatic.com",
-    "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://*.lovable.app https://*.lovable.dev",
+    "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://*.lovable.app https://*.lovable.dev https://api.stripe.com https://challenges.cloudflare.com",
+    "frame-src 'self' https://challenges.cloudflare.com https://js.stripe.com https://hooks.stripe.com",
+    "form-action 'self' https://checkout.stripe.com",
     "frame-ancestors 'none'",
     "base-uri 'self'",
-    "form-action 'self'",
     "object-src 'none'",
     "upgrade-insecure-requests",
   ].join("; ");
 }
+
 
 const PERMISSIONS_POLICY =
   "camera=(), microphone=(), geolocation=(), payment=(), usb=(), interest-cohort=(), browsing-topics=()";
@@ -73,7 +75,7 @@ declare const HTMLRewriter: {
   };
 };
 
-function stampNonceOnHtml(response: Response, nonce: string): Response {
+async function stampNonceOnHtml(response: Response, nonce: string): Promise<Response> {
   if (typeof HTMLRewriter !== "undefined") {
     const rewriter = new HTMLRewriter().on("script", {
       element(el) {
@@ -82,15 +84,28 @@ function stampNonceOnHtml(response: Response, nonce: string): Response {
     });
     return rewriter.transform(response);
   }
-  return response;
+
+  // Non-Worker runtimes (preview/dev on Node) have no HTMLRewriter. Without a
+  // nonce on the inline bootstrap script the strict CSP blocks hydration and
+  // the page renders blank, so rewrite the HTML as text instead.
+  const html = await response.text();
+  const patched = html.replace(/<script\b([^>]*)>/gi, (match, attrs: string) => {
+    if (/\snonce\s*=/i.test(attrs)) return match;
+    return `<script nonce="${nonce}"${attrs}>`;
+  });
+  return new Response(patched, {
+    status: response.status,
+    statusText: response.statusText,
+    headers: response.headers,
+  });
 }
 
-function applySecurityHeaders(response: Response, request: Request): Response {
+async function applySecurityHeaders(response: Response, request: Request): Promise<Response> {
   const nonce = generateNonce();
   const contentType = response.headers.get("content-type") ?? "";
   const isHtml = contentType.includes("text/html");
 
-  const stamped = isHtml ? stampNonceOnHtml(response, nonce) : response;
+  const stamped = isHtml ? await stampNonceOnHtml(response, nonce) : response;
 
   const headers = new Headers(stamped.headers);
   headers.set("Content-Security-Policy", buildCsp(nonce));
@@ -110,6 +125,7 @@ function applySecurityHeaders(response: Response, request: Request): Response {
     headers,
   });
 }
+
 
 export default {
   async fetch(request: Request, env: unknown, ctx: unknown) {
