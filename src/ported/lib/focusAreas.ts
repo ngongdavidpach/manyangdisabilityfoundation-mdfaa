@@ -48,12 +48,7 @@ export function slugifyFocusArea(value: string): string {
     .join("-");
 }
 
-export function normalizeFocusAreas(value: unknown): Required<
-  Pick<FocusArea, "title" | "slug">
-> &
-  FocusArea extends never
-  ? never
-  : FocusArea[] {
+export function normalizeFocusAreas(value: unknown): FocusArea[] {
   if (!Array.isArray(value)) return [];
   const used = new Set<string>();
   return (value as FocusArea[])
