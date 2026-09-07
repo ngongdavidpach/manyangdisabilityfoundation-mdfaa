@@ -165,6 +165,68 @@ export const FocusAreasManager: React.FC = () => {
                     ))}
                   </select>
                 </div>
+                <div className="space-y-1">
+                  <label className="text-xs font-semibold text-slate-600">
+                    Web address (page link)
+                  </label>
+                  <div className="flex items-center gap-1 text-sm">
+                    <span className="text-slate-400 shrink-0">/programs/</span>
+                    <input
+                      type="text"
+                      value={area.slug ?? ""}
+                      onChange={(e) => update(i, { slug: e.target.value })}
+                      placeholder={slugifyFocusArea(area.title || "")}
+                      maxLength={80}
+                      className="flex-1 px-3 py-2 border border-slate-300 rounded-md text-sm"
+                    />
+                  </div>
+                  <p className="text-[11px] text-slate-500">
+                    Leave blank to build it from the title.
+                  </p>
+                </div>
+                <div className="space-y-1">
+                  <label className="text-xs font-semibold text-slate-600">Overview</label>
+                  <textarea
+                    rows={4}
+                    value={area.overview ?? ""}
+                    onChange={(e) => update(i, { overview: e.target.value })}
+                    maxLength={3000}
+                    className="w-full px-3 py-2 border border-slate-300 rounded-md text-sm"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="text-xs font-semibold text-slate-600">
+                    What we do (one activity per line)
+                  </label>
+                  <textarea
+                    rows={4}
+                    value={(area.activities || []).join("\n")}
+                    onChange={(e) => update(i, { activities: e.target.value.split("\n") })}
+                    className="w-full px-3 py-2 border border-slate-300 rounded-md text-sm"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="text-xs font-semibold text-slate-600">Who it benefits</label>
+                  <textarea
+                    rows={3}
+                    value={area.benefits ?? ""}
+                    onChange={(e) => update(i, { benefits: e.target.value })}
+                    maxLength={1500}
+                    className="w-full px-3 py-2 border border-slate-300 rounded-md text-sm"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="text-xs font-semibold text-slate-600">
+                    Cover image URL (optional)
+                  </label>
+                  <input
+                    type="url"
+                    value={area.image ?? ""}
+                    onChange={(e) => update(i, { image: e.target.value })}
+                    placeholder="https://…"
+                    className="w-full px-3 py-2 border border-slate-300 rounded-md text-sm"
+                  />
+                </div>
               </div>
               <div className="flex flex-col gap-1 shrink-0">
                 <button
