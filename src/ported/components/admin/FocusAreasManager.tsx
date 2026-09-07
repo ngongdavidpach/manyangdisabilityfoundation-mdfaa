@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import {
   FOCUS_AREA_ICONS,
   normalizeFocusAreas,
+  slugifyFocusArea,
   type FocusArea,
 } from "../../lib/focusAreas";
 
