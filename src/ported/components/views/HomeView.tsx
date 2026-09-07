@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "@tanstack/react-router";
+import { useNavigate, Link } from "@tanstack/react-router";
 import { Heart, ArrowRight, Download, PlayCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toEmbedUrl } from "../../lib/videoEmbed";
