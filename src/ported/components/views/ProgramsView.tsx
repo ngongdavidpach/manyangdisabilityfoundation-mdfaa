@@ -95,9 +95,11 @@ export const ProgramsView: React.FC = () => {
             {focusAreas.map((area, i) => {
               const Icon = focusAreaIcon(area.icon);
               return (
-                <div
+                <Link
                   key={i}
-                  className="bg-white border border-slate-200 rounded-2xl p-6 space-y-3 hover:shadow-sm transition-shadow"
+                  to="/programs/$slug"
+                  params={{ slug: area.slug || "" }}
+                  className="group bg-white border border-slate-200 rounded-2xl p-6 space-y-3 hover:shadow-md hover:border-blue-200 transition-all flex flex-col"
                 >
                   <div className="w-11 h-11 rounded-xl bg-blue-50 flex items-center justify-center">
                     <Icon className="w-5 h-5 text-blue-600" />
@@ -106,7 +108,11 @@ export const ProgramsView: React.FC = () => {
                   {area.description && (
                     <p className="text-sm text-slate-600 leading-relaxed">{area.description}</p>
                   )}
-                </div>
+                  <span className="mt-auto pt-2 text-xs font-bold text-blue-600 inline-flex items-center gap-1">
+                    Learn more
+                    <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
+                  </span>
+                </Link>
               );
             })}
           </div>

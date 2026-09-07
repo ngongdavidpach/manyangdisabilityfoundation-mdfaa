@@ -30,6 +30,7 @@ import { Route as AdminRouteImport } from './routes/admin'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ProgramsRssDotxmlRouteImport } from './routes/programs.rss[.]xml'
+import { Route as ProgramsSlugRouteImport } from './routes/programs.$slug'
 import { Route as PrivacyEmailsRouteImport } from './routes/privacy.emails'
 import { Route as PortalFundraisersRouteImport } from './routes/portal.fundraisers'
 import { Route as PortalCoordinatorsRouteImport } from './routes/portal.coordinators'
@@ -166,6 +167,11 @@ const IndexRoute = IndexRouteImport.update({
 const ProgramsRssDotxmlRoute = ProgramsRssDotxmlRouteImport.update({
   id: '/rss.xml',
   path: '/rss.xml',
+  getParentRoute: () => ProgramsRoute,
+} as any)
+const ProgramsSlugRoute = ProgramsSlugRouteImport.update({
+  id: '/$slug',
+  path: '/$slug',
   getParentRoute: () => ProgramsRoute,
 } as any)
 const PrivacyEmailsRoute = PrivacyEmailsRouteImport.update({
@@ -380,6 +386,7 @@ export interface FileRoutesByFullPath {
   '/portal/coordinators': typeof PortalCoordinatorsRoute
   '/portal/fundraisers': typeof PortalFundraisersRoute
   '/privacy/emails': typeof PrivacyEmailsRoute
+  '/programs/$slug': typeof ProgramsSlugRoute
   '/programs/rss.xml': typeof ProgramsRssDotxmlRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
@@ -435,6 +442,7 @@ export interface FileRoutesByTo {
   '/portal/coordinators': typeof PortalCoordinatorsRoute
   '/portal/fundraisers': typeof PortalFundraisersRoute
   '/privacy/emails': typeof PrivacyEmailsRoute
+  '/programs/$slug': typeof ProgramsSlugRoute
   '/programs/rss.xml': typeof ProgramsRssDotxmlRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
@@ -491,6 +499,7 @@ export interface FileRoutesById {
   '/portal/coordinators': typeof PortalCoordinatorsRoute
   '/portal/fundraisers': typeof PortalFundraisersRoute
   '/privacy/emails': typeof PrivacyEmailsRoute
+  '/programs/$slug': typeof ProgramsSlugRoute
   '/programs/rss.xml': typeof ProgramsRssDotxmlRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
@@ -548,6 +557,7 @@ export interface FileRouteTypes {
     | '/portal/coordinators'
     | '/portal/fundraisers'
     | '/privacy/emails'
+    | '/programs/$slug'
     | '/programs/rss.xml'
     | '/.lovable/oauth/consent'
     | '/.mcp/invoke-tool/$tool'
@@ -603,6 +613,7 @@ export interface FileRouteTypes {
     | '/portal/coordinators'
     | '/portal/fundraisers'
     | '/privacy/emails'
+    | '/programs/$slug'
     | '/programs/rss.xml'
     | '/.lovable/oauth/consent'
     | '/.mcp/invoke-tool/$tool'
@@ -658,6 +669,7 @@ export interface FileRouteTypes {
     | '/portal/coordinators'
     | '/portal/fundraisers'
     | '/privacy/emails'
+    | '/programs/$slug'
     | '/programs/rss.xml'
     | '/.lovable/oauth/consent'
     | '/.mcp/invoke-tool/$tool'
@@ -870,6 +882,13 @@ declare module '@tanstack/react-router' {
       path: '/rss.xml'
       fullPath: '/programs/rss.xml'
       preLoaderRoute: typeof ProgramsRssDotxmlRouteImport
+      parentRoute: typeof ProgramsRoute
+    }
+    '/programs/$slug': {
+      id: '/programs/$slug'
+      path: '/$slug'
+      fullPath: '/programs/$slug'
+      preLoaderRoute: typeof ProgramsSlugRouteImport
       parentRoute: typeof ProgramsRoute
     }
     '/privacy/emails': {
@@ -1146,10 +1165,12 @@ const PrivacyRouteWithChildren =
   PrivacyRoute._addFileChildren(PrivacyRouteChildren)
 
 interface ProgramsRouteChildren {
+  ProgramsSlugRoute: typeof ProgramsSlugRoute
   ProgramsRssDotxmlRoute: typeof ProgramsRssDotxmlRoute
 }
 
 const ProgramsRouteChildren: ProgramsRouteChildren = {
+  ProgramsSlugRoute: ProgramsSlugRoute,
   ProgramsRssDotxmlRoute: ProgramsRssDotxmlRoute,
 }
 
