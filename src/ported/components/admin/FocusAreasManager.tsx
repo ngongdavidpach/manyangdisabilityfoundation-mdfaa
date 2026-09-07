@@ -46,16 +46,29 @@ export const FocusAreasManager: React.FC = () => {
 
   const save = async () => {
     setError(null);
-    const cleaned = areas.map((a) => ({ ...a, title: a.title.trim() }));
+    const cleaned = areas.map((a) => ({
+      ...a,
+      title: a.title.trim(),
+      slug: slugifyFocusArea(a.slug?.trim() || a.title),
+      activities: (a.activities || []).map((x) => x.trim()).filter(Boolean),
+    }));
     if (cleaned.some((a) => !a.title)) {
-      setError("Every focus area needs a title.");
+      setError("Every program needs a title.");
+      return;
+    }
+    const slugs = cleaned.map((a) => a.slug);
+    const dupe = slugs.find((s, i) => slugs.indexOf(s) !== i);
+    if (dupe) {
+      setError(`Two programs share the same web address ("${dupe}"). Make them unique.`);
       return;
     }
     setSaving(true);
     const merged = { ...content, focusAreas: cleaned, showFocusAreasOnHome: showOnHome };
     const { error: upErr } = await supabase
       .from("page_settings")
-      .upsert({ page_key: "programs", content: merged } as any, { onConflict: "page_key" });
+      .upsert({ page_key: "programs", content: merged, published } as any, {
+        onConflict: "page_key",
+      });
     setSaving(false);
     if (upErr) {
       setError(upErr.message);
