@@ -12,6 +12,7 @@ export const FocusAreasManager: React.FC = () => {
   const [content, setContent] = useState<Record<string, any>>({});
   const [areas, setAreas] = useState<FocusArea[]>([]);
   const [showOnHome, setShowOnHome] = useState(true);
+  const [published, setPublished] = useState(true);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
@@ -20,7 +21,7 @@ export const FocusAreasManager: React.FC = () => {
   useEffect(() => {
     supabase
       .from("page_settings")
-      .select("content")
+      .select("content, published")
       .eq("page_key", "programs")
       .maybeSingle()
       .then(({ data }) => {
@@ -28,6 +29,7 @@ export const FocusAreasManager: React.FC = () => {
         setContent(c);
         setAreas(normalizeFocusAreas(c.focusAreas));
         setShowOnHome(c.showFocusAreasOnHome !== false);
+        setPublished((data as any)?.published !== false);
         setLoading(false);
       });
   }, []);
