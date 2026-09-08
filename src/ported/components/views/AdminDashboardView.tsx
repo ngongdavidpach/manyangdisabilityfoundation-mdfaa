@@ -312,7 +312,7 @@ export const AdminDashboard: React.FC<{ role?: "admin" | "staff" }> = ({ role = 
               options={[
                 { id: "pages", label: "Page Content" },
                 { id: "foundation", label: "Foundation Info" },
-                { id: "focus-areas", label: "Focus Areas" },
+                { id: "focus-areas", label: "Programs" },
               ]}
             />
             {siteContentSub === "pages" ? (

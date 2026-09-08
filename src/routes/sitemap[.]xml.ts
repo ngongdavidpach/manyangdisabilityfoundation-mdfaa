@@ -58,6 +58,22 @@ export const Route = createFileRoute("/sitemap.xml")({
           for (const e of (eventsData as Array<{ slug: string }>) || []) {
             entries.push({ path: `/events/${e.slug}`, changefreq: "weekly", priority: "0.6" });
           }
+
+          // Program pages (admin-editable focus areas)
+          const { data: programsPage } = await client
+            .from("page_settings")
+            .select("content")
+            .eq("page_key", "programs")
+            .eq("published", true)
+            .maybeSingle();
+          const { normalizeFocusAreas } = await import("@/ported/lib/focusAreas");
+          for (const p of normalizeFocusAreas(
+            (programsPage?.content as { focusAreas?: unknown } | null)?.focusAreas,
+          )) {
+            if (p.slug) {
+              entries.push({ path: `/programs/${p.slug}`, changefreq: "monthly", priority: "0.7" });
+            }
+          }
         } catch {}
 
         const urls = entries.map((e) =>

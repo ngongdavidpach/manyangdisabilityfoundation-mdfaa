@@ -30,13 +30,14 @@ export const Route = createFileRoute("/programs/rss.xml")({
             .eq("page_key", "programs")
             .eq("published", true)
             .maybeSingle();
-          const content = (page?.content as { programs?: Array<{ id?: string; title?: string; description?: string; slug?: string }> } | null) || null;
-          const programs = content?.programs || [];
+          const content = (page?.content as { focusAreas?: unknown } | null) || null;
+          const { normalizeFocusAreas } = await import("@/ported/lib/focusAreas");
+          const programs = normalizeFocusAreas(content?.focusAreas);
           const updated = page?.updated_at ? new Date(page.updated_at).toUTCString() : new Date().toUTCString();
 
           for (const p of programs) {
-            const id = p.slug || p.id || (p.title || "").toLowerCase().replace(/\s+/g, "-");
-            const link = `${BASE_URL}/programs#${id}`;
+            const id = p.slug || (p.title || "").toLowerCase().replace(/\s+/g, "-");
+            const link = `${BASE_URL}/programs/${id}`;
             items.push(
               [
                 `  <item>`,
