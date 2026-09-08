@@ -88,7 +88,7 @@ export const FocusAreasManager: React.FC = () => {
     <div className="bg-white rounded-lg border border-slate-200 p-6 space-y-6 max-w-3xl">
       <div className="flex items-center justify-between border-b pb-3">
         <div>
-          <h3 className="text-lg font-bold text-slate-900">Programs &amp; Focus Areas</h3>
+          <h3 className="text-lg font-bold text-slate-900">Programs</h3>
           <p className="text-xs text-slate-500 mt-0.5">
             Shown on the Programs page, and optionally as a condensed list on the home page.
           </p>
@@ -264,7 +264,7 @@ export const FocusAreasManager: React.FC = () => {
         }
         className="text-sm font-medium text-blue-600 hover:text-blue-800 flex items-center gap-1"
       >
-        <Plus className="w-4 h-4" /> Add focus area
+        <Plus className="w-4 h-4" /> Add program
       </button>
     </div>
   );
