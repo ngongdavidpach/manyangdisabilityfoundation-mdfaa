@@ -104,11 +104,6 @@ export const Navbar: React.FC = () => {
           <div className="flex items-center gap-4">
             <span className="hidden md:inline">{foundationInfo.email}</span>
           </div>
-          <div className="flex items-center gap-3">
-            <span className="bg-blue-800 text-blue-200 px-2 py-0.5 rounded font-medium hidden sm:inline">
-              Non-Profit 501(c)(3) Equivalent
-            </span>
-          </div>
         </div>
       </div>
 
