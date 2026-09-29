@@ -2,14 +2,12 @@ import React, { useState } from "react";
 import {
   Check,
   Copy,
-  FileText,
   Heart,
   Info,
   Landmark,
   Loader2,
   ShieldCheck,
   Smartphone,
-  Sparkles,
 } from "lucide-react";
 import { useServerFn } from "@tanstack/react-start";
 import { Button } from "@/components/ui/button";
@@ -132,8 +130,7 @@ const PaymentDetails: React.FC<PaymentDetailsProps> = ({ details, compact = fals
 
 export const DonateView: React.FC = () => {
   const { content: foundationInfo } = useFoundationInfo();
-  const [frequency, setFrequency] = useState<"one-time" | "monthly">("one-time");
-  const [amount, setAmount] = useState<number>(150);
+  const [amount, setAmount] = useState<number>(0);
   const [customAmount, setCustomAmount] = useState<string>("");
   const [channel, setChannel] = useState<Channel>("bank");
 
@@ -141,7 +138,7 @@ export const DonateView: React.FC = () => {
     fullName: "",
     email: "",
     phone: "",
-    country: "United States",
+    country: "",
     isAnonymous: false,
     message: "",
   });
@@ -152,7 +149,6 @@ export const DonateView: React.FC = () => {
     reference: string;
     date: string;
     amount: number;
-    frequency: "one-time" | "monthly";
     name: string;
     email: string;
     channel: Channel;
@@ -204,7 +200,7 @@ export const DonateView: React.FC = () => {
           isAnonymous: donor.isAnonymous,
           amount,
           currency: "USD",
-          frequency,
+          frequency: "one-time",
           channel,
           message: donor.message || undefined,
         },
@@ -218,7 +214,6 @@ export const DonateView: React.FC = () => {
           day: "numeric",
         }),
         amount,
-        frequency,
         name: donor.isAnonymous ? "Anonymous Donor" : donor.fullName || "Supporter",
         email: donor.email || "Not provided",
         channel,
@@ -236,7 +231,7 @@ export const DonateView: React.FC = () => {
   const reset = () => {
     setCompleted(false);
     setPledge(null);
-    setAmount(150);
+    setAmount(0);
     setCustomAmount("");
   };
 
@@ -295,10 +290,7 @@ export const DonateView: React.FC = () => {
                 Pledged Amount
               </span>
               <span className="text-4xl sm:text-5xl font-extrabold text-slate-900 block mt-1">
-                ${pledge.amount}.00{" "}
-                <span className="text-xs font-normal text-slate-500 uppercase">
-                  {pledge.frequency}
-                </span>
+                ${pledge.amount}.00
               </span>
               <span className="inline-flex items-center gap-1 text-xs text-amber-700 font-bold bg-amber-50 px-2.5 py-1 rounded-full mt-2">
                 <Info className="w-3.5 h-3.5" /> Awaiting transfer — not yet received
@@ -331,54 +323,19 @@ export const DonateView: React.FC = () => {
 
             <PaymentDetails details={paymentDetails} compact />
 
-            <div className="flex flex-col sm:flex-row gap-3 pt-2">
-              <button
-                onClick={() => window.print()}
-                className="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold py-2.5 rounded-lg text-xs transition-colors flex items-center justify-center gap-1.5"
-              >
-                <FileText className="w-4 h-4" />
-                <span>Print Pledge Summary</span>
-              </button>
-              <button
+            <div className="pt-2">
+              <Button
                 onClick={reset}
-                className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 rounded-lg text-xs transition-colors"
+                className="w-full font-bold"
               >
                 Make Another Pledge
-              </button>
+              </Button>
             </div>
           </div>
         </div>
       ) : (
         /* Pledge Form */
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          <div className="lg:col-span-2 space-y-6">
-            {/* Frequency */}
-            <div className="bg-white p-2 rounded-xl border border-slate-200 flex gap-2">
-              <button
-                type="button"
-                onClick={() => setFrequency("one-time")}
-                className={`flex-1 py-3 rounded-lg font-bold text-xs transition-all ${
-                  frequency === "one-time"
-                    ? "bg-blue-900 text-white shadow-xs"
-                    : "text-slate-600 hover:bg-slate-50"
-                }`}
-              >
-                One-Time Gift
-              </button>
-              <button
-                type="button"
-                onClick={() => setFrequency("monthly")}
-                className={`flex-1 py-3 rounded-lg font-bold text-xs transition-all flex items-center justify-center gap-1.5 ${
-                  frequency === "monthly"
-                    ? "bg-blue-900 text-white shadow-xs"
-                    : "text-slate-600 hover:bg-slate-50"
-                }`}
-              >
-                <Sparkles className="w-3.5 h-3.5 text-amber-400" />
-                <span>Monthly Sustainer</span>
-              </button>
-            </div>
-
+        <div className="max-w-3xl mx-auto space-y-6">
             {/* Tiers */}
             <div className="space-y-3">
               <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider">
@@ -488,8 +445,9 @@ export const DonateView: React.FC = () => {
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">Full Name *</label>
+                  <label htmlFor="donor-full-name" className="block text-xs font-bold text-slate-700 mb-1">Full Name *</label>
                   <input
+                    id="donor-full-name"
                     type="text"
                     required={!donor.isAnonymous}
                     disabled={donor.isAnonymous}
@@ -501,10 +459,11 @@ export const DonateView: React.FC = () => {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">
+                  <label htmlFor="donor-email" className="block text-xs font-bold text-slate-700 mb-1">
                     Email Address *
                   </label>
                   <input
+                    id="donor-email"
                     type="email"
                     required
                     value={donor.email}
@@ -517,10 +476,11 @@ export const DonateView: React.FC = () => {
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">
+                  <label htmlFor="donor-phone" className="block text-xs font-bold text-slate-700 mb-1">
                     Phone (Optional)
                   </label>
                   <input
+                    id="donor-phone"
                     type="tel"
                     value={donor.phone}
                     onChange={(e) => setDonor({ ...donor, phone: e.target.value })}
@@ -530,11 +490,14 @@ export const DonateView: React.FC = () => {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">Country</label>
+                  <label htmlFor="donor-country" className="block text-xs font-bold text-slate-700 mb-1">Country</label>
                   <input
+                    id="donor-country"
                     type="text"
                     value={donor.country}
                     onChange={(e) => setDonor({ ...donor, country: e.target.value })}
+                    placeholder="Enter your country"
+                    maxLength={80}
                     className="w-full bg-slate-50 border border-slate-300 rounded-lg p-2.5 text-xs text-slate-900 focus:outline-hidden focus:border-blue-500"
                   />
                 </div>
@@ -585,9 +548,7 @@ export const DonateView: React.FC = () => {
                   ) : (
                     <>
                       <Heart className="w-4 h-4 fill-slate-950 text-slate-950" />
-                      <span>
-                        Pledge ${amount}.00 {frequency === "monthly" ? "Monthly" : ""}
-                      </span>
+                       <span>Pledge ${amount}.00</span>
                     </>
                   )}
                 </button>
@@ -601,116 +562,6 @@ export const DonateView: React.FC = () => {
                 <span>Pledges are non-binding</span>
               </div>
             </form>
-          </div>
-
-          {/* Sidebar */}
-          <div className="space-y-6">
-            <div className="bg-slate-900 text-white p-6 rounded-2xl shadow-xs space-y-4">
-              <span className="text-[10px] font-bold uppercase tracking-widest text-amber-400 block">
-                Pledge Summary
-              </span>
-              <div>
-                <span className="text-xs text-slate-500 block">Your Pledge:</span>
-                <span className="text-3xl font-extrabold text-white block">
-                  ${amount}.00{" "}
-                  <span className="text-xs font-normal text-slate-500">
-                    {frequency === "monthly" ? "/ month" : ""}
-                  </span>
-                </span>
-              </div>
-
-              <div className="pt-2 border-t border-slate-800 space-y-2 text-xs">
-                <span className="font-bold text-blue-400 block">What this gift can enable:</span>
-                {amount < 30 ? (
-                  <p className="text-slate-300 leading-relaxed">
-                    A complete heavy-duty wheel and repair tool set to overhaul a damaged custom
-                    wheelchair.
-                  </p>
-                ) : amount < 100 ? (
-                  <p className="text-slate-300 leading-relaxed">
-                    2-3 orthopedic assessments and neuro-rehabilitation therapy sessions.
-                  </p>
-                ) : amount < 300 ? (
-                  <p className="text-slate-300 leading-relaxed">
-                    Custom seating adaptation and home provision of a rugged all-terrain wheelchair.
-                  </p>
-                ) : (
-                  <p className="text-slate-300 leading-relaxed">
-                    A complete livelihood micro-enterprise startup toolkit for a disabled adult.
-                  </p>
-                )}
-              </div>
-
-              <div className="bg-slate-800 p-3 rounded-lg text-[11px] text-slate-300 space-y-1">
-                <span className="font-bold text-white block">Stewardship Commitment</span>
-                <p>
-                  Over 90% of all direct donations go straight to equipment provision and field
-                  healthcare capacity.
-                </p>
-              </div>
-            </div>
-
-            <div className="bg-white p-6 rounded-xl border border-slate-200 space-y-3">
-              <h4 className="text-xs font-bold uppercase tracking-wider text-slate-900">
-                Frequently Asked
-              </h4>
-              <div className="space-y-2 text-xs">
-                <div>
-                  <span className="font-bold text-slate-800 block">Is my pledge binding?</span>
-                  <p className="text-slate-500 mt-0.5">
-                    No. A pledge is a non-binding signal of intent. You complete the gift by
-                    transferring funds via the channel we email you.
-                  </p>
-                </div>
-                <div className="pt-2 border-t border-slate-100">
-                  <span className="font-bold text-slate-800 block">
-                    Why no online card payments?
-                  </span>
-                  <p className="text-slate-500 mt-0.5">
-                    We currently accept gifts by bank transfer, mobile money or PayPal so that
-                    every dollar reaches the field without card processing fees.
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-white p-6 rounded-xl border border-slate-200 space-y-3">
-              <h4 className="text-xs font-bold uppercase tracking-wider text-slate-900">
-                Related Resources
-              </h4>
-              <ul className="space-y-2 text-xs">
-                <li>
-                  <a href="/faq/donations" className="text-blue-700 hover:underline font-medium">
-                    Donation FAQ — common questions answered
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href="/guides/mobility-aid-grants"
-                    className="text-blue-700 hover:underline font-medium"
-                  >
-                    Mobility aid grants: eligibility & how to apply
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href="/guides/donate-supplies"
-                    className="text-blue-700 hover:underline font-medium"
-                  >
-                    Where to donate used medical equipment
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href="/guides/free-medical-equipment"
-                    className="text-blue-700 hover:underline font-medium"
-                  >
-                    Free medical equipment resources
-                  </a>
-                </li>
-              </ul>
-            </div>
-          </div>
         </div>
       )}
     </div>
