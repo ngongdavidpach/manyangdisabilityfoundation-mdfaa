@@ -106,6 +106,7 @@ const PAGES_RAW = [
       { path: "paymentDetails.bsb", label: "BSB", type: "text" },
       { path: "paymentDetails.accountNumber", label: "Account number", type: "text" },
       { path: "paymentDetails.payId", label: "PayID", type: "text" },
+      { path: "showDonateButton", label: "Show Donate Now button (header & footer)", type: "bool" },
     ],
     seo: true,
   },
