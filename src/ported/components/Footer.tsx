@@ -41,7 +41,6 @@ const Youtube = ({ className = "" }: { className?: string }) => (
 import { Link, useNavigate } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
 import { NAV_ITEM_DEFS, resolveNavOrder } from "../lib/navItems";
-import { useCookieConsent } from "../hooks/useCookieConsent";
 
 const PATH_FOR: Record<string, string> = {
   home: "/",
