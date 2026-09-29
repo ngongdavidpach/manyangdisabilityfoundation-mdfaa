@@ -17,7 +17,6 @@ import { AuthProvider } from "../ported/contexts/AuthContext";
 import { Navbar } from "../ported/components/Navbar";
 import { Footer } from "../ported/components/Footer";
 import { CookieConsentProvider } from "../ported/hooks/useCookieConsent";
-import { CookieConsent } from "../ported/components/CookieConsent";
 
 function NotFoundComponent() {
   return (
@@ -160,7 +159,6 @@ function ClientShell() {
         <Outlet />
       </main>
       <Footer />
-      <CookieConsent />
     </div>
   );
 }
