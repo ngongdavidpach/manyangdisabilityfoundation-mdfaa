@@ -257,6 +257,36 @@ export const submitDonationIntent = createServerFn({ method: "POST" })
       console.error("[submitDonationIntent]", error);
       throw new Error("Unable to record your pledge. Please try again later.");
     }
+    if (data.donorEmail) {
+      const defaults = {
+        bankName: "Commonwealth Bank",
+        accountName: "Manyang M Manyang",
+        bsb: "063132",
+        accountNumber: "11477543",
+        payId: "0434133392",
+      };
+      const { data: ps } = await supabaseAdmin
+        .from("page_settings")
+        .select("content")
+        .eq("page_key", "donate")
+        .maybeSingle();
+      const pd = ((ps?.content as any)?.paymentDetails ?? {}) as Record<string, string>;
+      const details = { ...defaults, ...Object.fromEntries(Object.entries(pd).filter(([, v]) => v)) };
+      const { enqueueTransactionalEmail } = await import("@/lib/email/queue.server");
+      await enqueueTransactionalEmail({
+        templateName: "donation-pledge-confirmation",
+        recipientEmail: data.donorEmail,
+        idempotencyKey: `donation-pledge-${reference}`,
+        templateData: {
+          donorName: data.isAnonymous ? "Supporter" : data.donorName || "Supporter",
+          reference,
+          amount: new Intl.NumberFormat("en-AU", { style: "currency", currency: data.currency }).format(data.amount),
+          channel: data.channel,
+          date: new Date().toLocaleDateString("en-AU", { year: "numeric", month: "long", day: "numeric" }),
+          ...details,
+        },
+      }).catch((e) => console.error("[donation-pledge-confirmation email]", e));
+    }
     return { reference };
   });
 
