@@ -30,6 +30,7 @@ export const HomeView = () => {
   const [insight, setInsight] = useState<InsightContent | null>(null);
   const [showInsight, setShowInsight] = useState(false);
   const [focusAreas, setFocusAreas] = useState<FocusArea[]>([]);
+  const [showDonateButton, setShowDonateButton] = useState(true);
 
   useEffect(() => {
     supabase
@@ -61,6 +62,15 @@ export const HomeView = () => {
         const c = (data?.content as any) || {};
         setFocusAreas(c.showFocusAreasOnHome === false ? [] : normalizeFocusAreas(c.focusAreas));
       });
+    supabase
+      .from("page_settings")
+      .select("content")
+      .eq("page_key", "donate")
+      .maybeSingle()
+      .then(({ data }) => {
+        const c = data?.content as any;
+        if (c && c.showDonateButton === false) setShowDonateButton(false);
+      });
   }, []);
 
   const insightEmbed = insight?.videoUrl ? toEmbedUrl(insight.videoUrl) : null;
@@ -85,12 +95,14 @@ export const HomeView = () => {
             people living with disabilities across South Sudan.
           </p>
           <div className="flex flex-wrap gap-3 justify-center pt-6">
-            <button
-              onClick={() => navigate({ to: "/donate" })}
-              className="bg-blue-600 hover:bg-blue-700 text-white font-bold px-6 py-3 rounded-lg text-sm transition-colors"
-            >
-              Donate Now
-            </button>
+            {showDonateButton && (
+              <button
+                onClick={() => navigate({ to: "/donate" })}
+                className="bg-blue-600 hover:bg-blue-700 text-white font-bold px-6 py-3 rounded-lg text-sm transition-colors"
+              >
+                Donate Now
+              </button>
+            )}
             <button
               onClick={() => navigate({ to: "/get-involved" })}
               className="bg-white hover:bg-slate-50 text-slate-900 font-semibold px-6 py-3 rounded-lg border border-slate-300 text-sm transition-colors"
@@ -313,12 +325,14 @@ export const HomeView = () => {
             completely transform the life of a person with a disability.
           </p>
           <div className="flex flex-wrap gap-4 justify-center pt-2">
-            <button
-              onClick={() => navigate({ to: "/donate" })}
-              className="bg-amber-400 hover:bg-amber-500 text-slate-950 font-bold px-8 py-3.5 rounded-xl shadow-md transition-all text-sm"
-            >
-              Donate Now
-            </button>
+            {showDonateButton && (
+              <button
+                onClick={() => navigate({ to: "/donate" })}
+                className="bg-amber-400 hover:bg-amber-500 text-slate-950 font-bold px-8 py-3.5 rounded-xl shadow-md transition-all text-sm"
+              >
+                Donate Now
+              </button>
+            )}
             <button
               onClick={() => navigate({ to: "/get-involved" })}
               className="bg-blue-700 hover:bg-blue-800 text-white font-semibold px-6 py-3.5 rounded-xl border border-blue-500 transition-all text-sm"
