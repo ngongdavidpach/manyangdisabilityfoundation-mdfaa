@@ -98,7 +98,10 @@ const PaymentDetails: React.FC<PaymentDetailsProps> = ({ details, compact = fals
         </div>
         <dl className="space-y-2 text-sm">
           <div><dt className="text-xs text-slate-500">Bank</dt><dd className="font-semibold text-slate-900">{details.bankName}</dd></div>
-          <div><dt className="text-xs text-slate-500">Account name</dt><dd className="font-semibold text-slate-900">{details.accountName}</dd></div>
+          <div className="flex items-center justify-between gap-3">
+            <div><dt className="text-xs text-slate-500">Account name</dt><dd className="font-semibold text-slate-900">{details.accountName}</dd></div>
+            {copyButton("account name", details.accountName)}
+          </div>
           <div className="flex items-center justify-between gap-3">
             <div><dt className="text-xs text-slate-500">BSB</dt><dd className="font-mono font-bold text-slate-900">{details.bsb}</dd></div>
             {copyButton("BSB", details.bsb)}
