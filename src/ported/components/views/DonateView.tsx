@@ -1,16 +1,5 @@
 import React, { useState } from "react";
-import {
-  Heart,
-  CheckCircle2,
-  ShieldCheck,
-  Smartphone,
-  Globe,
-  Building,
-  Sparkles,
-  FileText,
-  Info,
-  Loader2,
-} from "lucide-react";
+import { Heart, ShieldCheck, Sparkles, FileText, Info, Loader2 } from "lucide-react";
 import { useServerFn } from "@tanstack/react-start";
 import { useFoundationInfo } from "../../hooks/useFoundationInfo";
 import { submitDonationIntent } from "@/lib/intake.functions";
