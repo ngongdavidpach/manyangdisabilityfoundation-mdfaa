@@ -1,11 +1,23 @@
 import React, { useState } from "react";
-import { Heart, ShieldCheck, Sparkles, FileText, Info, Loader2 } from "lucide-react";
+import {
+  Check,
+  Copy,
+  FileText,
+  Heart,
+  Info,
+  Landmark,
+  Loader2,
+  ShieldCheck,
+  Smartphone,
+  Sparkles,
+} from "lucide-react";
 import { useServerFn } from "@tanstack/react-start";
+import { Button } from "@/components/ui/button";
 import { useFoundationInfo } from "../../hooks/useFoundationInfo";
 import { submitDonationIntent } from "@/lib/intake.functions";
 import { usePageSettings } from "../../hooks/usePageSettings";
 
-type Channel = "bank" | "momo" | "paypal";
+type Channel = "bank" | "payid" | "momo" | "paypal";
 
 interface DonationTier {
   amount: number;
@@ -15,8 +27,108 @@ interface DonationTier {
 
 interface DonateContent {
   donationTiers?: DonationTier[];
-  channels?: Array<{ id: Channel; label: string; icon: any }>;
+  channels?: Array<{ id: Channel; label: string }>;
+  paymentDetails?: {
+    bankName?: string;
+    accountName?: string;
+    bsb?: string;
+    accountNumber?: string;
+    payId?: string;
+  };
 }
+
+const DEFAULT_DONATE_CONTENT: DonateContent = {
+  channels: [
+    { id: "bank", label: "Bank transfer" },
+    { id: "payid", label: "PayID" },
+  ],
+  paymentDetails: {
+    bankName: "Commonwealth Bank",
+    accountName: "Manyang Disability Foundation",
+    bsb: "063132",
+    accountNumber: "11477543",
+    payId: "0434133392",
+  },
+};
+
+interface PaymentDetailsProps {
+  details: NonNullable<DonateContent["paymentDetails"]>;
+  compact?: boolean;
+}
+
+const PaymentDetails: React.FC<PaymentDetailsProps> = ({ details, compact = false }) => {
+  const [copied, setCopied] = useState<string | null>(null);
+
+  const copyValue = async (label: string, value: string) => {
+    setCopied(label);
+    try {
+      await navigator.clipboard.writeText(value);
+    } catch {
+      const field = document.createElement("textarea");
+      field.value = value;
+      field.style.position = "fixed";
+      field.style.opacity = "0";
+      document.body.appendChild(field);
+      field.select();
+      document.execCommand("copy");
+      field.remove();
+    }
+    window.setTimeout(() => setCopied(null), 1800);
+  };
+
+  const copyButton = (label: string, value?: string) =>
+    value ? (
+      <Button
+        type="button"
+        variant="ghost"
+        size="icon"
+        className="h-8 w-8 shrink-0 text-blue-700"
+        onClick={() => copyValue(label, value)}
+        aria-label={`Copy ${label}`}
+        title={`Copy ${label}`}
+      >
+        {copied === label ? <Check aria-hidden="true" /> : <Copy aria-hidden="true" />}
+      </Button>
+    ) : null;
+
+  return (
+    <div className={`grid grid-cols-1 ${compact ? "gap-3" : "md:grid-cols-2 gap-4"}`}>
+      <section className="border border-slate-200 bg-white rounded-lg p-4" aria-labelledby={compact ? undefined : "bank-transfer-heading"}>
+        <div className="flex items-center gap-2 mb-3">
+          <Landmark className="w-5 h-5 text-blue-700" aria-hidden="true" />
+          <h3 id={compact ? undefined : "bank-transfer-heading"} className="font-bold text-slate-900">Bank transfer</h3>
+        </div>
+        <dl className="space-y-2 text-sm">
+          <div><dt className="text-xs text-slate-500">Bank</dt><dd className="font-semibold text-slate-900">{details.bankName}</dd></div>
+          <div><dt className="text-xs text-slate-500">Account name</dt><dd className="font-semibold text-slate-900">{details.accountName}</dd></div>
+          <div className="flex items-center justify-between gap-3">
+            <div><dt className="text-xs text-slate-500">BSB</dt><dd className="font-mono font-bold text-slate-900">{details.bsb}</dd></div>
+            {copyButton("BSB", details.bsb)}
+          </div>
+          <div className="flex items-center justify-between gap-3">
+            <div><dt className="text-xs text-slate-500">Account number</dt><dd className="font-mono font-bold text-slate-900">{details.accountNumber}</dd></div>
+            {copyButton("account number", details.accountNumber)}
+          </div>
+        </dl>
+      </section>
+
+      <section className="border border-amber-200 bg-amber-50 rounded-lg p-4" aria-labelledby={compact ? undefined : "payid-heading"}>
+        <div className="flex items-center gap-2 mb-3">
+          <Smartphone className="w-5 h-5 text-amber-700" aria-hidden="true" />
+          <h3 id={compact ? undefined : "payid-heading"} className="font-bold text-slate-900">PayID</h3>
+        </div>
+        <p className="text-xs text-slate-600 mb-2">Use this mobile-number PayID in your banking app.</p>
+        <div className="flex items-center justify-between gap-3 bg-white border border-amber-200 rounded-md px-3 py-2">
+          <span className="font-mono font-bold text-slate-900">{details.payId}</span>
+          {copyButton("PayID", details.payId)}
+        </div>
+        <p aria-live="polite" className="mt-2 min-h-4 text-xs font-medium text-emerald-700">
+          {copied === "PayID" ? "PayID copied" : ""}
+        </p>
+      </section>
+    </div>
+  );
+};
 
 export const DonateView: React.FC = () => {
   const { content: foundationInfo } = useFoundationInfo();
@@ -49,11 +161,20 @@ export const DonateView: React.FC = () => {
 
   const submitIntent = useServerFn(submitDonationIntent);
 
-  const { content: donateContent } = usePageSettings<DonateContent>("donate", {});
+  const { content: donateContent } = usePageSettings<DonateContent>(
+    "donate",
+    DEFAULT_DONATE_CONTENT,
+  );
 
   const donationTiers = donateContent?.donationTiers || [];
 
-  const channels = donateContent?.channels || [];
+  const channels = donateContent.channels?.length
+    ? donateContent.channels
+    : DEFAULT_DONATE_CONTENT.channels ?? [];
+  const paymentDetails = {
+    ...DEFAULT_DONATE_CONTENT.paymentDetails,
+    ...donateContent.paymentDetails,
+  };
 
   const handleAmountSelect = (tierAmount: number) => {
     setAmount(tierAmount);
@@ -130,8 +251,8 @@ export const DonateView: React.FC = () => {
           Invest in Mobility and Dignity
         </h1>
         <p className="text-sm sm:text-base text-slate-600 leading-relaxed max-w-2xl mx-auto">
-          Pledge your gift below and we'll email you verified transfer instructions (bank wire,
-          mobile money, or PayPal) so you can complete your donation securely.
+          Donate directly by bank transfer or PayID. You can also record your gift below so we can
+          match it and send your receipt once the funds arrive.
         </p>
       </div>
 
@@ -139,10 +260,17 @@ export const DonateView: React.FC = () => {
       <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 flex items-start gap-3 max-w-3xl mx-auto">
         <Info className="w-5 h-5 text-blue-700 shrink-0 mt-0.5" />
         <div className="text-xs text-blue-900 leading-relaxed">
-          <strong>No card or account details are collected on this site.</strong> Your pledge is
-          non-binding — we email you our verified transfer details and you complete the gift
-          through your own bank or provider.
+          <strong>No card or banking login details are collected on this site.</strong> Complete
+          your gift securely through your own banking app using the verified details below.
         </div>
+      </div>
+
+      <div className="max-w-3xl mx-auto space-y-3">
+        <div className="text-center">
+          <h2 className="text-xl font-bold text-slate-900">Donation payment details</h2>
+          <p className="text-sm text-slate-600 mt-1">Please include your name or pledge reference as the payment description.</p>
+        </div>
+        <PaymentDetails details={paymentDetails} />
       </div>
 
       {completed && pledge ? (
@@ -198,10 +326,10 @@ export const DonateView: React.FC = () => {
 
             <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 text-[11px] text-slate-600 leading-relaxed">
               <p className="font-bold text-slate-800 mb-1">Next Steps</p>
-              Our donor relations team will email <strong>{pledge.email}</strong> within 1-2
-              business days with verified transfer instructions for your selected channel. A
-              tax-deductible receipt will be issued once funds are received.
+              Transfer your donation using the details below and enter <strong>{pledge.reference}</strong> as the payment description. A receipt will be issued to <strong>{pledge.email}</strong> once funds are received.
             </div>
+
+            <PaymentDetails details={paymentDetails} compact />
 
             <div className="flex flex-col sm:flex-row gap-3 pt-2">
               <button
@@ -319,14 +447,15 @@ export const DonateView: React.FC = () => {
               </label>
               <div className="grid grid-cols-3 gap-2">
                 {channels.map((c) => {
-                  const Icon = c.icon;
+                  const Icon = c.id === "payid" ? Smartphone : Landmark;
                   const isActive = channel === c.id;
                   return (
-                    <button
+                    <Button
                       type="button"
+                      variant="outline"
                       key={c.id}
                       onClick={() => setChannel(c.id)}
-                      className={`p-3 rounded-xl border flex flex-col items-center justify-center gap-1.5 transition-all ${
+                      className={`h-auto p-3 rounded-xl flex flex-col items-center justify-center gap-1.5 transition-all ${
                         isActive
                           ? "border-amber-500 bg-amber-50/40 text-slate-950 font-bold ring-1 ring-amber-500"
                           : "border-slate-200 bg-white text-slate-600 hover:bg-slate-50"
@@ -336,13 +465,12 @@ export const DonateView: React.FC = () => {
                         className={`w-5 h-5 ${isActive ? "text-amber-600" : "text-slate-500"}`}
                       />
                       <span className="text-xs">{c.label}</span>
-                    </button>
+                    </Button>
                   );
                 })}
               </div>
               <p className="text-[11px] text-slate-500">
-                We'll email verified instructions for your selected channel. No account numbers are
-                collected here.
+                Use the payment details shown above, then record your pledge so we can match your transfer.
               </p>
             </div>
 
@@ -354,7 +482,7 @@ export const DonateView: React.FC = () => {
               <div className="border-b border-slate-100 pb-3">
                 <h3 className="text-sm font-bold text-slate-900">Your Contact Details</h3>
                 <p className="text-xs text-slate-500">
-                  So we can send transfer instructions and your receipt once funds are received.
+                  So we can match your transfer and send your receipt once funds are received.
                 </p>
               </div>
 
