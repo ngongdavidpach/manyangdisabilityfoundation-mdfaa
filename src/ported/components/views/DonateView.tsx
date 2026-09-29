@@ -60,13 +60,20 @@ const PaymentDetails: React.FC<PaymentDetailsProps> = ({ details, compact = fals
   const [copied, setCopied] = useState<string | null>(null);
 
   const copyValue = async (label: string, value: string) => {
+    setCopied(label);
     try {
       await navigator.clipboard.writeText(value);
-      setCopied(label);
-      window.setTimeout(() => setCopied(null), 1800);
     } catch {
-      setCopied(null);
+      const field = document.createElement("textarea");
+      field.value = value;
+      field.style.position = "fixed";
+      field.style.opacity = "0";
+      document.body.appendChild(field);
+      field.select();
+      document.execCommand("copy");
+      field.remove();
     }
+    window.setTimeout(() => setCopied(null), 1800);
   };
 
   const copyButton = (label: string, value?: string) =>
