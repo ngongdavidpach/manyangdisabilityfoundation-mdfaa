@@ -4,4 +4,4 @@
 - [x] Remove the preselected donation amount
 - [x] Start the country field empty
 - [x] Remove the pledge summary panel
-- [ ] Verify the simplified donation flow on desktop and mobile
+- [x] Verify the simplified donation flow on desktop and mobile
