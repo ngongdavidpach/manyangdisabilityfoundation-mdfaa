@@ -321,7 +321,7 @@ export const DonateView: React.FC = () => {
 
             <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 text-[11px] text-slate-600 leading-relaxed">
               <p className="font-bold text-slate-800 mb-1">Next Steps</p>
-              Transfer your donation using the details below and enter <strong>{pledge.reference}</strong> as the payment description. A receipt will be issued to <strong>{pledge.email}</strong> once funds are received.
+              Transfer your donation using the details below and enter <strong>{pledge.reference}</strong> as the payment description. {pledge.email !== "Not provided" && (<>A confirmation has been emailed to <strong>{pledge.email}</strong>.</>)}
             </div>
 
             <PaymentDetails details={paymentDetails} compact />
@@ -463,15 +463,14 @@ export const DonateView: React.FC = () => {
 
                 <div>
                   <label htmlFor="donor-email" className="block text-xs font-bold text-slate-700 mb-1">
-                    Email Address *
+                    Email Address (Optional)
                   </label>
                   <input
                     id="donor-email"
                     type="email"
-                    required
                     value={donor.email}
                     onChange={(e) => setDonor({ ...donor, email: e.target.value })}
-                    placeholder="For transfer instructions"
+                    placeholder="To receive a confirmation email"
                     className="w-full bg-slate-50 border border-slate-300 rounded-lg p-2.5 text-xs text-slate-900 focus:outline-hidden focus:border-blue-500"
                   />
                 </div>
