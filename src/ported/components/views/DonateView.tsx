@@ -42,7 +42,7 @@ const DEFAULT_DONATE_CONTENT: DonateContent = {
   ],
   paymentDetails: {
     bankName: "Commonwealth Bank",
-    accountName: "Manyang Disability Foundation",
+    accountName: "Manyang M Manyang",
     bsb: "063132",
     accountNumber: "11477543",
     payId: "0434133392",
