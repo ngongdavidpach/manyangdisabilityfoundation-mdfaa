@@ -38,6 +38,10 @@ interface DonateContent {
 }
 
 const DEFAULT_DONATE_CONTENT: DonateContent = {
+  channels: [
+    { id: "bank", label: "Bank transfer" },
+    { id: "payid", label: "PayID" },
+  ],
   paymentDetails: {
     bankName: "Commonwealth Bank",
     accountName: "Manyang Disability Foundation",
@@ -56,9 +60,13 @@ const PaymentDetails: React.FC<PaymentDetailsProps> = ({ details, compact = fals
   const [copied, setCopied] = useState<string | null>(null);
 
   const copyValue = async (label: string, value: string) => {
-    await navigator.clipboard.writeText(value);
-    setCopied(label);
-    window.setTimeout(() => setCopied(null), 1800);
+    try {
+      await navigator.clipboard.writeText(value);
+      setCopied(label);
+      window.setTimeout(() => setCopied(null), 1800);
+    } catch {
+      setCopied(null);
+    }
   };
 
   const copyButton = (label: string, value?: string) =>
@@ -153,7 +161,9 @@ export const DonateView: React.FC = () => {
 
   const donationTiers = donateContent?.donationTiers || [];
 
-  const channels = donateContent?.channels || [];
+  const channels = donateContent.channels?.length
+    ? donateContent.channels
+    : DEFAULT_DONATE_CONTENT.channels ?? [];
   const paymentDetails = {
     ...DEFAULT_DONATE_CONTENT.paymentDetails,
     ...donateContent.paymentDetails,
@@ -430,14 +440,15 @@ export const DonateView: React.FC = () => {
               </label>
               <div className="grid grid-cols-3 gap-2">
                 {channels.map((c) => {
-                  const Icon = c.icon;
+                  const Icon = c.id === "payid" ? Smartphone : Landmark;
                   const isActive = channel === c.id;
                   return (
-                    <button
+                    <Button
                       type="button"
+                      variant="outline"
                       key={c.id}
                       onClick={() => setChannel(c.id)}
-                      className={`p-3 rounded-xl border flex flex-col items-center justify-center gap-1.5 transition-all ${
+                      className={`h-auto p-3 rounded-xl flex flex-col items-center justify-center gap-1.5 transition-all ${
                         isActive
                           ? "border-amber-500 bg-amber-50/40 text-slate-950 font-bold ring-1 ring-amber-500"
                           : "border-slate-200 bg-white text-slate-600 hover:bg-slate-50"
@@ -447,7 +458,7 @@ export const DonateView: React.FC = () => {
                         className={`w-5 h-5 ${isActive ? "text-amber-600" : "text-slate-500"}`}
                       />
                       <span className="text-xs">{c.label}</span>
-                    </button>
+                    </Button>
                   );
                 })}
               </div>
