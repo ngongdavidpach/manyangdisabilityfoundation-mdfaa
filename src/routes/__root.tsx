@@ -17,7 +17,6 @@ import { AuthProvider } from "../ported/contexts/AuthContext";
 import { Navbar } from "../ported/components/Navbar";
 import { Footer } from "../ported/components/Footer";
 import { CookieConsentProvider } from "../ported/hooks/useCookieConsent";
-import { CookieConsent } from "../ported/components/CookieConsent";
 
 function NotFoundComponent() {
   return (
@@ -83,7 +82,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { name: "google-site-verification", content: "mnsTKLfv9AvUpx18_IyzQoIVVC_Jongqhp6n9OQOx-0" },
+      { name: "google-site-verification", content: "-DIrDvS3tDZ6w814f7AHO6jAwsSG-kA3Cr8BnSFtZis" },
       { property: "og:type", content: "website" },
       { property: "og:site_name", content: "Manyang Disability Foundation" },
       { property: "og:image", content: "https://manyangdisabilityfoundation.org/images/logo.png" },
@@ -160,7 +159,6 @@ function ClientShell() {
         <Outlet />
       </main>
       <Footer />
-      <CookieConsent />
     </div>
   );
 }

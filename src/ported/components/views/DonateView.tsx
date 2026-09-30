@@ -1,24 +1,21 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import {
+  Check,
+  Copy,
   Heart,
-  CheckCircle2,
+  Info,
+  Landmark,
+  Loader2,
   ShieldCheck,
   Smartphone,
-  Globe,
-  Building,
-  Sparkles,
-  FileText,
-  Info,
-  CreditCard,
-  Loader2,
 } from "lucide-react";
 import { useServerFn } from "@tanstack/react-start";
+import { Button } from "@/components/ui/button";
 import { useFoundationInfo } from "../../hooks/useFoundationInfo";
 import { submitDonationIntent } from "@/lib/intake.functions";
-import { createDonationCheckout } from "@/lib/payments/stripe.functions";
 import { usePageSettings } from "../../hooks/usePageSettings";
 
-type Channel = "bank" | "momo" | "paypal";
+type Channel = "bank" | "payid" | "momo" | "paypal";
 
 interface DonationTier {
   amount: number;
@@ -28,23 +25,123 @@ interface DonationTier {
 
 interface DonateContent {
   donationTiers?: DonationTier[];
-  channels?: Array<{ id: Channel; label: string; icon: any }>;
+  channels?: Array<{ id: Channel; label: string }>;
+  paymentDetails?: {
+    bankName?: string;
+    accountName?: string;
+    bsb?: string;
+    accountNumber?: string;
+    payId?: string;
+  };
 }
+
+const DEFAULT_DONATE_CONTENT: DonateContent = {
+  channels: [
+    { id: "bank", label: "Bank transfer" },
+    { id: "payid", label: "PayID" },
+  ],
+  paymentDetails: {
+    bankName: "Commonwealth Bank",
+    accountName: "Manyang M Manyang",
+    bsb: "063132",
+    accountNumber: "11477543",
+    payId: "0434133392",
+  },
+};
+
+interface PaymentDetailsProps {
+  details: NonNullable<DonateContent["paymentDetails"]>;
+  compact?: boolean;
+}
+
+const PaymentDetails: React.FC<PaymentDetailsProps> = ({ details, compact = false }) => {
+  const [copied, setCopied] = useState<string | null>(null);
+
+  const copyValue = async (label: string, value: string) => {
+    setCopied(label);
+    try {
+      await navigator.clipboard.writeText(value);
+    } catch {
+      const field = document.createElement("textarea");
+      field.value = value;
+      field.style.position = "fixed";
+      field.style.opacity = "0";
+      document.body.appendChild(field);
+      field.select();
+      document.execCommand("copy");
+      field.remove();
+    }
+    window.setTimeout(() => setCopied(null), 1800);
+  };
+
+  const copyButton = (label: string, value?: string) =>
+    value ? (
+      <Button
+        type="button"
+        variant="ghost"
+        size="icon"
+        className="h-8 w-8 shrink-0 text-blue-700"
+        onClick={() => copyValue(label, value)}
+        aria-label={`Copy ${label}`}
+        title={`Copy ${label}`}
+      >
+        {copied === label ? <Check aria-hidden="true" /> : <Copy aria-hidden="true" />}
+      </Button>
+    ) : null;
+
+  return (
+    <div className={`grid grid-cols-1 ${compact ? "gap-3" : "md:grid-cols-2 gap-4"}`}>
+      <section className="border border-slate-200 bg-white rounded-lg p-4" aria-labelledby={compact ? undefined : "bank-transfer-heading"}>
+        <div className="flex items-center gap-2 mb-3">
+          <Landmark className="w-5 h-5 text-blue-700" aria-hidden="true" />
+          <h3 id={compact ? undefined : "bank-transfer-heading"} className="font-bold text-slate-900">Bank transfer</h3>
+        </div>
+        <dl className="space-y-2 text-sm">
+          <div><dt className="text-xs text-slate-500">Bank</dt><dd className="font-semibold text-slate-900">{details.bankName}</dd></div>
+          <div className="flex items-center justify-between gap-3">
+            <div><dt className="text-xs text-slate-500">Account name</dt><dd className="font-semibold text-slate-900">{details.accountName}</dd></div>
+            {copyButton("account name", details.accountName)}
+          </div>
+          <div className="flex items-center justify-between gap-3">
+            <div><dt className="text-xs text-slate-500">BSB</dt><dd className="font-mono font-bold text-slate-900">{details.bsb}</dd></div>
+            {copyButton("BSB", details.bsb)}
+          </div>
+          <div className="flex items-center justify-between gap-3">
+            <div><dt className="text-xs text-slate-500">Account number</dt><dd className="font-mono font-bold text-slate-900">{details.accountNumber}</dd></div>
+            {copyButton("account number", details.accountNumber)}
+          </div>
+        </dl>
+      </section>
+
+      <section className="border border-amber-200 bg-amber-50 rounded-lg p-4" aria-labelledby={compact ? undefined : "payid-heading"}>
+        <div className="flex items-center gap-2 mb-3">
+          <Smartphone className="w-5 h-5 text-amber-700" aria-hidden="true" />
+          <h3 id={compact ? undefined : "payid-heading"} className="font-bold text-slate-900">PayID</h3>
+        </div>
+        <p className="text-xs text-slate-600 mb-2">Use this mobile-number PayID in your banking app.</p>
+        <div className="flex items-center justify-between gap-3 bg-white border border-amber-200 rounded-md px-3 py-2">
+          <span className="font-mono font-bold text-slate-900">{details.payId}</span>
+          {copyButton("PayID", details.payId)}
+        </div>
+        <p aria-live="polite" className="mt-2 min-h-4 text-xs font-medium text-emerald-700">
+          {copied === "PayID" ? "PayID copied" : ""}
+        </p>
+      </section>
+    </div>
+  );
+};
 
 export const DonateView: React.FC = () => {
   const { content: foundationInfo } = useFoundationInfo();
-  const [frequency, setFrequency] = useState<"one-time" | "monthly">("one-time");
-  const [amount, setAmount] = useState<number>(150);
+  const [amount, setAmount] = useState<number>(0);
   const [customAmount, setCustomAmount] = useState<string>("");
   const [channel, setChannel] = useState<Channel>("bank");
-  const [payMode, setPayMode] = useState<"card" | "pledge">("card");
-  const [checkoutCancelled, setCheckoutCancelled] = useState(false);
 
   const [donor, setDonor] = useState({
     fullName: "",
     email: "",
     phone: "",
-    country: "United States",
+    country: "",
     isAnonymous: false,
     message: "",
   });
@@ -55,7 +152,6 @@ export const DonateView: React.FC = () => {
     reference: string;
     date: string;
     amount: number;
-    frequency: "one-time" | "monthly";
     name: string;
     email: string;
     channel: Channel;
@@ -63,19 +159,21 @@ export const DonateView: React.FC = () => {
   const [serverError, setServerError] = useState<string>("");
 
   const submitIntent = useServerFn(submitDonationIntent);
-  const startCheckout = useServerFn(createDonationCheckout);
 
-  useEffect(() => {
-    if (new URLSearchParams(window.location.search).get("checkout") === "cancelled") {
-      setCheckoutCancelled(true);
-    }
-  }, []);
-
-  const { content: donateContent } = usePageSettings<DonateContent>("donate", {});
+  const { content: donateContent } = usePageSettings<DonateContent>(
+    "donate",
+    DEFAULT_DONATE_CONTENT,
+  );
 
   const donationTiers = donateContent?.donationTiers || [];
 
-  const channels = donateContent?.channels || [];
+  const channels = donateContent.channels?.length
+    ? donateContent.channels
+    : DEFAULT_DONATE_CONTENT.channels ?? [];
+  const paymentDetails = {
+    ...DEFAULT_DONATE_CONTENT.paymentDetails,
+    ...donateContent.paymentDetails,
+  };
 
   const handleAmountSelect = (tierAmount: number) => {
     setAmount(tierAmount);
@@ -95,31 +193,6 @@ export const DonateView: React.FC = () => {
     setServerError("");
     setProcessing(true);
 
-    if (payMode === "card") {
-      try {
-        const { url } = await startCheckout({
-          data: {
-            amount,
-            currency: "AUD",
-            frequency,
-            donorName: donor.isAnonymous ? undefined : donor.fullName || undefined,
-            donorEmail: donor.email || undefined,
-            isAnonymous: donor.isAnonymous,
-            message: donor.message || undefined,
-          },
-        });
-        window.location.href = url;
-      } catch (err) {
-        setServerError(
-          err instanceof Error
-            ? err.message
-            : "Unable to start secure checkout. Please try again.",
-        );
-        setProcessing(false);
-      }
-      return;
-    }
-
     try {
       const result = await submitIntent({
         data: {
@@ -130,7 +203,7 @@ export const DonateView: React.FC = () => {
           isAnonymous: donor.isAnonymous,
           amount,
           currency: "USD",
-          frequency,
+          frequency: "one-time",
           channel,
           message: donor.message || undefined,
         },
@@ -144,7 +217,6 @@ export const DonateView: React.FC = () => {
           day: "numeric",
         }),
         amount,
-        frequency,
         name: donor.isAnonymous ? "Anonymous Donor" : donor.fullName || "Supporter",
         email: donor.email || "Not provided",
         channel,
@@ -162,7 +234,7 @@ export const DonateView: React.FC = () => {
   const reset = () => {
     setCompleted(false);
     setPledge(null);
-    setAmount(150);
+    setAmount(0);
     setCustomAmount("");
   };
 
@@ -177,9 +249,8 @@ export const DonateView: React.FC = () => {
           Invest in Mobility and Dignity
         </h1>
         <p className="text-sm sm:text-base text-slate-600 leading-relaxed max-w-2xl mx-auto">
-          Give securely by card, Apple Pay or Google Pay through our hosted checkout — or pledge
-          your gift and we'll email verified transfer instructions (bank wire, mobile money, or
-          PayPal) instead.
+          Donate directly by bank transfer or PayID. You can also record your gift below so we can
+          match it and send your receipt once the funds arrive.
         </p>
       </div>
 
@@ -187,10 +258,17 @@ export const DonateView: React.FC = () => {
       <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 flex items-start gap-3 max-w-3xl mx-auto">
         <Info className="w-5 h-5 text-blue-700 shrink-0 mt-0.5" />
         <div className="text-xs text-blue-900 leading-relaxed">
-          <strong>Card details are never entered on this site.</strong> Card gifts are completed on
-          Stripe's PCI-compliant hosted checkout page. Choosing "pledge & transfer" instead records
-          a non-binding pledge and emails you our verified transfer details.
+          <strong>No card or banking login details are collected on this site.</strong> Complete
+          your gift securely through your own banking app using the verified details below.
         </div>
+      </div>
+
+      <div className="max-w-3xl mx-auto space-y-3">
+        <div className="text-center">
+          <h2 className="text-xl font-bold text-slate-900">Donation payment details</h2>
+          <p className="text-sm text-slate-600 mt-1">Please include your name or pledge reference as the payment description.</p>
+        </div>
+        <PaymentDetails details={paymentDetails} />
       </div>
 
       {completed && pledge ? (
@@ -215,10 +293,7 @@ export const DonateView: React.FC = () => {
                 Pledged Amount
               </span>
               <span className="text-4xl sm:text-5xl font-extrabold text-slate-900 block mt-1">
-                ${pledge.amount}.00{" "}
-                <span className="text-xs font-normal text-slate-500 uppercase">
-                  {pledge.frequency}
-                </span>
+                ${pledge.amount}.00
               </span>
               <span className="inline-flex items-center gap-1 text-xs text-amber-700 font-bold bg-amber-50 px-2.5 py-1 rounded-full mt-2">
                 <Info className="w-3.5 h-3.5" /> Awaiting transfer — not yet received
@@ -246,107 +321,24 @@ export const DonateView: React.FC = () => {
 
             <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 text-[11px] text-slate-600 leading-relaxed">
               <p className="font-bold text-slate-800 mb-1">Next Steps</p>
-              Our donor relations team will email <strong>{pledge.email}</strong> within 1-2
-              business days with verified transfer instructions for your selected channel. A
-              tax-deductible receipt will be issued once funds are received.
+              Transfer your donation using the details below and enter <strong>{pledge.reference}</strong> as the payment description. {pledge.email !== "Not provided" && (<>A confirmation has been emailed to <strong>{pledge.email}</strong>.</>)}
             </div>
 
-            <div className="flex flex-col sm:flex-row gap-3 pt-2">
-              <button
-                onClick={() => window.print()}
-                className="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold py-2.5 rounded-lg text-xs transition-colors flex items-center justify-center gap-1.5"
-              >
-                <FileText className="w-4 h-4" />
-                <span>Print Pledge Summary</span>
-              </button>
-              <button
+            <PaymentDetails details={paymentDetails} compact />
+
+            <div className="pt-2">
+              <Button
                 onClick={reset}
-                className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 rounded-lg text-xs transition-colors"
+                className="w-full font-bold"
               >
                 Make Another Pledge
-              </button>
+              </Button>
             </div>
           </div>
         </div>
       ) : (
         /* Pledge Form */
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          <div className="lg:col-span-2 space-y-6">
-            {checkoutCancelled ? (
-              <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 text-xs text-amber-900">
-                Your checkout was cancelled and nothing was charged. You can try again below or
-                switch to pledge &amp; transfer.
-              </div>
-            ) : null}
-
-            {/* Payment method */}
-            <div className="space-y-2">
-              <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider">
-                How would you like to give?
-              </label>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <button
-                  type="button"
-                  onClick={() => setPayMode("card")}
-                  className={`p-4 rounded-xl border text-left transition-all ${
-                    payMode === "card"
-                      ? "border-blue-600 bg-blue-50/40 ring-2 ring-blue-600"
-                      : "border-slate-200 bg-white hover:border-slate-300"
-                  }`}
-                >
-                  <span className="flex items-center gap-2 text-xs font-bold text-slate-900">
-                    <CreditCard className="w-4 h-4 text-blue-700" /> Pay now by card
-                  </span>
-                  <p className="text-[11px] text-slate-500 mt-1 leading-relaxed">
-                    Secure Stripe checkout — card, Apple Pay or Google Pay. Instant confirmation.
-                  </p>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setPayMode("pledge")}
-                  className={`p-4 rounded-xl border text-left transition-all ${
-                    payMode === "pledge"
-                      ? "border-blue-600 bg-blue-50/40 ring-2 ring-blue-600"
-                      : "border-slate-200 bg-white hover:border-slate-300"
-                  }`}
-                >
-                  <span className="flex items-center gap-2 text-xs font-bold text-slate-900">
-                    <Building className="w-4 h-4 text-blue-700" /> Pledge &amp; transfer
-                  </span>
-                  <p className="text-[11px] text-slate-500 mt-1 leading-relaxed">
-                    We email verified bank, mobile money or PayPal details for you to transfer.
-                  </p>
-                </button>
-              </div>
-            </div>
-
-            {/* Frequency */}
-            <div className="bg-white p-2 rounded-xl border border-slate-200 flex gap-2">
-              <button
-                type="button"
-                onClick={() => setFrequency("one-time")}
-                className={`flex-1 py-3 rounded-lg font-bold text-xs transition-all ${
-                  frequency === "one-time"
-                    ? "bg-blue-900 text-white shadow-xs"
-                    : "text-slate-600 hover:bg-slate-50"
-                }`}
-              >
-                One-Time Gift
-              </button>
-              <button
-                type="button"
-                onClick={() => setFrequency("monthly")}
-                className={`flex-1 py-3 rounded-lg font-bold text-xs transition-all flex items-center justify-center gap-1.5 ${
-                  frequency === "monthly"
-                    ? "bg-blue-900 text-white shadow-xs"
-                    : "text-slate-600 hover:bg-slate-50"
-                }`}
-              >
-                <Sparkles className="w-3.5 h-3.5 text-amber-400" />
-                <span>Monthly Sustainer</span>
-              </button>
-            </div>
-
+        <div className="max-w-3xl mx-auto space-y-6">
             {/* Tiers */}
             <div className="space-y-3">
               <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider">
@@ -393,7 +385,7 @@ export const DonateView: React.FC = () => {
             {/* Custom amount */}
             <div className="bg-white p-4 rounded-xl border border-slate-200 space-y-2">
               <label className="block text-xs font-bold text-slate-700">
-                {payMode === "card" ? "Or Enter Custom Amount ($ AUD)" : "Or Enter Custom Amount ($ USD)"}
+                Or Enter Custom Amount ($ USD)
               </label>
               <div className="relative max-w-xs">
                 <span className="absolute left-3 top-2.5 text-sm font-bold text-slate-500">$</span>
@@ -409,20 +401,21 @@ export const DonateView: React.FC = () => {
             </div>
 
             {/* Channel */}
-            <div className={`space-y-3 ${payMode === "card" ? "hidden" : ""}`}>
+            <div className="space-y-3">
               <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider">
                 Preferred Transfer Channel
               </label>
               <div className="grid grid-cols-3 gap-2">
                 {channels.map((c) => {
-                  const Icon = c.icon;
+                  const Icon = c.id === "payid" ? Smartphone : Landmark;
                   const isActive = channel === c.id;
                   return (
-                    <button
+                    <Button
                       type="button"
+                      variant="outline"
                       key={c.id}
                       onClick={() => setChannel(c.id)}
-                      className={`p-3 rounded-xl border flex flex-col items-center justify-center gap-1.5 transition-all ${
+                      className={`h-auto p-3 rounded-xl flex flex-col items-center justify-center gap-1.5 transition-all ${
                         isActive
                           ? "border-amber-500 bg-amber-50/40 text-slate-950 font-bold ring-1 ring-amber-500"
                           : "border-slate-200 bg-white text-slate-600 hover:bg-slate-50"
@@ -432,13 +425,12 @@ export const DonateView: React.FC = () => {
                         className={`w-5 h-5 ${isActive ? "text-amber-600" : "text-slate-500"}`}
                       />
                       <span className="text-xs">{c.label}</span>
-                    </button>
+                    </Button>
                   );
                 })}
               </div>
               <p className="text-[11px] text-slate-500">
-                We'll email verified instructions for your selected channel. No account numbers are
-                collected here.
+                Use the payment details shown above, then record your pledge so we can match your transfer.
               </p>
             </div>
 
@@ -450,14 +442,15 @@ export const DonateView: React.FC = () => {
               <div className="border-b border-slate-100 pb-3">
                 <h3 className="text-sm font-bold text-slate-900">Your Contact Details</h3>
                 <p className="text-xs text-slate-500">
-                  So we can send transfer instructions and your receipt once funds are received.
+                  So we can match your transfer and send your receipt once funds are received.
                 </p>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">Full Name *</label>
+                  <label htmlFor="donor-full-name" className="block text-xs font-bold text-slate-700 mb-1">Full Name *</label>
                   <input
+                    id="donor-full-name"
                     type="text"
                     required={!donor.isAnonymous}
                     disabled={donor.isAnonymous}
@@ -469,15 +462,15 @@ export const DonateView: React.FC = () => {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">
-                    Email Address *
+                  <label htmlFor="donor-email" className="block text-xs font-bold text-slate-700 mb-1">
+                    Email Address (Optional)
                   </label>
                   <input
+                    id="donor-email"
                     type="email"
-                    required
                     value={donor.email}
                     onChange={(e) => setDonor({ ...donor, email: e.target.value })}
-                    placeholder="For transfer instructions"
+                    placeholder="To receive a confirmation email"
                     className="w-full bg-slate-50 border border-slate-300 rounded-lg p-2.5 text-xs text-slate-900 focus:outline-hidden focus:border-blue-500"
                   />
                 </div>
@@ -485,10 +478,11 @@ export const DonateView: React.FC = () => {
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">
+                  <label htmlFor="donor-phone" className="block text-xs font-bold text-slate-700 mb-1">
                     Phone (Optional)
                   </label>
                   <input
+                    id="donor-phone"
                     type="tel"
                     value={donor.phone}
                     onChange={(e) => setDonor({ ...donor, phone: e.target.value })}
@@ -498,11 +492,14 @@ export const DonateView: React.FC = () => {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">Country</label>
+                  <label htmlFor="donor-country" className="block text-xs font-bold text-slate-700 mb-1">Country</label>
                   <input
+                    id="donor-country"
                     type="text"
                     value={donor.country}
                     onChange={(e) => setDonor({ ...donor, country: e.target.value })}
+                    placeholder="Enter your country"
+                    maxLength={80}
                     className="w-full bg-slate-50 border border-slate-300 rounded-lg p-2.5 text-xs text-slate-900 focus:outline-hidden focus:border-blue-500"
                   />
                 </div>
@@ -548,23 +545,12 @@ export const DonateView: React.FC = () => {
                   {processing ? (
                     <span className="flex items-center gap-2">
                       <Loader2 className="w-4 h-4 animate-spin" />
-                      {payMode === "card"
-                        ? "Opening secure checkout…"
-                        : "Recording your pledge…"}
+                      Recording your pledge…
                     </span>
-                  ) : payMode === "card" ? (
-                    <>
-                      <CreditCard className="w-4 h-4 text-slate-950" />
-                      <span>
-                        Donate ${amount}.00 AUD{frequency === "monthly" ? " Monthly" : ""}
-                      </span>
-                    </>
                   ) : (
                     <>
                       <Heart className="w-4 h-4 fill-slate-950 text-slate-950" />
-                      <span>
-                        Pledge ${amount}.00 {frequency === "monthly" ? "Monthly" : ""}
-                      </span>
+                       <span>Pledge ${amount}.00</span>
                     </>
                   )}
                 </button>
@@ -572,125 +558,12 @@ export const DonateView: React.FC = () => {
 
               <div className="flex items-center justify-center gap-4 text-[11px] text-slate-500 pt-2 border-t border-slate-100">
                 <span className="flex items-center gap-1">
-                  <ShieldCheck className="w-3.5 h-3.5 text-emerald-500" />{" "}
-                  {payMode === "card"
-                    ? "Card details handled by Stripe, never by us"
-                    : "No card data collected"}
+                  <ShieldCheck className="w-3.5 h-3.5 text-emerald-500" /> No card data collected
                 </span>
                 <span>•</span>
-                <span>{payMode === "card" ? "Cancel monthly gifts anytime" : "Pledges are non-binding"}</span>
+                <span>Pledges are non-binding</span>
               </div>
             </form>
-          </div>
-
-          {/* Sidebar */}
-          <div className="space-y-6">
-            <div className="bg-slate-900 text-white p-6 rounded-2xl shadow-xs space-y-4">
-              <span className="text-[10px] font-bold uppercase tracking-widest text-amber-400 block">
-                Pledge Summary
-              </span>
-              <div>
-                <span className="text-xs text-slate-500 block">Your Pledge:</span>
-                <span className="text-3xl font-extrabold text-white block">
-                  ${amount}.00{" "}
-                  <span className="text-xs font-normal text-slate-500">
-                    {frequency === "monthly" ? "/ month" : ""}
-                  </span>
-                </span>
-              </div>
-
-              <div className="pt-2 border-t border-slate-800 space-y-2 text-xs">
-                <span className="font-bold text-blue-400 block">What this gift can enable:</span>
-                {amount < 30 ? (
-                  <p className="text-slate-300 leading-relaxed">
-                    A complete heavy-duty wheel and repair tool set to overhaul a damaged custom
-                    wheelchair.
-                  </p>
-                ) : amount < 100 ? (
-                  <p className="text-slate-300 leading-relaxed">
-                    2-3 orthopedic assessments and neuro-rehabilitation therapy sessions.
-                  </p>
-                ) : amount < 300 ? (
-                  <p className="text-slate-300 leading-relaxed">
-                    Custom seating adaptation and home provision of a rugged all-terrain wheelchair.
-                  </p>
-                ) : (
-                  <p className="text-slate-300 leading-relaxed">
-                    A complete livelihood micro-enterprise startup toolkit for a disabled adult.
-                  </p>
-                )}
-              </div>
-
-              <div className="bg-slate-800 p-3 rounded-lg text-[11px] text-slate-300 space-y-1">
-                <span className="font-bold text-white block">Stewardship Commitment</span>
-                <p>
-                  Over 90% of all direct donations go straight to equipment provision and field
-                  healthcare capacity.
-                </p>
-              </div>
-            </div>
-
-            <div className="bg-white p-6 rounded-xl border border-slate-200 space-y-3">
-              <h4 className="text-xs font-bold uppercase tracking-wider text-slate-900">
-                Frequently Asked
-              </h4>
-              <div className="space-y-2 text-xs">
-                <div>
-                  <span className="font-bold text-slate-800 block">
-                    Is paying by card secure?
-                  </span>
-                  <p className="text-slate-500 mt-0.5">
-                    Yes. Card payments are processed on Stripe's hosted checkout over HTTPS. We
-                    never see or store your card number.
-                  </p>
-                </div>
-                <div className="pt-2 border-t border-slate-100">
-                  <span className="font-bold text-slate-800 block">Is my pledge binding?</span>
-                  <p className="text-slate-500 mt-0.5">
-                    No. A pledge is a non-binding signal of intent. You complete the gift by
-                    transferring funds via the channel we email you.
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-white p-6 rounded-xl border border-slate-200 space-y-3">
-              <h4 className="text-xs font-bold uppercase tracking-wider text-slate-900">
-                Related Resources
-              </h4>
-              <ul className="space-y-2 text-xs">
-                <li>
-                  <a href="/faq/donations" className="text-blue-700 hover:underline font-medium">
-                    Donation FAQ — common questions answered
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href="/guides/mobility-aid-grants"
-                    className="text-blue-700 hover:underline font-medium"
-                  >
-                    Mobility aid grants: eligibility & how to apply
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href="/guides/donate-supplies"
-                    className="text-blue-700 hover:underline font-medium"
-                  >
-                    Where to donate used medical equipment
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href="/guides/free-medical-equipment"
-                    className="text-blue-700 hover:underline font-medium"
-                  >
-                    Free medical equipment resources
-                  </a>
-                </li>
-              </ul>
-            </div>
-          </div>
         </div>
       )}
     </div>

@@ -41,7 +41,6 @@ const Youtube = ({ className = "" }: { className?: string }) => (
 import { Link, useNavigate } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
 import { NAV_ITEM_DEFS, resolveNavOrder } from "../lib/navItems";
-import { useCookieConsent } from "../hooks/useCookieConsent";
 
 const PATH_FOR: Record<string, string> = {
   home: "/",
@@ -86,7 +85,6 @@ const TikTokIcon = ({ className = "" }: { className?: string }) => (
 
 export const Footer: React.FC = () => {
   const navigate = useNavigate();
-  const { openPreferences } = useCookieConsent();
 
   const [email, setEmailVal] = useState("");
   const [subscribed, setSubscribed] = useState(false);
@@ -94,6 +92,7 @@ export const Footer: React.FC = () => {
   const [navLinks, setNavLinks] = useState(
     NAV_ITEM_DEFS.map((d) => ({ id: d.id, label: d.label })),
   );
+  const [showDonateButton, setShowDonateButton] = useState(true);
 
   useEffect(() => {
     supabase
@@ -118,6 +117,15 @@ export const Footer: React.FC = () => {
             .filter((d): d is (typeof NAV_ITEM_DEFS)[number] => !!d && c[d.flag] !== false)
             .map((d) => ({ id: d.id, label: d.label })),
         );
+      });
+    supabase
+      .from("page_settings")
+      .select("content")
+      .eq("page_key", "donate")
+      .maybeSingle()
+      .then(({ data }) => {
+        const c = data?.content as any;
+        if (c && c.showDonateButton === false) setShowDonateButton(false);
       });
   }, []);
 
@@ -156,12 +164,14 @@ export const Footer: React.FC = () => {
             </p>
           </div>
           <div className="flex flex-wrap gap-3 justify-center">
-            <button
-              onClick={() => handleLink("donate")}
-              className="bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold px-6 py-3 rounded-lg text-sm flex items-center gap-2"
-            >
-              <Heart className="w-4 h-4 fill-slate-950 text-slate-950" /> Donate Now
-            </button>
+            {showDonateButton && (
+              <button
+                onClick={() => handleLink("donate")}
+                className="bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold px-6 py-3 rounded-lg text-sm flex items-center gap-2"
+              >
+                <Heart className="w-4 h-4 fill-slate-950 text-slate-950" /> Donate Now
+              </button>
+            )}
             <button
               onClick={() => handleLink("get-involved")}
               className="bg-white/10 hover:bg-white/20 text-white font-medium px-5 py-3 rounded-lg text-sm"
@@ -378,10 +388,6 @@ export const Footer: React.FC = () => {
             <Link to="/cookie-settings" className="hover:text-slate-300">
               Cookie settings
             </Link>
-            <span>•</span>
-            <button onClick={openPreferences} className="hover:text-slate-300">
-              Cookie preferences
-            </button>
             <span>•</span>
             <button onClick={() => handleLink("about")} className="hover:text-slate-300">
               Governance

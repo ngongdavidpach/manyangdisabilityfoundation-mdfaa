@@ -11,6 +11,7 @@ import { template as accountDeletionRequested } from "./account-deletion-request
 import { template as accountDeletionConfirmed } from "./account-deletion-confirmed";
 import { template as emailPreferencesUpdated } from "./email-preferences-updated";
 import { template as donationReceipt } from "./donation-receipt";
+import { template as donationPledgeConfirmation } from "./donation-pledge-confirmation";
 
 export interface TemplateEntry {
   component: ComponentType<any>;
@@ -33,4 +34,5 @@ export const TEMPLATES: Record<string, TemplateEntry> = {
   "account-deletion-confirmed": accountDeletionConfirmed,
   "email-preferences-updated": emailPreferencesUpdated,
   "donation-receipt": donationReceipt,
+  "donation-pledge-confirmation": donationPledgeConfirmation,
 };

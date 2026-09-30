@@ -20,7 +20,6 @@ import { Route as McpRouteImport } from './routes/mcp'
 import { Route as GetInvolvedRouteImport } from './routes/get-involved'
 import { Route as GalleryRouteImport } from './routes/gallery'
 import { Route as EventsRouteImport } from './routes/events'
-import { Route as DonationCompleteRouteImport } from './routes/donation-complete'
 import { Route as DonateRouteImport } from './routes/donate'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as CsrSponsorshipRouteImport } from './routes/csr-sponsorship'
@@ -30,6 +29,7 @@ import { Route as AdminRouteImport } from './routes/admin'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ProgramsRssDotxmlRouteImport } from './routes/programs.rss[.]xml'
+import { Route as ProgramsSlugRouteImport } from './routes/programs.$slug'
 import { Route as PrivacyEmailsRouteImport } from './routes/privacy.emails'
 import { Route as PortalFundraisersRouteImport } from './routes/portal.fundraisers'
 import { Route as PortalCoordinatorsRouteImport } from './routes/portal.coordinators'
@@ -51,7 +51,6 @@ import { Route as AuthCancelDeletionRouteImport } from './routes/auth.cancel-del
 import { Route as Char91DotwellKnownChar93OauthProtectedResourceRouteImport } from './routes/[.well-known]/oauth-protected-resource'
 import { Route as Char91DotmcpChar93ListToolsRouteImport } from './routes/[.mcp]/list-tools'
 import { Route as LovableEmailSuppressionRouteImport } from './routes/lovable/email/suppression'
-import { Route as ApiPublicStripeWebhookRouteImport } from './routes/api/public/stripe-webhook'
 import { Route as ApiPublicEmailPreferencesRouteImport } from './routes/api/public/email-preferences'
 import { Route as ApiPublicCookieConsentLogRouteImport } from './routes/api/public/cookie-consent-log'
 import { Route as Char91DotmcpChar93InvokeToolToolRouteImport } from './routes/[.mcp]/invoke-tool/$tool'
@@ -118,11 +117,6 @@ const EventsRoute = EventsRouteImport.update({
   path: '/events',
   getParentRoute: () => rootRouteImport,
 } as any)
-const DonationCompleteRoute = DonationCompleteRouteImport.update({
-  id: '/donation-complete',
-  path: '/donation-complete',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const DonateRoute = DonateRouteImport.update({
   id: '/donate',
   path: '/donate',
@@ -166,6 +160,11 @@ const IndexRoute = IndexRouteImport.update({
 const ProgramsRssDotxmlRoute = ProgramsRssDotxmlRouteImport.update({
   id: '/rss.xml',
   path: '/rss.xml',
+  getParentRoute: () => ProgramsRoute,
+} as any)
+const ProgramsSlugRoute = ProgramsSlugRouteImport.update({
+  id: '/$slug',
+  path: '/$slug',
   getParentRoute: () => ProgramsRoute,
 } as any)
 const PrivacyEmailsRoute = PrivacyEmailsRouteImport.update({
@@ -276,11 +275,6 @@ const LovableEmailSuppressionRoute = LovableEmailSuppressionRouteImport.update({
   path: '/lovable/email/suppression',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ApiPublicStripeWebhookRoute = ApiPublicStripeWebhookRouteImport.update({
-  id: '/api/public/stripe-webhook',
-  path: '/api/public/stripe-webhook',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const ApiPublicEmailPreferencesRoute =
   ApiPublicEmailPreferencesRouteImport.update({
     id: '/api/public/email-preferences',
@@ -348,7 +342,6 @@ export interface FileRoutesByFullPath {
   '/csr-sponsorship': typeof CsrSponsorshipRoute
   '/dashboard': typeof DashboardRouteWithChildren
   '/donate': typeof DonateRoute
-  '/donation-complete': typeof DonationCompleteRoute
   '/events': typeof EventsRouteWithChildren
   '/gallery': typeof GalleryRoute
   '/get-involved': typeof GetInvolvedRoute
@@ -380,12 +373,12 @@ export interface FileRoutesByFullPath {
   '/portal/coordinators': typeof PortalCoordinatorsRoute
   '/portal/fundraisers': typeof PortalFundraisersRoute
   '/privacy/emails': typeof PrivacyEmailsRoute
+  '/programs/$slug': typeof ProgramsSlugRoute
   '/programs/rss.xml': typeof ProgramsRssDotxmlRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/api/public/cookie-consent-log': typeof ApiPublicCookieConsentLogRoute
   '/api/public/email-preferences': typeof ApiPublicEmailPreferencesRoute
-  '/api/public/stripe-webhook': typeof ApiPublicStripeWebhookRoute
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
   '/api/public/hooks/purge-deleted-accounts': typeof ApiPublicHooksPurgeDeletedAccountsRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
@@ -403,7 +396,6 @@ export interface FileRoutesByTo {
   '/csr-sponsorship': typeof CsrSponsorshipRoute
   '/dashboard': typeof DashboardRouteWithChildren
   '/donate': typeof DonateRoute
-  '/donation-complete': typeof DonationCompleteRoute
   '/events': typeof EventsRouteWithChildren
   '/gallery': typeof GalleryRoute
   '/get-involved': typeof GetInvolvedRoute
@@ -435,12 +427,12 @@ export interface FileRoutesByTo {
   '/portal/coordinators': typeof PortalCoordinatorsRoute
   '/portal/fundraisers': typeof PortalFundraisersRoute
   '/privacy/emails': typeof PrivacyEmailsRoute
+  '/programs/$slug': typeof ProgramsSlugRoute
   '/programs/rss.xml': typeof ProgramsRssDotxmlRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/api/public/cookie-consent-log': typeof ApiPublicCookieConsentLogRoute
   '/api/public/email-preferences': typeof ApiPublicEmailPreferencesRoute
-  '/api/public/stripe-webhook': typeof ApiPublicStripeWebhookRoute
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
   '/api/public/hooks/purge-deleted-accounts': typeof ApiPublicHooksPurgeDeletedAccountsRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
@@ -459,7 +451,6 @@ export interface FileRoutesById {
   '/csr-sponsorship': typeof CsrSponsorshipRoute
   '/dashboard': typeof DashboardRouteWithChildren
   '/donate': typeof DonateRoute
-  '/donation-complete': typeof DonationCompleteRoute
   '/events': typeof EventsRouteWithChildren
   '/gallery': typeof GalleryRoute
   '/get-involved': typeof GetInvolvedRoute
@@ -491,12 +482,12 @@ export interface FileRoutesById {
   '/portal/coordinators': typeof PortalCoordinatorsRoute
   '/portal/fundraisers': typeof PortalFundraisersRoute
   '/privacy/emails': typeof PrivacyEmailsRoute
+  '/programs/$slug': typeof ProgramsSlugRoute
   '/programs/rss.xml': typeof ProgramsRssDotxmlRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/api/public/cookie-consent-log': typeof ApiPublicCookieConsentLogRoute
   '/api/public/email-preferences': typeof ApiPublicEmailPreferencesRoute
-  '/api/public/stripe-webhook': typeof ApiPublicStripeWebhookRoute
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
   '/api/public/hooks/purge-deleted-accounts': typeof ApiPublicHooksPurgeDeletedAccountsRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
@@ -516,7 +507,6 @@ export interface FileRouteTypes {
     | '/csr-sponsorship'
     | '/dashboard'
     | '/donate'
-    | '/donation-complete'
     | '/events'
     | '/gallery'
     | '/get-involved'
@@ -548,12 +538,12 @@ export interface FileRouteTypes {
     | '/portal/coordinators'
     | '/portal/fundraisers'
     | '/privacy/emails'
+    | '/programs/$slug'
     | '/programs/rss.xml'
     | '/.lovable/oauth/consent'
     | '/.mcp/invoke-tool/$tool'
     | '/api/public/cookie-consent-log'
     | '/api/public/email-preferences'
-    | '/api/public/stripe-webhook'
     | '/lovable/email/suppression'
     | '/api/public/hooks/purge-deleted-accounts'
     | '/lovable/email/auth/preview'
@@ -571,7 +561,6 @@ export interface FileRouteTypes {
     | '/csr-sponsorship'
     | '/dashboard'
     | '/donate'
-    | '/donation-complete'
     | '/events'
     | '/gallery'
     | '/get-involved'
@@ -603,12 +592,12 @@ export interface FileRouteTypes {
     | '/portal/coordinators'
     | '/portal/fundraisers'
     | '/privacy/emails'
+    | '/programs/$slug'
     | '/programs/rss.xml'
     | '/.lovable/oauth/consent'
     | '/.mcp/invoke-tool/$tool'
     | '/api/public/cookie-consent-log'
     | '/api/public/email-preferences'
-    | '/api/public/stripe-webhook'
     | '/lovable/email/suppression'
     | '/api/public/hooks/purge-deleted-accounts'
     | '/lovable/email/auth/preview'
@@ -626,7 +615,6 @@ export interface FileRouteTypes {
     | '/csr-sponsorship'
     | '/dashboard'
     | '/donate'
-    | '/donation-complete'
     | '/events'
     | '/gallery'
     | '/get-involved'
@@ -658,12 +646,12 @@ export interface FileRouteTypes {
     | '/portal/coordinators'
     | '/portal/fundraisers'
     | '/privacy/emails'
+    | '/programs/$slug'
     | '/programs/rss.xml'
     | '/.lovable/oauth/consent'
     | '/.mcp/invoke-tool/$tool'
     | '/api/public/cookie-consent-log'
     | '/api/public/email-preferences'
-    | '/api/public/stripe-webhook'
     | '/lovable/email/suppression'
     | '/api/public/hooks/purge-deleted-accounts'
     | '/lovable/email/auth/preview'
@@ -682,7 +670,6 @@ export interface RootRouteChildren {
   CsrSponsorshipRoute: typeof CsrSponsorshipRoute
   DashboardRoute: typeof DashboardRouteWithChildren
   DonateRoute: typeof DonateRoute
-  DonationCompleteRoute: typeof DonationCompleteRoute
   EventsRoute: typeof EventsRouteWithChildren
   GalleryRoute: typeof GalleryRoute
   GetInvolvedRoute: typeof GetInvolvedRoute
@@ -713,7 +700,6 @@ export interface RootRouteChildren {
   Char91DotmcpChar93InvokeToolToolRoute: typeof Char91DotmcpChar93InvokeToolToolRoute
   ApiPublicCookieConsentLogRoute: typeof ApiPublicCookieConsentLogRoute
   ApiPublicEmailPreferencesRoute: typeof ApiPublicEmailPreferencesRoute
-  ApiPublicStripeWebhookRoute: typeof ApiPublicStripeWebhookRoute
   LovableEmailSuppressionRoute: typeof LovableEmailSuppressionRoute
   ApiPublicHooksPurgeDeletedAccountsRoute: typeof ApiPublicHooksPurgeDeletedAccountsRoute
   LovableEmailAuthPreviewRoute: typeof LovableEmailAuthPreviewRoute
@@ -802,13 +788,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof EventsRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/donation-complete': {
-      id: '/donation-complete'
-      path: '/donation-complete'
-      fullPath: '/donation-complete'
-      preLoaderRoute: typeof DonationCompleteRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/donate': {
       id: '/donate'
       path: '/donate'
@@ -870,6 +849,13 @@ declare module '@tanstack/react-router' {
       path: '/rss.xml'
       fullPath: '/programs/rss.xml'
       preLoaderRoute: typeof ProgramsRssDotxmlRouteImport
+      parentRoute: typeof ProgramsRoute
+    }
+    '/programs/$slug': {
+      id: '/programs/$slug'
+      path: '/$slug'
+      fullPath: '/programs/$slug'
+      preLoaderRoute: typeof ProgramsSlugRouteImport
       parentRoute: typeof ProgramsRoute
     }
     '/privacy/emails': {
@@ -1019,13 +1005,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LovableEmailSuppressionRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/public/stripe-webhook': {
-      id: '/api/public/stripe-webhook'
-      path: '/api/public/stripe-webhook'
-      fullPath: '/api/public/stripe-webhook'
-      preLoaderRoute: typeof ApiPublicStripeWebhookRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/api/public/email-preferences': {
       id: '/api/public/email-preferences'
       path: '/api/public/email-preferences'
@@ -1146,10 +1125,12 @@ const PrivacyRouteWithChildren =
   PrivacyRoute._addFileChildren(PrivacyRouteChildren)
 
 interface ProgramsRouteChildren {
+  ProgramsSlugRoute: typeof ProgramsSlugRoute
   ProgramsRssDotxmlRoute: typeof ProgramsRssDotxmlRoute
 }
 
 const ProgramsRouteChildren: ProgramsRouteChildren = {
+  ProgramsSlugRoute: ProgramsSlugRoute,
   ProgramsRssDotxmlRoute: ProgramsRssDotxmlRoute,
 }
 
@@ -1166,7 +1147,6 @@ const rootRouteChildren: RootRouteChildren = {
   CsrSponsorshipRoute: CsrSponsorshipRoute,
   DashboardRoute: DashboardRouteWithChildren,
   DonateRoute: DonateRoute,
-  DonationCompleteRoute: DonationCompleteRoute,
   EventsRoute: EventsRouteWithChildren,
   GalleryRoute: GalleryRoute,
   GetInvolvedRoute: GetInvolvedRoute,
@@ -1198,7 +1178,6 @@ const rootRouteChildren: RootRouteChildren = {
   Char91DotmcpChar93InvokeToolToolRoute: Char91DotmcpChar93InvokeToolToolRoute,
   ApiPublicCookieConsentLogRoute: ApiPublicCookieConsentLogRoute,
   ApiPublicEmailPreferencesRoute: ApiPublicEmailPreferencesRoute,
-  ApiPublicStripeWebhookRoute: ApiPublicStripeWebhookRoute,
   LovableEmailSuppressionRoute: LovableEmailSuppressionRoute,
   ApiPublicHooksPurgeDeletedAccountsRoute:
     ApiPublicHooksPurgeDeletedAccountsRoute,

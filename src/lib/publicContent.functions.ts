@@ -178,3 +178,50 @@ export const getProgramsStructuredData = createServerFn({ method: "GET" }).handl
     readPageStructured<ProgramsStructuredData>("programs"),
 );
 
+export type PublicProgram = {
+  title: string;
+  slug: string;
+  description: string;
+  icon: string;
+  overview: string;
+  activities: string[];
+  benefits: string;
+  image: string;
+};
+
+async function readProgramList(): Promise<PublicProgram[]> {
+  try {
+    const client = server();
+    const { data: row } = await client
+      .from("page_settings")
+      .select("content, published")
+      .eq("page_key", "programs")
+      .maybeSingle();
+    if (!row || !(row as { published?: boolean }).published) return [];
+    const content = (row as { content?: { focusAreas?: unknown } }).content;
+    const { normalizeFocusAreas } = await import("@/ported/lib/focusAreas");
+    return normalizeFocusAreas(content?.focusAreas).map((a) => ({
+      title: a.title,
+      slug: a.slug || "",
+      description: a.description || "",
+      icon: a.icon || "Sparkles",
+      overview: a.overview || "",
+      activities: a.activities || [],
+      benefits: a.benefits || "",
+      image: a.image || "",
+    }));
+  } catch {
+    return [];
+  }
+}
+
+export const listPublicPrograms = createServerFn({ method: "GET" }).handler(
+  async (): Promise<PublicProgram[]> => readProgramList(),
+);
+
+export const getPublicProgram = createServerFn({ method: "GET" })
+  .inputValidator((data) => z.object({ slug: z.string() }).parse(data))
+  .handler(async ({ data }): Promise<PublicProgram | null> => {
+    const list = await readProgramList();
+    return list.find((p) => p.slug === data.slug) ?? null;
+  });

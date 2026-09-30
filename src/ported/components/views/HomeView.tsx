@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "@tanstack/react-router";
+import { useNavigate, Link } from "@tanstack/react-router";
 import { Heart, ArrowRight, Download, PlayCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toEmbedUrl } from "../../lib/videoEmbed";
@@ -30,6 +30,7 @@ export const HomeView = () => {
   const [insight, setInsight] = useState<InsightContent | null>(null);
   const [showInsight, setShowInsight] = useState(false);
   const [focusAreas, setFocusAreas] = useState<FocusArea[]>([]);
+  const [showDonateButton, setShowDonateButton] = useState(true);
 
   useEffect(() => {
     supabase
@@ -61,6 +62,15 @@ export const HomeView = () => {
         const c = (data?.content as any) || {};
         setFocusAreas(c.showFocusAreasOnHome === false ? [] : normalizeFocusAreas(c.focusAreas));
       });
+    supabase
+      .from("page_settings")
+      .select("content")
+      .eq("page_key", "donate")
+      .maybeSingle()
+      .then(({ data }) => {
+        const c = data?.content as any;
+        if (c && c.showDonateButton === false) setShowDonateButton(false);
+      });
   }, []);
 
   const insightEmbed = insight?.videoUrl ? toEmbedUrl(insight.videoUrl) : null;
@@ -85,12 +95,14 @@ export const HomeView = () => {
             people living with disabilities across South Sudan.
           </p>
           <div className="flex flex-wrap gap-3 justify-center pt-6">
-            <button
-              onClick={() => navigate({ to: "/donate" })}
-              className="bg-blue-600 hover:bg-blue-700 text-white font-bold px-6 py-3 rounded-lg text-sm transition-colors"
-            >
-              Donate Now
-            </button>
+            {showDonateButton && (
+              <button
+                onClick={() => navigate({ to: "/donate" })}
+                className="bg-blue-600 hover:bg-blue-700 text-white font-bold px-6 py-3 rounded-lg text-sm transition-colors"
+              >
+                Donate Now
+              </button>
+            )}
             <button
               onClick={() => navigate({ to: "/get-involved" })}
               className="bg-white hover:bg-slate-50 text-slate-900 font-semibold px-6 py-3 rounded-lg border border-slate-300 text-sm transition-colors"
@@ -168,7 +180,7 @@ export const HomeView = () => {
         </section>
       )}
 
-      {/* Programs & Focus Areas */}
+      {/* Our Programs */}
       {focusAreas.length > 0 && (
         <section className="bg-slate-50 border-y border-slate-200">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
@@ -178,14 +190,14 @@ export const HomeView = () => {
                   What We Do
                 </span>
                 <h2 className="text-2xl font-bold text-slate-900 tracking-tight mt-1">
-                  Programs &amp; Focus Areas
+                  Our Programs
                 </h2>
               </div>
               <button
                 onClick={() => navigate({ to: "/programs" })}
                 className="text-blue-600 hover:text-blue-800 font-semibold text-xs flex items-center gap-1 group"
               >
-                <span>See our full impact</span>
+                <span>See all programs</span>
                 <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
               </button>
             </div>
@@ -193,17 +205,30 @@ export const HomeView = () => {
               {focusAreas.map((area, i) => {
                 const Icon = focusAreaIcon(area.icon);
                 return (
-                  <div
+                  <Link
                     key={i}
-                    className="bg-white border border-slate-200 rounded-xl p-4 flex items-start gap-3"
+                    to="/programs/$slug"
+                    params={{ slug: area.slug || "" }}
+                    className="group bg-white border border-slate-200 rounded-xl p-4 flex items-start gap-3 hover:shadow-md hover:border-blue-200 transition-all"
                   >
                     <div className="w-9 h-9 rounded-lg bg-blue-50 flex items-center justify-center shrink-0">
                       <Icon className="w-4 h-4 text-blue-600" />
                     </div>
-                    <p className="text-sm font-semibold text-slate-900 leading-snug">
-                      {area.title}
-                    </p>
-                  </div>
+                    <div className="space-y-1">
+                      <p className="text-sm font-semibold text-slate-900 leading-snug">
+                        {area.title}
+                      </p>
+                      {area.description && (
+                        <p className="text-xs text-slate-600 leading-relaxed line-clamp-2">
+                          {area.description}
+                        </p>
+                      )}
+                      <span className="text-[11px] font-bold text-blue-600 inline-flex items-center gap-1">
+                        Learn more
+                        <ArrowRight className="w-3 h-3 group-hover:translate-x-1 transition-transform" />
+                      </span>
+                    </div>
+                  </Link>
                 );
               })}
             </div>
@@ -300,12 +325,14 @@ export const HomeView = () => {
             completely transform the life of a person with a disability.
           </p>
           <div className="flex flex-wrap gap-4 justify-center pt-2">
-            <button
-              onClick={() => navigate({ to: "/donate" })}
-              className="bg-amber-400 hover:bg-amber-500 text-slate-950 font-bold px-8 py-3.5 rounded-xl shadow-md transition-all text-sm"
-            >
-              Donate Now
-            </button>
+            {showDonateButton && (
+              <button
+                onClick={() => navigate({ to: "/donate" })}
+                className="bg-amber-400 hover:bg-amber-500 text-slate-950 font-bold px-8 py-3.5 rounded-xl shadow-md transition-all text-sm"
+              >
+                Donate Now
+              </button>
+            )}
             <button
               onClick={() => navigate({ to: "/get-involved" })}
               className="bg-blue-700 hover:bg-blue-800 text-white font-semibold px-6 py-3.5 rounded-xl border border-blue-500 transition-all text-sm"
