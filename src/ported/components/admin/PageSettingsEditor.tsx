@@ -203,7 +203,8 @@ export const PageSettingsEditor: React.FC = () => {
         const defaults = PAGE_DEFAULTS[activeKey] ?? {};
         // Deep-merge one level so nested defaults (e.g. paymentDetails)
         // fill in gaps without overwriting saved values.
-        const merged: any = { ...defaults, ...(data?.content || {}) };
+        const saved = (data?.content ?? {}) as Record<string, any>;
+        const merged: any = { ...defaults, ...saved };
         for (const k of Object.keys(defaults)) {
           if (defaults[k] && typeof defaults[k] === "object" && !Array.isArray(defaults[k])) {
             merged[k] = { ...defaults[k], ...((data?.content as any)?.[k] ?? {}) };
