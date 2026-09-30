@@ -153,6 +153,22 @@ const PAGES = PAGES_RAW.map((p) => ({
   fields: p.seo ? [...p.fields, ...SEO_FIELDS] : p.fields,
 }));
 
+// Defaults shown in the editor when a page has never been saved, so the
+// form matches what visitors see on the live site (which uses these same
+// built-in fallbacks). Saved values always win.
+const PAGE_DEFAULTS: Record<string, any> = {
+  donate: {
+    paymentDetails: {
+      bankName: "Commonwealth Bank",
+      accountName: "Manyang M Manyang",
+      bsb: "063132",
+      accountNumber: "11477543",
+      payId: "0434133392",
+    },
+    showDonateButton: true,
+  },
+};
+
 function get(obj: any, path: string) {
   return path.split(".").reduce((o, k) => o?.[k], obj);
 }
@@ -184,7 +200,17 @@ export const PageSettingsEditor: React.FC = () => {
       .eq("page_key", activeKey)
       .maybeSingle()
       .then(({ data }) => {
-        setContent(data?.content || {});
+        const defaults = PAGE_DEFAULTS[activeKey] ?? {};
+        // Deep-merge one level so nested defaults (e.g. paymentDetails)
+        // fill in gaps without overwriting saved values.
+        const saved = (data?.content ?? {}) as Record<string, any>;
+        const merged: any = { ...defaults, ...saved };
+        for (const k of Object.keys(defaults)) {
+          if (defaults[k] && typeof defaults[k] === "object" && !Array.isArray(defaults[k])) {
+            merged[k] = { ...defaults[k], ...(saved[k] ?? {}) };
+          }
+        }
+        setContent(merged);
         // Default new (not-yet-saved) pages to Published so admins don't have to flip a switch
         setPublished(data ? !!(data as any).published : true);
       });
