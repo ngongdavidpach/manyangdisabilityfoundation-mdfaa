@@ -200,7 +200,16 @@ export const PageSettingsEditor: React.FC = () => {
       .eq("page_key", activeKey)
       .maybeSingle()
       .then(({ data }) => {
-        setContent(data?.content || {});
+        const defaults = PAGE_DEFAULTS[activeKey] ?? {};
+        // Deep-merge one level so nested defaults (e.g. paymentDetails)
+        // fill in gaps without overwriting saved values.
+        const merged: any = { ...defaults, ...(data?.content || {}) };
+        for (const k of Object.keys(defaults)) {
+          if (defaults[k] && typeof defaults[k] === "object" && !Array.isArray(defaults[k])) {
+            merged[k] = { ...defaults[k], ...((data?.content as any)?.[k] ?? {}) };
+          }
+        }
+        setContent(merged);
         // Default new (not-yet-saved) pages to Published so admins don't have to flip a switch
         setPublished(data ? !!(data as any).published : true);
       });
