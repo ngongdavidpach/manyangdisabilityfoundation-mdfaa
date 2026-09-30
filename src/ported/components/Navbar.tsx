@@ -227,7 +227,8 @@ export const Navbar: React.FC = () => {
             ) : null}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="p-2 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-100 focus:outline-hidden"
+              className="p-2 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-100 focus:outline-hidden lg:hidden"
+
               aria-label="Toggle menu"
               aria-expanded={mobileMenuOpen}
             >
