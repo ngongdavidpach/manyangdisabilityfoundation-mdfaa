@@ -153,6 +153,22 @@ const PAGES = PAGES_RAW.map((p) => ({
   fields: p.seo ? [...p.fields, ...SEO_FIELDS] : p.fields,
 }));
 
+// Defaults shown in the editor when a page has never been saved, so the
+// form matches what visitors see on the live site (which uses these same
+// built-in fallbacks). Saved values always win.
+const PAGE_DEFAULTS: Record<string, any> = {
+  donate: {
+    paymentDetails: {
+      bankName: "Commonwealth Bank",
+      accountName: "Manyang M Manyang",
+      bsb: "063132",
+      accountNumber: "11477543",
+      payId: "0434133392",
+    },
+    showDonateButton: true,
+  },
+};
+
 function get(obj: any, path: string) {
   return path.split(".").reduce((o, k) => o?.[k], obj);
 }
