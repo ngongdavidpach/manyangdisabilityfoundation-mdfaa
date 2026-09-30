@@ -130,8 +130,31 @@ export const Navbar: React.FC = () => {
             />
           </Link>
 
+          <nav className="hidden lg:flex items-center gap-1 flex-1 justify-center min-w-0">
+            {navLinks.map((link) => {
+              const isActive = isLinkActive(link);
+              return (
+                <Link
+                  key={link.id}
+                  to={link.to}
+                  onClick={() => {
+                    setUserMenuOpen(false);
+                    setMobileMenuOpen(false);
+                  }}
+                  className={`px-3 py-2 rounded-lg text-sm font-semibold whitespace-nowrap transition-colors ${
+                    isActive
+                      ? "bg-blue-50 text-blue-700"
+                      : "text-slate-700 hover:bg-slate-100 hover:text-slate-900"
+                  }`}
+                >
+                  {link.label}
+                </Link>
+              );
+            })}
+          </nav>
 
           <div className="hidden sm:flex items-center gap-2">
+
             {showDonateButton && (
               <Link
                 to="/donate"
