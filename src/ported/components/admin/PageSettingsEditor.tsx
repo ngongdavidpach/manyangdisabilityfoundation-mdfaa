@@ -207,7 +207,7 @@ export const PageSettingsEditor: React.FC = () => {
         const merged: any = { ...defaults, ...saved };
         for (const k of Object.keys(defaults)) {
           if (defaults[k] && typeof defaults[k] === "object" && !Array.isArray(defaults[k])) {
-            merged[k] = { ...defaults[k], ...((data?.content as any)?.[k] ?? {}) };
+            merged[k] = { ...defaults[k], ...(saved[k] ?? {}) };
           }
         }
         setContent(merged);
