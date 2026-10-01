@@ -6,6 +6,7 @@ export type PageSeo = {
   title?: string;
   description?: string;
   ogImage?: string;
+  heroImage?: string;
   noindex?: boolean;
 };
 
@@ -26,11 +27,14 @@ export const getPageSeo = createServerFn({ method: "GET" })
       // Only expose SEO for published pages on the public site
       if (!row || !(row as any).published) return {};
       const seo = (row?.content as any)?.seo;
-      if (!seo || typeof seo !== "object") return {};
+      const heroImage = (row?.content as any)?.hero?.image;
+      const safeHeroImage = typeof heroImage === "string" && /^https:\/\//.test(heroImage) ? heroImage : undefined;
+      if (!seo || typeof seo !== "object") return { heroImage: safeHeroImage };
       return {
         title: typeof seo.title === "string" ? seo.title : undefined,
         description: typeof seo.description === "string" ? seo.description : undefined,
         ogImage: typeof seo.ogImage === "string" ? seo.ogImage : undefined,
+        heroImage: safeHeroImage,
         noindex: !!seo.noindex,
       };
     } catch {
