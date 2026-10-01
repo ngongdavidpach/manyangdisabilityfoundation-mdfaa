@@ -36,6 +36,7 @@ export const HomeView = () => {
   const [showInsight, setShowInsight] = useState(false);
   const [heroImage, setHeroImage] = useState("");
   const [focusAreas, setFocusAreas] = useState<FocusArea[]>([]);
+  const [programsHeading, setProgramsHeading] = useState("Our Programs");
   const [showDonateButton, setShowDonateButton] = useState(true);
 
   useEffect(() => {
@@ -60,6 +61,8 @@ export const HomeView = () => {
         setHeroImage(typeof hero?.image === "string" ? hero.image : "");
         setInsight((c.insight as InsightContent) || null);
         setShowInsight(!!c.showInsight);
+         setProgramsHeading(typeof c.programsHeading === "string" ? c.programsHeading : "Our Programs");
+         setShowPrograms(c.showPrograms !== false);
       });
     supabase
       .from("page_settings")
