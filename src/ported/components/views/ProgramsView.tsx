@@ -16,6 +16,8 @@ import { usePageSettings } from "../../hooks/usePageSettings";
 import { focusAreaIcon, normalizeFocusAreas, type FocusArea } from "../../lib/focusAreas";
 
 interface ProgramsContent {
+  heading?: string;
+  intro?: string;
   programs?: Program[];
   successStories?: SuccessStory[];
   focusAreas?: FocusArea[];
@@ -70,12 +72,10 @@ export const ProgramsView: React.FC = () => {
             Humanitarian Interventions
           </span>
           <h1 className="text-4xl sm:text-5xl font-extrabold text-slate-900 tracking-tight">
-            Our Impact & Core Programs
+             {programsContent?.heading ?? "Our Impact & Core Programs"}
           </h1>
           <p className="text-base sm:text-lg text-slate-600 leading-relaxed">
-            Explore how the Manyang Disability Foundation directly converts donor resources into
-            durable mobility, inclusive classrooms, advanced healthcare, and sustainable
-            self-reliance.
+             {programsContent?.intro ?? "Explore how the Manyang Disability Foundation directly converts donor resources into durable mobility, inclusive classrooms, advanced healthcare, and sustainable self-reliance."}
           </p>
         </div>
       </section>

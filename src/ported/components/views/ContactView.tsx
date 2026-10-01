@@ -77,7 +77,7 @@ export const ContactView: React.FC<Props> = ({ siteKey }) => {
 
       <div className="grid lg:grid-cols-3 gap-8">
         <aside className="lg:col-span-1 space-y-6">
-          <div className="bg-white rounded-2xl border border-slate-200 p-5 space-y-3 shadow-xs">
+          {info.showContactDetails !== false && <div className="bg-white rounded-2xl border border-slate-200 p-5 space-y-3 shadow-xs">
             <h2 className="font-bold text-slate-900 text-sm">Reach us directly</h2>
             <p className="text-sm text-slate-600 flex items-center gap-2">
               <Mail className="w-4 h-4 text-blue-600" />
@@ -85,7 +85,7 @@ export const ContactView: React.FC<Props> = ({ siteKey }) => {
             </p>
             {info.phone && <p className="text-sm text-slate-600">{info.phone}</p>}
             {info.address && <p className="text-xs text-slate-500 leading-relaxed">{info.address}</p>}
-          </div>
+          </div>}
           <div className="bg-blue-50 rounded-2xl border border-blue-100 p-5 text-xs text-blue-900 leading-relaxed">
             <strong className="block mb-1">Prefer a formal proposal?</strong>
             For CSR programs, download our sponsorship prospectus from the{" "}
