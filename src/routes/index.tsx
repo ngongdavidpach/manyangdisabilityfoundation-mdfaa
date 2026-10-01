@@ -19,11 +19,13 @@ export const Route = createFileRoute("/")({
       { name: "description", content: description },
       { property: "og:title", content: title },
       { property: "og:description", content: description },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
       { property: "og:url", content: "https://manyangdisabilityfoundation.org/" },
     ];
-    if (seo.ogImage) {
-      meta.push({ property: "og:image", content: seo.ogImage });
-      meta.push({ name: "twitter:image", content: seo.ogImage });
+    if (seo.heroImage) {
+      meta.push({ property: "og:image", content: seo.heroImage });
+      meta.push({ name: "twitter:image", content: seo.heroImage });
     }
     if (seo.noindex) meta.push({ name: "robots", content: "noindex" });
     return {
