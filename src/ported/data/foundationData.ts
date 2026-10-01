@@ -85,6 +85,7 @@ export const FOUNDATION_INFO = {
   altPhone: "+237 670 123 456",
   address: "MDF Headquarters, Inclusion Plaza, Suite 400",
   workingHours: "Monday - Friday: 8:00 AM - 5:00 PM",
+  showContactDetails: true,
   socials: {
     facebook: "",
     twitter: "",
