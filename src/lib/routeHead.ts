@@ -1,6 +1,7 @@
 import type { PageSeo } from "./pageSeo.functions";
 
 const BASE = "https://manyangdisabilityfoundation.org";
+export const DEFAULT_OG_IMAGE = `${BASE}/images/logo.png`;
 
 export function buildRouteHead(opts: {
   path: string; // leading slash, e.g. "/about"
@@ -19,10 +20,9 @@ export function buildRouteHead(opts: {
     { property: "og:description", content: description },
     { property: "og:url", content: url },
   ];
-  if (seo.ogImage) {
-    meta.push({ property: "og:image", content: seo.ogImage });
-    meta.push({ name: "twitter:image", content: seo.ogImage });
-  }
+  const ogImage = seo.ogImage || seo.heroImage || DEFAULT_OG_IMAGE;
+  meta.push({ property: "og:image", content: ogImage });
+  meta.push({ name: "twitter:image", content: ogImage });
   if (seo.noindex) meta.push({ name: "robots", content: "noindex" });
   return {
     meta,
