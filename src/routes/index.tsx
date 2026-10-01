@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { HomeView } from "../ported/components/views/HomeView";
 import { getPageSeo, type PageSeo } from "../lib/pageSeo.functions";
+import { DEFAULT_OG_IMAGE } from "../lib/routeHead";
 
 const DEFAULTS = {
   title: "Manyang Disability Foundation — Mobility, Health & Education",
@@ -23,10 +24,9 @@ export const Route = createFileRoute("/")({
       { name: "twitter:card", content: "summary_large_image" },
       { property: "og:url", content: "https://manyangdisabilityfoundation.org/" },
     ];
-    if (seo.heroImage) {
-      meta.push({ property: "og:image", content: seo.heroImage });
-      meta.push({ name: "twitter:image", content: seo.heroImage });
-    }
+    const ogImage = seo.ogImage || seo.heroImage || DEFAULT_OG_IMAGE;
+    meta.push({ property: "og:image", content: ogImage });
+    meta.push({ name: "twitter:image", content: ogImage });
     if (seo.noindex) meta.push({ name: "robots", content: "noindex" });
     return {
       meta,
