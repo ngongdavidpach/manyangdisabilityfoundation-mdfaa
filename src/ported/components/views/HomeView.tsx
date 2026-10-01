@@ -36,6 +36,8 @@ export const HomeView = () => {
   const [showInsight, setShowInsight] = useState(false);
   const [heroImage, setHeroImage] = useState("");
   const [focusAreas, setFocusAreas] = useState<FocusArea[]>([]);
+  const [programsHeading, setProgramsHeading] = useState("Our Programs");
+  const [showPrograms, setShowPrograms] = useState(true);
   const [showDonateButton, setShowDonateButton] = useState(true);
 
   useEffect(() => {
@@ -60,6 +62,8 @@ export const HomeView = () => {
         setHeroImage(typeof hero?.image === "string" ? hero.image : "");
         setInsight((c.insight as InsightContent) || null);
         setShowInsight(!!c.showInsight);
+        setProgramsHeading(typeof c.programsHeading === "string" ? c.programsHeading : "Our Programs");
+        setShowPrograms(c.showPrograms !== false);
       });
     supabase
       .from("page_settings")
@@ -203,7 +207,7 @@ export const HomeView = () => {
       )}
 
       {/* Our Programs */}
-      {focusAreas.length > 0 && (
+      {showPrograms && focusAreas.length > 0 && (
         <section className="bg-slate-50 border-y border-slate-200">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
             <div className="flex flex-wrap justify-between items-baseline gap-3 mb-8">
@@ -212,7 +216,7 @@ export const HomeView = () => {
                   What We Do
                 </span>
                 <h2 className="text-2xl font-bold text-slate-900 tracking-tight mt-1">
-                  Our Programs
+                  {programsHeading}
                 </h2>
               </div>
               <button

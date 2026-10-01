@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { ImageUploader } from "./ImageUploader";
 import { Save } from "lucide-react";
+import { normalizeFooterResources, safeResourceHref, type FooterResource } from "../../lib/footerResources";
 
 const SEO_FIELDS = [
   { path: "seo.title", label: "SEO title (browser tab + search result)", type: "text" },
@@ -28,6 +29,7 @@ const PAGES_RAW = [
       { path: "showInsight", label: "Show foundation insight section", type: "bool" },
       { path: "showStats", label: "Show stats section", type: "bool" },
       { path: "showPrograms", label: "Show programs section", type: "bool" },
+      { path: "programsHeading", label: "Home page programs heading", type: "text" },
     ],
     seo: true,
   },
@@ -127,6 +129,8 @@ const PAGES_RAW = [
       { path: "phone", label: "Phone", type: "text" },
       { path: "email", label: "Email", type: "text" },
       { path: "workingHours", label: "Working hours", type: "text" },
+      { path: "showResources", label: "Show Resources section", type: "bool" },
+      { path: "showHeadquarters", label: "Show Headquarters section", type: "bool" },
       { path: "socials.facebook", label: "Facebook URL", type: "text" },
       { path: "socials.twitter", label: "Twitter / X URL", type: "text" },
       { path: "socials.instagram", label: "Instagram URL", type: "text" },
@@ -157,6 +161,19 @@ const PAGES = PAGES_RAW.map((p) => ({
 // form matches what visitors see on the live site (which uses these same
 // built-in fallbacks). Saved values always win.
 const PAGE_DEFAULTS: Record<string, any> = {
+  home: { showPrograms: true, programsHeading: "Our Programs" },
+  programs: {
+    heading: "Our Impact & Core Programs",
+    intro: "Explore how the Manyang Disability Foundation directly converts donor resources into durable mobility, inclusive classrooms, advanced healthcare, and sustainable self-reliance.",
+  },
+  footer: {
+    address: "Sydney, NSW, Australia",
+    phone: "+61 400 000 000",
+    email: "info@manyangfoundation.org",
+    workingHours: "Monday – Friday: 9:00 AM – 5:00 PM (AEST)",
+    showResources: true,
+    showHeadquarters: true,
+  },
   donate: {
     paymentDetails: {
       bankName: "Commonwealth Bank",
@@ -190,10 +207,12 @@ export const PageSettingsEditor: React.FC = () => {
   const [published, setPublished] = useState<boolean>(false);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [error, setError] = useState("");
 
   const active = PAGES.find((p) => p.key === activeKey)!;
 
   useEffect(() => {
+    setError("");
     supabase
       .from("page_settings")
       .select("content, published")
@@ -218,26 +237,45 @@ export const PageSettingsEditor: React.FC = () => {
 
 
   const save = async () => {
+    setError("");
+    if (activeKey === "footer") {
+      const invalid = normalizeFooterResources(content.resources).find((resource) =>
+        resource.visible && (!resource.label.trim() || !safeResourceHref(resource.href)),
+      );
+      if (invalid) {
+        setError(`Provide a label and a site path or HTTPS address for ${invalid.label || "each visible resource"}.`);
+        return;
+      }
+    }
     setSaving(true);
-    await supabase
+    const { error: saveError } = await supabase
       .from("page_settings")
       .upsert(
         { page_key: activeKey, content, published } as any,
         { onConflict: "page_key" },
       );
     setSaving(false);
+    if (saveError) { setError(saveError.message); return; }
     setSaved(true);
     setTimeout(() => setSaved(false), 2000);
   };
 
   const togglePublished = async (next: boolean) => {
     setPublished(next);
-    await supabase
+    const { error: saveError } = await supabase
       .from("page_settings")
       .upsert(
         { page_key: activeKey, content, published: next } as any,
         { onConflict: "page_key" },
       );
+    if (saveError) { setPublished(!next); setError(saveError.message); }
+  };
+
+  const updateResource = (id: string, patch: Partial<FooterResource>) => {
+    const resources = normalizeFooterResources(content.resources).map((resource) =>
+      resource.id === id ? { ...resource, ...patch } : resource,
+    );
+    setContent({ ...content, resources });
   };
 
   return (
@@ -257,6 +295,7 @@ export const PageSettingsEditor: React.FC = () => {
         ))}
       </aside>
       <div className="bg-white rounded-lg border border-slate-200 p-5 space-y-4">
+        {error && <p role="alert" className="text-sm text-red-700">{error}</p>}
         <div className="flex items-center justify-between border-b pb-3 gap-3 flex-wrap">
           <div className="flex items-center gap-3">
             <h3 className="text-lg font-bold text-slate-900">{active.label}</h3>
@@ -350,6 +389,24 @@ export const PageSettingsEditor: React.FC = () => {
             );
           })}
         </div>
+        {activeKey === "footer" && (
+          <div className="border-t border-slate-200 pt-5 space-y-4">
+            <h4 className="text-sm font-semibold text-slate-900">Resources links</h4>
+            {normalizeFooterResources(content.resources).map((resource) => (
+              <div key={resource.id} className="grid grid-cols-1 md:grid-cols-[1fr_1fr_auto] gap-3 items-end border-b border-slate-100 pb-4">
+                <label className="text-xs font-semibold text-slate-600">Link label
+                  <input value={resource.label} onChange={(e) => updateResource(resource.id, { label: e.target.value })} className="mt-1 w-full px-3 py-2 border border-slate-300 rounded-md text-sm" />
+                </label>
+                <label className="text-xs font-semibold text-slate-600">Destination
+                  <input value={resource.href} onChange={(e) => updateResource(resource.id, { href: e.target.value })} className="mt-1 w-full px-3 py-2 border border-slate-300 rounded-md text-sm" />
+                </label>
+                <label className="flex items-center gap-2 text-sm text-slate-700 pb-2">
+                  <input type="checkbox" checked={resource.visible} onChange={(e) => updateResource(resource.id, { visible: e.target.checked })} /> Show
+                </label>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );
