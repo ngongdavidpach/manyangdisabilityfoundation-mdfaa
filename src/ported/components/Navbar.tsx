@@ -130,7 +130,7 @@ export const Navbar: React.FC = () => {
             />
           </Link>
 
-          <nav className="hidden lg:flex items-center gap-1 flex-1 justify-center min-w-0">
+          <nav className="hidden md:flex items-center gap-1 flex-1 justify-center min-w-0">
             {navLinks.map((link) => {
               const isActive = isLinkActive(link);
               return (
@@ -227,7 +227,7 @@ export const Navbar: React.FC = () => {
             ) : null}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="p-2 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-100 focus:outline-hidden lg:hidden"
+              className="p-2 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-100 focus:outline-hidden md:hidden"
 
               aria-label="Toggle menu"
               aria-expanded={mobileMenuOpen}
