@@ -5,4 +5,4 @@
 - [x] Start the country field empty
 - [x] Remove the pledge summary panel
 - [x] Verify the simplified donation flow on desktop and mobile
-- [ ] Display the saved Home Page photo behind the homepage heading on desktop and mobile
+- [x] Display the saved Home Page photo behind the homepage heading on desktop and mobile
