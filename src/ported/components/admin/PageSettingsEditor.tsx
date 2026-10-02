@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { ImageUploader } from "./ImageUploader";
+import { SeoAiGenerator } from "./SeoAiGenerator";
 import { Save } from "lucide-react";
 import { normalizeFooterResources, safeResourceHref, type FooterResource } from "../../lib/footerResources";
 
@@ -341,6 +342,23 @@ export const PageSettingsEditor: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {active.fields.map((f) => {
             const v = get(content, f.path);
+            if (f.path === "seo.title") {
+              const initial = [content.heading, content.intro, content.hero?.title, content.hero?.subtitle, content.intro?.heading, content.intro?.body]
+                .filter((x) => typeof x === "string" && x.trim()).join("\n\n");
+              return (
+                <React.Fragment key={f.path}>
+                  <SeoAiGenerator
+                    pageKey={activeKey}
+                    initialContent={initial}
+                    onApply={(t, d) => setContent(set(set(content, "seo.title", t), "seo.description", d))}
+                  />
+                  <div className="space-y-1">
+                    <label className="text-xs font-semibold text-slate-600">{f.label}</label>
+                    <input value={v ?? ""} onChange={(e) => setContent(set(content, f.path, e.target.value))} className="w-full px-3 py-2 border border-slate-300 rounded-md text-sm" />
+                  </div>
+                </React.Fragment>
+              );
+            }
             if (f.type === "image") {
               return (
                 <div key={f.path} className="md:col-span-2">
