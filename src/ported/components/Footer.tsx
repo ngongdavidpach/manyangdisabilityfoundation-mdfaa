@@ -142,6 +142,12 @@ export const Footer: React.FC = () => {
     }
   };
 
+  const [csrHidden, setCsrHidden] = useState(false);
+  useEffect(() => {
+    supabase.from("page_settings").select("content").eq("page_key", "csr-sponsorship").maybeSingle()
+      .then(({ data }) => setCsrHidden((data?.content as any)?.visible === false));
+  }, []);
+
   const handleLink = (page: string) => {
     navigate({ to: PATH_FOR[page] || "/" });
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -155,7 +161,7 @@ export const Footer: React.FC = () => {
     { key: "youtube", url: s.socials.youtube, Icon: Youtube, label: "YouTube" },
     { key: "tiktok", url: s.socials.tiktok, Icon: TikTokIcon, label: "TikTok" },
   ].filter((l) => !!l.url);
-  const visibleResources = normalizeFooterResources(s.resources).filter((resource) => resource.visible && resource.label.trim() && safeResourceHref(resource.href));
+  const visibleResources = normalizeFooterResources(s.resources).filter((resource) => resource.visible && !(csrHidden && resource.href === "/csr-sponsorship") && resource.label.trim() && safeResourceHref(resource.href));
 
   return (
     <footer className="bg-slate-900 text-slate-300 border-t border-slate-800">
