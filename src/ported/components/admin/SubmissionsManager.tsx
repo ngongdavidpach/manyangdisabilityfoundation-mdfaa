@@ -155,6 +155,11 @@ export const SubmissionsManager: React.FC = () => {
                     <button className="text-violet-700 underline" onClick={() => setOpen(open === r.id ? null : r.id)}>
                       {open === r.id ? "Hide" : "View"}
                     </button>
+                    {kind === "donation_intents" && (
+                      <a href={`/receipts/${encodeURIComponent(r.reference)}`} target="_blank" rel="noreferrer" className="text-blue-700 underline">
+                        Receipt
+                      </a>
+                    )}
                     {kind === "donation_intents" && r.status !== "received" && (
                       <button
                         disabled={busy}
