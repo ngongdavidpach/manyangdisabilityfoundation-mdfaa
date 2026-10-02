@@ -50,6 +50,7 @@ import { Route as PortalFundraisersRouteImport } from './routes/portal.fundraise
 import { Route as PrivacyEmailsRouteImport } from './routes/privacy.emails'
 import { Route as ProgramsSlugRouteImport } from './routes/programs.$slug'
 import { Route as ProgramsRssDotxmlRouteImport } from './routes/programs.rss[.]xml'
+import { Route as ReceiptsReferenceRouteImport } from './routes/receipts.$reference'
 import { Route as DotlovableOauthConsentRouteImport } from './routes/[.]lovable.oauth.consent'
 import { Route as Char91DotmcpChar93InvokeToolToolRouteImport } from './routes/[.mcp]/invoke-tool/$tool'
 import { Route as ApiPublicCookieConsentLogRouteImport } from './routes/api/public/cookie-consent-log'
@@ -270,6 +271,11 @@ const ProgramsRssDotxmlRoute = ProgramsRssDotxmlRouteImport.update({
   path: '/rss.xml',
   getParentRoute: () => ProgramsRoute,
 } as any)
+const ReceiptsReferenceRoute = ReceiptsReferenceRouteImport.update({
+  id: '/receipts/$reference',
+  path: '/receipts/$reference',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const DotlovableOauthConsentRoute = DotlovableOauthConsentRouteImport.update({
   id: '/.lovable/oauth/consent',
   path: '/.lovable/oauth/consent',
@@ -375,6 +381,7 @@ export interface FileRoutesByFullPath {
   '/privacy/emails': typeof PrivacyEmailsRoute
   '/programs/$slug': typeof ProgramsSlugRoute
   '/programs/rss.xml': typeof ProgramsRssDotxmlRoute
+  '/receipts/$reference': typeof ReceiptsReferenceRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/api/public/cookie-consent-log': typeof ApiPublicCookieConsentLogRoute
@@ -429,6 +436,7 @@ export interface FileRoutesByTo {
   '/privacy/emails': typeof PrivacyEmailsRoute
   '/programs/$slug': typeof ProgramsSlugRoute
   '/programs/rss.xml': typeof ProgramsRssDotxmlRoute
+  '/receipts/$reference': typeof ReceiptsReferenceRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/api/public/cookie-consent-log': typeof ApiPublicCookieConsentLogRoute
@@ -484,6 +492,7 @@ export interface FileRoutesById {
   '/privacy/emails': typeof PrivacyEmailsRoute
   '/programs/$slug': typeof ProgramsSlugRoute
   '/programs/rss.xml': typeof ProgramsRssDotxmlRoute
+  '/receipts/$reference': typeof ReceiptsReferenceRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/api/public/cookie-consent-log': typeof ApiPublicCookieConsentLogRoute
@@ -540,6 +549,7 @@ export interface FileRouteTypes {
     | '/privacy/emails'
     | '/programs/$slug'
     | '/programs/rss.xml'
+    | '/receipts/$reference'
     | '/.lovable/oauth/consent'
     | '/.mcp/invoke-tool/$tool'
     | '/api/public/cookie-consent-log'
@@ -594,6 +604,7 @@ export interface FileRouteTypes {
     | '/privacy/emails'
     | '/programs/$slug'
     | '/programs/rss.xml'
+    | '/receipts/$reference'
     | '/.lovable/oauth/consent'
     | '/.mcp/invoke-tool/$tool'
     | '/api/public/cookie-consent-log'
@@ -648,6 +659,7 @@ export interface FileRouteTypes {
     | '/privacy/emails'
     | '/programs/$slug'
     | '/programs/rss.xml'
+    | '/receipts/$reference'
     | '/.lovable/oauth/consent'
     | '/.mcp/invoke-tool/$tool'
     | '/api/public/cookie-consent-log'
@@ -696,6 +708,7 @@ export interface RootRouteChildren {
   GuidesMobilityAidGrantsRoute: typeof GuidesMobilityAidGrantsRoute
   PortalCoordinatorsRoute: typeof PortalCoordinatorsRoute
   PortalFundraisersRoute: typeof PortalFundraisersRoute
+  ReceiptsReferenceRoute: typeof ReceiptsReferenceRoute
   DotlovableOauthConsentRoute: typeof DotlovableOauthConsentRoute
   Char91DotmcpChar93InvokeToolToolRoute: typeof Char91DotmcpChar93InvokeToolToolRoute
   ApiPublicCookieConsentLogRoute: typeof ApiPublicCookieConsentLogRoute
@@ -998,6 +1011,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProgramsRssDotxmlRouteImport
       parentRoute: typeof ProgramsRoute
     }
+    '/receipts/$reference': {
+      id: '/receipts/$reference'
+      path: '/receipts/$reference'
+      fullPath: '/receipts/$reference'
+      preLoaderRoute: typeof ReceiptsReferenceRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/.lovable/oauth/consent': {
       id: '/.lovable/oauth/consent'
       path: '/.lovable/oauth/consent'
@@ -1174,6 +1194,7 @@ const rootRouteChildren: RootRouteChildren = {
   GuidesMobilityAidGrantsRoute: GuidesMobilityAidGrantsRoute,
   PortalCoordinatorsRoute: PortalCoordinatorsRoute,
   PortalFundraisersRoute: PortalFundraisersRoute,
+  ReceiptsReferenceRoute: ReceiptsReferenceRoute,
   DotlovableOauthConsentRoute: DotlovableOauthConsentRoute,
   Char91DotmcpChar93InvokeToolToolRoute: Char91DotmcpChar93InvokeToolToolRoute,
   ApiPublicCookieConsentLogRoute: ApiPublicCookieConsentLogRoute,
