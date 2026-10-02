@@ -16,11 +16,11 @@ export const getVisibilityFlags = createServerFn({ method: "GET" }).handler(
       const { data } = await supabase
         .from("page_settings")
         .select("page_key, content")
-        .in("page_key", ["csr-sponsorship", "foundation"]);
+        .in("page_key", ["csr-sponsorship"]);
       const get = (k: string) => (data?.find((r) => r.page_key === k)?.content ?? {}) as any;
       return {
         csrVisible: get("csr-sponsorship").visible !== false,
-        showPartnership: get("foundation").showPartnership !== false,
+        showPartnership: get("csr-sponsorship").showPartnership !== false,
       };
     } catch {
       return { csrVisible: true, showPartnership: true };

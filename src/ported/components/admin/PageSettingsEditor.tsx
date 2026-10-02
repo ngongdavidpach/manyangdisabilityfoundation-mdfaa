@@ -124,7 +124,10 @@ const PAGES_RAW = [
   {
     key: "csr-sponsorship",
     label: "CSR Sponsorship",
-    fields: [{ path: "visible", label: "Show CSR Sponsorship page", type: "bool" }],
+    fields: [
+      { path: "visible", label: "Show CSR Sponsorship page", type: "bool" },
+      { path: "showPartnership", label: "Show partnership details on Contact page", type: "bool" },
+    ],
     seo: false,
   },
   {
@@ -167,7 +170,7 @@ const PAGES = PAGES_RAW.map((p) => ({
 // form matches what visitors see on the live site (which uses these same
 // built-in fallbacks). Saved values always win.
 const PAGE_DEFAULTS: Record<string, any> = {
-  "csr-sponsorship": { visible: true },
+  "csr-sponsorship": { visible: true, showPartnership: true },
   home: { showPrograms: true, programsHeading: "Our Programs" },
   programs: {
     heading: "Our Impact & Core Programs",

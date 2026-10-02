@@ -100,10 +100,6 @@ export const FoundationInfoEditor: React.FC = () => {
         <input type="checkbox" checked={form.showContactDetails !== false} onChange={(e) => update({ showContactDetails: e.target.checked })} />
         Show contact details on Contact page
       </label>
-      <label className="flex items-center gap-2 text-sm text-slate-700">
-        <input type="checkbox" checked={(form as any).showPartnership !== false} onChange={(e) => update({ showPartnership: e.target.checked } as any)} />
-        Show partnership details on Contact page
-      </label>
 
       <div>
         <label className={label}>Address</label>
