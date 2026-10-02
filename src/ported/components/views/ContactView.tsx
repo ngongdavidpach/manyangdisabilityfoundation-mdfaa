@@ -5,7 +5,7 @@ import { AlertTriangle, CheckCircle2, Mail, Send } from "lucide-react";
 import { submitContactInquiry, type ContactFormInput } from "@/lib/contact.functions";
 import { useFoundationInfo } from "../../hooks/useFoundationInfo";
 
-type Props = { siteKey: string | null };
+type Props = { siteKey: string | null; showPartnership?: boolean; csrVisible?: boolean };
 
 const PARTNERSHIP_OPTIONS: { value: ContactFormInput["partnership_type"]; label: string }[] = [
   { value: "general", label: "General inquiry" },
@@ -16,7 +16,8 @@ const PARTNERSHIP_OPTIONS: { value: ContactFormInput["partnership_type"]; label:
   { value: "other", label: "Other" },
 ];
 
-export const ContactView: React.FC<Props> = ({ siteKey }) => {
+export const ContactView: React.FC<Props> = ({ siteKey, showPartnership = true, csrVisible = true }) => {
+  const reasonOptions = showPartnership ? PARTNERSHIP_OPTIONS : PARTNERSHIP_OPTIONS.filter((o) => o.value !== "partnership" && o.value !== "csr");
   const { content: info } = useFoundationInfo();
   const submit = useServerFn(submitContactInquiry);
   const [form, setForm] = useState<Omit<ContactFormInput, "turnstileToken">>({
@@ -67,11 +68,12 @@ export const ContactView: React.FC<Props> = ({ siteKey }) => {
     <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-10">
       <header className="space-y-3">
         <h1 className="text-4xl sm:text-5xl font-extrabold tracking-tight text-slate-900">
-          Contact &amp; Partner Inquiries
+          {showPartnership ? "Contact & Partner Inquiries" : "Contact Us"}
         </h1>
         <p className="text-base text-slate-600 max-w-2xl">
-          Partnerships, CSR sponsorships, media questions, and general enquiries. We reply within
-          three working days.
+          {showPartnership
+            ? "Partnerships, CSR sponsorships, media questions, and general enquiries. We reply within three working days."
+            : "Media questions, volunteering, and general enquiries. We reply within three working days."}
         </p>
       </header>
 
@@ -86,11 +88,11 @@ export const ContactView: React.FC<Props> = ({ siteKey }) => {
             {info.phone && <p className="text-sm text-slate-600">{info.phone}</p>}
             {info.address && <p className="text-xs text-slate-500 leading-relaxed">{info.address}</p>}
           </div>}
-          <div className="bg-blue-50 rounded-2xl border border-blue-100 p-5 text-xs text-blue-900 leading-relaxed">
+          {showPartnership && csrVisible && <div className="bg-blue-50 rounded-2xl border border-blue-100 p-5 text-xs text-blue-900 leading-relaxed">
             <strong className="block mb-1">Prefer a formal proposal?</strong>
             For CSR programs, download our sponsorship prospectus from the{" "}
             <a href="/csr-sponsorship" className="underline font-semibold">CSR page</a>.
-          </div>
+          </div>}
         </aside>
 
         <form
@@ -183,7 +185,7 @@ export const ContactView: React.FC<Props> = ({ siteKey }) => {
                 }
                 className="mt-1 w-full px-3 py-2 border border-slate-300 rounded-md text-sm bg-white"
               >
-                {PARTNERSHIP_OPTIONS.map((o) => (
+                {reasonOptions.map((o) => (
                   <option key={o.value} value={o.value}>
                     {o.label}
                   </option>
