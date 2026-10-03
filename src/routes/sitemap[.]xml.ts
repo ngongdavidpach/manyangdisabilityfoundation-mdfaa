@@ -74,6 +74,15 @@ export const Route = createFileRoute("/sitemap.xml")({
               entries.push({ path: `/programs/${p.slug}`, changefreq: "monthly", priority: "0.7" });
             }
           }
+          const { data: csrRow } = await client
+            .from("page_settings")
+            .select("content")
+            .eq("page_key", "csr-sponsorship")
+            .maybeSingle();
+          if ((csrRow?.content as { visible?: boolean } | null)?.visible === false) {
+            const i = entries.findIndex((e) => e.path === "/csr-sponsorship");
+            if (i >= 0) entries.splice(i, 1);
+          }
         } catch {}
 
         const urls = entries.map((e) =>

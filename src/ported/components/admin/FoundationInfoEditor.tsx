@@ -96,6 +96,11 @@ export const FoundationInfoEditor: React.FC = () => {
         </div>
       </div>
 
+      <label className="flex items-center gap-2 text-sm text-slate-700">
+        <input type="checkbox" checked={form.showContactDetails !== false} onChange={(e) => update({ showContactDetails: e.target.checked })} />
+        Show contact details on Contact page
+      </label>
+
       <div>
         <label className={label}>Address</label>
         <input className={field} value={form.address} onChange={(e) => update({ address: e.target.value })} />

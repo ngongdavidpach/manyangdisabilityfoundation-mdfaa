@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, Link } from "@tanstack/react-router";
 import { Heart, ArrowRight, Download, PlayCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { Button } from "@/components/ui/button";
 import { toEmbedUrl } from "../../lib/videoEmbed";
 import { focusAreaIcon, normalizeFocusAreas, type FocusArea } from "../../lib/focusAreas";
 
@@ -12,6 +13,10 @@ interface InsightContent {
   brochureUrl?: string;
   brochureName?: string;
   videoUrl?: string;
+}
+
+interface HeroContent {
+  image?: string;
 }
 
 interface NewsRow {
@@ -29,7 +34,10 @@ export const HomeView = () => {
   const [loading, setLoading] = useState(true);
   const [insight, setInsight] = useState<InsightContent | null>(null);
   const [showInsight, setShowInsight] = useState(false);
+  const [heroImage, setHeroImage] = useState("");
   const [focusAreas, setFocusAreas] = useState<FocusArea[]>([]);
+  const [programsHeading, setProgramsHeading] = useState("Our Programs");
+  const [showPrograms, setShowPrograms] = useState(true);
   const [showDonateButton, setShowDonateButton] = useState(true);
 
   useEffect(() => {
@@ -50,8 +58,12 @@ export const HomeView = () => {
       .maybeSingle()
       .then(({ data }) => {
         const c = (data?.content as any) || {};
+        const hero = c.hero as HeroContent | undefined;
+        setHeroImage(typeof hero?.image === "string" ? hero.image : "");
         setInsight((c.insight as InsightContent) || null);
         setShowInsight(!!c.showInsight);
+        setProgramsHeading(typeof c.programsHeading === "string" ? c.programsHeading : "Our Programs");
+        setShowPrograms(c.showPrograms !== false);
       });
     supabase
       .from("page_settings")
@@ -82,33 +94,47 @@ export const HomeView = () => {
   return (
     <div>
       {/* Hero */}
-      <section className="bg-gradient-to-b from-blue-50 via-white to-white border-b border-slate-100">
+      <section className={`relative isolate overflow-hidden border-b border-border ${heroImage ? "bg-foreground" : "bg-background"}`}>
+        {heroImage && (
+          <>
+            <img
+              src={heroImage}
+              alt=""
+              aria-hidden="true"
+              fetchPriority="high"
+              onError={() => setHeroImage("")}
+              className="absolute inset-0 -z-20 h-full w-full object-cover object-center"
+            />
+            <div className="absolute inset-0 -z-10 bg-foreground/70" aria-hidden="true" />
+          </>
+        )}
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-20 text-center">
-          <span className="bg-blue-100 text-blue-800 text-[11px] font-bold px-2.5 py-1 rounded-md uppercase tracking-wider inline-block mb-4">
+          <span className={`text-[11px] font-bold px-2.5 py-1 rounded-md uppercase tracking-wider inline-block mb-4 ${heroImage ? "bg-background/90 text-foreground" : "bg-secondary text-secondary-foreground"}`}>
             Manyang Disability Foundation
           </span>
-          <h1 className="text-3xl sm:text-5xl font-extrabold text-slate-900 tracking-tight">
+          <h1 className={`text-3xl sm:text-5xl font-extrabold ${heroImage ? "text-primary-foreground" : "text-foreground"}`}>
             Empowering Lives through Mobility, Care, and Community
           </h1>
-          <p className="text-base sm:text-lg text-slate-600 mt-5 max-w-2xl mx-auto leading-relaxed">
+          <p className={`text-base sm:text-lg mt-5 max-w-2xl mx-auto leading-relaxed ${heroImage ? "text-primary-foreground" : "text-muted-foreground"}`}>
             We provide mobility aids, medical equipment, and direct support to
             people living with disabilities across South Sudan.
           </p>
           <div className="flex flex-wrap gap-3 justify-center pt-6">
             {showDonateButton && (
-              <button
+              <Button
                 onClick={() => navigate({ to: "/donate" })}
-                className="bg-blue-600 hover:bg-blue-700 text-white font-bold px-6 py-3 rounded-lg text-sm transition-colors"
+                className="h-11 px-6 font-bold"
               >
                 Donate Now
-              </button>
+              </Button>
             )}
-            <button
+            <Button
+              variant="outline"
               onClick={() => navigate({ to: "/get-involved" })}
-              className="bg-white hover:bg-slate-50 text-slate-900 font-semibold px-6 py-3 rounded-lg border border-slate-300 text-sm transition-colors"
+              className="h-11 px-6 font-semibold"
             >
               Get Involved
-            </button>
+            </Button>
           </div>
         </div>
       </section>
@@ -181,7 +207,7 @@ export const HomeView = () => {
       )}
 
       {/* Our Programs */}
-      {focusAreas.length > 0 && (
+      {showPrograms && focusAreas.length > 0 && (
         <section className="bg-slate-50 border-y border-slate-200">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
             <div className="flex flex-wrap justify-between items-baseline gap-3 mb-8">
@@ -190,7 +216,7 @@ export const HomeView = () => {
                   What We Do
                 </span>
                 <h2 className="text-2xl font-bold text-slate-900 tracking-tight mt-1">
-                  Our Programs
+                  {programsHeading}
                 </h2>
               </div>
               <button

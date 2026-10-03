@@ -7,6 +7,7 @@ import {
   useRouterState,
   HeadContent,
   Scripts,
+  type ErrorComponentProps,
 } from "@tanstack/react-router";
 import { useEffect, type ReactNode } from "react";
 
@@ -40,11 +41,11 @@ function NotFoundComponent() {
   );
 }
 
-function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
+function ErrorComponent({ error, reset }: ErrorComponentProps) {
   console.error(error);
   const router = useRouter();
   useEffect(() => {
-    reportLovableError(error, { boundary: "tanstack_root_error_component" });
+    reportLovableError(error instanceof Error ? error : new Error(String(error)), { boundary: "tanstack_root_error_component" });
   }, [error]);
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
@@ -85,9 +86,6 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "google-site-verification", content: "-DIrDvS3tDZ6w814f7AHO6jAwsSG-kA3Cr8BnSFtZis" },
       { property: "og:type", content: "website" },
       { property: "og:site_name", content: "Manyang Disability Foundation" },
-      { property: "og:image", content: "https://manyangdisabilityfoundation.org/images/logo.png" },
-      { property: "og:image:width", content: "512" },
-      { property: "og:image:height", content: "512" },
       { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:site", content: "@manyangfoundation" },
       { name: "theme-color", content: "#1e40af" },

@@ -39,7 +39,7 @@ const Email = ({
       <br />
       Amount: <strong>{amount}</strong>
       <br />
-      Payment method: {channel === "payid" ? "PayID" : "Bank transfer"}
+      Payment method: PayID
       <br />
       Date: {date}
     </Text>
@@ -47,20 +47,12 @@ const Email = ({
       To complete your donation, please transfer the amount and use{" "}
       <strong>{reference}</strong> as the payment description.
     </Text>
-    {channel === "payid" && payId ? (
+    {payId ? (
       <Text style={styles.p}>
         PayID: <strong>{payId}</strong>
         {accountName ? <><br />Name: {accountName}</> : null}
       </Text>
-    ) : (
-      <Text style={styles.p}>
-        {bankName ? <>Bank: {bankName}<br /></> : null}
-        {accountName ? <>Account name: {accountName}<br /></> : null}
-        {bsb ? <>BSB: {bsb}<br /></> : null}
-        {accountNumber ? <>Account number: {accountNumber}</> : null}
-        {payId ? <><br />Or PayID: {payId}</> : null}
-      </Text>
-    )}
+    ) : null}
     <Text style={styles.small}>— Manyang Disability Foundation</Text>
   </Shell>
 );

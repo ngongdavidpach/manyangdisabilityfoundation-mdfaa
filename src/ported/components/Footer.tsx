@@ -41,6 +41,7 @@ const Youtube = ({ className = "" }: { className?: string }) => (
 import { Link, useNavigate } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
 import { NAV_ITEM_DEFS, resolveNavOrder } from "../lib/navItems";
+import { normalizeFooterResources, safeResourceHref, type FooterResource } from "../lib/footerResources";
 
 const PATH_FOR: Record<string, string> = {
   home: "/",
@@ -58,6 +59,9 @@ interface FooterSettings {
   phone: string;
   email: string;
   workingHours: string;
+  showResources?: boolean;
+  showHeadquarters?: boolean;
+  resources?: FooterResource[];
   socials: {
     facebook: string;
     twitter: string;
@@ -101,7 +105,7 @@ export const Footer: React.FC = () => {
       .eq("page_key", "footer")
       .maybeSingle()
       .then(({ data }) => {
-        if (data?.content) setS({ ...DEFAULTS, ...(data.content as any) });
+        if (data?.content) setS({ ...DEFAULTS, ...(data.content as any), socials: { ...DEFAULTS.socials, ...((data.content as any).socials || {}) } });
       });
     supabase
       .from("page_settings")
@@ -138,6 +142,12 @@ export const Footer: React.FC = () => {
     }
   };
 
+  const [csrHidden, setCsrHidden] = useState(false);
+  useEffect(() => {
+    supabase.from("page_settings").select("content").eq("page_key", "csr-sponsorship").maybeSingle()
+      .then(({ data }) => setCsrHidden((data?.content as any)?.visible === false));
+  }, []);
+
   const handleLink = (page: string) => {
     navigate({ to: PATH_FOR[page] || "/" });
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -151,6 +161,7 @@ export const Footer: React.FC = () => {
     { key: "youtube", url: s.socials.youtube, Icon: Youtube, label: "YouTube" },
     { key: "tiktok", url: s.socials.tiktok, Icon: TikTokIcon, label: "TikTok" },
   ].filter((l) => !!l.url);
+  const visibleResources = normalizeFooterResources(s.resources).filter((resource) => resource.visible && !(csrHidden && resource.href === "/csr-sponsorship") && resource.label.trim() && safeResourceHref(resource.href));
 
   return (
     <footer className="bg-slate-900 text-slate-300 border-t border-slate-800">
@@ -241,51 +252,23 @@ export const Footer: React.FC = () => {
             </ul>
           </div>
 
-          <div className="space-y-4">
+          {s.showResources !== false && <div className="space-y-4">
             <h4 className="text-sm font-semibold uppercase tracking-wider text-white">
               Resources
             </h4>
             <ul className="space-y-2.5 text-sm text-slate-400">
-              <li>
-                <Link to="/csr-sponsorship" className="hover:text-white transition-colors">
-                  CSR Sponsorship
-                </Link>
-              </li>
-              <li>
-                <Link to="/portal/coordinators" className="hover:text-white transition-colors">
-                  Coordinator Portal (East Africa)
-                </Link>
-              </li>
-              <li>
-                <Link to="/portal/fundraisers" className="hover:text-white transition-colors">
-                  Fundraiser Sign-up (AU)
-                </Link>
-              </li>
-              <li>
-                <Link to="/guides/mobility-aid-grants" className="hover:text-white transition-colors">
-                  Mobility Aid Grants
-                </Link>
-              </li>
-              <li>
-                <Link to="/faq/donations" className="hover:text-white transition-colors">
-                  Donation FAQ
-                </Link>
-              </li>
-              <li>
-                <Link to="/events" className="hover:text-white transition-colors">
-                  Events Calendar
-                </Link>
-              </li>
-              <li>
-                <Link to="/contact" className="hover:text-white transition-colors">
-                  Contact &amp; Partnerships
-                </Link>
-              </li>
+              {visibleResources.map((resource) => (
+                <li key={resource.id}>
+                  <a href={safeResourceHref(resource.href) || "#"} className="hover:text-white transition-colors" {...(resource.href.startsWith("https://") ? { target: "_blank", rel: "noopener noreferrer" } : {})}>
+                    {resource.label}
+                  </a>
+                </li>
+              ))}
             </ul>
-          </div>
+          </div>}
 
 
-          <div className="space-y-4">
+          {s.showHeadquarters !== false && <div className="space-y-4">
             <h4 className="text-sm font-semibold uppercase tracking-wider text-white">
               Headquarters
             </h4>
@@ -306,7 +289,7 @@ export const Footer: React.FC = () => {
                 {s.workingHours}
               </li>
             </ul>
-          </div>
+          </div>}
         </div>
 
         <div className="mt-12 pt-8 border-t border-slate-800 grid grid-cols-1 lg:grid-cols-3 gap-6 items-center">

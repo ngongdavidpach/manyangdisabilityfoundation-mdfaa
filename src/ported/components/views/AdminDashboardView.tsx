@@ -44,6 +44,7 @@ import { StaffAccountsManager } from "../admin/StaffAccountsManager";
 import { CoordinatorsManager } from "../admin/CoordinatorsManager";
 import { FundraisersManager } from "../admin/FundraisersManager";
 import { AccessLogViewer } from "../admin/AccessLogViewer";
+import { SubmissionsManager } from "../admin/SubmissionsManager";
 
 type Tab =
   | "overview"
@@ -51,6 +52,7 @@ type Tab =
   | "programs"
   | "team"
   | "donations"
+  | "submissions"
   | "expenses"
   | "reports"
   | "site-content"
@@ -81,7 +83,7 @@ export const AdminDashboard: React.FC<{ role?: "admin" | "staff" }> = ({ role = 
   const { user, logout } = useAuth();
   const isAdmin = role === "admin";
 
-  const RESTRICTED_TABS: Tab[] = ["contacts", "team", "system"];
+  const RESTRICTED_TABS: Tab[] = ["contacts", "team", "system", "submissions"];
   const initialTab: Tab = "overview";
   const [tab, setTab] = useState<Tab>(initialTab);
   const [counts, setCounts] = useState({ media: 0, news: 0, events: 0, staff: 0 });
@@ -181,6 +183,7 @@ export const AdminDashboard: React.FC<{ role?: "admin" | "staff" }> = ({ role = 
     {
       label: "Finance",
       items: [
+        ...(isAdmin ? [{ id: "submissions" as Tab, label: "Submissions", icon: FileText }] : []),
         { id: "donations", label: "Donations", icon: HeartHandshake },
         { id: "expenses", label: "Expenses", icon: Wallet },
         { id: "reports", label: "Reports", icon: BarChart3 },
@@ -297,6 +300,8 @@ export const AdminDashboard: React.FC<{ role?: "admin" | "staff" }> = ({ role = 
             {teamSub === "staff" ? <StaffManager /> : <StaffAccountsManager />}
           </>
         );
+      case "submissions":
+        return <SubmissionsManager />;
       case "donations":
         return <DonationsManager />;
       case "expenses":
