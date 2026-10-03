@@ -37,14 +37,9 @@ interface DonateContent {
 
 const DEFAULT_DONATE_CONTENT: DonateContent = {
   channels: [
-    { id: "bank", label: "Bank transfer" },
     { id: "payid", label: "PayID" },
   ],
   paymentDetails: {
-    bankName: "Commonwealth Bank",
-    accountName: "Manyang M Manyang",
-    bsb: "063132",
-    accountNumber: "11477543",
     payId: "0434133392",
   },
 };
@@ -90,29 +85,7 @@ const PaymentDetails: React.FC<PaymentDetailsProps> = ({ details, compact = fals
     ) : null;
 
   return (
-    <div className={`grid grid-cols-1 ${compact ? "gap-3" : "md:grid-cols-2 gap-4"}`}>
-      <section className="border border-slate-200 bg-white rounded-lg p-4" aria-labelledby={compact ? undefined : "bank-transfer-heading"}>
-        <div className="flex items-center gap-2 mb-3">
-          <Landmark className="w-5 h-5 text-blue-700" aria-hidden="true" />
-          <h3 id={compact ? undefined : "bank-transfer-heading"} className="font-bold text-slate-900">Bank transfer</h3>
-        </div>
-        <dl className="space-y-2 text-sm">
-          <div><dt className="text-xs text-slate-500">Bank</dt><dd className="font-semibold text-slate-900">{details.bankName}</dd></div>
-          <div className="flex items-center justify-between gap-3">
-            <div><dt className="text-xs text-slate-500">Account name</dt><dd className="font-semibold text-slate-900">{details.accountName}</dd></div>
-            {copyButton("account name", details.accountName)}
-          </div>
-          <div className="flex items-center justify-between gap-3">
-            <div><dt className="text-xs text-slate-500">BSB</dt><dd className="font-mono font-bold text-slate-900">{details.bsb}</dd></div>
-            {copyButton("BSB", details.bsb)}
-          </div>
-          <div className="flex items-center justify-between gap-3">
-            <div><dt className="text-xs text-slate-500">Account number</dt><dd className="font-mono font-bold text-slate-900">{details.accountNumber}</dd></div>
-            {copyButton("account number", details.accountNumber)}
-          </div>
-        </dl>
-      </section>
-
+    <div className={`grid grid-cols-1 ${compact ? "gap-3" : "gap-4 max-w-md"}`}>
       <section className="border border-amber-200 bg-amber-50 rounded-lg p-4" aria-labelledby={compact ? undefined : "payid-heading"}>
         <div className="flex items-center gap-2 mb-3">
           <Smartphone className="w-5 h-5 text-amber-700" aria-hidden="true" />
@@ -135,7 +108,7 @@ export const DonateView: React.FC = () => {
   const { content: foundationInfo } = useFoundationInfo();
   const [amount, setAmount] = useState<number>(0);
   const [customAmount, setCustomAmount] = useState<string>("");
-  const [channel, setChannel] = useState<Channel>("bank");
+  const [channel, setChannel] = useState<Channel>("payid");
 
   const [donor, setDonor] = useState({
     fullName: "",
@@ -167,8 +140,9 @@ export const DonateView: React.FC = () => {
 
   const donationTiers = donateContent?.donationTiers || [];
 
-  const channels = donateContent.channels?.length
-    ? donateContent.channels
+  const savedChannels = (donateContent.channels ?? []).filter((c) => c.id !== "bank");
+  const channels = savedChannels.length
+    ? savedChannels
     : DEFAULT_DONATE_CONTENT.channels ?? [];
   const paymentDetails = {
     ...DEFAULT_DONATE_CONTENT.paymentDetails,
@@ -249,7 +223,7 @@ export const DonateView: React.FC = () => {
           Invest in Mobility and Dignity
         </h1>
         <p className="text-sm sm:text-base text-slate-600 leading-relaxed max-w-2xl mx-auto">
-          Donate directly by bank transfer or PayID. You can also record your gift below so we can
+          Donate directly by PayID. You can also record your gift below so we can
           match it and send your receipt once the funds arrive.
         </p>
       </div>

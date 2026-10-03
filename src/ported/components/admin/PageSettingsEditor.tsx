@@ -104,10 +104,7 @@ const PAGES_RAW = [
     fields: [
       { path: "heading", label: "Heading", type: "text" },
       { path: "intro", label: "Intro", type: "textarea" },
-      { path: "paymentDetails.bankName", label: "Bank name", type: "text" },
       { path: "paymentDetails.accountName", label: "Account name", type: "text" },
-      { path: "paymentDetails.bsb", label: "BSB", type: "text" },
-      { path: "paymentDetails.accountNumber", label: "Account number", type: "text" },
       { path: "paymentDetails.payId", label: "PayID", type: "text" },
       { path: "showDonateButton", label: "Show Donate Now button (header & footer)", type: "bool" },
     ],
