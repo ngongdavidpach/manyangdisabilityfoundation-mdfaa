@@ -130,7 +130,7 @@ export const Navbar: React.FC = () => {
             />
           </Link>
 
-          <nav className="hidden lg:flex items-center gap-1 flex-1 justify-center min-w-0">
+          <nav className="hidden lg:flex items-center gap-0.5 xl:gap-1 flex-1 justify-center min-w-0">
             {navLinks.map((link) => {
               const isActive = isLinkActive(link);
               return (
@@ -141,7 +141,7 @@ export const Navbar: React.FC = () => {
                     setUserMenuOpen(false);
                     setMobileMenuOpen(false);
                   }}
-                  className={`px-3 py-2 rounded-lg text-sm font-semibold whitespace-nowrap transition-colors ${
+                  className={`px-2 xl:px-3 py-2 rounded-lg text-[13px] xl:text-sm font-semibold whitespace-nowrap transition-colors ${
                     isActive
                       ? "bg-blue-50 text-blue-700"
                       : "text-slate-700 hover:bg-slate-100 hover:text-slate-900"
@@ -162,7 +162,7 @@ export const Navbar: React.FC = () => {
                   setUserMenuOpen(false);
                   setMobileMenuOpen(false);
                 }}
-                className="relative group overflow-hidden rounded-lg bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold px-5 py-2.5 text-sm shadow-sm transition-all hover:shadow-md flex items-center gap-2"
+                className="relative group overflow-hidden rounded-lg bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold px-3 xl:px-5 py-2.5 text-sm shadow-sm transition-all hover:shadow-md flex items-center gap-2"
               >
                 <Heart className="w-4 h-4 fill-slate-950 text-slate-950 animate-pulse" />
                 <span>Donate Now</span>
