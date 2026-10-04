@@ -225,3 +225,29 @@ export const getPublicProgram = createServerFn({ method: "GET" })
     const list = await readProgramList();
     return list.find((p) => p.slug === data.slug) ?? null;
   });
+
+export type PublicStaffMember = {
+  id: string;
+  full_name: string;
+  role_title: string;
+  bio: string | null;
+  photo_url: string | null;
+  sort_order: number;
+};
+
+export const listPublicStaff = createServerFn({ method: "GET" }).handler(
+  async (): Promise<PublicStaffMember[]> => {
+    try {
+      const client = server();
+      const { data, error } = await client
+        .from("staff_members_public")
+        .select("id, full_name, role_title, bio, photo_url, sort_order")
+        .order("sort_order", { ascending: true })
+        .order("full_name", { ascending: true });
+      if (error) return [];
+      return (data as PublicStaffMember[]) ?? [];
+    } catch {
+      return [];
+    }
+  },
+);
