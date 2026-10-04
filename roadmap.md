@@ -11,3 +11,4 @@
 - [x] Make Contact details and Headquarters visibility controllable
 - [x] Verify the public sections on desktop and mobile using saved-setting scenarios
 - [ ] Verify saving and reopening the admin editors (blocked: no matching admin sign-in for the requesting user)
+- [x] Create and verify a public staff page using admin-managed staff profiles

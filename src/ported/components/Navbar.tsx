@@ -24,6 +24,7 @@ import { getRoleLabel, getRoleColor } from "../utils/auth";
 const PATH_FOR: Record<string, string> = {
   home: "/",
   about: "/about",
+  staff: "/staff",
   programs: "/programs",
   gallery: "/gallery",
   request: "/request",
@@ -72,6 +73,7 @@ export const Navbar: React.FC = () => {
   const iconMap: Record<string, any> = {
     home: Home,
     about: Users,
+    staff: Users,
     programs: Layers,
     gallery: GalleryIcon,
     request: HelpCircle,

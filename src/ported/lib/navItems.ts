@@ -1,6 +1,7 @@
 export const NAV_ITEM_DEFS: { id: string; label: string; flag: string }[] = [
   { id: "home", label: "Home", flag: "showHome" },
   { id: "about", label: "About Us", flag: "showAbout" },
+  { id: "staff", label: "Staff", flag: "showStaff" },
   { id: "programs", label: "Our Impact", flag: "showPrograms" },
   { id: "gallery", label: "Gallery", flag: "showGallery" },
   { id: "request", label: "Request Aid", flag: "showRequest" },
