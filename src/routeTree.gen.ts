@@ -54,7 +54,6 @@ import { Route as DotlovableOauthConsentRouteImport } from './routes/[.]lovable.
 import { Route as Char91DotmcpChar93InvokeToolToolRouteImport } from './routes/[.mcp]/invoke-tool/$tool'
 import { Route as ApiPublicCookieConsentLogRouteImport } from './routes/api/public/cookie-consent-log'
 import { Route as ApiPublicEmailPreferencesRouteImport } from './routes/api/public/email-preferences'
-import { Route as LovableEmailEventsRouteImport } from './routes/lovable/email/events'
 import { Route as ApiPublicHooksPurgeDeletedAccountsRouteImport } from './routes/api/public/hooks/purge-deleted-accounts'
 import { Route as LovableEmailAuthPreviewRouteImport } from './routes/lovable/email/auth/preview'
 import { Route as LovableEmailAuthWebhookRouteImport } from './routes/lovable/email/auth/webhook'
@@ -291,11 +290,6 @@ const ApiPublicEmailPreferencesRoute =
     path: '/api/public/email-preferences',
     getParentRoute: () => rootRouteImport,
   } as any)
-const LovableEmailEventsRoute = LovableEmailEventsRouteImport.update({
-  id: '/lovable/email/events',
-  path: '/lovable/email/events',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const ApiPublicHooksPurgeDeletedAccountsRoute =
   ApiPublicHooksPurgeDeletedAccountsRouteImport.update({
     id: '/api/public/hooks/purge-deleted-accounts',
@@ -365,7 +359,6 @@ export interface FileRoutesByFullPath {
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/api/public/cookie-consent-log': typeof ApiPublicCookieConsentLogRoute
   '/api/public/email-preferences': typeof ApiPublicEmailPreferencesRoute
-  '/lovable/email/events': typeof LovableEmailEventsRoute
   '/api/public/hooks/purge-deleted-accounts': typeof ApiPublicHooksPurgeDeletedAccountsRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
@@ -417,7 +410,6 @@ export interface FileRoutesByTo {
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/api/public/cookie-consent-log': typeof ApiPublicCookieConsentLogRoute
   '/api/public/email-preferences': typeof ApiPublicEmailPreferencesRoute
-  '/lovable/email/events': typeof LovableEmailEventsRoute
   '/api/public/hooks/purge-deleted-accounts': typeof ApiPublicHooksPurgeDeletedAccountsRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
@@ -470,7 +462,6 @@ export interface FileRoutesById {
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/api/public/cookie-consent-log': typeof ApiPublicCookieConsentLogRoute
   '/api/public/email-preferences': typeof ApiPublicEmailPreferencesRoute
-  '/lovable/email/events': typeof LovableEmailEventsRoute
   '/api/public/hooks/purge-deleted-accounts': typeof ApiPublicHooksPurgeDeletedAccountsRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
@@ -524,7 +515,6 @@ export interface FileRouteTypes {
     | '/.mcp/invoke-tool/$tool'
     | '/api/public/cookie-consent-log'
     | '/api/public/email-preferences'
-    | '/lovable/email/events'
     | '/api/public/hooks/purge-deleted-accounts'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
@@ -576,7 +566,6 @@ export interface FileRouteTypes {
     | '/.mcp/invoke-tool/$tool'
     | '/api/public/cookie-consent-log'
     | '/api/public/email-preferences'
-    | '/lovable/email/events'
     | '/api/public/hooks/purge-deleted-accounts'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
@@ -628,7 +617,6 @@ export interface FileRouteTypes {
     | '/.mcp/invoke-tool/$tool'
     | '/api/public/cookie-consent-log'
     | '/api/public/email-preferences'
-    | '/lovable/email/events'
     | '/api/public/hooks/purge-deleted-accounts'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
@@ -674,7 +662,6 @@ export interface RootRouteChildren {
   Char91DotmcpChar93InvokeToolToolRoute: typeof Char91DotmcpChar93InvokeToolToolRoute
   ApiPublicCookieConsentLogRoute: typeof ApiPublicCookieConsentLogRoute
   ApiPublicEmailPreferencesRoute: typeof ApiPublicEmailPreferencesRoute
-  LovableEmailEventsRoute: typeof LovableEmailEventsRoute
   ApiPublicHooksPurgeDeletedAccountsRoute: typeof ApiPublicHooksPurgeDeletedAccountsRoute
   LovableEmailAuthPreviewRoute: typeof LovableEmailAuthPreviewRoute
   LovableEmailAuthWebhookRoute: typeof LovableEmailAuthWebhookRoute
@@ -998,13 +985,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicEmailPreferencesRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/lovable/email/events': {
-      id: '/lovable/email/events'
-      path: '/lovable/email/events'
-      fullPath: '/lovable/email/events'
-      preLoaderRoute: typeof LovableEmailEventsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/api/public/hooks/purge-deleted-accounts': {
       id: '/api/public/hooks/purge-deleted-accounts'
       path: '/api/public/hooks/purge-deleted-accounts'
@@ -1136,7 +1116,6 @@ const rootRouteChildren: RootRouteChildren = {
   Char91DotmcpChar93InvokeToolToolRoute: Char91DotmcpChar93InvokeToolToolRoute,
   ApiPublicCookieConsentLogRoute: ApiPublicCookieConsentLogRoute,
   ApiPublicEmailPreferencesRoute: ApiPublicEmailPreferencesRoute,
-  LovableEmailEventsRoute: LovableEmailEventsRoute,
   ApiPublicHooksPurgeDeletedAccountsRoute:
     ApiPublicHooksPurgeDeletedAccountsRoute,
   LovableEmailAuthPreviewRoute: LovableEmailAuthPreviewRoute,
