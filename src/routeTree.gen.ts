@@ -9,145 +9,60 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as IndexRouteImport } from './routes/index'
-import { Route as AboutRouteImport } from './routes/about'
-import { Route as AdminRouteImport } from './routes/admin'
-import { Route as ContactRouteImport } from './routes/contact'
-import { Route as CookieSettingsRouteImport } from './routes/cookie-settings'
-import { Route as CsrSponsorshipRouteImport } from './routes/csr-sponsorship'
-import { Route as DashboardRouteImport } from './routes/dashboard'
-import { Route as DonateRouteImport } from './routes/donate'
-import { Route as EventsRouteImport } from './routes/events'
-import { Route as GalleryRouteImport } from './routes/gallery'
-import { Route as GetInvolvedRouteImport } from './routes/get-involved'
-import { Route as McpRouteImport } from './routes/mcp'
-import { Route as NewsRouteImport } from './routes/news'
-import { Route as PrivacyRouteImport } from './routes/privacy'
-import { Route as ProgramsRouteImport } from './routes/programs'
-import { Route as RequestRouteImport } from './routes/request'
-import { Route as RssDotxmlRouteImport } from './routes/rss[.]xml'
-import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
-import { Route as StaffRouteImport } from './routes/staff'
 import { Route as UnsubscribeRouteImport } from './routes/unsubscribe'
-import { Route as Char91DotmcpChar93ListToolsRouteImport } from './routes/[.mcp]/list-tools'
-import { Route as Char91DotwellKnownChar93OauthProtectedResourceRouteImport } from './routes/[.well-known]/oauth-protected-resource'
-import { Route as AuthCancelDeletionRouteImport } from './routes/auth.cancel-deletion'
-import { Route as AuthChangePasswordRouteImport } from './routes/auth.change-password'
-import { Route as AuthDeleteAccountRouteImport } from './routes/auth.delete-account'
-import { Route as AuthForgotPasswordRouteImport } from './routes/auth.forgot-password'
-import { Route as AuthResetPasswordRouteImport } from './routes/auth.reset-password'
-import { Route as DashboardActivityRouteImport } from './routes/dashboard.activity'
-import { Route as EmailPreferencesRouteImport } from './routes/email/preferences'
-import { Route as EventsSlugRouteImport } from './routes/events.$slug'
-import { Route as FaqDonationsRouteImport } from './routes/faq.donations'
-import { Route as GuidesDonateSuppliesRouteImport } from './routes/guides.donate-supplies'
-import { Route as GuidesFreeMedicalEquipmentRouteImport } from './routes/guides.free-medical-equipment'
-import { Route as GuidesMobilityAidGrantsRouteImport } from './routes/guides.mobility-aid-grants'
-import { Route as NewsSlugRouteImport } from './routes/news.$slug'
-import { Route as NewsArchiveRouteImport } from './routes/news.archive'
-import { Route as PortalCoordinatorsRouteImport } from './routes/portal.coordinators'
-import { Route as PortalFundraisersRouteImport } from './routes/portal.fundraisers'
-import { Route as PrivacyEmailsRouteImport } from './routes/privacy.emails'
-import { Route as ProgramsSlugRouteImport } from './routes/programs.$slug'
-import { Route as ProgramsRssDotxmlRouteImport } from './routes/programs.rss[.]xml'
+import { Route as StaffRouteImport } from './routes/staff'
+import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
+import { Route as RssDotxmlRouteImport } from './routes/rss[.]xml'
+import { Route as RequestRouteImport } from './routes/request'
+import { Route as ProgramsRouteImport } from './routes/programs'
+import { Route as PrivacyRouteImport } from './routes/privacy'
+import { Route as NewsRouteImport } from './routes/news'
+import { Route as McpRouteImport } from './routes/mcp'
+import { Route as GetInvolvedRouteImport } from './routes/get-involved'
+import { Route as GalleryRouteImport } from './routes/gallery'
+import { Route as EventsRouteImport } from './routes/events'
+import { Route as DonateRouteImport } from './routes/donate'
+import { Route as DashboardRouteImport } from './routes/dashboard'
+import { Route as CsrSponsorshipRouteImport } from './routes/csr-sponsorship'
+import { Route as CookieSettingsRouteImport } from './routes/cookie-settings'
+import { Route as ContactRouteImport } from './routes/contact'
+import { Route as AdminRouteImport } from './routes/admin'
+import { Route as AboutRouteImport } from './routes/about'
+import { Route as IndexRouteImport } from './routes/index'
 import { Route as ReceiptsReferenceRouteImport } from './routes/receipts.$reference'
-import { Route as DotlovableOauthConsentRouteImport } from './routes/[.]lovable.oauth.consent'
-import { Route as Char91DotmcpChar93InvokeToolToolRouteImport } from './routes/[.mcp]/invoke-tool/$tool'
-import { Route as ApiPublicCookieConsentLogRouteImport } from './routes/api/public/cookie-consent-log'
+import { Route as ProgramsRssDotxmlRouteImport } from './routes/programs.rss[.]xml'
+import { Route as ProgramsSlugRouteImport } from './routes/programs.$slug'
+import { Route as PrivacyEmailsRouteImport } from './routes/privacy.emails'
+import { Route as PortalFundraisersRouteImport } from './routes/portal.fundraisers'
+import { Route as PortalCoordinatorsRouteImport } from './routes/portal.coordinators'
+import { Route as NewsArchiveRouteImport } from './routes/news.archive'
+import { Route as NewsSlugRouteImport } from './routes/news.$slug'
+import { Route as GuidesMobilityAidGrantsRouteImport } from './routes/guides.mobility-aid-grants'
+import { Route as GuidesFreeMedicalEquipmentRouteImport } from './routes/guides.free-medical-equipment'
+import { Route as GuidesDonateSuppliesRouteImport } from './routes/guides.donate-supplies'
+import { Route as FaqDonationsRouteImport } from './routes/faq.donations'
+import { Route as EventsSlugRouteImport } from './routes/events.$slug'
+import { Route as EmailPreferencesRouteImport } from './routes/email/preferences'
+import { Route as DashboardActivityRouteImport } from './routes/dashboard.activity'
+import { Route as AuthResetPasswordRouteImport } from './routes/auth.reset-password'
+import { Route as AuthForgotPasswordRouteImport } from './routes/auth.forgot-password'
+import { Route as AuthDeleteAccountRouteImport } from './routes/auth.delete-account'
+import { Route as AuthChangePasswordRouteImport } from './routes/auth.change-password'
+import { Route as AuthCancelDeletionRouteImport } from './routes/auth.cancel-deletion'
+import { Route as Char91DotwellKnownChar93OauthProtectedResourceRouteImport } from './routes/[.well-known]/oauth-protected-resource'
+import { Route as Char91DotmcpChar93ListToolsRouteImport } from './routes/[.mcp]/list-tools'
 import { Route as ApiPublicEmailPreferencesRouteImport } from './routes/api/public/email-preferences'
-import { Route as ApiPublicHooksPurgeDeletedAccountsRouteImport } from './routes/api/public/hooks/purge-deleted-accounts'
-import { Route as LovableEmailAuthPreviewRouteImport } from './routes/lovable/email/auth/preview'
-import { Route as LovableEmailAuthWebhookRouteImport } from './routes/lovable/email/auth/webhook'
+import { Route as ApiPublicCookieConsentLogRouteImport } from './routes/api/public/cookie-consent-log'
+import { Route as Char91DotmcpChar93InvokeToolToolRouteImport } from './routes/[.mcp]/invoke-tool/$tool'
+import { Route as DotlovableOauthConsentRouteImport } from './routes/[.]lovable.oauth.consent'
 import { Route as LovableEmailTransactionalPreviewRouteImport } from './routes/lovable/email/transactional/preview'
+import { Route as LovableEmailAuthWebhookRouteImport } from './routes/lovable/email/auth/webhook'
+import { Route as LovableEmailAuthPreviewRouteImport } from './routes/lovable/email/auth/preview'
+import { Route as ApiPublicHooksPurgeDeletedAccountsRouteImport } from './routes/api/public/hooks/purge-deleted-accounts'
 
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AboutRoute = AboutRouteImport.update({
-  id: '/about',
-  path: '/about',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AdminRoute = AdminRouteImport.update({
-  id: '/admin',
-  path: '/admin',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ContactRoute = ContactRouteImport.update({
-  id: '/contact',
-  path: '/contact',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const CookieSettingsRoute = CookieSettingsRouteImport.update({
-  id: '/cookie-settings',
-  path: '/cookie-settings',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const CsrSponsorshipRoute = CsrSponsorshipRouteImport.update({
-  id: '/csr-sponsorship',
-  path: '/csr-sponsorship',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const DashboardRoute = DashboardRouteImport.update({
-  id: '/dashboard',
-  path: '/dashboard',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const DonateRoute = DonateRouteImport.update({
-  id: '/donate',
-  path: '/donate',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const EventsRoute = EventsRouteImport.update({
-  id: '/events',
-  path: '/events',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const GalleryRoute = GalleryRouteImport.update({
-  id: '/gallery',
-  path: '/gallery',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const GetInvolvedRoute = GetInvolvedRouteImport.update({
-  id: '/get-involved',
-  path: '/get-involved',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const McpRoute = McpRouteImport.update({
-  id: '/mcp',
-  path: '/mcp',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const NewsRoute = NewsRouteImport.update({
-  id: '/news',
-  path: '/news',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const PrivacyRoute = PrivacyRouteImport.update({
-  id: '/privacy',
-  path: '/privacy',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ProgramsRoute = ProgramsRouteImport.update({
-  id: '/programs',
-  path: '/programs',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const RequestRoute = RequestRouteImport.update({
-  id: '/request',
-  path: '/request',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const RssDotxmlRoute = RssDotxmlRouteImport.update({
-  id: '/rss.xml',
-  path: '/rss.xml',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
-  id: '/sitemap.xml',
-  path: '/sitemap.xml',
+const UnsubscribeRoute = UnsubscribeRouteImport.update({
+  id: '/unsubscribe',
+  path: '/unsubscribe',
   getParentRoute: () => rootRouteImport,
 } as any)
 const StaffRoute = StaffRouteImport.update({
@@ -155,71 +70,139 @@ const StaffRoute = StaffRouteImport.update({
   path: '/staff',
   getParentRoute: () => rootRouteImport,
 } as any)
-const UnsubscribeRoute = UnsubscribeRouteImport.update({
-  id: '/unsubscribe',
-  path: '/unsubscribe',
+const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
+  id: '/sitemap.xml',
+  path: '/sitemap.xml',
   getParentRoute: () => rootRouteImport,
 } as any)
-const Char91DotmcpChar93ListToolsRoute =
-  Char91DotmcpChar93ListToolsRouteImport.update({
-    id: '/.mcp/list-tools',
-    path: '/.mcp/list-tools',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const Char91DotwellKnownChar93OauthProtectedResourceRoute =
-  Char91DotwellKnownChar93OauthProtectedResourceRouteImport.update({
-    id: '/.well-known/oauth-protected-resource',
-    path: '/.well-known/oauth-protected-resource',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const AuthCancelDeletionRoute = AuthCancelDeletionRouteImport.update({
-  id: '/auth/cancel-deletion',
-  path: '/auth/cancel-deletion',
+const RssDotxmlRoute = RssDotxmlRouteImport.update({
+  id: '/rss.xml',
+  path: '/rss.xml',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AuthChangePasswordRoute = AuthChangePasswordRouteImport.update({
-  id: '/auth/change-password',
-  path: '/auth/change-password',
+const RequestRoute = RequestRouteImport.update({
+  id: '/request',
+  path: '/request',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AuthDeleteAccountRoute = AuthDeleteAccountRouteImport.update({
-  id: '/auth/delete-account',
-  path: '/auth/delete-account',
+const ProgramsRoute = ProgramsRouteImport.update({
+  id: '/programs',
+  path: '/programs',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AuthForgotPasswordRoute = AuthForgotPasswordRouteImport.update({
-  id: '/auth/forgot-password',
-  path: '/auth/forgot-password',
+const PrivacyRoute = PrivacyRouteImport.update({
+  id: '/privacy',
+  path: '/privacy',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AuthResetPasswordRoute = AuthResetPasswordRouteImport.update({
-  id: '/auth/reset-password',
-  path: '/auth/reset-password',
+const NewsRoute = NewsRouteImport.update({
+  id: '/news',
+  path: '/news',
   getParentRoute: () => rootRouteImport,
 } as any)
-const DashboardActivityRoute = DashboardActivityRouteImport.update({
-  id: '/activity',
-  path: '/activity',
-  getParentRoute: () => DashboardRoute,
-} as any)
-const EmailPreferencesRoute = EmailPreferencesRouteImport.update({
-  id: '/email/preferences',
-  path: '/email/preferences',
+const McpRoute = McpRouteImport.update({
+  id: '/mcp',
+  path: '/mcp',
   getParentRoute: () => rootRouteImport,
 } as any)
-const EventsSlugRoute = EventsSlugRouteImport.update({
+const GetInvolvedRoute = GetInvolvedRouteImport.update({
+  id: '/get-involved',
+  path: '/get-involved',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GalleryRoute = GalleryRouteImport.update({
+  id: '/gallery',
+  path: '/gallery',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EventsRoute = EventsRouteImport.update({
+  id: '/events',
+  path: '/events',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DonateRoute = DonateRouteImport.update({
+  id: '/donate',
+  path: '/donate',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DashboardRoute = DashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CsrSponsorshipRoute = CsrSponsorshipRouteImport.update({
+  id: '/csr-sponsorship',
+  path: '/csr-sponsorship',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CookieSettingsRoute = CookieSettingsRouteImport.update({
+  id: '/cookie-settings',
+  path: '/cookie-settings',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ContactRoute = ContactRouteImport.update({
+  id: '/contact',
+  path: '/contact',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminRoute = AdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AboutRoute = AboutRouteImport.update({
+  id: '/about',
+  path: '/about',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const IndexRoute = IndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ReceiptsReferenceRoute = ReceiptsReferenceRouteImport.update({
+  id: '/receipts/$reference',
+  path: '/receipts/$reference',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProgramsRssDotxmlRoute = ProgramsRssDotxmlRouteImport.update({
+  id: '/rss.xml',
+  path: '/rss.xml',
+  getParentRoute: () => ProgramsRoute,
+} as any)
+const ProgramsSlugRoute = ProgramsSlugRouteImport.update({
   id: '/$slug',
   path: '/$slug',
-  getParentRoute: () => EventsRoute,
+  getParentRoute: () => ProgramsRoute,
 } as any)
-const FaqDonationsRoute = FaqDonationsRouteImport.update({
-  id: '/faq/donations',
-  path: '/faq/donations',
+const PrivacyEmailsRoute = PrivacyEmailsRouteImport.update({
+  id: '/emails',
+  path: '/emails',
+  getParentRoute: () => PrivacyRoute,
+} as any)
+const PortalFundraisersRoute = PortalFundraisersRouteImport.update({
+  id: '/portal/fundraisers',
+  path: '/portal/fundraisers',
   getParentRoute: () => rootRouteImport,
 } as any)
-const GuidesDonateSuppliesRoute = GuidesDonateSuppliesRouteImport.update({
-  id: '/guides/donate-supplies',
-  path: '/guides/donate-supplies',
+const PortalCoordinatorsRoute = PortalCoordinatorsRouteImport.update({
+  id: '/portal/coordinators',
+  path: '/portal/coordinators',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const NewsArchiveRoute = NewsArchiveRouteImport.update({
+  id: '/archive',
+  path: '/archive',
+  getParentRoute: () => NewsRoute,
+} as any)
+const NewsSlugRoute = NewsSlugRouteImport.update({
+  id: '/$slug',
+  path: '/$slug',
+  getParentRoute: () => NewsRoute,
+} as any)
+const GuidesMobilityAidGrantsRoute = GuidesMobilityAidGrantsRouteImport.update({
+  id: '/guides/mobility-aid-grants',
+  path: '/guides/mobility-aid-grants',
   getParentRoute: () => rootRouteImport,
 } as any)
 const GuidesFreeMedicalEquipmentRoute =
@@ -228,66 +211,66 @@ const GuidesFreeMedicalEquipmentRoute =
     path: '/guides/free-medical-equipment',
     getParentRoute: () => rootRouteImport,
   } as any)
-const GuidesMobilityAidGrantsRoute = GuidesMobilityAidGrantsRouteImport.update({
-  id: '/guides/mobility-aid-grants',
-  path: '/guides/mobility-aid-grants',
+const GuidesDonateSuppliesRoute = GuidesDonateSuppliesRouteImport.update({
+  id: '/guides/donate-supplies',
+  path: '/guides/donate-supplies',
   getParentRoute: () => rootRouteImport,
 } as any)
-const NewsSlugRoute = NewsSlugRouteImport.update({
+const FaqDonationsRoute = FaqDonationsRouteImport.update({
+  id: '/faq/donations',
+  path: '/faq/donations',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EventsSlugRoute = EventsSlugRouteImport.update({
   id: '/$slug',
   path: '/$slug',
-  getParentRoute: () => NewsRoute,
+  getParentRoute: () => EventsRoute,
 } as any)
-const NewsArchiveRoute = NewsArchiveRouteImport.update({
-  id: '/archive',
-  path: '/archive',
-  getParentRoute: () => NewsRoute,
-} as any)
-const PortalCoordinatorsRoute = PortalCoordinatorsRouteImport.update({
-  id: '/portal/coordinators',
-  path: '/portal/coordinators',
+const EmailPreferencesRoute = EmailPreferencesRouteImport.update({
+  id: '/email/preferences',
+  path: '/email/preferences',
   getParentRoute: () => rootRouteImport,
 } as any)
-const PortalFundraisersRoute = PortalFundraisersRouteImport.update({
-  id: '/portal/fundraisers',
-  path: '/portal/fundraisers',
+const DashboardActivityRoute = DashboardActivityRouteImport.update({
+  id: '/activity',
+  path: '/activity',
+  getParentRoute: () => DashboardRoute,
+} as any)
+const AuthResetPasswordRoute = AuthResetPasswordRouteImport.update({
+  id: '/auth/reset-password',
+  path: '/auth/reset-password',
   getParentRoute: () => rootRouteImport,
 } as any)
-const PrivacyEmailsRoute = PrivacyEmailsRouteImport.update({
-  id: '/emails',
-  path: '/emails',
-  getParentRoute: () => PrivacyRoute,
-} as any)
-const ProgramsSlugRoute = ProgramsSlugRouteImport.update({
-  id: '/$slug',
-  path: '/$slug',
-  getParentRoute: () => ProgramsRoute,
-} as any)
-const ProgramsRssDotxmlRoute = ProgramsRssDotxmlRouteImport.update({
-  id: '/rss.xml',
-  path: '/rss.xml',
-  getParentRoute: () => ProgramsRoute,
-} as any)
-const ReceiptsReferenceRoute = ReceiptsReferenceRouteImport.update({
-  id: '/receipts/$reference',
-  path: '/receipts/$reference',
+const AuthForgotPasswordRoute = AuthForgotPasswordRouteImport.update({
+  id: '/auth/forgot-password',
+  path: '/auth/forgot-password',
   getParentRoute: () => rootRouteImport,
 } as any)
-const DotlovableOauthConsentRoute = DotlovableOauthConsentRouteImport.update({
-  id: '/.lovable/oauth/consent',
-  path: '/.lovable/oauth/consent',
+const AuthDeleteAccountRoute = AuthDeleteAccountRouteImport.update({
+  id: '/auth/delete-account',
+  path: '/auth/delete-account',
   getParentRoute: () => rootRouteImport,
 } as any)
-const Char91DotmcpChar93InvokeToolToolRoute =
-  Char91DotmcpChar93InvokeToolToolRouteImport.update({
-    id: '/.mcp/invoke-tool/$tool',
-    path: '/.mcp/invoke-tool/$tool',
+const AuthChangePasswordRoute = AuthChangePasswordRouteImport.update({
+  id: '/auth/change-password',
+  path: '/auth/change-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthCancelDeletionRoute = AuthCancelDeletionRouteImport.update({
+  id: '/auth/cancel-deletion',
+  path: '/auth/cancel-deletion',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const Char91DotwellKnownChar93OauthProtectedResourceRoute =
+  Char91DotwellKnownChar93OauthProtectedResourceRouteImport.update({
+    id: '/.well-known/oauth-protected-resource',
+    path: '/.well-known/oauth-protected-resource',
     getParentRoute: () => rootRouteImport,
   } as any)
-const ApiPublicCookieConsentLogRoute =
-  ApiPublicCookieConsentLogRouteImport.update({
-    id: '/api/public/cookie-consent-log',
-    path: '/api/public/cookie-consent-log',
+const Char91DotmcpChar93ListToolsRoute =
+  Char91DotmcpChar93ListToolsRouteImport.update({
+    id: '/.mcp/list-tools',
+    path: '/.mcp/list-tools',
     getParentRoute: () => rootRouteImport,
   } as any)
 const ApiPublicEmailPreferencesRoute =
@@ -296,26 +279,43 @@ const ApiPublicEmailPreferencesRoute =
     path: '/api/public/email-preferences',
     getParentRoute: () => rootRouteImport,
   } as any)
-const ApiPublicHooksPurgeDeletedAccountsRoute =
-  ApiPublicHooksPurgeDeletedAccountsRouteImport.update({
-    id: '/api/public/hooks/purge-deleted-accounts',
-    path: '/api/public/hooks/purge-deleted-accounts',
+const ApiPublicCookieConsentLogRoute =
+  ApiPublicCookieConsentLogRouteImport.update({
+    id: '/api/public/cookie-consent-log',
+    path: '/api/public/cookie-consent-log',
     getParentRoute: () => rootRouteImport,
   } as any)
-const LovableEmailAuthPreviewRoute = LovableEmailAuthPreviewRouteImport.update({
-  id: '/lovable/email/auth/preview',
-  path: '/lovable/email/auth/preview',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const LovableEmailAuthWebhookRoute = LovableEmailAuthWebhookRouteImport.update({
-  id: '/lovable/email/auth/webhook',
-  path: '/lovable/email/auth/webhook',
+const Char91DotmcpChar93InvokeToolToolRoute =
+  Char91DotmcpChar93InvokeToolToolRouteImport.update({
+    id: '/.mcp/invoke-tool/$tool',
+    path: '/.mcp/invoke-tool/$tool',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const DotlovableOauthConsentRoute = DotlovableOauthConsentRouteImport.update({
+  id: '/.lovable/oauth/consent',
+  path: '/.lovable/oauth/consent',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LovableEmailTransactionalPreviewRoute =
   LovableEmailTransactionalPreviewRouteImport.update({
     id: '/lovable/email/transactional/preview',
     path: '/lovable/email/transactional/preview',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const LovableEmailAuthWebhookRoute = LovableEmailAuthWebhookRouteImport.update({
+  id: '/lovable/email/auth/webhook',
+  path: '/lovable/email/auth/webhook',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LovableEmailAuthPreviewRoute = LovableEmailAuthPreviewRouteImport.update({
+  id: '/lovable/email/auth/preview',
+  path: '/lovable/email/auth/preview',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicHooksPurgeDeletedAccountsRoute =
+  ApiPublicHooksPurgeDeletedAccountsRouteImport.update({
+    id: '/api/public/hooks/purge-deleted-accounts',
+    path: '/api/public/hooks/purge-deleted-accounts',
     getParentRoute: () => rootRouteImport,
   } as any)
 
@@ -683,130 +683,11 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/about': {
-      id: '/about'
-      path: '/about'
-      fullPath: '/about'
-      preLoaderRoute: typeof AboutRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/admin': {
-      id: '/admin'
-      path: '/admin'
-      fullPath: '/admin'
-      preLoaderRoute: typeof AdminRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/contact': {
-      id: '/contact'
-      path: '/contact'
-      fullPath: '/contact'
-      preLoaderRoute: typeof ContactRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/cookie-settings': {
-      id: '/cookie-settings'
-      path: '/cookie-settings'
-      fullPath: '/cookie-settings'
-      preLoaderRoute: typeof CookieSettingsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/csr-sponsorship': {
-      id: '/csr-sponsorship'
-      path: '/csr-sponsorship'
-      fullPath: '/csr-sponsorship'
-      preLoaderRoute: typeof CsrSponsorshipRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/dashboard': {
-      id: '/dashboard'
-      path: '/dashboard'
-      fullPath: '/dashboard'
-      preLoaderRoute: typeof DashboardRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/donate': {
-      id: '/donate'
-      path: '/donate'
-      fullPath: '/donate'
-      preLoaderRoute: typeof DonateRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/events': {
-      id: '/events'
-      path: '/events'
-      fullPath: '/events'
-      preLoaderRoute: typeof EventsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/gallery': {
-      id: '/gallery'
-      path: '/gallery'
-      fullPath: '/gallery'
-      preLoaderRoute: typeof GalleryRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/get-involved': {
-      id: '/get-involved'
-      path: '/get-involved'
-      fullPath: '/get-involved'
-      preLoaderRoute: typeof GetInvolvedRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/mcp': {
-      id: '/mcp'
-      path: '/mcp'
-      fullPath: '/mcp'
-      preLoaderRoute: typeof McpRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/news': {
-      id: '/news'
-      path: '/news'
-      fullPath: '/news'
-      preLoaderRoute: typeof NewsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/privacy': {
-      id: '/privacy'
-      path: '/privacy'
-      fullPath: '/privacy'
-      preLoaderRoute: typeof PrivacyRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/programs': {
-      id: '/programs'
-      path: '/programs'
-      fullPath: '/programs'
-      preLoaderRoute: typeof ProgramsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/request': {
-      id: '/request'
-      path: '/request'
-      fullPath: '/request'
-      preLoaderRoute: typeof RequestRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/rss.xml': {
-      id: '/rss.xml'
-      path: '/rss.xml'
-      fullPath: '/rss.xml'
-      preLoaderRoute: typeof RssDotxmlRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/sitemap.xml': {
-      id: '/sitemap.xml'
-      path: '/sitemap.xml'
-      fullPath: '/sitemap.xml'
-      preLoaderRoute: typeof SitemapDotxmlRouteImport
+    '/unsubscribe': {
+      id: '/unsubscribe'
+      path: '/unsubscribe'
+      fullPath: '/unsubscribe'
+      preLoaderRoute: typeof UnsubscribeRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/staff': {
@@ -816,95 +697,193 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof StaffRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/unsubscribe': {
-      id: '/unsubscribe'
-      path: '/unsubscribe'
-      fullPath: '/unsubscribe'
-      preLoaderRoute: typeof UnsubscribeRouteImport
+    '/sitemap.xml': {
+      id: '/sitemap.xml'
+      path: '/sitemap.xml'
+      fullPath: '/sitemap.xml'
+      preLoaderRoute: typeof SitemapDotxmlRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/.mcp/list-tools': {
-      id: '/.mcp/list-tools'
-      path: '/.mcp/list-tools'
-      fullPath: '/.mcp/list-tools'
-      preLoaderRoute: typeof Char91DotmcpChar93ListToolsRouteImport
+    '/rss.xml': {
+      id: '/rss.xml'
+      path: '/rss.xml'
+      fullPath: '/rss.xml'
+      preLoaderRoute: typeof RssDotxmlRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/.well-known/oauth-protected-resource': {
-      id: '/.well-known/oauth-protected-resource'
-      path: '/.well-known/oauth-protected-resource'
-      fullPath: '/.well-known/oauth-protected-resource'
-      preLoaderRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRouteImport
+    '/request': {
+      id: '/request'
+      path: '/request'
+      fullPath: '/request'
+      preLoaderRoute: typeof RequestRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/auth/cancel-deletion': {
-      id: '/auth/cancel-deletion'
-      path: '/auth/cancel-deletion'
-      fullPath: '/auth/cancel-deletion'
-      preLoaderRoute: typeof AuthCancelDeletionRouteImport
+    '/programs': {
+      id: '/programs'
+      path: '/programs'
+      fullPath: '/programs'
+      preLoaderRoute: typeof ProgramsRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/auth/change-password': {
-      id: '/auth/change-password'
-      path: '/auth/change-password'
-      fullPath: '/auth/change-password'
-      preLoaderRoute: typeof AuthChangePasswordRouteImport
+    '/privacy': {
+      id: '/privacy'
+      path: '/privacy'
+      fullPath: '/privacy'
+      preLoaderRoute: typeof PrivacyRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/auth/delete-account': {
-      id: '/auth/delete-account'
-      path: '/auth/delete-account'
-      fullPath: '/auth/delete-account'
-      preLoaderRoute: typeof AuthDeleteAccountRouteImport
+    '/news': {
+      id: '/news'
+      path: '/news'
+      fullPath: '/news'
+      preLoaderRoute: typeof NewsRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/auth/forgot-password': {
-      id: '/auth/forgot-password'
-      path: '/auth/forgot-password'
-      fullPath: '/auth/forgot-password'
-      preLoaderRoute: typeof AuthForgotPasswordRouteImport
+    '/mcp': {
+      id: '/mcp'
+      path: '/mcp'
+      fullPath: '/mcp'
+      preLoaderRoute: typeof McpRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/auth/reset-password': {
-      id: '/auth/reset-password'
-      path: '/auth/reset-password'
-      fullPath: '/auth/reset-password'
-      preLoaderRoute: typeof AuthResetPasswordRouteImport
+    '/get-involved': {
+      id: '/get-involved'
+      path: '/get-involved'
+      fullPath: '/get-involved'
+      preLoaderRoute: typeof GetInvolvedRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/dashboard/activity': {
-      id: '/dashboard/activity'
-      path: '/activity'
-      fullPath: '/dashboard/activity'
-      preLoaderRoute: typeof DashboardActivityRouteImport
-      parentRoute: typeof DashboardRoute
-    }
-    '/email/preferences': {
-      id: '/email/preferences'
-      path: '/email/preferences'
-      fullPath: '/email/preferences'
-      preLoaderRoute: typeof EmailPreferencesRouteImport
+    '/gallery': {
+      id: '/gallery'
+      path: '/gallery'
+      fullPath: '/gallery'
+      preLoaderRoute: typeof GalleryRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/events/$slug': {
-      id: '/events/$slug'
+    '/events': {
+      id: '/events'
+      path: '/events'
+      fullPath: '/events'
+      preLoaderRoute: typeof EventsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/donate': {
+      id: '/donate'
+      path: '/donate'
+      fullPath: '/donate'
+      preLoaderRoute: typeof DonateRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dashboard': {
+      id: '/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof DashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/csr-sponsorship': {
+      id: '/csr-sponsorship'
+      path: '/csr-sponsorship'
+      fullPath: '/csr-sponsorship'
+      preLoaderRoute: typeof CsrSponsorshipRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/cookie-settings': {
+      id: '/cookie-settings'
+      path: '/cookie-settings'
+      fullPath: '/cookie-settings'
+      preLoaderRoute: typeof CookieSettingsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/contact': {
+      id: '/contact'
+      path: '/contact'
+      fullPath: '/contact'
+      preLoaderRoute: typeof ContactRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin': {
+      id: '/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AdminRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/about': {
+      id: '/about'
+      path: '/about'
+      fullPath: '/about'
+      preLoaderRoute: typeof AboutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/receipts/$reference': {
+      id: '/receipts/$reference'
+      path: '/receipts/$reference'
+      fullPath: '/receipts/$reference'
+      preLoaderRoute: typeof ReceiptsReferenceRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/programs/rss.xml': {
+      id: '/programs/rss.xml'
+      path: '/rss.xml'
+      fullPath: '/programs/rss.xml'
+      preLoaderRoute: typeof ProgramsRssDotxmlRouteImport
+      parentRoute: typeof ProgramsRoute
+    }
+    '/programs/$slug': {
+      id: '/programs/$slug'
       path: '/$slug'
-      fullPath: '/events/$slug'
-      preLoaderRoute: typeof EventsSlugRouteImport
-      parentRoute: typeof EventsRoute
+      fullPath: '/programs/$slug'
+      preLoaderRoute: typeof ProgramsSlugRouteImport
+      parentRoute: typeof ProgramsRoute
     }
-    '/faq/donations': {
-      id: '/faq/donations'
-      path: '/faq/donations'
-      fullPath: '/faq/donations'
-      preLoaderRoute: typeof FaqDonationsRouteImport
+    '/privacy/emails': {
+      id: '/privacy/emails'
+      path: '/emails'
+      fullPath: '/privacy/emails'
+      preLoaderRoute: typeof PrivacyEmailsRouteImport
+      parentRoute: typeof PrivacyRoute
+    }
+    '/portal/fundraisers': {
+      id: '/portal/fundraisers'
+      path: '/portal/fundraisers'
+      fullPath: '/portal/fundraisers'
+      preLoaderRoute: typeof PortalFundraisersRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/guides/donate-supplies': {
-      id: '/guides/donate-supplies'
-      path: '/guides/donate-supplies'
-      fullPath: '/guides/donate-supplies'
-      preLoaderRoute: typeof GuidesDonateSuppliesRouteImport
+    '/portal/coordinators': {
+      id: '/portal/coordinators'
+      path: '/portal/coordinators'
+      fullPath: '/portal/coordinators'
+      preLoaderRoute: typeof PortalCoordinatorsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/news/archive': {
+      id: '/news/archive'
+      path: '/archive'
+      fullPath: '/news/archive'
+      preLoaderRoute: typeof NewsArchiveRouteImport
+      parentRoute: typeof NewsRoute
+    }
+    '/news/$slug': {
+      id: '/news/$slug'
+      path: '/$slug'
+      fullPath: '/news/$slug'
+      preLoaderRoute: typeof NewsSlugRouteImport
+      parentRoute: typeof NewsRoute
+    }
+    '/guides/mobility-aid-grants': {
+      id: '/guides/mobility-aid-grants'
+      path: '/guides/mobility-aid-grants'
+      fullPath: '/guides/mobility-aid-grants'
+      preLoaderRoute: typeof GuidesMobilityAidGrantsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/guides/free-medical-equipment': {
@@ -914,88 +893,88 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof GuidesFreeMedicalEquipmentRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/guides/mobility-aid-grants': {
-      id: '/guides/mobility-aid-grants'
-      path: '/guides/mobility-aid-grants'
-      fullPath: '/guides/mobility-aid-grants'
-      preLoaderRoute: typeof GuidesMobilityAidGrantsRouteImport
+    '/guides/donate-supplies': {
+      id: '/guides/donate-supplies'
+      path: '/guides/donate-supplies'
+      fullPath: '/guides/donate-supplies'
+      preLoaderRoute: typeof GuidesDonateSuppliesRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/news/$slug': {
-      id: '/news/$slug'
+    '/faq/donations': {
+      id: '/faq/donations'
+      path: '/faq/donations'
+      fullPath: '/faq/donations'
+      preLoaderRoute: typeof FaqDonationsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/events/$slug': {
+      id: '/events/$slug'
       path: '/$slug'
-      fullPath: '/news/$slug'
-      preLoaderRoute: typeof NewsSlugRouteImport
-      parentRoute: typeof NewsRoute
+      fullPath: '/events/$slug'
+      preLoaderRoute: typeof EventsSlugRouteImport
+      parentRoute: typeof EventsRoute
     }
-    '/news/archive': {
-      id: '/news/archive'
-      path: '/archive'
-      fullPath: '/news/archive'
-      preLoaderRoute: typeof NewsArchiveRouteImport
-      parentRoute: typeof NewsRoute
-    }
-    '/portal/coordinators': {
-      id: '/portal/coordinators'
-      path: '/portal/coordinators'
-      fullPath: '/portal/coordinators'
-      preLoaderRoute: typeof PortalCoordinatorsRouteImport
+    '/email/preferences': {
+      id: '/email/preferences'
+      path: '/email/preferences'
+      fullPath: '/email/preferences'
+      preLoaderRoute: typeof EmailPreferencesRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/portal/fundraisers': {
-      id: '/portal/fundraisers'
-      path: '/portal/fundraisers'
-      fullPath: '/portal/fundraisers'
-      preLoaderRoute: typeof PortalFundraisersRouteImport
+    '/dashboard/activity': {
+      id: '/dashboard/activity'
+      path: '/activity'
+      fullPath: '/dashboard/activity'
+      preLoaderRoute: typeof DashboardActivityRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/auth/reset-password': {
+      id: '/auth/reset-password'
+      path: '/auth/reset-password'
+      fullPath: '/auth/reset-password'
+      preLoaderRoute: typeof AuthResetPasswordRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/privacy/emails': {
-      id: '/privacy/emails'
-      path: '/emails'
-      fullPath: '/privacy/emails'
-      preLoaderRoute: typeof PrivacyEmailsRouteImport
-      parentRoute: typeof PrivacyRoute
-    }
-    '/programs/$slug': {
-      id: '/programs/$slug'
-      path: '/$slug'
-      fullPath: '/programs/$slug'
-      preLoaderRoute: typeof ProgramsSlugRouteImport
-      parentRoute: typeof ProgramsRoute
-    }
-    '/programs/rss.xml': {
-      id: '/programs/rss.xml'
-      path: '/rss.xml'
-      fullPath: '/programs/rss.xml'
-      preLoaderRoute: typeof ProgramsRssDotxmlRouteImport
-      parentRoute: typeof ProgramsRoute
-    }
-    '/receipts/$reference': {
-      id: '/receipts/$reference'
-      path: '/receipts/$reference'
-      fullPath: '/receipts/$reference'
-      preLoaderRoute: typeof ReceiptsReferenceRouteImport
+    '/auth/forgot-password': {
+      id: '/auth/forgot-password'
+      path: '/auth/forgot-password'
+      fullPath: '/auth/forgot-password'
+      preLoaderRoute: typeof AuthForgotPasswordRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/.lovable/oauth/consent': {
-      id: '/.lovable/oauth/consent'
-      path: '/.lovable/oauth/consent'
-      fullPath: '/.lovable/oauth/consent'
-      preLoaderRoute: typeof DotlovableOauthConsentRouteImport
+    '/auth/delete-account': {
+      id: '/auth/delete-account'
+      path: '/auth/delete-account'
+      fullPath: '/auth/delete-account'
+      preLoaderRoute: typeof AuthDeleteAccountRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/.mcp/invoke-tool/$tool': {
-      id: '/.mcp/invoke-tool/$tool'
-      path: '/.mcp/invoke-tool/$tool'
-      fullPath: '/.mcp/invoke-tool/$tool'
-      preLoaderRoute: typeof Char91DotmcpChar93InvokeToolToolRouteImport
+    '/auth/change-password': {
+      id: '/auth/change-password'
+      path: '/auth/change-password'
+      fullPath: '/auth/change-password'
+      preLoaderRoute: typeof AuthChangePasswordRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/public/cookie-consent-log': {
-      id: '/api/public/cookie-consent-log'
-      path: '/api/public/cookie-consent-log'
-      fullPath: '/api/public/cookie-consent-log'
-      preLoaderRoute: typeof ApiPublicCookieConsentLogRouteImport
+    '/auth/cancel-deletion': {
+      id: '/auth/cancel-deletion'
+      path: '/auth/cancel-deletion'
+      fullPath: '/auth/cancel-deletion'
+      preLoaderRoute: typeof AuthCancelDeletionRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/.well-known/oauth-protected-resource': {
+      id: '/.well-known/oauth-protected-resource'
+      path: '/.well-known/oauth-protected-resource'
+      fullPath: '/.well-known/oauth-protected-resource'
+      preLoaderRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/.mcp/list-tools': {
+      id: '/.mcp/list-tools'
+      path: '/.mcp/list-tools'
+      fullPath: '/.mcp/list-tools'
+      preLoaderRoute: typeof Char91DotmcpChar93ListToolsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/public/email-preferences': {
@@ -1005,18 +984,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicEmailPreferencesRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/public/hooks/purge-deleted-accounts': {
-      id: '/api/public/hooks/purge-deleted-accounts'
-      path: '/api/public/hooks/purge-deleted-accounts'
-      fullPath: '/api/public/hooks/purge-deleted-accounts'
-      preLoaderRoute: typeof ApiPublicHooksPurgeDeletedAccountsRouteImport
+    '/api/public/cookie-consent-log': {
+      id: '/api/public/cookie-consent-log'
+      path: '/api/public/cookie-consent-log'
+      fullPath: '/api/public/cookie-consent-log'
+      preLoaderRoute: typeof ApiPublicCookieConsentLogRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/lovable/email/auth/preview': {
-      id: '/lovable/email/auth/preview'
-      path: '/lovable/email/auth/preview'
-      fullPath: '/lovable/email/auth/preview'
-      preLoaderRoute: typeof LovableEmailAuthPreviewRouteImport
+    '/.mcp/invoke-tool/$tool': {
+      id: '/.mcp/invoke-tool/$tool'
+      path: '/.mcp/invoke-tool/$tool'
+      fullPath: '/.mcp/invoke-tool/$tool'
+      preLoaderRoute: typeof Char91DotmcpChar93InvokeToolToolRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/.lovable/oauth/consent': {
+      id: '/.lovable/oauth/consent'
+      path: '/.lovable/oauth/consent'
+      fullPath: '/.lovable/oauth/consent'
+      preLoaderRoute: typeof DotlovableOauthConsentRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/lovable/email/transactional/preview': {
+      id: '/lovable/email/transactional/preview'
+      path: '/lovable/email/transactional/preview'
+      fullPath: '/lovable/email/transactional/preview'
+      preLoaderRoute: typeof LovableEmailTransactionalPreviewRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/lovable/email/auth/webhook': {
@@ -1026,11 +1019,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LovableEmailAuthWebhookRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/lovable/email/transactional/preview': {
-      id: '/lovable/email/transactional/preview'
-      path: '/lovable/email/transactional/preview'
-      fullPath: '/lovable/email/transactional/preview'
-      preLoaderRoute: typeof LovableEmailTransactionalPreviewRouteImport
+    '/lovable/email/auth/preview': {
+      id: '/lovable/email/auth/preview'
+      path: '/lovable/email/auth/preview'
+      fullPath: '/lovable/email/auth/preview'
+      preLoaderRoute: typeof LovableEmailAuthPreviewRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/hooks/purge-deleted-accounts': {
+      id: '/api/public/hooks/purge-deleted-accounts'
+      path: '/api/public/hooks/purge-deleted-accounts'
+      fullPath: '/api/public/hooks/purge-deleted-accounts'
+      preLoaderRoute: typeof ApiPublicHooksPurgeDeletedAccountsRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
