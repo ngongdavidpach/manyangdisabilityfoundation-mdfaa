@@ -78,9 +78,8 @@ function PrivacyPage() {
         <h2 className="text-xl font-bold text-slate-900 mb-3">1. Who we are</h2>
         <p className="mb-3">
           Manyang Disability Foundation ("MDF", "we", "us", "our") is the data controller for personal data collected
-          through this website. We are an ACNC-registered charity based in Australia (ABN 75 986 228 179) supporting
-          people with disabilities. We receive enquiries and support from visitors located in the European Union, the
-          United Kingdom, Australia and elsewhere.
+          through this website. people with disabilities. We receive enquiries and support from visitors located in the
+          European Union, the United Kingdom, Australia and elsewhere.
         </p>
         <p>
           You can reach our privacy contact at{" "}
