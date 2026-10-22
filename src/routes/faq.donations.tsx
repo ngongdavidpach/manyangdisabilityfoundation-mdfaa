@@ -5,15 +5,11 @@ const URL = "https://manyangdisabilityfoundation.org/faq/donations";
 const FAQS: { q: string; a: string }[] = [
   {
     q: "Are my donations tax deductible?",
-    a: "The Manyang Disability Foundation issues an official receipt for every completed gift. Tax deductibility depends on your country of residence — receipts are accepted by tax authorities in countries with reciprocal charity agreements. Please check with a local tax advisor.",
+    a: "No. The Manyang Disability Foundation is not currently endorsed as a deductible gift recipient (DGR), so donations are not tax deductible in Australia. We issue an official receipt for every completed gift as a record of your support.",
   },
   {
     q: "What payment methods can I use?",
-    a: "You can pledge online and complete your gift via verified bank transfer, mobile money, or PayPal. We do not collect card or account numbers on this site; our donor relations team emails secure transfer instructions within 1–2 business days.",
-  },
-  {
-    q: "Can I set up a recurring monthly donation?",
-    a: "Yes. Choose the Monthly Sustainer option on the donate page when you pledge. Monthly gifts make it easier for us to plan custom wheelchair builds and ongoing rehabilitation programmes.",
+    a: "You can pledge online and complete your gift by PayID to the mobile number shown on the donate page. We do not collect card or account numbers on this site.",
   },
   {
     q: "Can I donate in-kind items instead of money?",
@@ -21,7 +17,7 @@ const FAQS: { q: string; a: string }[] = [
   },
   {
     q: "How much of my donation reaches the people you serve?",
-    a: "Over 90% of every direct donation goes to equipment provision, custom fittings, surgical and rehabilitation support, and field healthcare capacity. Operating and compliance costs are covered separately by restricted grants.",
+    a: "Donations go to equipment provision, custom fittings, surgical and rehabilitation support, and field healthcare capacity. We are a volunteer-run association, which keeps operating costs low.",
   },
   {
     q: "Can I donate anonymously?",
@@ -29,11 +25,11 @@ const FAQS: { q: string; a: string }[] = [
   },
   {
     q: "Will I receive a receipt?",
-    a: "Yes. A tax-style receipt is issued by email once your funds are received and reconciled. If you need an additional copy, contact our donor relations team and reference your pledge number.",
+    a: "Yes. A receipt is issued by email once your funds are received and reconciled. If you need an additional copy, contact us and reference your pledge number.",
   },
   {
     q: "Can I donate from outside South Sudan or Australia?",
-    a: "Absolutely. We accept international donations via bank wire and PayPal, with instructions sent in your local time zone. Currency conversion is handled by your bank or PayPal at the prevailing rate.",
+    a: "PayID works from Australian bank accounts. If you are outside Australia and would like to give, please contact us first and we will arrange the safest way to send your gift.",
   },
   {
     q: "Can I refund or cancel a donation?",
@@ -56,7 +52,7 @@ export const Route = createFileRoute("/faq/donations")({
       {
         name: "description",
         content:
-          "Common questions about donating to the Manyang Disability Foundation: tax deductibility, payment methods, recurring gifts, receipts, in-kind donations, and where the money goes.",
+          "Common questions about donating to the Manyang Disability Foundation: tax deductibility, payment methods, receipts, in-kind donations, and where the money goes.",
       },
       { property: "og:title", content: "Donation FAQ — Manyang Disability Foundation" },
       {
