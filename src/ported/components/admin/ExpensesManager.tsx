@@ -136,7 +136,7 @@ const ExpenseForm: React.FC<{
     description: "",
     vendor: "",
     amount: "",
-    currency: "USD",
+    currency: "AUD",
     category_id: "",
     status: "paid" as Expense["status"],
     program_pillar: "",

@@ -216,8 +216,7 @@ function EmailAddendum() {
         <h2 className="text-xl font-bold text-slate-900 mb-3">8. Contact</h2>
         <address className="not-italic text-sm bg-slate-50 border border-slate-200 rounded-lg p-4">
           <p className="font-semibold text-slate-900">Manyang Disability Foundation</p>
-          <p>ABN 75 986 228 179</p>
-          <p>Australia</p>
+          <p>512 Derrimut Road, Tarneit, Victoria, Australia</p>
           <p className="mt-2">
             Privacy contact:{" "}
             <a href={`mailto:${PRIVACY_EMAIL}`} className="text-blue-700 underline">

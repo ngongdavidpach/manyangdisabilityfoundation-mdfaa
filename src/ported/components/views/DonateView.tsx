@@ -176,7 +176,7 @@ export const DonateView: React.FC = () => {
           donorCountry: donor.country,
           isAnonymous: donor.isAnonymous,
           amount,
-          currency: "USD",
+          currency: "AUD",
           frequency: "one-time",
           channel,
           message: donor.message || undefined,
@@ -359,7 +359,7 @@ export const DonateView: React.FC = () => {
             {/* Custom amount */}
             <div className="bg-white p-4 rounded-xl border border-slate-200 space-y-2">
               <label className="block text-xs font-bold text-slate-700">
-                Or Enter Custom Amount ($ USD)
+                Or Enter Custom Amount ($ AUD)
               </label>
               <div className="relative max-w-xs">
                 <span className="absolute left-3 top-2.5 text-sm font-bold text-slate-500">$</span>
@@ -460,7 +460,7 @@ export const DonateView: React.FC = () => {
                     type="tel"
                     value={donor.phone}
                     onChange={(e) => setDonor({ ...donor, phone: e.target.value })}
-                    placeholder="+1 (555) 000-0000"
+                    placeholder="+61 4XX XXX XXX"
                     className="w-full bg-slate-50 border border-slate-300 rounded-lg p-2.5 text-xs text-slate-900 focus:outline-hidden focus:border-blue-500"
                   />
                 </div>

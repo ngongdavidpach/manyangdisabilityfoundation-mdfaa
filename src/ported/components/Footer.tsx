@@ -73,9 +73,9 @@ interface FooterSettings {
 }
 
 const DEFAULTS: FooterSettings = {
-  address: "Sydney, NSW, Australia",
-  phone: "+61 400 000 000",
-  email: "info@manyangfoundation.org",
+  address: "512 Derrimut Road, Tarneit, Victoria, Australia",
+  phone: "+61 434 133 392",
+  email: "manyangmalet@hotmail.com",
   workingHours: "Monday – Friday: 9:00 AM – 5:00 PM (AEST)",
   socials: { facebook: "", twitter: "", instagram: "", linkedin: "", youtube: "", tiktok: "" },
 };
@@ -346,18 +346,6 @@ export const Footer: React.FC = () => {
               />
             </a>
             <div className="space-y-1">
-              <p className="text-slate-300">
-                <span className="font-semibold text-slate-200">ABN</span>{" "}
-                <a
-                  href="https://abr.business.gov.au/ABN/View?id=75986228179"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="underline hover:text-white"
-                >
-                  75 986 228 179
-                </a>{" "}
-                · verified on the Australian Business Register
-              </p>
               <p className="cursor-default">
                 © {new Date().getFullYear()} Manyang Disability Foundation. All rights reserved.
               </p>

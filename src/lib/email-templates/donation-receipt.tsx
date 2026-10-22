@@ -55,7 +55,7 @@ const Email = ({
       </Text>
     ) : null}
     <Text style={styles.p}>
-      A formal tax receipt will follow from our finance team. Please keep this email as your
+      An official receipt will follow from our finance team. Please keep this email as your
       confirmation of payment.
     </Text>
     <Text style={styles.small}>— Manyang Disability Foundation</Text>

@@ -165,7 +165,7 @@ export const AboutView: React.FC = () => {
               {
                 icon: Award,
                 title: "Absolute Transparency",
-                desc: "Every single grant, equipment procurement, and administrative overhead is meticulously logged and independently audited for maximum donor trust.",
+                desc: "Every grant, equipment purchase, and administrative cost is logged and reported openly to our members and donors.",
               },
               {
                 icon: Globe,
@@ -258,7 +258,7 @@ export const AboutView: React.FC = () => {
               <div className="pt-2">
                 <div className="flex items-center gap-2 text-xs text-slate-700 font-semibold">
                   <CheckCircle2 className="w-4 h-4 text-emerald-500" />
-                  <span>Audited by independent CPAs</span>
+                  <span>Financial reports shared with members</span>
                 </div>
                 <div className="flex items-center gap-2 text-xs text-slate-700 font-semibold mt-1">
                   <CheckCircle2 className="w-4 h-4 text-emerald-500" />

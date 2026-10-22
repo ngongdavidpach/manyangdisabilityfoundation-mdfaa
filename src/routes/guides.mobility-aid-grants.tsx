@@ -13,7 +13,7 @@ const FAQS: { q: string; a: string }[] = [
   },
   {
     q: "How much does a typical grant cover?",
-    a: "Grants range from small repair vouchers (~USD 30) to a full custom wheelchair and fitting package (USD 300–800). Where partial funding is available, we try to match the balance through partner organisations.",
+    a: "Grants range from small repair vouchers to a full custom wheelchair and fitting package. Where partial funding is available, we try to match the balance through partner organisations.",
   },
   {
     q: "What documents do I need to apply?",

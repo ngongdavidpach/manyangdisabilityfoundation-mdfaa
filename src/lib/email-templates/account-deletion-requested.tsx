@@ -16,7 +16,7 @@ const Email = ({
   purgeAfter = "in 30 days",
   cancelUrl = "https://manyangdisabilityfoundation.org",
   supportEmail = "info@manyangdisabilityfoundation.org",
-  supportPhone = "+1 (555) 382-9104",
+  supportPhone = "+61 434 133 392",
 }: Props) => (
   <Shell preview={`Your MDF account is scheduled for deletion on ${purgeAfter}`}>
     <Heading style={styles.h1}>Deletion scheduled</Heading>
@@ -59,6 +59,6 @@ export const template = {
     purgeAfter: "12 August 2026",
     cancelUrl: "https://manyangdisabilityfoundation.org/auth/cancel-deletion?token=demo",
     supportEmail: "info@manyangdisabilityfoundation.org",
-    supportPhone: "+1 (555) 382-9104",
+    supportPhone: "+61 434 133 392",
   },
 } satisfies TemplateEntry;

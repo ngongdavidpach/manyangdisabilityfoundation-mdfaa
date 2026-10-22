@@ -80,10 +80,10 @@ export const FOUNDATION_INFO = {
     "To provide essential mobility aids, comprehensive healthcare access, inclusive education, and sustainable livelihood opportunities to vulnerable individuals and persons with disabilities, ensuring they live with utmost dignity and independence.",
   vision:
     "A fully inclusive society where individuals of all abilities have barrier-free access to opportunities, active community involvement, and the resources to achieve their maximum potential.",
-  email: "info@manyangdisabilityfoundation.org",
-  phone: "+1 (555) 382-9104",
-  altPhone: "+237 670 123 456",
-  address: "MDF Headquarters, Inclusion Plaza, Suite 400",
+  email: "manyangmalet@hotmail.com",
+  phone: "+61 434 133 392",
+  altPhone: "+256 789 208 499",
+  address: "512 Derrimut Road, Tarneit, Victoria, Australia",
   workingHours: "Monday - Friday: 8:00 AM - 5:00 PM",
   showContactDetails: true,
   socials: {

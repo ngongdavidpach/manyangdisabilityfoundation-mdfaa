@@ -19,8 +19,8 @@ const Email = ({ fullName = "there", eventType = "your event", state = "Australi
       support for your {eventType.toLowerCase()}.
     </Text>
     <Text style={styles.p}>
-      Every dollar you raise is receipted against ABN 75 986 228 179 and funds mobility-aid
-      shipments to East Africa.
+      Every dollar you raise funds mobility-aid shipments to East Africa, and every gift is
+      receipted.
     </Text>
     <Text style={styles.small}>— The MDF Fundraising Team</Text>
   </Shell>

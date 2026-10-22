@@ -67,7 +67,7 @@ export const CsrSponsorshipView: React.FC = () => {
           <p className="text-slate-600 text-base md:text-lg">
             Partner with the Manyang Disability Foundation to fund custom wheelchairs,
             prosthetics and rehabilitation supplies — with measurable, documented impact
-            and an Australian tax receipt issued against our ABN.
+            and a receipt for every contribution.
           </p>
           <div className="flex flex-wrap gap-3 md:justify-end">
             <a
@@ -90,7 +90,7 @@ export const CsrSponsorshipView: React.FC = () => {
         <h2 className="text-2xl md:text-3xl font-bold text-slate-900">Sponsorship tiers</h2>
         <p className="mt-2 text-slate-600 max-w-2xl">
           Every tier includes quarterly reporting on equipment shipped and beneficiaries
-          served, plus a tax receipt against ABN 75 986 228 179.
+          served, plus a receipt for your records.
         </p>
 
 
@@ -139,7 +139,6 @@ export const CsrSponsorshipView: React.FC = () => {
                   partnerships@manyangdisabilityfoundation.org
                 </a>
               </li>
-              <li>ABN: 75 986 228 179 (Australia)</li>
             </ul>
           </div>
           <div className="bg-slate-50 rounded-2xl border border-slate-200 p-6 space-y-3">

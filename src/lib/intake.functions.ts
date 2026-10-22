@@ -226,7 +226,7 @@ const donationIntentSchema = z.object({
     .string()
     .trim()
     .regex(/^[A-Z]{3}$/)
-    .default("USD"),
+    .default("AUD"),
   frequency: z.enum(["one-time", "monthly"]).default("one-time"),
   channel: z.enum(["bank", "payid", "momo", "paypal"]),
   message: optStr(1000),

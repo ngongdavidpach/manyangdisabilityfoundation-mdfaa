@@ -13,7 +13,7 @@ const CATEGORIES: { key: keyof Omit<Prefs, "unsubscribed_all">; title: string; d
   {
     key: "receipts",
     title: "Donation receipts",
-    desc: "Tax-deductible receipts and donation confirmations.",
+    desc: "Receipts and donation confirmations.",
   },
   {
     key: "events",
