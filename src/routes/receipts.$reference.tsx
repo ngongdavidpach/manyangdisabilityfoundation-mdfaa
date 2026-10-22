@@ -71,7 +71,7 @@ function ReceiptPage() {
           <img src="/images/logo.png" alt="Manyang Disability Foundation logo" className="h-16 w-auto" />
           <div className="text-xs leading-5">
             <h1 className="text-lg font-bold text-blue-800">{r.org.name}</h1>
-            <p>ABN {r.org.abn}</p><p>{r.org.address}</p><p>{r.org.email} | {r.org.phone}</p>
+            <p>{r.org.address}</p><p>{r.org.email} | {r.org.phone}</p>
           </div>
         </header>
         <div className="flex items-center justify-between mt-6">

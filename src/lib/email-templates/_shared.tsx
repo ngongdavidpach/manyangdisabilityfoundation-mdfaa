@@ -42,10 +42,10 @@ export const Shell: React.FC<{ preview: string; children: React.ReactNode }> = (
         {children}
         <Hr style={styles.hr} />
         <Text style={styles.brand}>
-          Manyang Disability Foundation · ABN 75 986 228 179
+          Manyang Disability Foundation
         </Text>
         <Text style={styles.small}>
-          Registered Australian charity restoring mobility across East Africa.
+          A South Sudanese-Australian community association supporting people with disabilities.
         </Text>
       </Container>
     </Body>

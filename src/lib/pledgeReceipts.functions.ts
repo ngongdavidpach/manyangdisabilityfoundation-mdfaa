@@ -3,8 +3,6 @@ import { getRequest } from "@tanstack/react-start/server";
 import { z } from "zod";
 import { requireStaffOrAdmin } from "@/integrations/supabase/admin-middleware";
 
-export const ABN = "75 986 228 179";
-
 export type PledgeReceipt = {
   reference: string;
   receiptNumber: number | null;
@@ -17,7 +15,7 @@ export type PledgeReceipt = {
   amount: string;
   channel: string;
   message: string;
-  org: { name: string; abn: string; address: string; email: string; phone: string };
+  org: { name: string; address: string; email: string; phone: string };
 };
 
 const CHANNELS: Record<string, string> = { bank_transfer: "Bank transfer", payid: "PayID", paypal: "PayPal", momo: "Mobile money" };
@@ -46,10 +44,9 @@ async function loadReceipt(reference: string): Promise<PledgeReceipt> {
     message: p.message || "",
     org: {
       name: "Manyang Disability Foundation",
-      abn: ABN,
-      address: f.address || "Sydney, NSW, Australia",
-      email: f.email || "info@manyangfoundation.org",
-      phone: f.phone || "+61 400 000 000",
+      address: f.address || "512 Derrimut Road, Tarneit, Victoria, Australia",
+      email: f.email || "manyangmalet@hotmail.com",
+      phone: f.phone || "+61 434 133 392",
     },
   };
 }
@@ -91,9 +88,8 @@ export const downloadPledgeReceiptPdf = createServerFn({ method: "POST" })
     } catch { /* logo optional */ }
     const tx = 50 + (logoW ? logoW + 14 : 0);
     draw(r.org.name, tx, 795, 16, bold, blue);
-    draw(`ABN ${r.org.abn}`, tx, 778, 9);
-    draw(r.org.address, tx, 765, 9);
-    draw(`${r.org.email}  |  ${r.org.phone}`, tx, 752, 9);
+    draw(r.org.address, tx, 778, 9);
+    draw(`${r.org.email}  |  ${r.org.phone}`, tx, 765, 9);
     page.drawLine({ start: { x: 50, y: 735 }, end: { x: 545, y: 735 }, thickness: 1, color: blue });
 
     draw(r.received ? "OFFICIAL DONATION RECEIPT" : "PLEDGE ACKNOWLEDGEMENT", 50, 705, 15, bold);
