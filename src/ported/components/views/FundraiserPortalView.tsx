@@ -118,7 +118,7 @@ export const FundraiserPortalView: React.FC = () => {
           </h1>
           <p className="mt-3 text-amber-50 text-sm md:text-base">
             Host a run, gala, workplace campaign or community event to fund mobility-aid
-            shipments. Every dollar is receipted against ABN 75 986 228 179.
+            shipments. Every dollar raised is receipted.
           </p>
         </div>
       </header>

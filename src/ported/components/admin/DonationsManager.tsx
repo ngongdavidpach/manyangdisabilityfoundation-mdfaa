@@ -186,7 +186,7 @@ const DonationForm: React.FC<{ contacts: Contact[]; onClose: () => void; onSaved
     donor_name: "",
     donor_email: "",
     amount: "",
-    currency: "USD",
+    currency: "AUD",
     method: "cash" as Database["public"]["Enums"]["donation_method"],
     status: "completed" as Database["public"]["Enums"]["donation_status"],
     designation: "",
