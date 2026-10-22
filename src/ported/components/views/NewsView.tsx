@@ -676,7 +676,7 @@ export const NewsView: React.FC<NewsViewProps> = ({ articleId, initialArticles, 
                       type="tel"
                       value={rsvpPhone}
                       onChange={(e) => setRsvpPhone(e.target.value)}
-                      placeholder="+1 (555) 000-0000"
+                      placeholder="+61 4XX XXX XXX"
                       className="w-full bg-slate-50 border border-slate-300 rounded-lg p-2.5 text-xs text-slate-900 focus:outline-hidden focus:border-blue-500"
                     />
                   </div>

@@ -213,7 +213,7 @@ export const RegisterView: React.FC = () => {
                   type="tel"
                   value={form.phone}
                   onChange={(e) => setForm({ ...form, phone: e.target.value })}
-                  placeholder="+1 (555) 000-0000"
+                  placeholder="+61 4XX XXX XXX"
                   className="w-full bg-slate-50 border border-slate-300 rounded-lg py-2.5 px-3 text-xs text-slate-900 focus:outline-hidden focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                 />
               </div>

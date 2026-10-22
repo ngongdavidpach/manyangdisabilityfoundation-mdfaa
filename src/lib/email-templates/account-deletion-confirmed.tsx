@@ -14,7 +14,7 @@ const Email = ({
   email = "your account",
   deletedAt = "today",
   supportEmail = "info@manyangdisabilityfoundation.org",
-  supportPhone = "+1 (555) 382-9104",
+  supportPhone = "+61 434 133 392",
 }: Props) => (
   <Shell preview="Your MDF account has been permanently deleted">
     <Heading style={styles.h1}>Your account has been deleted</Heading>
@@ -55,6 +55,6 @@ export const template = {
     email: "user@example.com",
     deletedAt: "11 September 2026",
     supportEmail: "info@manyangdisabilityfoundation.org",
-    supportPhone: "+1 (555) 382-9104",
+    supportPhone: "+61 434 133 392",
   },
 } satisfies TemplateEntry;

@@ -298,7 +298,7 @@ export const GetInvolvedView: React.FC = () => {
                     required
                     value={vForm.phone}
                     onChange={(e) => setVForm({ ...vForm, phone: e.target.value })}
-                    placeholder="+1 (555) 000-0000"
+                    placeholder="+61 4XX XXX XXX"
                     className="w-full bg-slate-50 border border-slate-300 rounded-lg p-2.5 text-xs text-slate-900 focus:outline-hidden focus:border-blue-500"
                   />
                 </div>

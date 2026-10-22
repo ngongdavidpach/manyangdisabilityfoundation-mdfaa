@@ -346,7 +346,7 @@ export const HomeView = () => {
             Join Hands With Us Today
           </h2>
           <p className="text-blue-100 max-w-2xl mx-auto text-sm sm:text-base">
-            Whether through a direct monthly donation, corporate partnership, or
+            Whether through a donation, a corporate partnership, or
             volunteering your local professional skills, you hold the power to
             completely transform the life of a person with a disability.
           </p>
