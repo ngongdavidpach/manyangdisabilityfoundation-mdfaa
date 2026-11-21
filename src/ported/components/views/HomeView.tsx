@@ -1,3 +1,4 @@
+import { ShareButton } from "@/ported/components/ShareButton";
 import { useEffect, useState } from "react";
 import { useNavigate, Link } from "@tanstack/react-router";
 import { Heart, ArrowRight, Download, PlayCircle } from "lucide-react";
@@ -128,6 +129,7 @@ export const HomeView = () => {
                 Donate Now
               </Button>
             )}
+            <ShareButton title="Manyang Disability Foundation" path="/" />
             <Button
               variant="outline"
               onClick={() => navigate({ to: "/get-involved" })}

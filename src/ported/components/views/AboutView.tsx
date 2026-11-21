@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { Link } from "@tanstack/react-router";
 import {
   HeartHandshake,
   Target,
@@ -207,7 +208,7 @@ export const AboutView: React.FC = () => {
           </p>
           <p className="text-sm text-slate-600 mt-2">
             Our governing board brings together seasoned academics, certified medical practitioners,
-            financial auditors, and active community leaders.
+            and active community leaders. <Link to="/accountability" className="font-semibold text-blue-700 underline">See our registration and committee</Link>.
           </p>
         </div>
 

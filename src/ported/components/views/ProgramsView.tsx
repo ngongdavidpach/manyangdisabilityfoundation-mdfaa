@@ -77,6 +77,12 @@ export const ProgramsView: React.FC = () => {
           <p className="text-base sm:text-lg text-slate-600 leading-relaxed">
              {programsContent?.intro ?? "Explore how the Manyang Disability Foundation directly converts donor resources into durable mobility, inclusive classrooms, advanced healthcare, and sustainable self-reliance."}
           </p>
+          <Link
+            to="/field-reports"
+            className="inline-flex items-center rounded-md bg-blue-900 px-4 py-2 text-sm font-bold text-white hover:bg-blue-800"
+          >
+            Read our 2026 field reports
+          </Link>
         </div>
       </section>
 

@@ -1,3 +1,4 @@
+import { ShareButton } from "@/ported/components/ShareButton";
 import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
@@ -213,6 +214,7 @@ export const NewsView: React.FC<NewsViewProps> = ({ articleId, initialArticles, 
               <span className="flex items-center gap-1">
                 <Calendar className="w-4 h-4 text-slate-400" /> {currentArticle.date}
               </span>
+              <ShareButton title={currentArticle.title} path={`/news/${articleId}`} />
             </div>
 
             <button
