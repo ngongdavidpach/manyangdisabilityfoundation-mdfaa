@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AboutRouteImport } from './routes/about'
+import { Route as AccountabilityRouteImport } from './routes/accountability'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as CookieSettingsRouteImport } from './routes/cookie-settings'
@@ -18,6 +19,7 @@ import { Route as CsrSponsorshipRouteImport } from './routes/csr-sponsorship'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as DonateRouteImport } from './routes/donate'
 import { Route as EventsRouteImport } from './routes/events'
+import { Route as FieldReportsRouteImport } from './routes/field-reports'
 import { Route as GalleryRouteImport } from './routes/gallery'
 import { Route as GetInvolvedRouteImport } from './routes/get-involved'
 import { Route as McpRouteImport } from './routes/mcp'
@@ -70,6 +72,11 @@ const AboutRoute = AboutRouteImport.update({
   path: '/about',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AccountabilityRoute = AccountabilityRouteImport.update({
+  id: '/accountability',
+  path: '/accountability',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AdminRoute = AdminRouteImport.update({
   id: '/admin',
   path: '/admin',
@@ -103,6 +110,11 @@ const DonateRoute = DonateRouteImport.update({
 const EventsRoute = EventsRouteImport.update({
   id: '/events',
   path: '/events',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FieldReportsRoute = FieldReportsRouteImport.update({
+  id: '/field-reports',
+  path: '/field-reports',
   getParentRoute: () => rootRouteImport,
 } as any)
 const GalleryRoute = GalleryRouteImport.update({
@@ -322,6 +334,7 @@ const LovableEmailTransactionalPreviewRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/accountability': typeof AccountabilityRoute
   '/admin': typeof AdminRoute
   '/contact': typeof ContactRoute
   '/cookie-settings': typeof CookieSettingsRoute
@@ -329,6 +342,7 @@ export interface FileRoutesByFullPath {
   '/dashboard': typeof DashboardRouteWithChildren
   '/donate': typeof DonateRoute
   '/events': typeof EventsRouteWithChildren
+  '/field-reports': typeof FieldReportsRoute
   '/gallery': typeof GalleryRoute
   '/get-involved': typeof GetInvolvedRoute
   '/mcp': typeof McpRoute
@@ -374,6 +388,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/accountability': typeof AccountabilityRoute
   '/admin': typeof AdminRoute
   '/contact': typeof ContactRoute
   '/cookie-settings': typeof CookieSettingsRoute
@@ -381,6 +396,7 @@ export interface FileRoutesByTo {
   '/dashboard': typeof DashboardRouteWithChildren
   '/donate': typeof DonateRoute
   '/events': typeof EventsRouteWithChildren
+  '/field-reports': typeof FieldReportsRoute
   '/gallery': typeof GalleryRoute
   '/get-involved': typeof GetInvolvedRoute
   '/mcp': typeof McpRoute
@@ -427,6 +443,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/accountability': typeof AccountabilityRoute
   '/admin': typeof AdminRoute
   '/contact': typeof ContactRoute
   '/cookie-settings': typeof CookieSettingsRoute
@@ -434,6 +451,7 @@ export interface FileRoutesById {
   '/dashboard': typeof DashboardRouteWithChildren
   '/donate': typeof DonateRoute
   '/events': typeof EventsRouteWithChildren
+  '/field-reports': typeof FieldReportsRoute
   '/gallery': typeof GalleryRoute
   '/get-involved': typeof GetInvolvedRoute
   '/mcp': typeof McpRoute
@@ -481,6 +499,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/about'
+    | '/accountability'
     | '/admin'
     | '/contact'
     | '/cookie-settings'
@@ -488,6 +507,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/donate'
     | '/events'
+    | '/field-reports'
     | '/gallery'
     | '/get-involved'
     | '/mcp'
@@ -533,6 +553,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/about'
+    | '/accountability'
     | '/admin'
     | '/contact'
     | '/cookie-settings'
@@ -540,6 +561,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/donate'
     | '/events'
+    | '/field-reports'
     | '/gallery'
     | '/get-involved'
     | '/mcp'
@@ -585,6 +607,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/about'
+    | '/accountability'
     | '/admin'
     | '/contact'
     | '/cookie-settings'
@@ -592,6 +615,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/donate'
     | '/events'
+    | '/field-reports'
     | '/gallery'
     | '/get-involved'
     | '/mcp'
@@ -638,6 +662,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AboutRoute: typeof AboutRoute
+  AccountabilityRoute: typeof AccountabilityRoute
   AdminRoute: typeof AdminRoute
   ContactRoute: typeof ContactRoute
   CookieSettingsRoute: typeof CookieSettingsRoute
@@ -645,6 +670,7 @@ export interface RootRouteChildren {
   DashboardRoute: typeof DashboardRouteWithChildren
   DonateRoute: typeof DonateRoute
   EventsRoute: typeof EventsRouteWithChildren
+  FieldReportsRoute: typeof FieldReportsRoute
   GalleryRoute: typeof GalleryRoute
   GetInvolvedRoute: typeof GetInvolvedRoute
   McpRoute: typeof McpRoute
@@ -697,6 +723,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AboutRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/accountability': {
+      id: '/accountability'
+      path: '/accountability'
+      fullPath: '/accountability'
+      preLoaderRoute: typeof AccountabilityRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/admin': {
       id: '/admin'
       path: '/admin'
@@ -744,6 +777,13 @@ declare module '@tanstack/react-router' {
       path: '/events'
       fullPath: '/events'
       preLoaderRoute: typeof EventsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/field-reports': {
+      id: '/field-reports'
+      path: '/field-reports'
+      fullPath: '/field-reports'
+      preLoaderRoute: typeof FieldReportsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/gallery': {
@@ -1099,6 +1139,7 @@ const ProgramsRouteWithChildren = ProgramsRoute._addFileChildren(
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
+  AccountabilityRoute: AccountabilityRoute,
   AdminRoute: AdminRoute,
   ContactRoute: ContactRoute,
   CookieSettingsRoute: CookieSettingsRoute,
@@ -1106,6 +1147,7 @@ const rootRouteChildren: RootRouteChildren = {
   DashboardRoute: DashboardRouteWithChildren,
   DonateRoute: DonateRoute,
   EventsRoute: EventsRouteWithChildren,
+  FieldReportsRoute: FieldReportsRoute,
   GalleryRoute: GalleryRoute,
   GetInvolvedRoute: GetInvolvedRoute,
   McpRoute: McpRoute,
