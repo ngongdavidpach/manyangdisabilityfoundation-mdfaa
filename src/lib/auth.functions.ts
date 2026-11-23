@@ -64,6 +64,27 @@ const EmailSchema = z.object({
   origin: z.string().url().optional(),
 });
 
+/** Only trusted site origins may receive password-reset links. */
+function safeResetOrigin(candidate: string | undefined): string {
+  if (!candidate) return SITE_ORIGIN;
+  try {
+    const u = new URL(candidate);
+    const host = u.hostname.toLowerCase();
+    const siteHost = new URL(SITE_ORIGIN).hostname.toLowerCase();
+    const trusted =
+      (u.protocol === "https:" &&
+        (host === siteHost ||
+          host === "manyangdisabilityfoundation.org" ||
+          host === "www.manyangdisabilityfoundation.org" ||
+          host === "manyangdisabilityfoundation.lovable.app" ||
+          host.endsWith("--b11f2ede-4baf-42ba-8d4c-06cc21dd4aa8.lovable.app"))) ||
+      (u.protocol === "http:" && host === "localhost");
+    return trusted ? u.origin : SITE_ORIGIN;
+  } catch {
+    return SITE_ORIGIN;
+  }
+}
+
 /**
  * Public server function: request a password-reset email.
  */
@@ -83,7 +104,7 @@ export const requestPasswordReset = createServerFn({ method: "POST" })
     }
 
     const supabase = makePublishableClient();
-    const origin = data.origin || SITE_ORIGIN;
+    const origin = safeResetOrigin(data.origin);
     const redirectTo = `${origin.replace(/\/$/, "")}/auth/reset-password`;
 
     const { error } = await supabase.auth.resetPasswordForEmail(data.email, { redirectTo });
