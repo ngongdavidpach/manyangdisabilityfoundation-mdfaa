@@ -6,22 +6,20 @@ export const Route = createFileRoute("/api/public/hooks/purge-deleted-accounts")
   server: {
     handlers: {
       POST: async ({ request }) => {
-        // apikey-based auth (see schedule-jobs-options doc). Accept either
-        // the anon key OR the service-role key so the cron and manual admin
-        // triggers both work.
-        const providedKey =
-          request.headers.get("apikey") ||
-          request.headers.get("x-api-key") ||
-          request.headers.get("authorization")?.replace(/^Bearer\s+/i, "") ||
-          "";
-        const anonKey = process.env.SUPABASE_PUBLISHABLE_KEY || "";
-        const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || "";
-        const allowedKeys = [anonKey, serviceKey].filter(Boolean);
-        if (!providedKey || !allowedKeys.includes(providedKey)) {
+        // Only the scheduled job may call this: it sends a private token
+        // stored in a service-role-only table. The public anon key is NOT accepted.
+        const providedKey = request.headers.get("x-cron-token") || "";
+        const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+        const { data: tok } = await supabaseAdmin
+          .from("internal_cron_tokens" as never)
+          .select("token")
+          .eq("name", "purge-deleted-accounts")
+          .maybeSingle();
+        const expected = (tok as { token?: string } | null)?.token ?? "";
+        if (!providedKey || !expected || providedKey !== expected) {
           return new Response("Unauthorized", { status: 401 });
         }
 
-        const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
         const { enqueueTransactionalEmail } = await import("@/lib/email/enqueue.server");
 
         const nowIso = new Date().toISOString();

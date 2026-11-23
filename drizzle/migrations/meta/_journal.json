@@ -1,0 +1,13 @@
+{
+  "version": "7",
+  "dialect": "postgresql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1795451424165,
+      "tag": "0000_secure_purge_and_remove_first_admin_bootstrap",
+      "breakpoints": true
+    }
+  ]
+}

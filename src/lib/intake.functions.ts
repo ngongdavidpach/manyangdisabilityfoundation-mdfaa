@@ -112,6 +112,7 @@ export const submitEventRsvp = createServerFn({ method: "POST" })
         .from("events")
         .select("starts_at, location")
         .eq("id", data.eventExternalId)
+        .eq("status", "published")
         .maybeSingle();
       if (ev?.starts_at) {
         eventDate = new Date(ev.starts_at).toLocaleString(undefined, {
@@ -453,6 +454,7 @@ export const submitFundraiserRegistration = createServerFn({ method: "POST" })
         .from("events")
         .select("title")
         .eq("id", data.eventId)
+        .eq("status", "published")
         .maybeSingle();
       linkedEventTitle = ev?.title ?? null;
     }
