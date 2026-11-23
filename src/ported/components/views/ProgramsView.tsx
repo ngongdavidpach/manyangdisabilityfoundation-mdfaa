@@ -82,6 +82,12 @@ export const ProgramsView: React.FC = () => {
             className="inline-flex items-center rounded-md bg-blue-900 px-4 py-2 text-sm font-bold text-white hover:bg-blue-800"
           >
             Read our 2026 field reports
+          </Link>{" "}
+          <Link
+            to="/accountability"
+            className="inline-flex items-center rounded-md border border-blue-900 px-4 py-2 text-sm font-bold text-blue-900 hover:bg-blue-50"
+          >
+            Accountability &amp; registration
           </Link>
         </div>
       </section>
