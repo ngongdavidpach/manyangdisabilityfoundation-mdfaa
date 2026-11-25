@@ -18,6 +18,7 @@ import { Route as CookieSettingsRouteImport } from './routes/cookie-settings'
 import { Route as CsrSponsorshipRouteImport } from './routes/csr-sponsorship'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as DonateRouteImport } from './routes/donate'
+import { Route as DonorsRouteImport } from './routes/donors'
 import { Route as EventsRouteImport } from './routes/events'
 import { Route as FieldReportsRouteImport } from './routes/field-reports'
 import { Route as GalleryRouteImport } from './routes/gallery'
@@ -30,6 +31,7 @@ import { Route as RequestRouteImport } from './routes/request'
 import { Route as RssDotxmlRouteImport } from './routes/rss[.]xml'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as StaffRouteImport } from './routes/staff'
+import { Route as SupportersRouteImport } from './routes/supporters'
 import { Route as UnsubscribeRouteImport } from './routes/unsubscribe'
 import { Route as Char91DotmcpChar93ListToolsRouteImport } from './routes/[.mcp]/list-tools'
 import { Route as Char91DotwellKnownChar93OauthProtectedResourceRouteImport } from './routes/[.well-known]/oauth-protected-resource'
@@ -107,6 +109,11 @@ const DonateRoute = DonateRouteImport.update({
   path: '/donate',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DonorsRoute = DonorsRouteImport.update({
+  id: '/donors',
+  path: '/donors',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const EventsRoute = EventsRouteImport.update({
   id: '/events',
   path: '/events',
@@ -165,6 +172,11 @@ const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
 const StaffRoute = StaffRouteImport.update({
   id: '/staff',
   path: '/staff',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SupportersRoute = SupportersRouteImport.update({
+  id: '/supporters',
+  path: '/supporters',
   getParentRoute: () => rootRouteImport,
 } as any)
 const UnsubscribeRoute = UnsubscribeRouteImport.update({
@@ -341,6 +353,7 @@ export interface FileRoutesByFullPath {
   '/csr-sponsorship': typeof CsrSponsorshipRoute
   '/dashboard': typeof DashboardRouteWithChildren
   '/donate': typeof DonateRoute
+  '/donors': typeof DonorsRoute
   '/events': typeof EventsRouteWithChildren
   '/field-reports': typeof FieldReportsRoute
   '/gallery': typeof GalleryRoute
@@ -353,6 +366,7 @@ export interface FileRoutesByFullPath {
   '/rss.xml': typeof RssDotxmlRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/staff': typeof StaffRoute
+  '/supporters': typeof SupportersRoute
   '/unsubscribe': typeof UnsubscribeRoute
   '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
@@ -395,6 +409,7 @@ export interface FileRoutesByTo {
   '/csr-sponsorship': typeof CsrSponsorshipRoute
   '/dashboard': typeof DashboardRouteWithChildren
   '/donate': typeof DonateRoute
+  '/donors': typeof DonorsRoute
   '/events': typeof EventsRouteWithChildren
   '/field-reports': typeof FieldReportsRoute
   '/gallery': typeof GalleryRoute
@@ -407,6 +422,7 @@ export interface FileRoutesByTo {
   '/rss.xml': typeof RssDotxmlRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/staff': typeof StaffRoute
+  '/supporters': typeof SupportersRoute
   '/unsubscribe': typeof UnsubscribeRoute
   '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
@@ -450,6 +466,7 @@ export interface FileRoutesById {
   '/csr-sponsorship': typeof CsrSponsorshipRoute
   '/dashboard': typeof DashboardRouteWithChildren
   '/donate': typeof DonateRoute
+  '/donors': typeof DonorsRoute
   '/events': typeof EventsRouteWithChildren
   '/field-reports': typeof FieldReportsRoute
   '/gallery': typeof GalleryRoute
@@ -462,6 +479,7 @@ export interface FileRoutesById {
   '/rss.xml': typeof RssDotxmlRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/staff': typeof StaffRoute
+  '/supporters': typeof SupportersRoute
   '/unsubscribe': typeof UnsubscribeRoute
   '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
@@ -506,6 +524,7 @@ export interface FileRouteTypes {
     | '/csr-sponsorship'
     | '/dashboard'
     | '/donate'
+    | '/donors'
     | '/events'
     | '/field-reports'
     | '/gallery'
@@ -518,6 +537,7 @@ export interface FileRouteTypes {
     | '/rss.xml'
     | '/sitemap.xml'
     | '/staff'
+    | '/supporters'
     | '/unsubscribe'
     | '/.mcp/list-tools'
     | '/.well-known/oauth-protected-resource'
@@ -560,6 +580,7 @@ export interface FileRouteTypes {
     | '/csr-sponsorship'
     | '/dashboard'
     | '/donate'
+    | '/donors'
     | '/events'
     | '/field-reports'
     | '/gallery'
@@ -572,6 +593,7 @@ export interface FileRouteTypes {
     | '/rss.xml'
     | '/sitemap.xml'
     | '/staff'
+    | '/supporters'
     | '/unsubscribe'
     | '/.mcp/list-tools'
     | '/.well-known/oauth-protected-resource'
@@ -614,6 +636,7 @@ export interface FileRouteTypes {
     | '/csr-sponsorship'
     | '/dashboard'
     | '/donate'
+    | '/donors'
     | '/events'
     | '/field-reports'
     | '/gallery'
@@ -626,6 +649,7 @@ export interface FileRouteTypes {
     | '/rss.xml'
     | '/sitemap.xml'
     | '/staff'
+    | '/supporters'
     | '/unsubscribe'
     | '/.mcp/list-tools'
     | '/.well-known/oauth-protected-resource'
@@ -669,6 +693,7 @@ export interface RootRouteChildren {
   CsrSponsorshipRoute: typeof CsrSponsorshipRoute
   DashboardRoute: typeof DashboardRouteWithChildren
   DonateRoute: typeof DonateRoute
+  DonorsRoute: typeof DonorsRoute
   EventsRoute: typeof EventsRouteWithChildren
   FieldReportsRoute: typeof FieldReportsRoute
   GalleryRoute: typeof GalleryRoute
@@ -681,6 +706,7 @@ export interface RootRouteChildren {
   RssDotxmlRoute: typeof RssDotxmlRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   StaffRoute: typeof StaffRoute
+  SupportersRoute: typeof SupportersRoute
   UnsubscribeRoute: typeof UnsubscribeRoute
   Char91DotmcpChar93ListToolsRoute: typeof Char91DotmcpChar93ListToolsRoute
   Char91DotwellKnownChar93OauthProtectedResourceRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
@@ -772,6 +798,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DonateRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/donors': {
+      id: '/donors'
+      path: '/donors'
+      fullPath: '/donors'
+      preLoaderRoute: typeof DonorsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/events': {
       id: '/events'
       path: '/events'
@@ -854,6 +887,13 @@ declare module '@tanstack/react-router' {
       path: '/staff'
       fullPath: '/staff'
       preLoaderRoute: typeof StaffRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/supporters': {
+      id: '/supporters'
+      path: '/supporters'
+      fullPath: '/supporters'
+      preLoaderRoute: typeof SupportersRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/unsubscribe': {
@@ -1146,6 +1186,7 @@ const rootRouteChildren: RootRouteChildren = {
   CsrSponsorshipRoute: CsrSponsorshipRoute,
   DashboardRoute: DashboardRouteWithChildren,
   DonateRoute: DonateRoute,
+  DonorsRoute: DonorsRoute,
   EventsRoute: EventsRouteWithChildren,
   FieldReportsRoute: FieldReportsRoute,
   GalleryRoute: GalleryRoute,
@@ -1158,6 +1199,7 @@ const rootRouteChildren: RootRouteChildren = {
   RssDotxmlRoute: RssDotxmlRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   StaffRoute: StaffRoute,
+  SupportersRoute: SupportersRoute,
   UnsubscribeRoute: UnsubscribeRoute,
   Char91DotmcpChar93ListToolsRoute: Char91DotmcpChar93ListToolsRoute,
   Char91DotwellKnownChar93OauthProtectedResourceRoute:
