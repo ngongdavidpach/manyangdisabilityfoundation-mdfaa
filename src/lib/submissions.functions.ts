@@ -98,3 +98,13 @@ export const markPledgeReceived = createServerFn({ method: "POST" })
     await sb.from("donation_intents").update({ status: "received" }).eq("id", data.id);
     return { ok: true };
   });
+
+export const setPledgePublic = createServerFn({ method: "POST" })
+  .middleware([requireAdmin])
+  .inputValidator((d) => z.object({ id: z.string().uuid(), show: z.boolean() }).parse(d))
+  .handler(async ({ data, context }) => {
+    const sb = (context as any).supabase;
+    const { error } = await sb.from("donation_intents").update({ show_publicly: data.show }).eq("id", data.id);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });

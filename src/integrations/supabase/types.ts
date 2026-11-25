@@ -393,6 +393,7 @@ export type Database = {
           is_anonymous: boolean
           message: string | null
           reference: string
+          show_publicly: boolean
           status: string
           updated_at: string
         }
@@ -410,6 +411,7 @@ export type Database = {
           is_anonymous?: boolean
           message?: string | null
           reference: string
+          show_publicly?: boolean
           status?: string
           updated_at?: string
         }
@@ -427,6 +429,7 @@ export type Database = {
           is_anonymous?: boolean
           message?: string | null
           reference?: string
+          show_publicly?: boolean
           status?: string
           updated_at?: string
         }
@@ -1410,6 +1413,15 @@ export type Database = {
           _user_id: string
         }
         Returns: boolean
+      }
+      list_public_donors: {
+        Args: never
+        Returns: {
+          amount_cents: number
+          currency: string
+          display_name: string
+          pledged_at: string
+        }[]
       }
       record_password_hash: {
         Args: { _new_password: string; _user_id: string }

@@ -5,6 +5,7 @@ import {
   countNewSubmissions,
   updateSubmissionStatus,
   markPledgeReceived,
+  setPledgePublic,
   type SubmissionKind,
 } from "@/lib/submissions.functions";
 
@@ -58,6 +59,7 @@ export const SubmissionsManager: React.FC = () => {
   const countFn = useServerFn(countNewSubmissions);
   const upd = useServerFn(updateSubmissionStatus);
   const received = useServerFn(markPledgeReceived);
+  const setPublic = useServerFn(setPledgePublic);
   const meta = KINDS.find((k) => k.id === kind)!;
 
   const load = () => {
@@ -159,6 +161,17 @@ export const SubmissionsManager: React.FC = () => {
                       <a href={`/receipts/${encodeURIComponent(r.reference)}`} target="_blank" rel="noreferrer" className="text-blue-700 underline">
                         Receipt
                       </a>
+                    )}
+                    {kind === "donation_intents" && (
+                      <label className="inline-flex items-center gap-1 text-xs" title="List name and amount on the public Donors page">
+                        <input
+                          type="checkbox"
+                          disabled={busy}
+                          checked={!!r.show_publicly}
+                          onChange={(e) => run(() => setPublic({ data: { id: r.id, show: e.target.checked } }))}
+                        />
+                        Show publicly
+                      </label>
                     )}
                     {kind === "donation_intents" && r.status !== "received" && (
                       <button

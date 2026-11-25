@@ -251,3 +251,47 @@ export const listPublicStaff = createServerFn({ method: "GET" }).handler(
     }
   },
 );
+
+export type PublicDonor = { display_name: string; amount_cents: number; currency: string; pledged_at: string };
+
+export const listPublicDonors = createServerFn({ method: "GET" }).handler(
+  async (): Promise<PublicDonor[]> => {
+    try {
+      const { data, error } = await server().rpc("list_public_donors");
+      if (error) return [];
+      return (data as PublicDonor[]) ?? [];
+    } catch {
+      return [];
+    }
+  },
+);
+
+export type PublicSupporter = { name: string; contribution: string };
+export type PublicSupporters = { heading: string; intro: string; items: PublicSupporter[] };
+
+export const getPublicSupporters = createServerFn({ method: "GET" }).handler(
+  async (): Promise<PublicSupporters> => {
+    const out: PublicSupporters = { heading: "Our Supporters", intro: "", items: [] };
+    try {
+      const { data: row } = await server()
+        .from("page_settings")
+        .select("content, published")
+        .eq("page_key", "supporters")
+        .maybeSingle();
+      if (!row || !(row as { published?: boolean }).published) return out;
+      const c = ((row as { content?: Record<string, unknown> }).content ?? {}) as Record<string, unknown>;
+      if (typeof c["heading"] === "string" && c["heading"].trim()) out.heading = c["heading"];
+      if (typeof c["intro"] === "string") out.intro = c["intro"];
+      const text = typeof c["itemsText"] === "string" ? c["itemsText"] : "";
+      out.items = text
+        .split("\n")
+        .map((l) => l.trim())
+        .filter((l) => l && !l.startsWith("#"))
+        .map((l) => {
+          const m = l.split(/\s+[—–-]\s+/);
+          return { name: (m[0] ?? l).trim(), contribution: m.slice(1).join(" — ").trim() };
+        });
+    } catch { /* fall through */ }
+    return out;
+  },
+);

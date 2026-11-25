@@ -63,6 +63,16 @@ const PAGES_RAW = [
     seo: true,
   },
   {
+    key: "supporters",
+    label: "Supporters",
+    fields: [
+      { path: "heading", label: "Heading", type: "text" },
+      { path: "intro", label: "Intro", type: "textarea" },
+      { path: "itemsText", label: "Supporters — one per line: Name — how they helped (start a line with # to hide it)", type: "textarea" },
+    ],
+    seo: true,
+  },
+  {
     key: "gallery",
     label: "Gallery",
     fields: [

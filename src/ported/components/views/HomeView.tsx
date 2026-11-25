@@ -130,6 +130,8 @@ export const HomeView = () => {
               </Button>
             )}
             <ShareButton title="Manyang Disability Foundation" path="/" />
+            <Link to="/donors" className="h-11 px-4 inline-flex items-center text-sm font-semibold underline">Our donors</Link>
+            <Link to="/supporters" className="h-11 px-4 inline-flex items-center text-sm font-semibold underline">Our supporters</Link>
             <Button
               variant="outline"
               onClick={() => navigate({ to: "/get-involved" })}
