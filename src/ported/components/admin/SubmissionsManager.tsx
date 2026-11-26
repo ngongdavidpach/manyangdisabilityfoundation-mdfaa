@@ -60,7 +60,7 @@ export const SubmissionsManager: React.FC = () => {
   const upd = useServerFn(updateSubmissionStatus);
   const received = useServerFn(markPledgeReceived);
   const setPublic = useServerFn(setPledgePublic);
-  const meta = KINDS.find((k) => k.id === kind)!;
+  const meta = KINDS.find((k) => k.id === kind) ?? KINDS[0];
 
   const load = () => {
     list({ data: { kind, page } })
@@ -148,7 +148,7 @@ export const SubmissionsManager: React.FC = () => {
                       onChange={(e) => run(() => upd({ data: { kind, id: r.id, status: e.target.value } }))}
                       className="border rounded px-1 py-0.5"
                     >
-                      {Array.from(new Set([r.status, ...meta.statuses])).map((s) => (
+                      {Array.from(new Set([r.status, ...(meta?.statuses ?? [])])).map((s) => (
                         <option key={s} value={s}>{s.replace("_", " ")}</option>
                       ))}
                     </select>

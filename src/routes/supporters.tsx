@@ -3,6 +3,8 @@ import { useState } from "react";
 import { getPublicSupporters } from "@/lib/publicContent.functions";
 import { buildListPdf } from "@/lib/listPdf";
 import { downloadBlob } from "@/lib/fieldReportsPdf";
+import { Button } from "@/components/ui/button";
+import { Download } from "lucide-react";
 
 const title = "Our Supporters — Manyang Disability Foundation";
 const description = "The people who help Manyang Disability Foundation support people with disabilities, and how each one helped.";
@@ -26,10 +28,14 @@ export const Route = createFileRoute("/supporters")({
 function SupportersPage() {
   const s = Route.useLoaderData();
   const [busy, setBusy] = useState(false);
+  const [error, setError] = useState("");
   const pdf = async () => {
     setBusy(true);
+    setError("");
     try {
       downloadBlob(await buildListPdf("Supporters", s.intro, s.items.map((i) => [i.name, i.contribution])), "mdf-supporters.pdf");
+    } catch {
+      setError("The PDF could not be downloaded. Please try again.");
     } finally { setBusy(false); }
   };
   return (
@@ -48,9 +54,11 @@ function SupportersPage() {
           ))}
         </ul>
       )}
-      <button onClick={pdf} disabled={busy} className="mt-6 rounded bg-primary text-primary-foreground px-4 py-2 font-semibold">
+      {error && <p role="alert" className="mt-4 text-destructive">{error}</p>}
+      <Button onClick={pdf} disabled={busy} className="mt-6">
+        <Download aria-hidden="true" />
         {busy ? "Preparing…" : "Download PDF"}
-      </button>
+      </Button>
     </main>
   );
 }

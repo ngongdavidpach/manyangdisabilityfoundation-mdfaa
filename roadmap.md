@@ -12,3 +12,7 @@
 - [x] Verify the public sections on desktop and mobile using saved-setting scenarios
 - [ ] Verify saving and reopening the admin editors (blocked: no matching admin sign-in for the requesting user)
 - [x] Create and verify a public staff page using admin-managed staff profiles
+- [x] Build Donors and Supporters pages with homepage links and downloadable PDFs
+- [ ] Verify donor approval privacy rules against the database
+- [ ] Verify admin approval and supporter saving (blocked: admin sign-in unavailable; temporary test-account request declined)
+- [ ] Publish Donors and Supporters pages and verify live PDF downloads

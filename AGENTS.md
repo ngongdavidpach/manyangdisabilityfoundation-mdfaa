@@ -5,3 +5,5 @@
 - Read the homepage opening photo from `page_settings.home.hero.image`, because the existing admin page editor owns that selection.
 - Keep footer resource link defaults and destination validation in a shared module, so the admin editor and public footer display the same links safely.- AI Gateway calls live in server-only `src/lib/ai/*.server.ts` helpers and are exposed only through staff/admin-gated server functions, so keys and prompts never reach the browser.
 - Public staff pages read only from `staff_members_public`, so inactive profiles and staff email addresses never enter public responses.
+- Public donor recognition reads through `list_public_donors()`, returning only display name, amount, currency and date; approval writes use the admin-gated submission function to keep private donor details protected.
+- Donor and supporter PDFs use the shared browser-side list PDF builder so downloaded lists match the public page without server-side file generation.
